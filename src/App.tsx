@@ -1,0 +1,40 @@
+import { Routes, Route, useLocation } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
+import { ThemeProvider } from './contexts/ThemeContext'
+import Navbar from './components/layout/Navbar'
+import ThemeSwitcher from './components/ui/ThemeSwitcher'
+import Home from './pages/Home'
+import Learning from './pages/Learning'
+import Life from './pages/Life'
+import Entertainment from './pages/Entertainment'
+import Social from './pages/Social'
+
+function AppContent() {
+  const location = useLocation()
+
+  return (
+    <div className="min-h-screen bg-bg text-text">
+      <Navbar />
+      <ThemeSwitcher />
+      <main className="pt-20 pb-20 md:pb-0">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<Home />} />
+            <Route path="/learning" element={<Learning />} />
+            <Route path="/life" element={<Life />} />
+            <Route path="/entertainment" element={<Entertainment />} />
+            <Route path="/social" element={<Social />} />
+          </Routes>
+        </AnimatePresence>
+      </main>
+    </div>
+  )
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  )
+}
