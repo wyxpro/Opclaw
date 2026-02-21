@@ -1,73 +1,193 @@
-# React + TypeScript + Vite
+# 🌿 小叶的个人空间
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> 一个精致的全栈开发者个人主页，融合技术博客、生活记录与社交互动
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📋 项目简介
 
-## React Compiler
+这是一个现代化的个人主页项目，采用 React + TypeScript + Tailwind CSS 构建。项目包含五大核心模块：首页展示、学习知识库、生活记录、娱乐空间和社交互动。支持 5 种主题风格一键切换，拥有流畅的页面动画和响应式设计。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**核心特性：**
+- 🎨 5 种主题风格（极简/赛博/艺术/童趣/复古）
+- 📱 响应式布局，支持移动端底部导航
+- ✨ 基于 Framer Motion 的流畅动画
+- 🌙 深色/浅色模式自动适配
+- ⚡ Vite 构建，开发体验流畅
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🛠️ 技术栈
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| 类别 | 技术 |
+|------|------|
+| **框架** | React 19 + React Router 7 |
+| **语言** | TypeScript 5.9 |
+| **样式** | Tailwind CSS 4.1 |
+| **构建** | Vite 7.3 |
+| **动画** | Framer Motion |
+| **图标** | Lucide React |
+| **工具** | ESLint 9 + class-variance-authority |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🏗️ 项目架构
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      App.tsx                            │
+│              (ThemeProvider + Router)                   │
+└────────────────────┬────────────────────────────────────┘
+                     │
+        ┌────────────┼────────────┐
+        ▼            ▼            ▼
+   ┌─────────┐  ┌─────────┐  ┌──────────┐
+   │ Navbar  │  │  Pages  │  │ ThemeSwitcher
+   │ (导航)   │  │ (页面)   │  │ (主题切换)
+   └─────────┘  └────┬────┘  └──────────┘
+                     │
+    ┌────────────────┼────────────────┐
+    ▼                ▼                ▼
+┌────────┐    ┌──────────┐    ┌────────────┐
+│  Home  │    │ Learning │    │    Life    │
+│ (首页)  │    │ (学习)   │    │   (生活)    │
+└────────┘    └──────────┘    └────────────┘
+                                    │
+              ┌─────────────────────┼─────────────────────┐
+              ▼                     ▼                     ▼
+        ┌──────────┐         ┌──────────┐         ┌──────────┐
+        │Entertainment│      │  Social  │         │  mock.ts │
+        │  (娱乐)    │         │  (社交)   │         │ (数据层)  │
+        └──────────┘         └──────────┘         └──────────┘
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📁 目录结构
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/
+│   ├── layout/
+│   │   └── Navbar.tsx          # 响应式导航栏
+│   └── ui/
+│       ├── PageTransition.tsx  # 页面切换动画
+│       └── ThemeSwitcher.tsx   # 主题切换浮窗
+├── contexts/
+│   └── ThemeContext.tsx        # 主题状态管理
+├── data/
+│   └── mock.ts                 # 模拟数据层
+├── hooks/
+│   └── useTheme.ts             # 主题 Hook
+├── lib/
+│   ├── themes.ts               # 5种主题配置
+│   └── utils.ts                # 工具函数
+├── pages/
+│   ├── Home.tsx                # 首页（个人简介+技能+作品）
+│   ├── Learning.tsx            # 学习（知识库+文章阅读）
+│   ├── Life.tsx                # 生活（恋爱记录+朋友圈+旅拍）
+│   ├── Entertainment.tsx       # 娱乐（音乐+电影+百宝箱）
+│   └── Social.tsx              # 社交（友链+留言+时间轴）
+├── App.tsx                     # 根组件
+├── main.tsx                    # 入口文件
+└── index.css                   # 全局样式
+```
+
+---
+
+## ⚡ 核心功能模块
+
+### 🏠 首页 (Home)
+- 个人简介与头像展示
+- 技能标签云（按分类展示）
+- 精选作品卡片墙
+- 数据统计展示
+
+### 📚 学习 (Learning)
+- 树形目录导航（分类→系列→文章）
+- 文章搜索与筛选
+- 文章详情阅读（三栏布局）
+- 目录索引与锚点跳转
+
+### 💕 生活 (Life)
+- 恋爱时间线（实时倒计时）
+- 朋友圈动态流
+- 旅拍足迹地图
+
+### 🎵 娱乐 (Entertainment)
+- 黑胶唱片音乐播放器
+- 电影收藏墙
+- 百宝箱书签管理
+
+### 👥 社交 (Social)
+- 友情链接展示
+- 留言墙（贴纸风格）
+- 个人成长时间轴
+- 自媒体矩阵卡片
+
+---
+
+## ⚙️ 部署指南
+
+### 本地开发
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 预览生产构建
+npm run preview
+```
+
+### 环境要求
+- Node.js ≥ 18
+- npm ≥ 9
+
+### 部署到 Vercel
+
+```bash
+# 安装 Vercel CLI
+npm i -g vercel
+
+# 部署
+vercel --prod
+```
+
+---
+
+## 🎨 主题系统
+
+项目内置 5 种精心设计的主题风格：
+
+| 主题 | 描述 | 快捷键 |
+|------|------|--------|
+| ◐ 极简 | 白色米色调，简洁线条 | Shift+Q 循环切换 |
+| ◉ 赛博 | 深蓝黑底，霓虹蓝紫 | Shift+Q 循环切换 |
+| ❋ 艺术 | 柔和渐变，优雅字体 | Shift+Q 循环切换 |
+| ✿ 童趣 | 明亮活泼，圆润边角 | Shift+Q 循环切换 |
+| ✤ 复古 | 暖黄棕色，老式排版 | Shift+Q 循环切换 |
+
+主题配置位于 `src/lib/themes.ts`，支持自定义扩展。
+
+---
+
+## 💡 常见问题
+
+**Q: 如何添加新的主题？**
+> 在 `src/lib/themes.ts` 中定义新的 `ThemeConfig`，并添加到 `themes` 对象中。
+
+**Q: 如何修改个人信息？**
+> 编辑 `src/data/mock.ts` 中的 `personalInfo` 对象。
+
+**Q: 如何添加新的文章？**
+> 在 `src/data/mock.ts` 的 `learningCategories` 中添加文章数据。
+
+
+---
+

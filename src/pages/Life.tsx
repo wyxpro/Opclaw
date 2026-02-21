@@ -1,8 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera } from 'lucide-react'
+import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Calendar, Lightbulb } from 'lucide-react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { OrbitControls, Stars } from '@react-three/drei'
+import * as THREE from 'three'
 import PageTransition from '../components/ui/PageTransition'
-import { loveTimeline, socialPosts, travelLocations } from '../data/mock'
+import { loveTimeline, socialPosts as initialSocialPosts, travelLocations } from '../data/mock'
+import type { SocialPost, PostComment, TravelLocation } from '../data/mock'
+
+
+
+// Couple info configuration
+const coupleInfo = {
+  person1: { name: '小叶', avatar: '/avatar.png' },
+  person2: { name: '小安', avatar: '/avatar.png' },
+  startDate: '2024-02-14T00:00:00',
+}
 
 const tabs = [
   { id: 'love', label: '恋爱记录', icon: Heart },
@@ -101,120 +114,1260 @@ export default function Life() {
 }
 
 /* ===== Love Timeline ===== */
-function LoveTimeline() {
+interface TimeLeft {
+  days: number
+  hours: number
+  minutes: number
+  seconds: number
+}
+
+function calculateTimeLeft(startDate: string): TimeLeft {
+  const difference = new Date().getTime() - new Date(startDate).getTime()
+  
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  }
+}
+
+// Floating hearts animation component - pre-defined values for deterministic rendering
+const heartConfigs = [
+  { x: '15%', size: 18, duration: 4.5 },
+  { x: '35%', size: 24, duration: 5.2 },
+  { x: '55%', size: 20, duration: 4.8 },
+  { x: '75%', size: 28, duration: 5.5 },
+  { x: '25%', size: 22, duration: 4.2 },
+  { x: '85%', size: 16, duration: 5.0 },
+]
+
+function FloatingHearts() {
   return (
-    <div className="relative max-w-2xl mx-auto">
-      {/* Timeline line */}
-      <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-rose/50 via-primary/30 to-transparent" />
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {heartConfigs.map((config, i) => (
+        <motion.div
+          key={i}
+          className="absolute"
+          initial={{ 
+            opacity: 0, 
+            y: 100,
+            x: config.x,
+            scale: 0.5
+          }}
+          animate={{ 
+            opacity: [0, 0.6, 0],
+            y: -100,
+            scale: [0.5, 1, 0.8]
+          }}
+          transition={{ 
+            duration: config.duration,
+            repeat: Infinity,
+            delay: i * 0.8,
+            ease: 'easeOut'
+          }}
+        >
+          <Heart 
+            size={config.size}
+            className="text-rose/40 fill-rose/20"
+          />
+        </motion.div>
+      ))}
+    </div>
+  )
+}
 
-      <div className="space-y-8">
-        {loveTimeline.map((event, index) => (
-          <motion.div
-            key={event.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.4 }}
-            className="relative pl-16"
-          >
-            {/* Timeline dot */}
-            <div className="absolute left-4 top-2 w-5 h-5 rounded-full bg-bg border-2 border-rose flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-rose" />
-            </div>
-
-            <div className="glass-card p-6 hover:border-rose/20">
-              <div className="flex items-center gap-2 mb-2 text-xs text-text-muted">
-                <span>{event.date}</span>
-              </div>
-              <h3 className="text-lg font-semibold text-text mb-2">{event.title}</h3>
-              <p className="text-sm text-text-secondary leading-relaxed">{event.description}</p>
-            </div>
-          </motion.div>
-        ))}
+// Avatar with glow effect
+function CoupleAvatar({ src, name, delay = 0 }: { src: string; name: string; delay?: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay, duration: 0.5, type: 'spring' }}
+      className="relative group"
+    >
+      {/* Glow effect */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-rose/30 via-primary/30 to-rose/30 blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+      
+      {/* Outer ring */}
+      <motion.div
+        className="absolute -inset-1 rounded-full bg-gradient-to-r from-rose via-primary to-rose opacity-70"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+        style={{ padding: '2px' }}
+      >
+        <div className="w-full h-full rounded-full bg-bg" />
+      </motion.div>
+      
+      {/* Avatar image */}
+      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-bg shadow-lg">
+        <img 
+          src={src} 
+          alt={name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
       </div>
+      
+      {/* Name label */}
+      <motion.p 
+        className="text-center mt-3 text-sm font-medium text-text-secondary"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: delay + 0.2 }}
+      >
+        {name}
+      </motion.p>
+    </motion.div>
+  )
+}
 
-      {/* Bottom decoration */}
-      <div className="text-center mt-12">
-        <p className="text-text-muted text-sm">故事还在继续...</p>
-        <Heart size={16} className="mx-auto mt-2 text-rose animate-pulse" />
+// Countdown number component
+function CountdownNumber({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative">
+        <motion.div
+          key={value}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-br from-rose via-primary to-rose bg-clip-text text-transparent tabular-nums"
+          style={{ fontFamily: '"Dancing Script", cursive, serif' }}
+        >
+          {String(value).padStart(2, '0')}
+        </motion.div>
+      </div>
+      <span className="text-xs sm:text-sm text-text-muted mt-1">{label}</span>
+    </div>
+  )
+}
+
+function LoveTimeline() {
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(coupleInfo.startDate))
+  const [hoveredEvent, setHoveredEvent] = useState<string | null>(null)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(coupleInfo.startDate))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <div className="relative">
+      {/* Header Section with Avatars */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-12 relative"
+      >
+        <FloatingHearts />
+        
+        {/* Title */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8"
+        >
+          <div className="inline-flex items-center gap-2 mb-2">
+            <Sparkles size={20} className="text-rose" />
+            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-rose via-primary to-rose bg-clip-text text-transparent">
+              恋爱记录
+            </h2>
+            <Sparkles size={20} className="text-rose" />
+          </div>
+          <p className="text-text-muted text-sm">那些一起走过的日子</p>
+        </motion.div>
+
+        {/* Couple Avatars */}
+        <div className="flex items-center justify-center gap-8 sm:gap-16 mb-10">
+          <CoupleAvatar src={coupleInfo.person1.avatar} name={coupleInfo.person1.name} delay={0.2} />
+          
+          {/* Heart connection */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, type: 'spring' }}
+            className="relative"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <Heart size={40} className="text-rose fill-rose/80 drop-shadow-lg" />
+            </motion.div>
+            {/* Connection lines */}
+            <div className="absolute top-1/2 -left-8 w-8 h-px bg-gradient-to-r from-transparent to-rose/50" />
+            <div className="absolute top-1/2 -right-8 w-8 h-px bg-gradient-to-l from-transparent to-rose/50" />
+          </motion.div>
+          
+          <CoupleAvatar src={coupleInfo.person2.avatar} name={coupleInfo.person2.name} delay={0.3} />
+        </div>
+
+        {/* Countdown Timer */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="mb-12"
+        >
+          <p className="text-text-muted text-sm mb-4">这是我们在一起的时间</p>
+          <div className="flex items-center justify-center gap-3 sm:gap-6 flex-wrap">
+            <CountdownNumber value={timeLeft.days} label="天" />
+            <span className="text-2xl sm:text-3xl text-rose/60 font-light">·</span>
+            <CountdownNumber value={timeLeft.hours} label="时" />
+            <span className="text-2xl sm:text-3xl text-rose/60 font-light">·</span>
+            <CountdownNumber value={timeLeft.minutes} label="分" />
+            <span className="text-2xl sm:text-3xl text-rose/60 font-light">·</span>
+            <CountdownNumber value={timeLeft.seconds} label="秒" />
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Timeline Section */}
+      <div className="relative max-w-4xl mx-auto px-4">
+        {/* Central line */}
+        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-rose/50 via-primary/30 to-transparent -translate-x-1/2 hidden sm:block" />
+        
+        {/* Mobile line */}
+        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-rose/50 via-primary/30 to-transparent sm:hidden" />
+
+        <div className="space-y-8 sm:space-y-12">
+          {loveTimeline.map((event, index) => {
+            const isLeft = index % 2 === 0
+            const isHovered = hoveredEvent === event.id
+            
+            return (
+              <motion.div
+                key={event.id}
+                initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.8 + index * 0.15, duration: 0.5 }}
+                className={`relative flex items-center ${isLeft ? 'sm:flex-row' : 'sm:flex-row-reverse'} flex-row`}
+                onMouseEnter={() => setHoveredEvent(event.id)}
+                onMouseLeave={() => setHoveredEvent(null)}
+              >
+                {/* Content card */}
+                <div className={`w-full sm:w-5/12 ${isLeft ? 'sm:text-right sm:pr-8' : 'sm:text-left sm:pl-8'} pl-12 sm:pl-0`}>
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    className={`glass-card p-5 sm:p-6 relative overflow-hidden transition-all duration-300 ${
+                      isHovered ? 'border-rose/30 shadow-lg shadow-rose/10' : ''
+                    }`}
+                  >
+                    {/* Background glow on hover */}
+                    <div 
+                      className={`absolute inset-0 bg-gradient-to-br from-rose/5 to-primary/5 transition-opacity duration-300 ${
+                        isHovered ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    />
+                    
+                    <div className="relative z-10">
+                      {/* Date */}
+                      <div className={`flex items-center gap-2 mb-2 ${isLeft ? 'sm:justify-end' : 'justify-start'}`}>
+                        <span className="text-xs font-medium text-rose">{event.date}</span>
+                        <span className="text-lg">{event.emoji}</span>
+                      </div>
+                      
+                      {/* Title */}
+                      <h3 className="text-base sm:text-lg font-semibold text-text mb-2">
+                        {event.title}
+                      </h3>
+                      
+                      {/* Description */}
+                      <p className="text-sm text-text-secondary leading-relaxed">
+                        {event.description}
+                      </p>
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Center dot */}
+                <div className="absolute left-4 sm:left-1/2 top-1/2 -translate-y-1/2 sm:-translate-x-1/2 z-10">
+                  <motion.div
+                    whileHover={{ scale: 1.3 }}
+                    className={`w-4 h-4 rounded-full border-2 border-bg transition-colors duration-300 ${
+                      isHovered ? 'bg-rose shadow-lg shadow-rose/50' : 'bg-rose/80'
+                    }`}
+                  >
+                    <div className={`w-full h-full rounded-full bg-rose animate-ping ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
+                  </motion.div>
+                </div>
+
+                {/* Empty space for alternating layout on desktop */}
+                <div className="hidden sm:block sm:w-5/12" />
+              </motion.div>
+            )
+          })}
+        </div>
+
+        {/* Bottom decoration */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          className="text-center mt-16 pt-8 border-t border-border/50"
+        >
+          <p className="text-text-muted text-sm mb-3">故事还在继续，未来可期</p>
+          <div className="flex items-center justify-center gap-2">
+            <Heart size={14} className="text-rose fill-rose animate-pulse" />
+            <Heart size={18} className="text-rose fill-rose animate-pulse delay-75" />
+            <Heart size={14} className="text-rose fill-rose animate-pulse delay-150" />
+          </div>
+        </motion.div>
       </div>
     </div>
   )
 }
 
 /* ===== Moments (朋友圈) ===== */
-function Moments() {
-  const [newPost, setNewPost] = useState('')
+// 图片网格组件 - 支持单图、多图、九宫格布局
+function ImageGrid({ images, onImageClick }: { images: string[]; onImageClick?: (index: number) => void }) {
+  if (images.length === 0) return null
+
+  // 单图布局
+  if (images.length === 1) {
+    return (
+      <div className="mt-3">
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          className="relative overflow-hidden rounded-lg cursor-pointer max-w-[280px]"
+          onClick={() => onImageClick?.(0)}
+        >
+          <img
+            src={images[0]}
+            alt="朋友圈图片"
+            className="w-full h-auto object-cover max-h-[320px]"
+            loading="lazy"
+          />
+        </motion.div>
+      </div>
+    )
+  }
+
+  // 四图特殊布局 (2x2)
+  if (images.length === 4) {
+    return (
+      <div className="mt-3 grid grid-cols-2 gap-1 max-w-[280px]">
+        {images.map((img, index) => (
+          <motion.div
+            key={index}
+            whileHover={{ scale: 1.02 }}
+            className="relative aspect-square overflow-hidden rounded-lg cursor-pointer"
+            onClick={() => onImageClick?.(index)}
+          >
+            <img
+              src={img}
+              alt={`朋友圈图片 ${index + 1}`}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </motion.div>
+        ))}
+      </div>
+    )
+  }
+
+  // 九宫格或其他多图布局
+  const gridCols = images.length >= 5 ? 'grid-cols-3' : 'grid-cols-2'
+  return (
+    <div className={`mt-3 grid ${gridCols} gap-1 max-w-[280px]`}>
+      {images.map((img, index) => (
+        <motion.div
+          key={index}
+          whileHover={{ scale: 1.02 }}
+          className="relative aspect-square overflow-hidden rounded-lg cursor-pointer"
+          onClick={() => onImageClick?.(index)}
+        >
+          <img
+            src={img}
+            alt={`朋友圈图片 ${index + 1}`}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
+// 视频组件
+function VideoCard({ video, thumbnail }: { video?: { url: string; thumbnail: string; duration: string }; thumbnail?: string }) {
+  if (!video && !thumbnail) return null
+  
+  const thumbUrl = video?.thumbnail || thumbnail
+  const duration = video?.duration || '0:00'
+  
+  return (
+    <div className="mt-3 relative max-w-[280px]">
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        className="relative overflow-hidden rounded-lg cursor-pointer aspect-video bg-surface"
+      >
+        <img
+          src={thumbUrl}
+          alt="视频封面"
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+        {/* 播放按钮遮罩 */}
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+            <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-text border-b-[8px] border-b-transparent ml-1" />
+          </div>
+        </div>
+        {/* 时长标签 */}
+        <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 rounded text-xs text-white">
+          {duration}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+// 评论列表组件
+function CommentList({ comments, isExpanded }: { comments: PostComment[]; isExpanded: boolean }) {
+  if (comments.length === 0 || !isExpanded) return null
 
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Post input */}
-      <div className="glass-card p-4 mb-6">
-        <div className="flex gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold flex-shrink-0">
-            叶
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      className="mt-3 bg-surface/50 rounded-lg p-3"
+    >
+      <div className="space-y-2">
+        {comments.map((comment) => (
+          <div key={comment.id} className="text-sm">
+            <span className="font-medium text-primary">{comment.author}</span>
+            <span className="text-text-secondary">：{comment.content}</span>
           </div>
-          <div className="flex-1">
-            <textarea
-              value={newPost}
-              onChange={(e) => setNewPost(e.target.value)}
-              placeholder="分享你的想法..."
-              rows={3}
-              className="w-full bg-transparent border-none resize-none text-sm text-text placeholder:text-text-muted focus:outline-none"
-            />
-            <div className="flex items-center justify-end pt-2 border-t border-border">
-              <button className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-primary/20 text-primary text-sm font-medium hover:bg-primary/30 transition-colors">
-                <Send size={14} />
-                发布
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
+// 发布框组件
+function PostInput({ 
+  onSubmit, 
+  onCancel,
+  editingPost,
+}: { 
+  onSubmit: (content: string, images: string[], video?: { url: string; thumbnail: string; duration: string }) => void
+  onCancel: () => void
+  editingPost?: SocialPost | null
+}) {
+  // 使用 key 来强制重新渲染，避免在 useEffect 中调用 setState
+  return (
+    <PostInputContent
+      key={editingPost?.id || 'new'}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      editingPost={editingPost}
+    />
+  )
+}
+
+// 语音输入 Hook
+function useSpeechRecognition(onResult: (text: string) => void) {
+  const [isListening, setIsListening] = useState(false)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const isSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+
+  const startListening = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    
+    if (!SpeechRecognitionAPI) {
+      alert('您的浏览器不支持语音识别功能')
+      return
+    }
+
+    const recognition = new SpeechRecognitionAPI()
+    recognition.continuous = false
+    recognition.interimResults = true
+    recognition.lang = 'zh-CN'
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
+      let finalTranscript = ''
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript
+        }
+      }
+
+      if (finalTranscript) {
+        onResult(finalTranscript)
+      }
+    }
+
+    recognition.onerror = () => {
+      setIsListening(false)
+    }
+
+    recognition.onend = () => {
+      setIsListening(false)
+    }
+
+    recognition.start()
+    setIsListening(true)
+  }
+
+  const stopListening = () => {
+    setIsListening(false)
+  }
+
+  return { isListening, startListening, stopListening, isSupported }
+}
+
+// 发布框内容组件
+function PostInputContent({ 
+  onSubmit, 
+  onCancel,
+  editingPost,
+}: { 
+  onSubmit: (content: string, images: string[], video?: { url: string; thumbnail: string; duration: string }) => void
+  onCancel: () => void
+  editingPost?: SocialPost | null
+}) {
+  const [content, setContent] = useState(editingPost?.content || '')
+  const [previewImages, setPreviewImages] = useState<string[]>(editingPost?.images || [])
+  const [previewVideo, setPreviewVideo] = useState<{ url: string; thumbnail: string; duration: string } | null>(editingPost?.video || null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
+  
+  // 语音转文字 - 使用回调方式避免 useEffect 中的 setState
+  const { isListening, startListening, stopListening, isSupported } = useSpeechRecognition((text) => {
+    setContent(prev => prev + text)
+  })
+
+  const handleSubmit = async () => {
+    if (!content.trim() && previewImages.length === 0 && !previewVideo) return
+    
+    setIsSubmitting(true)
+    // 模拟提交延迟
+    await new Promise(resolve => setTimeout(resolve, 500))
+    onSubmit(content, previewImages, previewVideo || undefined)
+    setContent('')
+    setPreviewImages([])
+    setPreviewVideo(null)
+    setIsSubmitting(false)
+  }
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    // 如果有视频，先清除视频
+    if (previewVideo) {
+      setPreviewVideo(null)
+    }
+
+    // 模拟图片上传 - 使用随机 Unsplash 图片
+    const newImages: string[] = []
+    const unsplashIds = [
+      'photo-1495474472287-4d71bcdd2085',
+      'photo-1506905925346-21bda4d32df4',
+      'photo-1448375240586-882707db888b',
+      'photo-1477959858617-67f85cf4f1df',
+      'photo-1504674900247-0877df9cc836',
+    ]
+    
+    for (let i = 0; i < Math.min(files.length, 9 - previewImages.length); i++) {
+      const randomId = unsplashIds[Math.floor(Math.random() * unsplashIds.length)]
+      newImages.push(`https://images.unsplash.com/${randomId}?w=800&q=80`)
+    }
+    
+    setPreviewImages(prev => [...prev, ...newImages].slice(0, 9))
+  }
+
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // 清除图片
+    setPreviewImages([])
+
+    // 模拟视频上传 - 使用示例视频数据
+    const videoUrl = URL.createObjectURL(file)
+    setPreviewVideo({
+      url: videoUrl,
+      thumbnail: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80',
+      duration: '0:00',
+    })
+
+    // 模拟获取视频时长
+    const video = document.createElement('video')
+    video.preload = 'metadata'
+    video.onloadedmetadata = () => {
+      const minutes = Math.floor(video.duration / 60)
+      const seconds = Math.floor(video.duration % 60)
+      setPreviewVideo(prev => prev ? {
+        ...prev,
+        duration: `${minutes}:${seconds.toString().padStart(2, '0')}`,
+      } : null)
+      URL.revokeObjectURL(videoUrl)
+    }
+    video.src = videoUrl
+  }
+
+  const removeImage = (index: number) => {
+    setPreviewImages(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const removeVideo = () => {
+    setPreviewVideo(null)
+  }
+
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      stopListening()
+    } else {
+      startListening()
+    }
+  }
+
+  const isEditing = !!editingPost
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="glass-card p-4 mb-6"
+    >
+      <div className="flex gap-3">
+        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold flex-shrink-0 overflow-hidden">
+          <img src="/avatar.png" alt="头像" className="w-full h-full object-cover" />
+        </div>
+        <div className="flex-1">
+          {/* 文字输入区 */}
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder={isEditing ? '编辑你的动态...' : isListening ? '正在聆听...' : '分享你的想法...'}
+            rows={3}
+            className="w-full bg-transparent border-none resize-none text-sm text-text placeholder:text-text-muted focus:outline-none"
+          />
+          
+          {/* 语音输入指示器 */}
+          {isListening && (
+            <div className="flex items-center gap-2 mt-2 text-rose text-xs">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose"></span>
+              </span>
+              正在录音，点击麦克风按钮停止
+            </div>
+          )}
+          
+          {/* 图片预览区 */}
+          {previewImages.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {previewImages.map((img, index) => (
+                <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden">
+                  <img src={img} alt={`预览 ${index + 1}`} className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => removeImage(index)}
+                    className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white text-xs hover:bg-black/80"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {previewImages.length < 9 && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex items-center justify-center text-text-muted hover:border-primary hover:text-primary transition-colors"
+                >
+                  <ImageIcon size={20} />
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* 视频预览区 */}
+          {previewVideo && (
+            <div className="relative mt-3 max-w-[200px]">
+              <div className="relative aspect-video rounded-lg overflow-hidden bg-surface">
+                <img src={previewVideo.thumbnail} alt="视频封面" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
+                    <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-text border-b-[6px] border-b-transparent ml-0.5" />
+                  </div>
+                </div>
+                <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 bg-black/60 rounded text-[10px] text-white">
+                  {previewVideo.duration}
+                </div>
+              </div>
+              <button
+                onClick={removeVideo}
+                className="absolute -top-2 -right-2 w-5 h-5 bg-rose text-white rounded-full flex items-center justify-center text-xs hover:bg-rose/80"
+              >
+                ×
+              </button>
+            </div>
+          )}
+          
+          {/* 操作栏 */}
+          <div className="flex items-center justify-between pt-3 mt-3 border-t border-border">
+            <div className="flex items-center gap-1">
+              {/* 图片按钮 */}
+              {!previewVideo && previewImages.length < 9 && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-text-muted hover:text-primary hover:bg-primary/10 transition-colors"
+                >
+                  <ImageIcon size={14} />
+                  <span className="hidden sm:inline">图片</span>
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleImageSelect}
+              />
+              
+              {/* 视频按钮 */}
+              {!previewVideo && previewImages.length === 0 && (
+                <button
+                  onClick={() => videoInputRef.current?.click()}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-text-muted hover:text-primary hover:bg-primary/10 transition-colors"
+                >
+                  <Film size={14} />
+                  <span className="hidden sm:inline">视频</span>
+                </button>
+              )}
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={handleVideoSelect}
+              />
+              
+              {/* 语音输入按钮 */}
+              {isSupported && previewImages.length === 0 && !previewVideo && (
+                <button
+                  onClick={toggleVoiceInput}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                    isListening 
+                      ? 'text-rose bg-rose/10' 
+                      : 'text-text-muted hover:text-primary hover:bg-primary/10'
+                  }`}
+                >
+                  {isListening ? <Square size={12} /> : <Mic size={14} />}
+                  <span className="hidden sm:inline">{isListening ? '停止' : '语音'}</span>
+                </button>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {isEditing && (
+                <button
+                  onClick={onCancel}
+                  className="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm text-text-muted hover:text-text transition-colors"
+                >
+                  取消
+                </button>
+              )}
+              <button
+                onClick={handleSubmit}
+                disabled={(!content.trim() && previewImages.length === 0 && !previewVideo) || isSubmitting}
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg bg-primary text-white text-xs sm:text-sm font-medium hover:bg-primary-dim disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isSubmitting ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Send size={14} />
+                )}
+                {isEditing ? '保存' : '发布'}
               </button>
             </div>
           </div>
         </div>
       </div>
+    </motion.div>
+  )
+}
 
-      {/* Posts feed */}
-      <div className="space-y-4">
-        {socialPosts.map((post, index) => (
-          <motion.div
-            key={post.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.08 }}
-            className="glass-card p-5"
-          >
-            <div className="flex gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold flex-shrink-0">
-                叶
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-text">小叶</p>
-                <p className="text-xs text-text-muted">{post.date}</p>
+// 动态卡片组件
+function PostCard({ 
+  post, 
+  index, 
+  onLike, 
+  onEdit, 
+  onDelete,
+  isExpanded,
+  onToggleExpand,
+}: { 
+  post: SocialPost
+  index: number
+  onLike: (id: string) => void
+  onEdit: (post: SocialPost) => void
+  onDelete: (id: string) => void
+  isExpanded: boolean
+  onToggleExpand: (id: string) => void
+}) {
+  const [showMenu, setShowMenu] = useState(false)
+  const [imagePreview, setImagePreview] = useState<number | null>(null)
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.08 }}
+        className="glass-card p-4 sm:p-5"
+      >
+        {/* 头部：头像、名字、时间、菜单 */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold flex-shrink-0 overflow-hidden">
+              <img src={post.avatar} alt={post.author} className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-text">{post.author}</p>
+              <div className="flex items-center gap-2 text-xs text-text-muted">
+                <span>{post.date}</span>
+                {post.location && (
+                  <>
+                    <span>·</span>
+                    <span className="flex items-center gap-0.5">
+                      <MapPin size={10} />
+                      {post.location}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
+          </div>
+          
+          {/* 更多操作菜单 */}
+          <div className="relative">
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="p-1.5 rounded-lg text-text-muted hover:text-text hover:bg-surface transition-colors"
+            >
+              <MoreHorizontal size={16} />
+            </button>
+            
+            <AnimatePresence>
+              {showMenu && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="absolute right-0 top-full mt-1 py-1 bg-card border border-border rounded-lg shadow-lg z-10 min-w-[100px]"
+                >
+                  <button
+                    onClick={() => {
+                      onEdit(post)
+                      setShowMenu(false)
+                    }}
+                    className="w-full px-3 py-1.5 text-left text-sm text-text hover:bg-surface transition-colors"
+                  >
+                    编辑
+                  </button>
+                  <button
+                    onClick={() => {
+                      onDelete(post.id)
+                      setShowMenu(false)
+                    }}
+                    className="w-full px-3 py-1.5 text-left text-sm text-rose hover:bg-rose/10 transition-colors"
+                  >
+                    删除
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
 
-            <p className="text-sm text-text-secondary leading-relaxed mb-3">{post.content}</p>
+        {/* 内容 */}
+        <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">{post.content}</p>
 
-            {post.images.length > 0 && (
-              <div className={`grid gap-2 mb-3 ${post.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                {post.images.map((gradient, i) => (
-                  <div key={i} className={`${gradient} h-32 rounded-lg`} />
+        {/* 图片或视频 */}
+        {post.video ? (
+          <VideoCard video={post.video} />
+        ) : (
+          <ImageGrid 
+            images={post.images} 
+            onImageClick={(idx) => setImagePreview(idx)}
+          />
+        )}
+
+        {/* 点赞和评论区域 */}
+        <div className="mt-4 pt-3 border-t border-border">
+          {/* 点赞/评论按钮 */}
+          <div className="flex items-center gap-6">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => onLike(post.id)}
+              className={`flex items-center gap-1.5 text-xs transition-colors ${
+                post.isLiked ? 'text-rose' : 'text-text-muted hover:text-rose'
+              }`}
+            >
+              <ThumbsUp size={14} className={post.isLiked ? 'fill-rose' : ''} />
+              <span>{post.likes || '点赞'}</span>
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => onToggleExpand(post.id)}
+              className={`flex items-center gap-1.5 text-xs transition-colors ${
+                isExpanded ? 'text-primary' : 'text-text-muted hover:text-primary'
+              }`}
+            >
+              <MessageCircle size={14} />
+              <span>{post.comments.length > 0 ? post.comments.length : '评论'}</span>
+            </motion.button>
+          </div>
+
+          {/* 评论区 */}
+          <AnimatePresence>
+            {isExpanded && (
+              <CommentList comments={post.comments} isExpanded={isExpanded} />
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+
+      {/* 图片预览弹窗 */}
+      <AnimatePresence>
+        {imagePreview !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            onClick={() => setImagePreview(null)}
+          >
+            <button
+              className="absolute top-4 right-4 p-2 text-white/80 hover:text-white"
+              onClick={() => setImagePreview(null)}
+            >
+              <X size={24} />
+            </button>
+            <img
+              src={post.images[imagePreview]}
+              alt="大图预览"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+            {post.images.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                {post.images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setImagePreview(idx)
+                    }}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      idx === imagePreview ? 'bg-white' : 'bg-white/40'
+                    }`}
+                  />
                 ))}
               </div>
             )}
-
-            <div className="flex items-center gap-6 pt-3 border-t border-border">
-              <button className="flex items-center gap-1.5 text-xs text-text-muted hover:text-rose transition-colors">
-                <ThumbsUp size={14} />
-                {post.likes}
-              </button>
-              <button className="flex items-center gap-1.5 text-xs text-text-muted hover:text-primary transition-colors">
-                <MessageCircle size={14} />
-                {post.comments}
-              </button>
-            </div>
           </motion.div>
-        ))}
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
+// 主朋友圈组件
+function Moments() {
+  const [posts, setPosts] = useState<SocialPost[]>(initialSocialPosts)
+  const [editingPost, setEditingPost] = useState<SocialPost | null>(null)
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null)
+
+  // 处理发布/编辑提交
+  const handleSubmit = (content: string, images: string[], video?: { url: string; thumbnail: string; duration: string }) => {
+    if (editingPost) {
+      // 编辑模式
+      setPosts(prev => prev.map(post => 
+        post.id === editingPost.id 
+          ? { ...post, content, images, video }
+          : post
+      ))
+      setEditingPost(null)
+    } else {
+      // 新建模式
+      const newPost: SocialPost = {
+        id: `post-${Date.now()}`,
+        author: '小叶',
+        avatar: '/avatar.png',
+        date: new Date().toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        }).replace(/\//g, '-'),
+        content,
+        images: video ? [] : images,
+        video,
+        likes: 0,
+        isLiked: false,
+        comments: [],
+      }
+      setPosts(prev => [newPost, ...prev])
+    }
+  }
+
+  // 处理点赞
+  const handleLike = (postId: string) => {
+    setPosts(prev => prev.map(post => 
+      post.id === postId 
+        ? { 
+            ...post, 
+            isLiked: !post.isLiked,
+            likes: post.isLiked ? post.likes - 1 : post.likes + 1 
+          }
+        : post
+    ))
+  }
+
+  // 处理编辑
+  const handleEdit = (post: SocialPost) => {
+    setEditingPost(post)
+    // 滚动到顶部
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // 处理删除
+  const handleDelete = (postId: string) => {
+    if (confirm('确定要删除这条动态吗？')) {
+      setPosts(prev => prev.filter(post => post.id !== postId))
+    }
+  }
+
+  // 切换评论展开
+  const toggleExpand = (postId: string) => {
+    setExpandedPostId(prev => prev === postId ? null : postId)
+  }
+
+  // 取消编辑
+  const handleCancelEdit = () => {
+    setEditingPost(null)
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      {/* 发布框 */}
+      <PostInput 
+        onSubmit={handleSubmit} 
+        onCancel={handleCancelEdit}
+        editingPost={editingPost}
+      />
+
+      {/* 动态列表 */}
+      <div className="space-y-4">
+        <AnimatePresence mode="popLayout">
+          {posts.map((post, index) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              index={index}
+              onLike={handleLike}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              isExpanded={expandedPostId === post.id}
+              onToggleExpand={toggleExpand}
+            />
+          ))}
+        </AnimatePresence>
       </div>
+
+      {/* 底部提示 */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="text-center py-8 text-text-muted text-sm"
+      >
+        <p>—— 已经到底了 ——</p>
+      </motion.div>
     </div>
+  )
+}
+
+/* ===== 3D Map Components ===== */
+// 3D地球组件
+function Earth({ onLocationClick, locations, hoveredLocation }: {
+  onLocationClick: (location: TravelLocation) => void
+  locations: TravelLocation[]
+  hoveredLocation: string | null
+}) {
+  const groupRef = useRef<THREE.Group>(null)
+  const [hovered, setHovered] = useState<string | null>(null)
+
+  // 自动旋转
+  useFrame(() => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += 0.001
+    }
+  })
+
+  // 创建地球纹理
+  const earthTexture = useMemo(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 1024
+    canvas.height = 512
+    const ctx = canvas.getContext('2d')!
+    
+    // 深蓝色渐变背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, 512)
+    gradient.addColorStop(0, '#1e3a5f')
+    gradient.addColorStop(0.5, '#0f172a')
+    gradient.addColorStop(1, '#1e3a5f')
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, 1024, 512)
+    
+    // 添加网格线
+    ctx.strokeStyle = 'rgba(100, 149, 237, 0.3)'
+    ctx.lineWidth = 1
+    for (let i = 0; i <= 10; i++) {
+      ctx.beginPath()
+      ctx.moveTo(0, i * 51.2)
+      ctx.lineTo(1024, i * 51.2)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(i * 102.4, 0)
+      ctx.lineTo(i * 102.4, 512)
+      ctx.stroke()
+    }
+    
+    // 添加一些随机的"大陆"斑点
+    ctx.fillStyle = 'rgba(34, 197, 94, 0.15)'
+    for (let i = 0; i < 30; i++) {
+      const x = (i * 37) % 1024
+      const y = (i * 23) % 512
+      ctx.beginPath()
+      ctx.arc(x, y, 20 + (i % 30), 0, Math.PI * 2)
+      ctx.fill()
+    }
+    
+    const texture = new THREE.CanvasTexture(canvas)
+    return texture
+  }, [])
+
+  // 将中国地图区域转换为3D坐标
+  const getPositionFromCoords = (x: number, y: number, radius: number) => {
+    // x: 0-100 (经度映射), y: 0-100 (纬度映射)
+    // 中国大致范围: 经度 73°E-135°E, 纬度 18°N-54°N
+    const lon = 73 + (x / 100) * (135 - 73)
+    const lat = 54 - (y / 100) * (54 - 18)
+    
+    const phi = (90 - lat) * (Math.PI / 180)
+    const theta = (lon - 90) * (Math.PI / 180)
+    
+    return new THREE.Vector3(
+      radius * Math.sin(phi) * Math.cos(theta),
+      radius * Math.cos(phi),
+      radius * Math.sin(phi) * Math.sin(theta)
+    )
+  }
+
+  return (
+    <group ref={groupRef}>
+      {/* 地球主体 */}
+      <mesh>
+        <sphereGeometry args={[2, 64, 64]} />
+        <meshStandardMaterial
+          map={earthTexture}
+          roughness={0.7}
+          metalness={0.1}
+        />
+      </mesh>
+      
+      {/* 地球大气层光晕 */}
+      <mesh>
+        <sphereGeometry args={[2.15, 64, 64]} />
+        <meshBasicMaterial
+          color="#3b82f6"
+          transparent
+          opacity={0.15}
+          side={THREE.BackSide}
+        />
+      </mesh>
+
+      {/* 地点标记 */}
+      {locations.map((location) => {
+        const pos = getPositionFromCoords(location.x, location.y, 2.08)
+        const isHovered = hovered === location.id || hoveredLocation === location.id
+        
+        return (
+          <group key={location.id} position={pos}>
+            {/* 标记点 */}
+            <mesh
+              onClick={(e) => {
+                e.stopPropagation()
+                onLocationClick(location)
+              }}
+              onPointerOver={() => setHovered(location.id)}
+              onPointerOut={() => setHovered(null)}
+            >
+              <sphereGeometry args={[isHovered ? 0.1 : 0.07, 16, 16]} />
+              <meshStandardMaterial
+                color={location.color}
+                emissive={location.color}
+                emissiveIntensity={isHovered ? 1 : 0.5}
+              />
+            </mesh>
+            
+            {/* 外圈光晕 */}
+            <mesh rotation={[0, 0, 0]}>
+              <ringGeometry args={[0.12, 0.15, 32]} />
+              <meshBasicMaterial
+                color={location.color}
+                transparent
+                opacity={isHovered ? 0.8 : 0.4}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
+            
+            {/* 脉冲动画环 */}
+            <PulseRing color={location.color} isHovered={isHovered} />
+          </group>
+        )
+      })}
+    </group>
+  )
+}
+
+// 脉冲环动画组件
+function PulseRing({ color, isHovered }: { color: string; isHovered: boolean }) {
+  const ringRef = useRef<THREE.Mesh>(null)
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
+  
+  useFrame((state) => {
+    if (ringRef.current) {
+      const scale = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.3
+      ringRef.current.scale.set(scale, scale, scale)
+    }
+  })
+  
+  return (
+    <mesh ref={ringRef} rotation={[0, 0, 0]}>
+      <ringGeometry args={[0.18, 0.2, 32]} />
+      <meshBasicMaterial
+        ref={materialRef}
+        color={color}
+        transparent
+        opacity={isHovered ? 0.5 : 0.25}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
   )
 }
 
@@ -223,126 +1376,241 @@ function TravelAlbum({ selectedLocation, onSelect }: {
   selectedLocation: string | null
   onSelect: (id: string | null) => void
 }) {
-  const selected = travelLocations.find((l) => l.id === selectedLocation)
+  const [modalLocation, setModalLocation] = useState<TravelLocation | null>(null)
+  const [hoveredLocation, setHoveredLocation] = useState<string | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  const handleCardClick = (location: TravelLocation) => {
+    setModalLocation(location)
+    onSelect(location.id)
+  }
+
+  const handleMapLocationClick = (location: TravelLocation) => {
+    setModalLocation(location)
+    onSelect(location.id)
+  }
+
+  const closeModal = () => {
+    setModalLocation(null)
+    onSelect(null)
+  }
 
   return (
-    <div>
-      {/* World Map (Simplified) */}
-      <div className="glass-card p-6 mb-8 relative overflow-hidden" style={{ minHeight: 360 }}>
-        {/* Map background */}
-        <div className="absolute inset-0 bg-surface opacity-50" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(139,92,246,0.03) 0%, transparent 70%)',
-        }} />
-
-        {/* Map title */}
-        <div className="relative z-10 mb-4">
-          <h3 className="text-lg font-semibold text-text flex items-center gap-2">
-            <MapPin size={18} className="text-primary" />
-            足迹地图
-          </h3>
-          <p className="text-xs text-text-muted mt-1">点击标记查看旅行记录</p>
-        </div>
-
-        {/* Location markers */}
-        <div className="relative z-10" style={{ height: 280 }}>
-          {travelLocations.map((location) => (
-            <motion.button
-              key={location.id}
-              onClick={() => onSelect(selectedLocation === location.id ? null : location.id)}
-              className="absolute group"
-              style={{ left: `${location.x}%`, top: `${location.y}%` }}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <div className="relative">
-                <div
-                  className="w-4 h-4 rounded-full border-2 border-bg"
-                  style={{ background: location.color }}
-                />
-                <div
-                  className="absolute inset-0 rounded-full animate-ping opacity-30"
-                  style={{ background: location.color }}
-                />
-                {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-text whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  <span className="font-medium">{location.name}</span>
-                  <span className="text-text-muted ml-1">· {location.country}</span>
-                </div>
-              </div>
-            </motion.button>
-          ))}
-        </div>
-      </div>
-
-      {/* Selected location detail */}
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mb-8 overflow-hidden"
-          >
-            <div className="glass-card p-6">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="text-xl font-bold text-text">{selected.name}</h3>
-                  <p className="text-sm text-text-muted">{selected.country}</p>
-                </div>
-                <button
-                  onClick={() => onSelect(null)}
-                  className="text-text-muted hover:text-text text-sm"
-                >
-                  关闭
-                </button>
-              </div>
-              <p className="text-sm text-text-secondary mb-4">{selected.description}</p>
-              <div className="grid grid-cols-3 gap-2">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="h-24 rounded-lg"
-                    style={{
-                      background: `linear-gradient(135deg, ${selected.color}33, ${selected.color}11)`,
-                      border: `1px solid ${selected.color}22`,
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
+    <div className="space-y-6">
       {/* Location cards grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {travelLocations.map((location, index) => (
           <motion.div
             key={location.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
-            onClick={() => onSelect(location.id)}
-            className="glass-card p-5 cursor-pointer"
+            onClick={() => handleCardClick(location)}
+            onMouseEnter={() => setHoveredLocation(location.id)}
+            onMouseLeave={() => setHoveredLocation(null)}
+            className={`glass-card p-4 sm:p-5 cursor-pointer transition-all hover:shadow-lg hover:shadow-primary/5 ${
+              selectedLocation === location.id ? 'ring-2 ring-primary/50' : ''
+            }`}
           >
-            <div
-              className="h-32 rounded-lg mb-4"
-              style={{
-                background: `linear-gradient(135deg, ${location.color}44, ${location.color}11)`,
-              }}
-            />
+            {/* 真实图片预览 */}
+            <div className="h-28 sm:h-32 rounded-lg mb-3 sm:mb-4 overflow-hidden">
+              <img
+                src={location.images[0]}
+                alt={location.name}
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                loading="lazy"
+              />
+            </div>
             <div className="flex items-center gap-2 mb-1">
               <div
                 className="w-2.5 h-2.5 rounded-full"
                 style={{ background: location.color }}
               />
-              <h3 className="font-semibold text-text">{location.name}</h3>
+              <h3 className="font-semibold text-text text-sm sm:text-base">{location.name}</h3>
             </div>
-            <p className="text-xs text-text-muted">{location.description}</p>
+            <p className="text-xs text-text-muted line-clamp-2">{location.description}</p>
           </motion.div>
         ))}
       </div>
+
+      {/* 3D Earth Map */}
+      <div className="glass-card p-4 sm:p-6 relative overflow-hidden">
+        {/* Map title */}
+        <div className="relative z-10 mb-4">
+          <h3 className="text-base sm:text-lg font-semibold text-text flex items-center gap-2">
+            <MapPin size={16} className="text-primary" />
+            3D 足迹地球
+          </h3>
+          <p className="text-xs text-text-muted mt-1">点击地球上的光点查看旅行记录，拖动可旋转视角</p>
+        </div>
+
+        {/* 3D Canvas */}
+        <div className="relative w-full" style={{ height: isMobile ? 300 : 400 }}>
+          <Canvas
+            camera={{ position: [0, 0, 6], fov: 45 }}
+            gl={{ antialias: true, alpha: true }}
+            style={{ background: 'transparent' }}
+          >
+            <ambientLight intensity={0.8} />
+            <directionalLight position={[5, 3, 5]} intensity={1.2} />
+            <pointLight position={[-5, -3, -5]} intensity={0.6} color="#4f46e5" />
+            
+            {/* 使用drei的Stars组件 */}
+            <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={1} />
+            
+            <Earth 
+              onLocationClick={handleMapLocationClick}
+              locations={travelLocations}
+              hoveredLocation={hoveredLocation}
+            />
+            
+            {/* OrbitControls用于拖动旋转 */}
+            <OrbitControls 
+              enableZoom={false}
+              enablePan={false}
+              rotateSpeed={0.5}
+              minPolarAngle={Math.PI / 4}
+              maxPolarAngle={Math.PI * 3 / 4}
+            />
+          </Canvas>
+          
+          {/* 移动端提示 */}
+          {isMobile && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-text-muted bg-card/80 px-2 py-1 rounded-full">
+              点击光点查看详情
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Location Detail Modal */}
+      <AnimatePresence>
+        {modalLocation && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={closeModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header with Image */}
+              <div className="relative h-48 sm:h-64 overflow-hidden">
+                <img
+                  src={modalLocation.images[0]}
+                  alt={modalLocation.name}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                
+                {/* Close Button */}
+                <button
+                  onClick={closeModal}
+                  className="absolute top-4 right-4 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+
+                {/* Title Overlay */}
+                <div className="absolute bottom-4 left-6 right-6">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ background: modalLocation.color }}
+                    />
+                    <span className="text-white/80 text-sm">{modalLocation.country}</span>
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-white">{modalLocation.name}</h2>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-5 sm:p-6 space-y-5">
+                {/* Description */}
+                <p className="text-text-secondary leading-relaxed">{modalLocation.description}</p>
+
+                {/* Best Time */}
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-surface/50">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Calendar size={18} className="text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-text mb-1">最佳旅行时间</h4>
+                    <p className="text-sm text-text-muted">{modalLocation.details.bestTime}</p>
+                  </div>
+                </div>
+
+                {/* Highlights */}
+                <div>
+                  <h4 className="text-sm font-semibold text-text mb-3 flex items-center gap-2">
+                    <Sparkles size={16} className="text-accent" />
+                    必游景点
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {modalLocation.details.highlights.map((highlight, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20"
+                      >
+                        {highlight}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tips */}
+                <div className="flex items-start gap-3 p-3 rounded-xl bg-accent/5 border border-accent/10">
+                  <div className="p-2 rounded-lg bg-accent/10">
+                    <Lightbulb size={18} className="text-accent" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-text mb-1">旅行贴士</h4>
+                    <p className="text-sm text-text-muted">{modalLocation.details.tips}</p>
+                  </div>
+                </div>
+
+                {/* Image Gallery */}
+                <div>
+                  <h4 className="text-sm font-semibold text-text mb-3">精彩瞬间</h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    {modalLocation.images.map((image, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="aspect-square rounded-lg overflow-hidden"
+                      >
+                        <img
+                          src={image}
+                          alt={`${modalLocation.name} ${index + 1}`}
+                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

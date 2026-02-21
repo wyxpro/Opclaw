@@ -124,7 +124,19 @@ export const learningCategories: Category[] = [
             date: '2025-12-15',
             tags: ['React', 'Concurrent'],
             readTime: '12 分钟',
-            content: `React 18 引入了期待已久的并发模式，这是一个根本性的架构升级。\n\n## 什么是并发模式？\n\n并发模式允许 React 同时准备多个版本的 UI，使得应用能够在保持响应性的同时处理复杂的状态更新。\n\n## Suspense 的演进\n\nSuspense 不再仅仅用于代码分割，现在它可以用于数据获取、图片加载等任何异步操作。\n\n## useTransition 和 useDeferredValue\n\n这两个新 Hook 让开发者能够明确区分紧急更新和非紧急更新，确保用户交互始终流畅。`,
+            content: `React 18 引入了期待已久的并发模式，这是一个根本性的架构升级。
+
+## 什么是并发模式？
+
+并发模式允许 React 同时准备多个版本的 UI，使得应用能够在保持响应性的同时处理复杂的状态更新。
+
+## Suspense 的演进
+
+Suspense 不再仅仅用于代码分割，现在它可以用于数据获取、图片加载等任何异步操作。
+
+## useTransition 和 useDeferredValue
+
+这两个新 Hook 让开发者能够明确区分紧急更新和非紧急更新，确保用户交互始终流畅。`,
           },
           {
             id: 'react-2',
@@ -133,7 +145,15 @@ export const learningCategories: Category[] = [
             date: '2025-11-20',
             tags: ['React', 'RSC', 'Next.js'],
             readTime: '15 分钟',
-            content: `Server Components 改变了我们构建 React 应用的方式。\n\n## 核心概念\n\n服务端组件在服务器上渲染，不会增加客户端 bundle 大小。它们可以直接访问数据库、文件系统等服务端资源。\n\n## 客户端 vs 服务端组件\n\n理解何时使用 "use client" 指令是掌握 RSC 的关键。交互性组件需要在客户端运行，而纯展示组件则适合在服务端渲染。`,
+            content: `Server Components 改变了我们构建 React 应用的方式。
+
+## 核心概念
+
+服务端组件在服务器上渲染，不会增加客户端 bundle 大小。它们可以直接访问数据库、文件系统等服务端资源。
+
+## 客户端 vs 服务端组件
+
+理解何时使用 "use client" 指令是掌握 RSC 的关键。交互性组件需要在客户端运行，而纯展示组件则适合在服务端渲染。`,
           },
         ],
       },
@@ -147,7 +167,15 @@ export const learningCategories: Category[] = [
             date: '2025-10-08',
             tags: ['CSS', 'Tailwind'],
             readTime: '10 分钟',
-            content: `Tailwind CSS v4 是一次重大重构。\n\n## CSS-first 配置\n\n告别 JavaScript 配置文件，所有自定义都在 CSS 中使用 @theme 完成。\n\n## 性能飞跃\n\n全新的 Oxide 引擎使构建速度提升了 10 倍以上。`,
+            content: `Tailwind CSS v4 是一次重大重构。
+
+## CSS-first 配置
+
+告别 JavaScript 配置文件，所有自定义都在 CSS 中使用 @theme 完成。
+
+## 性能飞跃
+
+全新的 Oxide 引擎使构建速度提升了 10 倍以上。`,
           },
         ],
       },
@@ -167,7 +195,15 @@ export const learningCategories: Category[] = [
             date: '2025-09-12',
             tags: ['Node.js', 'Event Loop'],
             readTime: '18 分钟',
-            content: `事件循环是 Node.js 的核心机制。\n\n## 六个阶段\n\nTimers → Pending → Idle → Poll → Check → Close\n\n## 微任务优先级\n\nprocess.nextTick 和 Promise 在每个阶段之间执行，具有最高优先级。`,
+            content: `事件循环是 Node.js 的核心机制。
+
+## 六个阶段
+
+Timers → Pending → Idle → Poll → Check → Close
+
+## 微任务优先级
+
+process.nextTick 和 Promise 在每个阶段之间执行，具有最高优先级。`,
           },
         ],
       },
@@ -187,7 +223,15 @@ export const learningCategories: Category[] = [
             date: '2025-08-25',
             tags: ['AI', 'LangChain', 'Agent'],
             readTime: '20 分钟',
-            content: `AI Agent 是 2025 年最热门的技术趋势之一。\n\n## 什么是 AI Agent？\n\n与简单的问答不同，Agent 能够自主规划、调用工具并完成复杂任务。\n\n## LangChain 框架\n\nLangChain 提供了构建 Agent 的完整工具链，包括 Prompt 模板、记忆管理和工具集成。`,
+            content: `AI Agent 是 2025 年最热门的技术趋势之一。
+
+## 什么是 AI Agent？
+
+与简单的问答不同，Agent 能够自主规划、调用工具并完成复杂任务。
+
+## LangChain 框架
+
+LangChain 提供了构建 Agent 的完整工具链，包括 Prompt 模板、记忆管理和工具集成。`,
           },
         ],
       },
@@ -207,7 +251,15 @@ export const learningCategories: Category[] = [
             date: '2025-07-18',
             tags: ['Design System', 'UI/UX'],
             readTime: '14 分钟',
-            content: `一个好的设计系统能极大提升团队效率。\n\n## 设计 Token\n\n从颜色、字体、间距开始，建立统一的设计语言。\n\n## 组件层级\n\n原子 → 分子 → 组织 → 模板 → 页面，逐步构建完整体系。`,
+            content: `一个好的设计系统能极大提升团队效率。
+
+## 设计 Token
+
+从颜色、字体、间距开始，建立统一的设计语言。
+
+## 组件层级
+
+原子 → 分子 → 组织 → 模板 → 页面，逐步构建完整体系。`,
           },
         ],
       },
@@ -254,55 +306,388 @@ export const loveTimeline = [
   },
 ]
 
-export const socialPosts = [
+// 朋友圈评论类型
+export interface PostComment {
+  id: string
+  author: string
+  avatar?: string
+  content: string
+  date: string
+}
+
+// 朋友圈动态类型
+export interface SocialPost {
+  id: string
+  author: string
+  avatar: string
+  date: string
+  content: string
+  images: string[]
+  video?: {
+    url: string
+    thumbnail: string
+    duration: string
+  }
+  likes: number
+  isLiked: boolean
+  comments: PostComment[]
+  location?: string
+}
+
+// 使用 Unsplash 真实图片
+const unsplashImages = {
+  // 生活场景
+  coffee: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
+  workspace: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80',
+  keyboard: 'https://images.unsplash.com/photo-1595225476474-87563907a212?w=800&q=80',
+  book: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800&q=80',
+  
+  // 风景
+  mountain: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+  lake: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80',
+  sunset: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+  forest: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80',
+  beach: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+  city: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80',
+  
+  // 美食
+  food1: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
+  food2: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80',
+  coffee2: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=80',
+  
+  // 人物/活动
+  concert: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800&q=80',
+  hiking: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80',
+  party: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80',
+  
+  // 科技
+  code: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80',
+  tech: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+  
+  // 宠物
+  cat: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&q=80',
+  dog: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80',
+}
+
+export const socialPosts: SocialPost[] = [
   {
     id: 'post-1',
+    author: '小叶',
+    avatar: '/avatar.png',
     date: '2025-12-10 18:30',
-    content: '今天终于把新项目的架构设计完成了！用了 React Server Components + Edge Runtime，性能提升了 3 倍 🚀',
-    images: ['bg-gradient-card-violet'],
+    content: '今天终于把新项目的架构设计完成了！用了 React Server Components + Edge Runtime，性能提升了 3 倍 🚀 这段时间的辛苦没有白费，看着代码一点点成型，真的很有成就感！',
+    images: [unsplashImages.code, unsplashImages.workspace],
     likes: 42,
-    comments: 8,
+    isLiked: true,
+    comments: [
+      { id: 'c1', author: '老王', content: '太强了！求分享架构设计思路', date: '2025-12-10 19:15' },
+      { id: 'c2', author: '小鱼', content: '恭喜恭喜！期待开源', date: '2025-12-10 20:30' },
+    ],
+    location: '深圳 · 科技园',
   },
   {
     id: 'post-2',
+    author: '小叶',
+    avatar: '/avatar.png',
     date: '2025-12-08 12:15',
-    content: '周末和朋友们去了趟莫干山，冬天的竹海别有一番风味。泡了温泉、吃了农家菜，满满的幸福感 ❤️',
-    images: ['bg-gradient-card-emerald', 'bg-gradient-card-cyan'],
+    content: '周末和朋友们去了趟莫干山，冬天的竹海别有一番风味。泡了温泉、吃了农家菜，满满的幸福感 ❤️ 有时候真的需要放慢脚步，享受一下生活的美好。',
+    images: [unsplashImages.mountain, unsplashImages.forest, unsplashImages.lake, unsplashImages.sunset],
     likes: 78,
-    comments: 15,
+    isLiked: false,
+    comments: [
+      { id: 'c3', author: '小美', content: '风景太美了！求攻略', date: '2025-12-08 14:20' },
+      { id: 'c4', author: '阿泽', content: '下次带我一起啊', date: '2025-12-08 16:45' },
+      { id: 'c5', author: '小叶', content: '回复小美：住宿推荐裸心谷，温泉很棒！', date: '2025-12-08 18:00' },
+    ],
+    location: '湖州 · 莫干山',
   },
   {
     id: 'post-3',
+    author: '小叶',
+    avatar: '/avatar.png',
     date: '2025-12-05 22:00',
-    content: '读完了《Designing Data-Intensive Applications》，强烈推荐给所有后端开发者。这本书把分布式系统讲得太透彻了。',
-    images: [],
+    content: '读完了《Designing Data-Intensive Applications》，强烈推荐给所有后端开发者。这本书把分布式系统讲得太透彻了，特别是关于一致性模型的部分，让我受益匪浅。📚',
+    images: [unsplashImages.book],
     likes: 56,
-    comments: 12,
+    isLiked: false,
+    comments: [
+      { id: 'c6', author: '大成', content: '这本书确实经典，我也在看', date: '2025-12-06 08:30' },
+    ],
   },
   {
     id: 'post-4',
+    author: '小叶',
+    avatar: '/avatar.png',
     date: '2025-12-01 09:45',
-    content: '新买的机械键盘到了 ⌨️ 客制化 gasket 结构，打字手感绝了！',
-    images: ['bg-gradient-card-amber'],
+    content: '新买的机械键盘到了 ⌨️ 客制化 gasket 结构，打字手感绝了！声音也很治愈，写代码的幸福感直接拉满～',
+    images: [unsplashImages.keyboard],
     likes: 35,
-    comments: 20,
+    isLiked: true,
+    comments: [
+      { id: 'c7', author: '阿凡', content: '什么轴体？', date: '2025-12-01 10:20' },
+      { id: 'c8', author: '小叶', content: '回复阿凡：金粉轴，轻压力线性轴', date: '2025-12-01 10:35' },
+      { id: 'c9', author: '老王', content: '种草了，求链接', date: '2025-12-01 11:00' },
+    ],
   },
   {
     id: 'post-5',
+    author: '小叶',
+    avatar: '/avatar.png',
     date: '2025-11-28 20:30',
-    content: '参加了 React Conf 2025 的线上直播，React 的未来真的很令人期待。特别是新的编译器和 Activity API。',
-    images: ['bg-gradient-card-sky'],
+    content: '参加了 React Conf 2025 的线上直播，React 的未来真的很令人期待。特别是新的编译器和 Activity API，感觉前端开发又要迎来一次变革了。',
+    images: [unsplashImages.tech, unsplashImages.concert],
     likes: 63,
-    comments: 9,
+    isLiked: false,
+    comments: [],
+  },
+  {
+    id: 'post-6',
+    author: '小叶',
+    avatar: '/avatar.png',
+    date: '2025-11-25 11:20',
+    content: '九宫格测试 🎨 生活就是要多姿多彩，记录每一个美好瞬间',
+    images: [
+      unsplashImages.coffee, unsplashImages.food1, unsplashImages.cat,
+      unsplashImages.city, unsplashImages.beach, unsplashImages.food2,
+      unsplashImages.hiking, unsplashImages.dog, unsplashImages.coffee2,
+    ],
+    likes: 128,
+    isLiked: true,
+    comments: [
+      { id: 'c10', author: '小美', content: '生活好丰富！', date: '2025-11-25 12:00' },
+      { id: 'c11', author: '小鱼', content: '那只猫咪好可爱', date: '2025-11-25 13:30' },
+    ],
+  },
+  {
+    id: 'post-7',
+    author: '小叶',
+    avatar: '/avatar.png',
+    date: '2025-11-20 19:00',
+    content: '今天是个特别的日子，和朋友们一起庆祝 🎉 感谢有你们陪伴的每一天',
+    video: {
+      url: 'https://example.com/video.mp4',
+      thumbnail: unsplashImages.party,
+      duration: '0:45',
+    },
+    images: [],
+    likes: 89,
+    isLiked: true,
+    comments: [
+      { id: 'c12', author: '阿泽', content: '生日快乐！', date: '2025-11-20 19:30' },
+    ],
   },
 ]
 
-export const travelLocations = [
-  { id: 'travel-1', name: '东京', country: '日本', description: '霓虹灯下的科技与传统交融', x: 78, y: 32, color: '#f43f5e' },
-  { id: 'travel-2', name: '巴厘岛', country: '印尼', description: '碧海蓝天的热带天堂', x: 72, y: 55, color: '#10b981' },
-  { id: 'travel-3', name: '厦门', country: '中国', description: '文艺气息浓厚的海滨城市', x: 70, y: 38, color: '#0ea5e9' },
-  { id: 'travel-4', name: '成都', country: '中国', description: '美食之都，慢生活的天堂', x: 65, y: 36, color: '#f59e0b' },
-  { id: 'travel-5', name: '首尔', country: '韩国', description: 'K-culture 与现代都市的完美融合', x: 75, y: 30, color: '#8b5cf6' },
+export interface TravelLocation {
+  id: string
+  name: string
+  country: string
+  description: string
+  x: number
+  y: number
+  color: string
+  images: string[]
+  details: {
+    bestTime: string
+    highlights: string[]
+    tips: string
+  }
+}
+
+// 中国城市风景图片集 - 使用可靠的Picsum图片服务
+const chinaCityImages = {
+  // 重庆 - 山城夜景、火锅、轻轨
+  chongqing: [
+    'https://picsum.photos/seed/chongqing1/800/600',
+    'https://picsum.photos/seed/chongqing2/800/600',
+    'https://picsum.photos/seed/chongqing3/800/600',
+  ],
+  // 成都 - 熊猫、宽窄巷子、茶馆
+  chengdu: [
+    'https://picsum.photos/seed/chengdu1/800/600',
+    'https://picsum.photos/seed/chengdu2/800/600',
+    'https://picsum.photos/seed/chengdu3/800/600',
+  ],
+  // 西安 - 兵马俑、古城墙、大雁塔
+  xian: [
+    'https://picsum.photos/seed/xian1/800/600',
+    'https://picsum.photos/seed/xian2/800/600',
+    'https://picsum.photos/seed/xian3/800/600',
+  ],
+  // 北京 - 故宫、长城、天安门
+  beijing: [
+    'https://picsum.photos/seed/beijing1/800/600',
+    'https://picsum.photos/seed/beijing2/800/600',
+    'https://picsum.photos/seed/beijing3/800/600',
+  ],
+  // 深圳 - 现代都市、海岸线
+  shenzhen: [
+    'https://picsum.photos/seed/shenzhen1/800/600',
+    'https://picsum.photos/seed/shenzhen2/800/600',
+    'https://picsum.photos/seed/shenzhen3/800/600',
+  ],
+  // 杭州 - 西湖、园林
+  hangzhou: [
+    'https://picsum.photos/seed/hangzhou1/800/600',
+    'https://picsum.photos/seed/hangzhou2/800/600',
+    'https://picsum.photos/seed/hangzhou3/800/600',
+  ],
+  // 南京 - 中山陵、秦淮河
+  nanjing: [
+    'https://picsum.photos/seed/nanjing1/800/600',
+    'https://picsum.photos/seed/nanjing2/800/600',
+    'https://picsum.photos/seed/nanjing3/800/600',
+  ],
+  // 洛阳 - 龙门石窟、牡丹
+  luoyang: [
+    'https://picsum.photos/seed/luoyang1/800/600',
+    'https://picsum.photos/seed/luoyang2/800/600',
+    'https://picsum.photos/seed/luoyang3/800/600',
+  ],
+  // 南昌 - 滕王阁、赣江
+  nanchang: [
+    'https://picsum.photos/seed/nanchang1/800/600',
+    'https://picsum.photos/seed/nanchang2/800/600',
+    'https://picsum.photos/seed/nanchang3/800/600',
+  ],
+}
+
+export const travelLocations: TravelLocation[] = [
+  {
+    id: 'travel-1',
+    name: '重庆',
+    country: '中国',
+    description: '山城雾都，火锅与轻轨的魔幻之城',
+    x: 62,
+    y: 42,
+    color: '#ef4444',
+    images: chinaCityImages.chongqing,
+    details: {
+      bestTime: '3-5月、9-11月',
+      highlights: ['洪崖洞夜景', '穿楼轻轨', '长江索道', '磁器口古镇', '解放碑步行街'],
+      tips: '一定要体验一次两江夜游，感受山城的立体魔幻'
+    }
+  },
+  {
+    id: 'travel-2',
+    name: '成都',
+    country: '中国',
+    description: '天府之国，熊猫故乡，慢生活的典范',
+    x: 58,
+    y: 44,
+    color: '#f59e0b',
+    images: chinaCityImages.chengdu,
+    details: {
+      bestTime: '3-6月、9-11月',
+      highlights: ['大熊猫基地', '宽窄巷子', '锦里古街', '都江堰', '青城山'],
+      tips: '成都的茶馆文化值得一体验，人民公园鹤鸣茶社是首选'
+    }
+  },
+  {
+    id: 'travel-3',
+    name: '西安',
+    country: '中国',
+    description: '十三朝古都，兵马俑与古城墙的历史回响',
+    x: 60,
+    y: 35,
+    color: '#8b5cf6',
+    images: chinaCityImages.xian,
+    details: {
+      bestTime: '3-5月、9-10月',
+      highlights: ['秦始皇兵马俑', '古城墙骑行', '大雁塔', '回民街', '大唐不夜城'],
+      tips: '晚上去大唐不夜城感受盛唐气象，灯光秀非常震撼'
+    }
+  },
+  {
+    id: 'travel-4',
+    name: '北京',
+    country: '中国',
+    description: '千年帝都，故宫与长城的庄严壮美',
+    x: 68,
+    y: 28,
+    color: '#dc2626',
+    images: chinaCityImages.beijing,
+    details: {
+      bestTime: '4-5月、9-10月',
+      highlights: ['故宫博物院', '万里长城', '天安门广场', '颐和园', '南锣鼓巷'],
+      tips: '故宫需要提前网上预约，建议安排一整天慢慢游览'
+    }
+  },
+  {
+    id: 'travel-5',
+    name: '深圳',
+    country: '中国',
+    description: '创新之都，科技与自然并存的现代都市',
+    x: 72,
+    y: 52,
+    color: '#0ea5e9',
+    images: chinaCityImages.shenzhen,
+    details: {
+      bestTime: '10月-次年4月',
+      highlights: ['深圳湾公园', '世界之窗', '欢乐谷', '东部华侨城', '大梅沙海滨'],
+      tips: '深圳湾公园是观赏日落和城市天际线的绝佳地点'
+    }
+  },
+  {
+    id: 'travel-6',
+    name: '杭州',
+    country: '中国',
+    description: '人间天堂，西湖美景与互联网新贵的完美融合',
+    x: 74,
+    y: 42,
+    color: '#10b981',
+    images: chinaCityImages.hangzhou,
+    details: {
+      bestTime: '3-5月、9-11月',
+      highlights: ['西湖十景', '灵隐寺', '宋城', '西溪湿地', '河坊街'],
+      tips: '西湖骑行是最佳体验方式，苏堤春晓和断桥残雪必去'
+    }
+  },
+  {
+    id: 'travel-7',
+    name: '南京',
+    country: '中国',
+    description: '六朝古都，秦淮河畔的诗意与沧桑',
+    x: 72,
+    y: 38,
+    color: '#ec4899',
+    images: chinaCityImages.nanjing,
+    details: {
+      bestTime: '3-5月、9-11月',
+      highlights: ['中山陵', '夫子庙秦淮河', '总统府', '明孝陵', '玄武湖'],
+      tips: '夜游秦淮河是南京必体验项目，感受桨声灯影里的金陵'
+    }
+  },
+  {
+    id: 'travel-8',
+    name: '洛阳',
+    country: '中国',
+    description: '十三朝古都，龙门石窟与牡丹花城',
+    x: 64,
+    y: 36,
+    color: '#f97316',
+    images: chinaCityImages.luoyang,
+    details: {
+      bestTime: '4-5月（牡丹花季）、9-10月',
+      highlights: ['龙门石窟', '白马寺', '老君山', '洛阳牡丹', '应天门'],
+      tips: '每年4月是洛阳牡丹花会，满城花香，非常适合游览'
+    }
+  },
+  {
+    id: 'travel-9',
+    name: '南昌',
+    country: '中国',
+    description: '英雄城，滕王阁与赣江风光',
+    x: 70,
+    y: 46,
+    color: '#06b6d4',
+    images: chinaCityImages.nanchang,
+    details: {
+      bestTime: '3-5月、9-11月',
+      highlights: ['滕王阁', '八一广场', '赣江夜景', '鄱阳湖', '绳金塔'],
+      tips: '傍晚登滕王阁看赣江日落，感受"落霞与孤鹜齐飞"的诗意'
+    }
+  },
 ]
 
 // ===== Entertainment Data =====
@@ -317,15 +702,107 @@ export const musicPlaylist = [
   { id: 'song-8', title: 'Summertime Sadness', artist: 'Lana Del Rey', album: 'Born to Die', duration: '4:25', color: '#a78bfa' },
 ]
 
-export const movieCollection = [
-  { id: 'movie-1', title: '星际穿越', year: 2014, rating: 9.4, genre: '科幻', comment: '诺兰对时间与爱的极致诠释', gradient: 'from-blue-900 to-indigo-900' },
-  { id: 'movie-2', title: '千与千寻', year: 2001, rating: 9.4, genre: '动画', comment: '宫崎骏的奇幻世界，每一帧都是艺术', gradient: 'from-emerald-800 to-teal-900' },
-  { id: 'movie-3', title: '肖申克的救赎', year: 1994, rating: 9.7, genre: '剧情', comment: '希望是好事，也许是最好的事', gradient: 'from-amber-900 to-orange-900' },
-  { id: 'movie-4', title: '盗梦空间', year: 2010, rating: 9.3, genre: '科幻', comment: '梦境的层层嵌套，现实的边界在哪里？', gradient: 'from-violet-900 to-purple-900' },
-  { id: 'movie-5', title: '你的名字', year: 2016, rating: 8.4, genre: '动画', comment: '跨越时空的羁绊，美到窒息的画面', gradient: 'from-sky-800 to-blue-900' },
-  { id: 'movie-6', title: '楚门的世界', year: 1998, rating: 9.3, genre: '剧情', comment: '如果你的人生是一场直播？', gradient: 'from-cyan-800 to-teal-900' },
-  { id: 'movie-7', title: '疯狂动物城', year: 2016, rating: 9.2, genre: '动画', comment: '每个人都能成为自己想成为的人', gradient: 'from-green-800 to-emerald-900' },
-  { id: 'movie-8', title: '寄生虫', year: 2019, rating: 8.8, genre: '剧情', comment: '阶层差异的黑色寓言', gradient: 'from-stone-800 to-neutral-900' },
+export interface Movie {
+  id: string
+  title: string
+  year: number
+  rating: number
+  genre: string
+  comment: string
+  poster: string
+  description: string
+  director: string
+}
+
+export const movieCollection: Movie[] = [
+  { 
+    id: 'movie-1', 
+    title: '星际穿越', 
+    year: 2014, 
+    rating: 9.4, 
+    genre: '科幻', 
+    comment: '诺兰对时间与爱的极致诠释', 
+    poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80',
+    description: '在地球不再适合人类居住的未来，一群探险家利用新发现的虫洞，超越人类太空旅行的极限，在广袤的宇宙中寻找人类的新家园。',
+    director: '克里斯托弗·诺兰'
+  },
+  { 
+    id: 'movie-2', 
+    title: '千与千寻', 
+    year: 2001, 
+    rating: 9.4, 
+    genre: '动画', 
+    comment: '宫崎骏的奇幻世界，每一帧都是艺术', 
+    poster: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&q=80',
+    description: '10岁的少女千寻与父母一起从都市搬家到了乡下。没想到在搬家的途中，一家人发生了意外，进入了汤屋老板魔女汤婆婆控制的奇特世界。',
+    director: '宫崎骏'
+  },
+  { 
+    id: 'movie-3', 
+    title: '肖申克的救赎', 
+    year: 1994, 
+    rating: 9.7, 
+    genre: '剧情', 
+    comment: '希望是好事，也许是最好的事', 
+    poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&q=80',
+    description: '一个银行家因被误判杀害妻子和情人的罪名入狱，在狱中他结识了走私犯瑞德，并通过自己的智慧和希望最终获得自由。',
+    director: '弗兰克·德拉邦特'
+  },
+  { 
+    id: 'movie-4', 
+    title: '盗梦空间', 
+    year: 2010, 
+    rating: 9.3, 
+    genre: '科幻', 
+    comment: '梦境的层层嵌套，现实的边界在哪里？', 
+    poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&q=80',
+    description: '多姆·柯布是一位经验老道的窃贼，他在这一行中算得上是最厉害的，因为他能够潜入人们精神最为脆弱的梦境中，窃取潜意识中有价值的秘密。',
+    director: '克里斯托弗·诺兰'
+  },
+  { 
+    id: 'movie-5', 
+    title: '你的名字', 
+    year: 2016, 
+    rating: 8.4, 
+    genre: '动画', 
+    comment: '跨越时空的羁绊，美到窒息的画面', 
+    poster: 'https://images.unsplash.com/photo-1516726817505-f5ed825624d8?w=400&q=80',
+    description: '在深山乡村生活的女高中生宫水三叶，梦见自己变成了在东京生活的男高中生。与此同时，东京的男高中生立花泷也梦见自己变成了女高中生。',
+    director: '新海诚'
+  },
+  { 
+    id: 'movie-6', 
+    title: '楚门的世界', 
+    year: 1998, 
+    rating: 9.3, 
+    genre: '剧情', 
+    comment: '如果你的人生是一场直播？', 
+    poster: 'https://images.unsplash.com/photo-1524712245354-2c4e5e7121c0?w=400&q=80',
+    description: '楚门是一个标准的中产阶级，但他不知道自己生活在一个巨大的摄影棚中，他的一生都是一档24小时直播的真人秀节目。',
+    director: '彼得·威尔'
+  },
+  { 
+    id: 'movie-7', 
+    title: '疯狂动物城', 
+    year: 2016, 
+    rating: 9.2, 
+    genre: '动画', 
+    comment: '每个人都能成为自己想成为的人', 
+    poster: 'https://images.unsplash.com/photo-1560167016-022b78a0258e?w=400&q=80',
+    description: '在一个所有动物和平共处的动物城市，兔子朱迪通过自己努力奋斗完成儿时梦想，成为动物警察的故事。',
+    director: '拜伦·霍华德'
+  },
+  { 
+    id: 'movie-8', 
+    title: '寄生虫', 
+    year: 2019, 
+    rating: 8.8, 
+    genre: '剧情', 
+    comment: '阶层差异的黑色寓言', 
+    poster: 'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=400&q=80',
+    description: '基宇出生在一个贫穷的家庭之中，和妹妹基婷以及父母在狭窄的地下室里过着相依为命的日子。一天，基宇的同学上门拜访。',
+    director: '奉俊昊'
+  },
 ]
 
 export interface Bookmark {
