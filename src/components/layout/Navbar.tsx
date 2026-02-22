@@ -30,7 +30,6 @@ function TimeWeatherWidget() {
 
   // 模拟获取天气（实际项目中可以调用天气API）
   useEffect(() => {
-    // 这里可以替换为真实的天气API调用
     const frame = requestAnimationFrame(() => {
       const mockWeatherData = { temp: 22, condition: 'sunny', location: '深圳' }
       setWeather(mockWeatherData)
@@ -38,8 +37,11 @@ function TimeWeatherWidget() {
     return () => cancelAnimationFrame(frame)
   }, [])
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+  const formatTimeParts = (date: Date) => {
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    const seconds = date.getSeconds().toString().padStart(2, '0')
+    return { hours, minutes, seconds }
   }
 
   const formatDate = (date: Date) => {
@@ -47,14 +49,19 @@ function TimeWeatherWidget() {
   }
 
   const WeatherIcon = weatherIcons[weather.condition] || Sun
+  const { hours, minutes, seconds } = formatTimeParts(currentTime)
 
   return (
     <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-xl bg-surface/50 border border-border/50">
-      {/* 时间 */}
-      <div className="flex items-center gap-1.5">
-        <span className="text-sm font-semibold text-text">{formatTime(currentTime)}</span>
-        <span className="text-xs text-text-muted">{formatDate(currentTime)}</span>
+      {/* 时间 - 固定宽度避免跳动 */}
+      <div className="flex items-center gap-0.5 font-mono">
+        <span className="text-sm font-semibold text-text w-[22px] text-center">{hours}</span>
+        <span className="text-sm font-semibold text-text-muted">:</span>
+        <span className="text-sm font-semibold text-text w-[22px] text-center">{minutes}</span>
+        <span className="text-sm font-semibold text-text-muted">:</span>
+        <span className="text-sm font-semibold text-text w-[22px] text-center">{seconds}</span>
       </div>
+      <span className="text-xs text-text-muted">{formatDate(currentTime)}</span>
       <div className="w-px h-4 bg-border" />
       {/* 天气 */}
       <div className="flex items-center gap-1.5">

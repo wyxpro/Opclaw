@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Music, Film, Bookmark, Play, Pause, SkipBack, SkipForward, Star, Search, List, Heart, X, Edit2, Trash2, Calendar, User } from 'lucide-react'
+import { Music, Film, Bookmark as BookmarkIcon, Play, Pause, SkipBack, SkipForward, Star, Search, List, Heart, X, Edit2, Trash2, Calendar, User, Plus, ExternalLink, Link as LinkIcon } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { musicPlaylist, movieCollection, bookmarks } from '../data/mock'
-import type { Movie } from '../data/mock'
+import type { Movie, Bookmark } from '../data/mock'
 
 const tabs = [
   { id: 'music', label: '音乐盒', icon: Music },
   { id: 'movies', label: '收藏电影', icon: Film },
-  { id: 'bookmarks', label: '百宝箱', icon: Bookmark },
+  { id: 'bookmarks', label: '百宝箱', icon: BookmarkIcon },
 ] as const
 
 type TabId = (typeof tabs)[number]['id']
@@ -408,30 +408,91 @@ function MusicBox() {
 /* ===== Movie Wall ===== */
 function MovieWall() {
   const [movies, setMovies] = useState<Movie[]>(movieCollection)
+  const [searchQuery, setSearchQuery] = useState('')
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null)
   const [isEditing, setIsEditing] = useState(false)
-  const [editTitle, setEditTitle] = useState('')
-  const [editComment, setEditComment] = useState('')
-  const [editPoster, setEditPoster] = useState('')
+  const [isAdding, setIsAdding] = useState(false)
+  const [newMovieId, setNewMovieId] = useState<string>('')
+  
+  // Edit form states
+  const [editForm, setEditForm] = useState<Partial<Movie>>({})
+  
+  // Filter movies based on search query
+  const filteredMovies = movies.filter(movie => {
+    if (!searchQuery.trim()) return true
+    const query = searchQuery.toLowerCase()
+    return (
+      movie.title.toLowerCase().includes(query) ||
+      movie.comment.toLowerCase().includes(query) ||
+      movie.genre.toLowerCase().includes(query) ||
+      movie.director.toLowerCase().includes(query) ||
+      movie.description.toLowerCase().includes(query)
+    )
+  })
 
   const handleCardClick = (movie: Movie) => {
     setSelectedMovie(movie)
-    setEditTitle(movie.title)
-    setEditComment(movie.comment)
-    setEditPoster(movie.poster)
+    setEditForm({ ...movie })
     setIsEditing(false)
+    setIsAdding(false)
   }
 
-  const handleEdit = () => {
-    if (!selectedMovie || !editTitle.trim()) return
-    
-    setMovies(prev => prev.map(movie => 
-      movie.id === selectedMovie.id 
-        ? { ...movie, title: editTitle.trim(), comment: editComment.trim(), poster: editPoster }
-        : movie
-    ))
+  const handleAddNew = () => {
+    const id = `movie-${Date.now()}`
+    setNewMovieId(id)
+    setIsAdding(true)
     setIsEditing(false)
     setSelectedMovie(null)
+    setEditForm({
+      id,
+      title: '',
+      year: new Date().getFullYear(),
+      rating: 8.0,
+      genre: '',
+      comment: '',
+      poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&q=80',
+      description: '',
+      director: ''
+    })
+  }
+
+  const handleSave = () => {
+    if (!editForm.title?.trim()) return
+    
+    if (isAdding) {
+      // Add new movie
+      const newMovie: Movie = {
+        id: newMovieId || editForm.id || `movie-${crypto.randomUUID()}`,
+        title: editForm.title.trim(),
+        year: editForm.year || new Date().getFullYear(),
+        rating: editForm.rating || 8.0,
+        genre: editForm.genre || '其他',
+        comment: editForm.comment || '',
+        poster: editForm.poster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&q=80',
+        description: editForm.description || '',
+        director: editForm.director || ''
+      }
+      setMovies(prev => [newMovie, ...prev])
+    } else if (selectedMovie) {
+      // Update existing movie
+      setMovies(prev => prev.map(movie => 
+        movie.id === selectedMovie.id 
+          ? { 
+              ...movie, 
+              title: editForm.title?.trim() || movie.title,
+              comment: editForm.comment?.trim() || '',
+              poster: editForm.poster || movie.poster,
+              year: editForm.year || movie.year,
+              rating: editForm.rating || movie.rating,
+              genre: editForm.genre || movie.genre,
+              description: editForm.description || movie.description,
+              director: editForm.director || movie.director
+            }
+          : movie
+      ))
+    }
+    
+    closeModal()
   }
 
   const handleDelete = () => {
@@ -439,61 +500,99 @@ function MovieWall() {
     
     if (confirm('确定要删除这部电影吗？')) {
       setMovies(prev => prev.filter(movie => movie.id !== selectedMovie.id))
-      setSelectedMovie(null)
+      closeModal()
     }
   }
 
   const closeModal = () => {
     setSelectedMovie(null)
     setIsEditing(false)
+    setIsAdding(false)
+    setEditForm({})
   }
 
   return (
     <div>
-      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-        {movies.map((movie, index) => (
-          <motion.div
-            key={movie.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.06 }}
-            className="group cursor-pointer"
-            onClick={() => handleCardClick(movie)}
-          >
-            <div className="glass-card overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
-              {/* Poster */}
-              <div className="relative h-52 sm:h-64 overflow-hidden">
-                <img 
-                  src={movie.poster} 
-                  alt={movie.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                {/* Rating badge */}
-                <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full bg-bg/80 backdrop-blur-sm text-xs font-semibold">
-                  <Star size={10} className="text-accent fill-accent" />
-                  <span className="text-accent">{movie.rating}</span>
-                </div>
-              </div>
-              {/* Info */}
-              <div className="p-3">
-                <h3 className="font-semibold text-sm text-text mb-0.5 truncate group-hover:text-primary transition-colors">{movie.title}</h3>
-                <div className="flex items-center gap-2 text-xs text-text-muted mb-2">
-                  <span>{movie.year}</span>
-                  <span>·</span>
-                  <span>{movie.genre}</span>
-                </div>
-                <p className="text-xs text-text-dim line-clamp-2">{movie.comment}</p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+      {/* Search and Add Bar */}
+      <div className="flex gap-3 mb-6">
+        <div className="relative flex-1">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
+          <input
+            type="text"
+            placeholder="搜索电影（标题、导演、类型、描述...）"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-border text-text placeholder:text-text-muted focus:outline-none focus:border-primary/50 transition-all"
+          />
+        </div>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleAddNew}
+          className="px-5 py-3 rounded-xl bg-primary text-white font-medium flex items-center gap-2 hover:bg-primary-dim transition-colors whitespace-nowrap"
+        >
+          <Plus size={18} />
+          <span className="hidden sm:inline">添加电影</span>
+        </motion.button>
       </div>
 
-      {/* Movie Detail Modal */}
+      {/* Movies Grid */}
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+        <AnimatePresence mode="popLayout">
+          {filteredMovies.map((movie, index) => (
+            <motion.div
+              key={movie.id}
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ delay: index * 0.04 }}
+              className="group cursor-pointer"
+              onClick={() => handleCardClick(movie)}
+            >
+              <div className="glass-card overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
+                {/* Poster */}
+                <div className="relative h-52 sm:h-64 overflow-hidden">
+                  <img 
+                    src={movie.poster} 
+                    alt={movie.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  {/* Rating badge */}
+                  <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full bg-bg/80 backdrop-blur-sm text-xs font-semibold">
+                    <Star size={10} className="text-accent fill-accent" />
+                    <span className="text-accent">{movie.rating}</span>
+                  </div>
+                </div>
+                {/* Info */}
+                <div className="p-3">
+                  <h3 className="font-semibold text-sm text-text mb-0.5 truncate group-hover:text-primary transition-colors">{movie.title}</h3>
+                  <div className="flex items-center gap-2 text-xs text-text-muted mb-2">
+                    <span>{movie.year}</span>
+                    <span>·</span>
+                    <span>{movie.genre}</span>
+                  </div>
+                  <p className="text-xs text-text-dim line-clamp-2">{movie.comment}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Empty State */}
+      {filteredMovies.length === 0 && (
+        <div className="text-center py-16">
+          <Film size={48} className="mx-auto text-text-muted/30 mb-4" />
+          <p className="text-text-muted">没有找到匹配的电影</p>
+        </div>
+      )}
+
+      {/* Movie Detail/Edit Modal */}
       <AnimatePresence>
-        {selectedMovie && (
+        {(selectedMovie || isAdding) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -512,8 +611,8 @@ function MovieWall() {
               {/* Image */}
               <div className="relative aspect-video">
                 <img
-                  src={isEditing ? editPoster : selectedMovie.poster}
-                  alt={selectedMovie.title}
+                  src={editForm.poster || selectedMovie?.poster}
+                  alt={editForm.title || selectedMovie?.title}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -526,53 +625,125 @@ function MovieWall() {
                   <X size={18} />
                 </button>
 
-                {/* Rating badge */}
-                <div className="absolute bottom-3 left-3 flex items-center gap-1 px-3 py-1.5 rounded-full bg-accent/90 text-white text-sm font-bold">
-                  <Star size={14} className="fill-white" />
-                  {selectedMovie.rating}
-                </div>
+                {/* Rating badge (view mode only) */}
+                {!isEditing && !isAdding && selectedMovie && (
+                  <div className="absolute bottom-3 left-3 flex items-center gap-1 px-3 py-1.5 rounded-full bg-accent/90 text-white text-sm font-bold">
+                    <Star size={14} className="fill-white" />
+                    {selectedMovie.rating}
+                  </div>
+                )}
               </div>
 
               {/* Content */}
               <div className="p-5">
-                {isEditing ? (
+                {isEditing || isAdding ? (
+                  /* Edit/Add Form */
                   <div className="space-y-4">
+                    <h3 className="text-lg font-bold text-text mb-4">
+                      {isAdding ? '添加新电影' : '编辑电影'}
+                    </h3>
+                    
                     <div>
-                      <label className="block text-xs text-text-muted mb-1">标题</label>
+                      <label className="block text-xs text-text-muted mb-1.5">标题 *</label>
                       <input
                         type="text"
-                        value={editTitle}
-                        onChange={(e) => setEditTitle(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm"
+                        value={editForm.title || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="电影标题"
+                        className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-primary/50 transition-all"
                       />
                     </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-text-muted mb-1.5">年份</label>
+                        <input
+                          type="number"
+                          value={editForm.year || ''}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, year: parseInt(e.target.value) || new Date().getFullYear() }))}
+                          className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-primary/50 transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-text-muted mb-1.5">评分</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="10"
+                          value={editForm.rating || ''}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))}
+                          className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-primary/50 transition-all"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-text-muted mb-1.5">类型</label>
+                        <input
+                          type="text"
+                          value={editForm.genre || ''}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, genre: e.target.value }))}
+                          placeholder="如：科幻、剧情"
+                          className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-primary/50 transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-text-muted mb-1.5">导演</label>
+                        <input
+                          type="text"
+                          value={editForm.director || ''}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, director: e.target.value }))}
+                          placeholder="导演姓名"
+                          className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-primary/50 transition-all"
+                        />
+                      </div>
+                    </div>
+                    
                     <div>
-                      <label className="block text-xs text-text-muted mb-1">短评</label>
+                      <label className="block text-xs text-text-muted mb-1.5">海报URL</label>
+                      <input
+                        type="text"
+                        value={editForm.poster || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, poster: e.target.value }))}
+                        placeholder="https://..."
+                        className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-primary/50 transition-all"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs text-text-muted mb-1.5">简介</label>
                       <textarea
-                        value={editComment}
-                        onChange={(e) => setEditComment(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm resize-none"
+                        value={editForm.description || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                        placeholder="电影简介..."
+                        className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm resize-none focus:outline-none focus:border-primary/50 transition-all"
+                        rows={3}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs text-text-muted mb-1.5">短评</label>
+                      <textarea
+                        value={editForm.comment || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, comment: e.target.value }))}
+                        placeholder="你的观影感受..."
+                        className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm resize-none focus:outline-none focus:border-primary/50 transition-all"
                         rows={2}
                       />
                     </div>
-                    <div>
-                      <label className="block text-xs text-text-muted mb-1">海报URL</label>
-                      <input
-                        type="text"
-                        value={editPoster}
-                        onChange={(e) => setEditPoster(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm"
-                      />
-                    </div>
-                    <div className="flex gap-2 pt-2">
+                    
+                    <div className="flex gap-3 pt-2">
                       <button
-                        onClick={handleEdit}
-                        className="flex-1 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dim transition-colors"
+                        onClick={handleSave}
+                        disabled={!editForm.title?.trim()}
+                        className="flex-1 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        保存修改
+                        {isAdding ? '添加' : '保存'}
                       </button>
                       <button
-                        onClick={() => setIsEditing(false)}
+                        onClick={() => isAdding ? closeModal() : setIsEditing(false)}
                         className="flex-1 py-2.5 rounded-lg bg-surface text-text text-sm font-medium hover:bg-surface/80 transition-colors border border-border"
                       >
                         取消
@@ -580,26 +751,27 @@ function MovieWall() {
                     </div>
                   </div>
                 ) : (
+                  /* View Mode */
                   <>
                     <div className="flex items-center gap-3 text-xs text-text-muted mb-3">
                       <span className="flex items-center gap-1">
                         <Calendar size={12} />
-                        {selectedMovie.year}
+                        {selectedMovie?.year}
                       </span>
                       <span>·</span>
-                      <span>{selectedMovie.genre}</span>
+                      <span>{selectedMovie?.genre}</span>
                       <span>·</span>
                       <span className="flex items-center gap-1">
                         <User size={12} />
-                        {selectedMovie.director}
+                        {selectedMovie?.director}
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold text-text mb-3">{selectedMovie.title}</h3>
+                    <h3 className="text-xl font-bold text-text mb-3">{selectedMovie?.title}</h3>
                     <p className="text-sm text-text-secondary leading-relaxed mb-2">
-                      {selectedMovie.description}
+                      {selectedMovie?.description}
                     </p>
                     <p className="text-sm text-text-muted italic mb-6">
-                      "{selectedMovie.comment}"
+                      "{selectedMovie?.comment}"
                     </p>
 
                     {/* Actions */}
@@ -632,31 +804,121 @@ function MovieWall() {
 
 /* ===== Treasure Box (百宝箱) ===== */
 function TreasureBox() {
+  const [bookmarkList, setBookmarkList] = useState<Bookmark[]>(bookmarks)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedBookmark, setSelectedBookmark] = useState<Bookmark | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const [editForm, setEditForm] = useState<Partial<Bookmark>>({})
 
-  const categories = [...new Set(bookmarks.map((b) => b.category))]
+  const categories = [...new Set(bookmarkList.map((b) => b.category))]
 
-  const filtered = bookmarks.filter((b) => {
+  const filtered = bookmarkList.filter((b) => {
     const matchesSearch = !searchQuery ||
       b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.description.toLowerCase().includes(searchQuery.toLowerCase())
+      b.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.url.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = !selectedCategory || b.category === selectedCategory
     return matchesSearch && matchesCategory
   })
 
+  const handleCardClick = (bookmark: Bookmark) => {
+    setSelectedBookmark(bookmark)
+    setEditForm({ ...bookmark })
+    setIsEditing(false)
+    setIsAdding(false)
+  }
+
+  const handleAddNew = () => {
+    setIsAdding(true)
+    setIsEditing(false)
+    setSelectedBookmark(null)
+    setEditForm({
+      id: `bm-${crypto.randomUUID()}`,
+      title: '',
+      url: '',
+      description: '',
+      category: '',
+      icon: '🔖'
+    })
+  }
+
+  const handleSave = () => {
+    if (!editForm.title?.trim() || !editForm.url?.trim()) return
+    
+    if (isAdding) {
+      const newBookmark: Bookmark = {
+        id: editForm.id || `bm-${crypto.randomUUID()}`,
+        title: editForm.title.trim(),
+        url: editForm.url.trim(),
+        description: editForm.description || '',
+        category: editForm.category || '未分类',
+        icon: editForm.icon || '🔖'
+      }
+      setBookmarkList(prev => [newBookmark, ...prev])
+    } else if (selectedBookmark) {
+      setBookmarkList(prev => prev.map(b => 
+        b.id === selectedBookmark.id 
+          ? { 
+              ...b, 
+              title: editForm.title?.trim() || b.title,
+              url: editForm.url?.trim() || b.url,
+              description: editForm.description || b.description,
+              category: editForm.category || b.category,
+              icon: editForm.icon || b.icon
+            }
+          : b
+      ))
+    }
+    closeModal()
+  }
+
+  const handleDelete = () => {
+    if (!selectedBookmark) return
+    
+    if (confirm('确定要删除这个收藏吗？')) {
+      setBookmarkList(prev => prev.filter(b => b.id !== selectedBookmark.id))
+      closeModal()
+    }
+  }
+
+  const closeModal = () => {
+    setSelectedBookmark(null)
+    setIsEditing(false)
+    setIsAdding(false)
+    setEditForm({})
+  }
+
+  const handleOpenUrl = (url: string) => {
+    if (url && url !== '#') {
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   return (
     <div>
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
-        <input
-          type="text"
-          placeholder="搜索收藏..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-border text-text placeholder:text-text-muted focus:outline-none focus:border-primary/50 transition-all"
-        />
+      {/* Search and Add Bar */}
+      <div className="flex gap-3 mb-6">
+        <div className="relative flex-1">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
+          <input
+            type="text"
+            placeholder="搜索收藏（标题、描述、URL...）"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-border text-text placeholder:text-text-muted focus:outline-none focus:border-primary/50 transition-all"
+          />
+        </div>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleAddNew}
+          className="px-5 py-3 rounded-xl bg-primary text-white font-medium flex items-center gap-2 hover:bg-primary-dim transition-colors whitespace-nowrap"
+        >
+          <Plus size={18} />
+          <span className="hidden sm:inline">添加收藏</span>
+        </motion.button>
       </div>
 
       {/* Category filter */}
@@ -690,17 +952,15 @@ function TreasureBox() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="popLayout">
           {filtered.map((bookmark, index) => (
-            <motion.a
+            <motion.div
               key={bookmark.id}
-              href={bookmark.url}
-              target="_blank"
-              rel="noopener noreferrer"
               layout
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ delay: index * 0.04 }}
-              className="glass-card p-4 group block"
+              onClick={() => handleCardClick(bookmark)}
+              className="glass-card p-4 group cursor-pointer hover:border-primary/30 transition-all"
             >
               <div className="flex items-start gap-3">
                 <span className="text-2xl">{bookmark.icon}</span>
@@ -714,16 +974,188 @@ function TreasureBox() {
                   </span>
                 </div>
               </div>
-            </motion.a>
+            </motion.div>
           ))}
         </AnimatePresence>
       </div>
 
       {filtered.length === 0 && (
         <div className="text-center py-12">
+          <BookmarkIcon size={48} className="mx-auto text-text-muted/30 mb-4" />
           <p className="text-text-muted">没有找到匹配的收藏</p>
         </div>
       )}
+
+      {/* Bookmark Detail/Edit Modal */}
+      <AnimatePresence>
+        {(selectedBookmark || isAdding) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={closeModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="glass-card w-full max-w-md overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="p-5 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{isEditing || isAdding ? (editForm.icon || '🔖') : selectedBookmark?.icon}</span>
+                    <div>
+                      <h3 className="text-lg font-bold text-text">
+                        {isEditing ? '编辑收藏' : isAdding ? '添加收藏' : selectedBookmark?.title}
+                      </h3>
+                      {!isEditing && !isAdding && selectedBookmark && (
+                        <span className="text-xs text-text-muted">{selectedBookmark.category}</span>
+                      )}
+                    </div>
+                  </div>
+                  <button 
+                    onClick={closeModal}
+                    className="p-2 rounded-full hover:bg-surface transition-colors"
+                  >
+                    <X size={18} className="text-text-muted" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-5">
+                {isEditing || isAdding ? (
+                  /* Edit/Add Form */
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs text-text-muted mb-1.5">标题 *</label>
+                      <input
+                        type="text"
+                        value={editForm.title || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="收藏名称"
+                        className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-primary/50 transition-all"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs text-text-muted mb-1.5">URL *</label>
+                      <input
+                        type="text"
+                        value={editForm.url || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, url: e.target.value }))}
+                        placeholder="https://..."
+                        className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-primary/50 transition-all"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-text-muted mb-1.5">分类</label>
+                        <input
+                          type="text"
+                          value={editForm.category || ''}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
+                          placeholder="如：开发工具"
+                          className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-primary/50 transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-text-muted mb-1.5">图标</label>
+                        <input
+                          type="text"
+                          value={editForm.icon || ''}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, icon: e.target.value }))}
+                          placeholder="如：🔖"
+                          className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-primary/50 transition-all text-center"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs text-text-muted mb-1.5">描述</label>
+                      <textarea
+                        value={editForm.description || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                        placeholder="收藏的简要描述..."
+                        className="w-full px-3 py-2.5 rounded-lg bg-surface border border-border text-sm resize-none focus:outline-none focus:border-primary/50 transition-all"
+                        rows={3}
+                      />
+                    </div>
+                    
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={handleSave}
+                        disabled={!editForm.title?.trim() || !editForm.url?.trim()}
+                        className="flex-1 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isAdding ? '添加' : '保存'}
+                      </button>
+                      <button
+                        onClick={() => isAdding ? closeModal() : setIsEditing(false)}
+                        className="flex-1 py-2.5 rounded-lg bg-surface text-text text-sm font-medium hover:bg-surface/80 transition-colors border border-border"
+                      >
+                        取消
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* View Mode */
+                  <>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs text-text-muted mb-1">链接</label>
+                        <div className="flex items-center gap-2 p-3 rounded-lg bg-surface border border-border">
+                          <LinkIcon size={14} className="text-text-muted" />
+                          <span className="text-sm text-primary truncate flex-1">{selectedBookmark?.url}</span>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs text-text-muted mb-1">描述</label>
+                        <p className="text-sm text-text-secondary leading-relaxed">
+                          {selectedBookmark?.description || '暂无描述'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-3 mt-6">
+                      <button
+                        onClick={() => selectedBookmark && handleOpenUrl(selectedBookmark.url)}
+                        disabled={!selectedBookmark?.url || selectedBookmark?.url === '#'}
+                        className="flex-1 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dim transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <ExternalLink size={14} />
+                        访问链接
+                      </button>
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="flex-1 py-2.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Edit2 size={14} />
+                        编辑
+                      </button>
+                      <button
+                        onClick={handleDelete}
+                        className="flex-1 py-2.5 rounded-lg bg-rose/10 text-rose text-sm font-medium hover:bg-rose/20 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Trash2 size={14} />
+                        删除
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

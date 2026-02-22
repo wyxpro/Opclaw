@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Calendar, Lightbulb } from 'lucide-react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Stars } from '@react-three/drei'
-import * as THREE from 'three'
+import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
-import { loveTimeline, socialPosts as initialSocialPosts, travelLocations } from '../data/mock'
+import { loveTimeline, socialPosts as initialSocialPosts, travelLocations as initialTravelLocations } from '../data/mock'
 import type { SocialPost, PostComment, TravelLocation } from '../data/mock'
+import { ChinaMap } from '../components/ChinaMap'
+import { TravelDetailModal } from '../components/TravelDetailModal'
+import { TravelManager } from '../components/TravelManager'
 
 
 
@@ -1202,183 +1202,17 @@ function Moments() {
 }
 
 /* ===== 3D Map Components ===== */
-// 3D地球组件
-function Earth({ onLocationClick, locations, hoveredLocation }: {
-  onLocationClick: (location: TravelLocation) => void
-  locations: TravelLocation[]
-  hoveredLocation: string | null
-}) {
-  const groupRef = useRef<THREE.Group>(null)
-  const [hovered, setHovered] = useState<string | null>(null)
-
-  // 自动旋转
-  useFrame(() => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += 0.001
-    }
-  })
-
-  // 创建地球纹理
-  const earthTexture = useMemo(() => {
-    const canvas = document.createElement('canvas')
-    canvas.width = 1024
-    canvas.height = 512
-    const ctx = canvas.getContext('2d')!
-    
-    // 深蓝色渐变背景
-    const gradient = ctx.createLinearGradient(0, 0, 0, 512)
-    gradient.addColorStop(0, '#1e3a5f')
-    gradient.addColorStop(0.5, '#0f172a')
-    gradient.addColorStop(1, '#1e3a5f')
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, 1024, 512)
-    
-    // 添加网格线
-    ctx.strokeStyle = 'rgba(100, 149, 237, 0.3)'
-    ctx.lineWidth = 1
-    for (let i = 0; i <= 10; i++) {
-      ctx.beginPath()
-      ctx.moveTo(0, i * 51.2)
-      ctx.lineTo(1024, i * 51.2)
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.moveTo(i * 102.4, 0)
-      ctx.lineTo(i * 102.4, 512)
-      ctx.stroke()
-    }
-    
-    // 添加一些随机的"大陆"斑点
-    ctx.fillStyle = 'rgba(34, 197, 94, 0.15)'
-    for (let i = 0; i < 30; i++) {
-      const x = (i * 37) % 1024
-      const y = (i * 23) % 512
-      ctx.beginPath()
-      ctx.arc(x, y, 20 + (i % 30), 0, Math.PI * 2)
-      ctx.fill()
-    }
-    
-    const texture = new THREE.CanvasTexture(canvas)
-    return texture
-  }, [])
-
-  // 将中国地图区域转换为3D坐标
-  const getPositionFromCoords = (x: number, y: number, radius: number) => {
-    // x: 0-100 (经度映射), y: 0-100 (纬度映射)
-    // 中国大致范围: 经度 73°E-135°E, 纬度 18°N-54°N
-    const lon = 73 + (x / 100) * (135 - 73)
-    const lat = 54 - (y / 100) * (54 - 18)
-    
-    const phi = (90 - lat) * (Math.PI / 180)
-    const theta = (lon - 90) * (Math.PI / 180)
-    
-    return new THREE.Vector3(
-      radius * Math.sin(phi) * Math.cos(theta),
-      radius * Math.cos(phi),
-      radius * Math.sin(phi) * Math.sin(theta)
-    )
-  }
-
-  return (
-    <group ref={groupRef}>
-      {/* 地球主体 */}
-      <mesh>
-        <sphereGeometry args={[2, 64, 64]} />
-        <meshStandardMaterial
-          map={earthTexture}
-          roughness={0.7}
-          metalness={0.1}
-        />
-      </mesh>
-      
-      {/* 地球大气层光晕 */}
-      <mesh>
-        <sphereGeometry args={[2.15, 64, 64]} />
-        <meshBasicMaterial
-          color="#3b82f6"
-          transparent
-          opacity={0.15}
-          side={THREE.BackSide}
-        />
-      </mesh>
-
-      {/* 地点标记 */}
-      {locations.map((location) => {
-        const pos = getPositionFromCoords(location.x, location.y, 2.08)
-        const isHovered = hovered === location.id || hoveredLocation === location.id
-        
-        return (
-          <group key={location.id} position={pos}>
-            {/* 标记点 */}
-            <mesh
-              onClick={(e) => {
-                e.stopPropagation()
-                onLocationClick(location)
-              }}
-              onPointerOver={() => setHovered(location.id)}
-              onPointerOut={() => setHovered(null)}
-            >
-              <sphereGeometry args={[isHovered ? 0.1 : 0.07, 16, 16]} />
-              <meshStandardMaterial
-                color={location.color}
-                emissive={location.color}
-                emissiveIntensity={isHovered ? 1 : 0.5}
-              />
-            </mesh>
-            
-            {/* 外圈光晕 */}
-            <mesh rotation={[0, 0, 0]}>
-              <ringGeometry args={[0.12, 0.15, 32]} />
-              <meshBasicMaterial
-                color={location.color}
-                transparent
-                opacity={isHovered ? 0.8 : 0.4}
-                side={THREE.DoubleSide}
-              />
-            </mesh>
-            
-            {/* 脉冲动画环 */}
-            <PulseRing color={location.color} isHovered={isHovered} />
-          </group>
-        )
-      })}
-    </group>
-  )
-}
-
-// 脉冲环动画组件
-function PulseRing({ color, isHovered }: { color: string; isHovered: boolean }) {
-  const ringRef = useRef<THREE.Mesh>(null)
-  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
-  
-  useFrame((state) => {
-    if (ringRef.current) {
-      const scale = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.3
-      ringRef.current.scale.set(scale, scale, scale)
-    }
-  })
-  
-  return (
-    <mesh ref={ringRef} rotation={[0, 0, 0]}>
-      <ringGeometry args={[0.18, 0.2, 32]} />
-      <meshBasicMaterial
-        ref={materialRef}
-        color={color}
-        transparent
-        opacity={isHovered ? 0.5 : 0.25}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
-  )
-}
+// 已迁移到独立的 ChinaMap.tsx 组件
 
 /* ===== Travel Album ===== */
-function TravelAlbum({ selectedLocation, onSelect }: {
-  selectedLocation: string | null
+function TravelAlbum({ onSelect }: {
+  selectedLocation?: string | null
   onSelect: (id: string | null) => void
 }) {
   const [modalLocation, setModalLocation] = useState<TravelLocation | null>(null)
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
+  const [travelLocations, setTravelLocations] = useState<TravelLocation[]>(initialTravelLocations)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -1386,11 +1220,6 @@ function TravelAlbum({ selectedLocation, onSelect }: {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-
-  const handleCardClick = (location: TravelLocation) => {
-    setModalLocation(location)
-    onSelect(location.id)
-  }
 
   const handleMapLocationClick = (location: TravelLocation) => {
     setModalLocation(location)
@@ -1402,215 +1231,77 @@ function TravelAlbum({ selectedLocation, onSelect }: {
     onSelect(null)
   }
 
+  // 新增地点
+  const handleAddLocation = (locationData: Omit<TravelLocation, 'id'>) => {
+    const newLocation: TravelLocation = {
+      ...locationData,
+      id: `travel-${Date.now()}`
+    }
+    setTravelLocations(prev => [...prev, newLocation])
+  }
+
+  // 编辑地点
+  const handleEditLocation = (id: string, locationData: Partial<TravelLocation>) => {
+    setTravelLocations(prev => prev.map(loc => 
+      loc.id === id ? { ...loc, ...locationData } : loc
+    ))
+  }
+
+  // 删除地点
+  const handleDeleteLocation = (id: string) => {
+    setTravelLocations(prev => prev.filter(loc => loc.id !== id))
+  }
+
   return (
     <div className="space-y-6">
-      {/* Location cards grid */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {travelLocations.map((location, index) => (
-          <motion.div
-            key={location.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.08 }}
-            onClick={() => handleCardClick(location)}
-            onMouseEnter={() => setHoveredLocation(location.id)}
-            onMouseLeave={() => setHoveredLocation(null)}
-            className={`glass-card p-4 sm:p-5 cursor-pointer transition-all hover:shadow-lg hover:shadow-primary/5 ${
-              selectedLocation === location.id ? 'ring-2 ring-primary/50' : ''
-            }`}
-          >
-            {/* 真实图片预览 */}
-            <div className="h-28 sm:h-32 rounded-lg mb-3 sm:mb-4 overflow-hidden">
-              <img
-                src={location.images[0]}
-                alt={location.name}
-                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                loading="lazy"
-              />
-            </div>
-            <div className="flex items-center gap-2 mb-1">
-              <div
-                className="w-2.5 h-2.5 rounded-full"
-                style={{ background: location.color }}
-              />
-              <h3 className="font-semibold text-text text-sm sm:text-base">{location.name}</h3>
-            </div>
-            <p className="text-xs text-text-muted line-clamp-2">{location.description}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* 3D Earth Map */}
-      <div className="glass-card p-4 sm:p-6 relative overflow-hidden">
+      {/* 中国地图 - 放在上方 */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="glass-card p-4 sm:p-6 relative overflow-hidden"
+      >
         {/* Map title */}
         <div className="relative z-10 mb-4">
           <h3 className="text-base sm:text-lg font-semibold text-text flex items-center gap-2">
-            <MapPin size={16} className="text-primary" />
-            3D 足迹地球
-          </h3>
-          <p className="text-xs text-text-muted mt-1">点击地球上的光点查看旅行记录，拖动可旋转视角</p>
-        </div>
-
-        {/* 3D Canvas */}
-        <div className="relative w-full" style={{ height: isMobile ? 300 : 400 }}>
-          <Canvas
-            camera={{ position: [0, 0, 6], fov: 45 }}
-            gl={{ antialias: true, alpha: true }}
-            style={{ background: 'transparent' }}
-          >
-            <ambientLight intensity={0.8} />
-            <directionalLight position={[5, 3, 5]} intensity={1.2} />
-            <pointLight position={[-5, -3, -5]} intensity={0.6} color="#4f46e5" />
-            
-            {/* 使用drei的Stars组件 */}
-            <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={1} />
-            
-            <Earth 
-              onLocationClick={handleMapLocationClick}
-              locations={travelLocations}
-              hoveredLocation={hoveredLocation}
-            />
-            
-            {/* OrbitControls用于拖动旋转 */}
-            <OrbitControls 
-              enableZoom={false}
-              enablePan={false}
-              rotateSpeed={0.5}
-              minPolarAngle={Math.PI / 4}
-              maxPolarAngle={Math.PI * 3 / 4}
-            />
-          </Canvas>
-          
-          {/* 移动端提示 */}
-          {isMobile && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-text-muted bg-card/80 px-2 py-1 rounded-full">
-              点击光点查看详情
+            <div className="p-1.5 rounded-lg bg-primary/10">
+              <MapPin size={16} className="text-primary" />
             </div>
-          )}
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              中国旅行足迹
+            </span>
+          </h3>
+          <p className="text-xs text-text-muted mt-2 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            点击地图上的光点查看旅行记录，拖拽可平移，滚轮可缩放
+          </p>
         </div>
-      </div>
 
-      {/* Location Detail Modal */}
-      <AnimatePresence>
-        {modalLocation && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={closeModal}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Modal Header with Image */}
-              <div className="relative h-48 sm:h-64 overflow-hidden">
-                <img
-                  src={modalLocation.images[0]}
-                  alt={modalLocation.name}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                
-                {/* Close Button */}
-                <button
-                  onClick={closeModal}
-                  className="absolute top-4 right-4 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
-                >
-                  <X size={20} />
-                </button>
+        {/* 中国地图组件 */}
+        <ChinaMap
+          locations={travelLocations}
+          onLocationClick={handleMapLocationClick}
+          hoveredLocation={hoveredLocation}
+          onLocationHover={setHoveredLocation}
+          height={isMobile ? 350 : 500}
+        />
+      </motion.div>
 
-                {/* Title Overlay */}
-                <div className="absolute bottom-4 left-6 right-6">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ background: modalLocation.color }}
-                    />
-                    <span className="text-white/80 text-sm">{modalLocation.country}</span>
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white">{modalLocation.name}</h2>
-                </div>
-              </div>
+      {/* 旅拍相册管理 */}
+      <TravelManager
+        locations={travelLocations}
+        onAdd={handleAddLocation}
+        onEdit={handleEditLocation}
+        onDelete={handleDeleteLocation}
+        onLocationClick={handleMapLocationClick}
+      />
 
-              {/* Modal Content */}
-              <div className="p-5 sm:p-6 space-y-5">
-                {/* Description */}
-                <p className="text-text-secondary leading-relaxed">{modalLocation.description}</p>
-
-                {/* Best Time */}
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-surface/50">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Calendar size={18} className="text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-text mb-1">最佳旅行时间</h4>
-                    <p className="text-sm text-text-muted">{modalLocation.details.bestTime}</p>
-                  </div>
-                </div>
-
-                {/* Highlights */}
-                <div>
-                  <h4 className="text-sm font-semibold text-text mb-3 flex items-center gap-2">
-                    <Sparkles size={16} className="text-accent" />
-                    必游景点
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {modalLocation.details.highlights.map((highlight, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20"
-                      >
-                        {highlight}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Tips */}
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-accent/5 border border-accent/10">
-                  <div className="p-2 rounded-lg bg-accent/10">
-                    <Lightbulb size={18} className="text-accent" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-text mb-1">旅行贴士</h4>
-                    <p className="text-sm text-text-muted">{modalLocation.details.tips}</p>
-                  </div>
-                </div>
-
-                {/* Image Gallery */}
-                <div>
-                  <h4 className="text-sm font-semibold text-text mb-3">精彩瞬间</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    {modalLocation.images.map((image, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="aspect-square rounded-lg overflow-hidden"
-                      >
-                        <img
-                          src={image}
-                          alt={`${modalLocation.name} ${index + 1}`}
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                          loading="lazy"
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* 旅行详情弹窗 */}
+      <TravelDetailModal
+        location={modalLocation}
+        isOpen={!!modalLocation}
+        onClose={closeModal}
+      />
     </div>
   )
 }

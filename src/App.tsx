@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion'
 import { ThemeProvider } from './contexts/ThemeContext'
 import Navbar from './components/layout/Navbar'
 import ThemeSwitcher from './components/ui/ThemeSwitcher'
+import StarCursor from './components/ui/StarCursor'
 import Home from './pages/Home'
 import Learning from './pages/Learning'
 import Life from './pages/Life'
@@ -14,6 +15,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-bg text-text">
+      <StarCursor />
       <Navbar />
       <ThemeSwitcher />
       <main className="pt-20 pb-20 md:pb-0">

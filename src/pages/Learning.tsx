@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Calendar, Clock, ChevronRight, ChevronDown, ArrowLeft, Tag, Hash, Menu, X } from 'lucide-react'
+import { Search, Calendar, Clock, ChevronRight, ChevronDown, ArrowLeft, Tag, Hash, Menu, X, BookOpen, GitBranch } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
+import SkillTreeView from '../components/ui/SkillTreeView'
 import { learningCategories } from '../data/mock'
 import type { Article } from '../data/mock'
 
@@ -16,7 +17,10 @@ interface ArticleWithMeta extends Article {
   seriesName: string
 }
 
+type ViewMode = 'knowledge' | 'skilltree'
+
 export default function Learning() {
+  const [viewMode, setViewMode] = useState<ViewMode>('knowledge')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null)
   const [selectedArticle, setSelectedArticle] = useState<ArticleWithMeta | null>(null)
@@ -378,18 +382,87 @@ export default function Learning() {
     )
   }
 
+  // Skill Tree View
+  if (viewMode === 'skilltree') {
+    return (
+      <PageTransition>
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+          {/* Header with View Switcher */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-text mb-2">学习空间</h1>
+                <p className="text-text-muted">记录学习、分享知识、持续成长</p>
+              </div>
+              
+              {/* View Mode Switcher */}
+              <div className="flex items-center gap-1 p-1 rounded-xl bg-surface border border-border">
+                <button
+                  onClick={() => setViewMode('knowledge')}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-text-muted hover:text-text"
+                >
+                  <BookOpen size={16} />
+                  <span className="hidden sm:inline">知识库</span>
+                </button>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all bg-primary/10 text-primary"
+                >
+                  <GitBranch size={16} />
+                  <span className="hidden sm:inline">技能树</span>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Skill Tree Content */}
+          <SkillTreeView />
+        </div>
+      </PageTransition>
+    )
+  }
+
   // Article List View (Two Column Layout)
   return (
     <PageTransition>
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-        {/* Header */}
+        {/* Header with View Switcher */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-text mb-2">知识库</h1>
-          <p className="text-text-muted">记录学习、分享知识、持续成长</p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-text mb-2">学习空间</h1>
+              <p className="text-text-muted">记录学习、分享知识、持续成长</p>
+            </div>
+            
+            {/* View Mode Switcher */}
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-surface border border-border">
+              <button
+                onClick={() => setViewMode('knowledge')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  viewMode === 'knowledge'
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-text-muted hover:text-text'
+                }`}
+              >
+                <BookOpen size={16} />
+                <span className="hidden sm:inline">知识库</span>
+              </button>
+              <button
+                onClick={() => setViewMode('skilltree')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-text-muted hover:text-text"
+              >
+                <GitBranch size={16} />
+                <span className="hidden sm:inline">技能树</span>
+              </button>
+            </div>
+          </div>
         </motion.div>
 
         {/* Search */}
