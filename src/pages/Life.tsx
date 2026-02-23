@@ -1,14 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film } from 'lucide-react'
+import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
-import { loveTimeline, socialPosts as initialSocialPosts, travelLocations as initialTravelLocations } from '../data/mock'
+import { loveTimeline as initialLoveTimeline, socialPosts as initialSocialPosts, travelLocations as initialTravelLocations } from '../data/mock'
 import type { SocialPost, PostComment, TravelLocation } from '../data/mock'
 import { ChinaMap } from '../components/ChinaMap'
 import { TravelDetailModal } from '../components/TravelDetailModal'
 import { TravelManager } from '../components/TravelManager'
-
-
+import { LoveDetailModal, type LoveTimelineEvent } from '../components/LoveDetailModal'
+import { TimeAlbum } from '../components/love/TimeAlbum'
+import { WishList } from '../components/love/WishList'
+import { BlessingBoard } from '../components/love/BlessingBoard'
 
 // Couple info configuration
 const coupleInfo = {
@@ -18,9 +20,9 @@ const coupleInfo = {
 }
 
 const tabs = [
-  { id: 'love', label: '恋爱记录', icon: Heart },
   { id: 'moments', label: '朋友圈', icon: MessageCircle },
   { id: 'travel', label: '旅拍相册', icon: Camera },
+  { id: 'love', label: '恋爱记录', icon: Heart },
 ] as const
 
 type TabId = (typeof tabs)[number]['id']
@@ -28,6 +30,20 @@ type TabId = (typeof tabs)[number]['id']
 export default function Life() {
   const [activeTab, setActiveTab] = useState<TabId>('love')
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
+  const [loveView, setLoveView] = useState<'main' | 'album' | 'wish' | 'blessing'>('main')
+
+  // 如果处于子页面，显示子页面
+  if (loveView !== 'main' && activeTab === 'love') {
+    const handleBack = () => setLoveView('main')
+    switch (loveView) {
+      case 'album':
+        return <TimeAlbum events={initialLoveTimeline.map(t => ({ ...t, images: [] }))} onBack={handleBack} />
+      case 'wish':
+        return <WishList onBack={handleBack} />
+      case 'blessing':
+        return <BlessingBoard onBack={handleBack} />
+    }
+  }
 
   return (
     <PageTransition>
@@ -82,7 +98,7 @@ export default function Life() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              <LoveTimeline />
+              <LoveTimeline onNavigate={setLoveView} />
             </motion.div>
           )}
           {activeTab === 'moments' && (
@@ -241,9 +257,73 @@ function CountdownNumber({ value, label }: { value: number; label: string }) {
   )
 }
 
-function LoveTimeline() {
+// Feature Button Component
+interface FeatureButtonProps {
+  icon: LucideIcon
+  title: string
+  subtitle: string
+  gradient: string
+  onClick: () => void
+  delay?: number
+}
+
+function FeatureButton({ 
+  icon: Icon, 
+  title, 
+  subtitle, 
+  gradient, 
+  onClick,
+  delay = 0
+}: FeatureButtonProps) {
+  return (
+    <motion.button
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.5 }}
+      whileHover={{ scale: 1.03, y: -4 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className={`relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-300 group ${gradient}`}
+    >
+      {/* Glass overlay */}
+      <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" />
+      
+      {/* Hover glow */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/10 to-transparent" />
+      
+      <div className="relative z-10">
+        <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-3 backdrop-blur-sm">
+          <Icon size={24} className="text-white" />
+        </div>
+        <h3 className="text-lg font-bold text-white mb-1">{title}</h3>
+        <p className="text-white/70 text-sm">{subtitle}</p>
+      </div>
+      
+      {/* Decorative elements */}
+      <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-white/10 blur-2xl group-hover:scale-150 transition-transform duration-500" />
+    </motion.button>
+  )
+}
+
+function LoveTimeline({ onNavigate }: { onNavigate: (view: 'album' | 'wish' | 'blessing') => void }) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(coupleInfo.startDate))
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<LoveTimelineEvent | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [editForm, setEditForm] = useState({ title: '', description: '', date: '', emoji: '' })
+  const [timelineEvents, setTimelineEvents] = useState<LoveTimelineEvent[]>(
+    initialLoveTimeline.map(t => ({ ...t, images: [] }))
+  )
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [newPostForm, setNewPostForm] = useState({ 
+    title: '', 
+    description: '', 
+    date: new Date().toISOString().split('T')[0], 
+    emoji: '💕',
+    images: [] as string[]
+  })
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -251,6 +331,102 @@ function LoveTimeline() {
     }, 1000)
     return () => clearInterval(timer)
   }, [])
+
+  const handleEventClick = (event: LoveTimelineEvent) => {
+    setSelectedEvent(event)
+    setIsModalOpen(true)
+    setIsEditMode(false)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedEvent(null)
+    setIsEditMode(false)
+  }
+
+  const handleEditEvent = (event: LoveTimelineEvent) => {
+    setEditForm({
+      title: event.title,
+      description: event.description,
+      date: event.date,
+      emoji: event.emoji
+    })
+    setIsEditMode(true)
+  }
+
+  const handleSaveEdit = () => {
+    if (selectedEvent && editForm.title.trim()) {
+      setTimelineEvents(prev => prev.map(e => 
+        e.id === selectedEvent.id 
+          ? { ...e, ...editForm }
+          : e
+      ))
+      setIsEditMode(false)
+      setIsModalOpen(false)
+      setSelectedEvent(null)
+    }
+  }
+
+  const handleDeleteEvent = (id: string) => {
+    setTimelineEvents(prev => prev.filter(e => e.id !== id))
+    handleCloseModal()
+  }
+
+  const handleAddPost = () => {
+    setIsAddModalOpen(true)
+    setNewPostForm({ 
+      title: '', 
+      description: '', 
+      date: new Date().toISOString().split('T')[0], 
+      emoji: '💕',
+      images: []
+    })
+  }
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false)
+    setNewPostForm({ 
+      title: '', 
+      description: '', 
+      date: new Date().toISOString().split('T')[0], 
+      emoji: '💕',
+      images: []
+    })
+  }
+
+  const handleSaveNewPost = () => {
+    if (newPostForm.title.trim()) {
+      const newEvent: LoveTimelineEvent = {
+        id: `event-${Date.now()}`,
+        title: newPostForm.title,
+        description: newPostForm.description,
+        date: newPostForm.date,
+        emoji: newPostForm.emoji,
+        images: newPostForm.images
+      }
+      setTimelineEvents(prev => [newEvent, ...prev])
+      handleCloseAddModal()
+    }
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setNewPostForm(prev => ({
+            ...prev,
+            images: [...prev.images, event.target!.result as string]
+          }))
+        }
+      }
+      reader.readAsDataURL(file)
+    })
+    e.target.value = ''
+  }
 
   return (
     <div className="relative">
@@ -324,8 +500,73 @@ function LoveTimeline() {
         </motion.div>
       </motion.div>
 
+      {/* Feature Buttons */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="grid grid-cols-3 gap-3 sm:gap-4 mb-12 max-w-3xl mx-auto"
+      >
+        <FeatureButton
+          icon={Images}
+          title="时光相册"
+          subtitle="记录美好瞬间"
+          gradient="bg-gradient-to-br from-rose/80 to-pink/80"
+          onClick={() => onNavigate('album')}
+          delay={0.8}
+        />
+        <FeatureButton
+          icon={Gift}
+          title="许愿清单"
+          subtitle="一起完成的愿望"
+          gradient="bg-gradient-to-br from-cyan-500 to-blue-500"
+          onClick={() => onNavigate('wish')}
+          delay={0.9}
+        />
+        <FeatureButton
+          icon={ScrollText}
+          title="祝福板"
+          subtitle="朋友们的祝福"
+          gradient="bg-gradient-to-br from-primary/80 to-violet/80"
+          onClick={() => onNavigate('blessing')}
+          delay={1.0}
+        />
+      </motion.div>
+
       {/* Timeline Section */}
       <div className="relative max-w-4xl mx-auto px-4">
+        {/* Section Title */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1 }}
+          className="text-center mb-8"
+        >
+          <h3 className="text-lg font-semibold text-text flex items-center justify-center gap-2">
+            <span className="w-8 h-px bg-gradient-to-r from-transparent to-rose/50" />
+            <span className="text-text-muted">点点滴滴</span>
+            <span className="w-8 h-px bg-gradient-to-l from-transparent to-rose/50" />
+          </h3>
+        </motion.div>
+
+        {/* 新增帖子按钮 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.15 }}
+          className="flex justify-center mb-6"
+        >
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleAddPost}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose text-white text-sm font-medium hover:bg-rose/90 transition-colors"
+          >
+            <Plus size={18} />
+            <span>新增帖子</span>
+          </motion.button>
+        </motion.div>
+
         {/* Central line */}
         <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-rose/50 via-primary/30 to-transparent -translate-x-1/2 hidden sm:block" />
         
@@ -333,7 +574,7 @@ function LoveTimeline() {
         <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-rose/50 via-primary/30 to-transparent sm:hidden" />
 
         <div className="space-y-8 sm:space-y-12">
-          {loveTimeline.map((event, index) => {
+          {timelineEvents.map((event, index) => {
             const isLeft = index % 2 === 0
             const isHovered = hoveredEvent === event.id
             
@@ -342,10 +583,11 @@ function LoveTimeline() {
                 key={event.id}
                 initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 + index * 0.15, duration: 0.5 }}
-                className={`relative flex items-center ${isLeft ? 'sm:flex-row' : 'sm:flex-row-reverse'} flex-row`}
+                transition={{ delay: 1.2 + index * 0.1, duration: 0.5 }}
+                className={`relative flex items-center ${isLeft ? 'sm:flex-row' : 'sm:flex-row-reverse'} flex-row cursor-pointer`}
                 onMouseEnter={() => setHoveredEvent(event.id)}
                 onMouseLeave={() => setHoveredEvent(null)}
+                onClick={() => handleEventClick(event)}
               >
                 {/* Content card */}
                 <div className={`w-full sm:w-5/12 ${isLeft ? 'sm:text-right sm:pr-8' : 'sm:text-left sm:pl-8'} pl-12 sm:pl-0`}>
@@ -375,9 +617,15 @@ function LoveTimeline() {
                       </h3>
                       
                       {/* Description */}
-                      <p className="text-sm text-text-secondary leading-relaxed">
+                      <p className="text-sm text-text-secondary leading-relaxed line-clamp-2">
                         {event.description}
                       </p>
+                      
+                      {/* Click hint */}
+                      <div className={`mt-3 text-xs text-rose/60 flex items-center gap-1 ${isLeft ? 'sm:justify-end' : 'justify-start'}`}>
+                        <span>点击查看详情</span>
+                        <Sparkles size={10} />
+                      </div>
                     </div>
                   </motion.div>
                 </div>
@@ -405,7 +653,7 @@ function LoveTimeline() {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
+          transition={{ delay: 1.8 }}
           className="text-center mt-16 pt-8 border-t border-border/50"
         >
           <p className="text-text-muted text-sm mb-3">故事还在继续，未来可期</p>
@@ -416,6 +664,164 @@ function LoveTimeline() {
           </div>
         </motion.div>
       </div>
+
+      {/* Detail Modal */}
+      <LoveDetailModal
+        event={selectedEvent}
+        isOpen={isModalOpen}
+        isEditMode={isEditMode}
+        editForm={editForm}
+        onClose={handleCloseModal}
+        onEdit={handleEditEvent}
+        onDelete={handleDeleteEvent}
+        onSaveEdit={handleSaveEdit}
+        onEditFormChange={setEditForm}
+      />
+
+      {/* Add Post Modal */}
+      <AnimatePresence>
+        {isAddModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            onClick={handleCloseAddModal}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto glass-card"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-border/50">
+                <h3 className="text-lg font-semibold text-text">新增帖子</h3>
+                <button
+                  onClick={handleCloseAddModal}
+                  className="p-1.5 rounded-lg text-text-muted hover:text-text hover:bg-surface transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Form */}
+              <div className="p-4 space-y-4">
+                {/* 标题 */}
+                <div>
+                  <label className="block text-xs font-medium text-text-muted mb-1.5">标题</label>
+                  <input
+                    type="text"
+                    value={newPostForm.title}
+                    onChange={e => setNewPostForm(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="例如：在一起的第一天"
+                    className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-text text-sm placeholder:text-text-muted focus:outline-none focus:border-rose/50"
+                  />
+                </div>
+
+                {/* 日期和表情 */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-text-muted mb-1.5">日期</label>
+                    <input
+                      type="date"
+                      value={newPostForm.date}
+                      onChange={e => setNewPostForm(prev => ({ ...prev, date: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-text text-sm focus:outline-none focus:border-rose/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-text-muted mb-1.5">表情</label>
+                    <input
+                      type="text"
+                      value={newPostForm.emoji}
+                      onChange={e => setNewPostForm(prev => ({ ...prev, emoji: e.target.value }))}
+                      placeholder="💕"
+                      className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-text text-sm text-center focus:outline-none focus:border-rose/50"
+                    />
+                  </div>
+                </div>
+
+                {/* 描述 */}
+                <div>
+                  <label className="block text-xs font-medium text-text-muted mb-1.5">内容描述</label>
+                  <textarea
+                    value={newPostForm.description}
+                    onChange={e => setNewPostForm(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="记录下这个特别的时刻..."
+                    rows={3}
+                    className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-text text-sm placeholder:text-text-muted focus:outline-none focus:border-rose/50 resize-none"
+                  />
+                </div>
+
+                {/* 图片上传 */}
+                <div>
+                  <label className="block text-xs font-medium text-text-muted mb-1.5">图片</label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+                  
+                  {/* 图片预览 */}
+                  {newPostForm.images.length > 0 && (
+                    <div className="grid grid-cols-4 gap-2 mb-3">
+                      {newPostForm.images.map((img, index) => (
+                        <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
+                          <img src={img} alt={`预览 ${index + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => setNewPostForm(prev => ({
+                              ...prev,
+                              images: prev.images.filter((_, i) => i !== index)
+                            }))}
+                            className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white text-xs hover:bg-black/80"
+                          >
+                            <X size={10} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* 上传按钮 */}
+                  {newPostForm.images.length < 9 && (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-border text-text-muted hover:border-rose hover:text-rose transition-colors"
+                    >
+                      <Plus size={16} />
+                      <span className="text-sm">上传图片 ({newPostForm.images.length}/9)</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-end gap-2 p-4 border-t border-border/50">
+                <button
+                  onClick={handleCloseAddModal}
+                  className="px-4 py-2 rounded-lg text-sm text-text-muted hover:text-text transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleSaveNewPost}
+                  disabled={!newPostForm.title.trim()}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-rose text-white text-sm font-medium hover:bg-rose/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Plus size={14} />
+                  发布帖子
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -545,27 +951,6 @@ function CommentList({ comments, isExpanded }: { comments: PostComment[]; isExpa
         ))}
       </div>
     </motion.div>
-  )
-}
-
-// 发布框组件
-function PostInput({ 
-  onSubmit, 
-  onCancel,
-  editingPost,
-}: { 
-  onSubmit: (content: string, images: string[], video?: { url: string; thumbnail: string; duration: string }) => void
-  onCancel: () => void
-  editingPost?: SocialPost | null
-}) {
-  // 使用 key 来强制重新渲染，避免在 useEffect 中调用 setState
-  return (
-    <PostInputContent
-      key={editingPost?.id || 'new'}
-      onSubmit={onSubmit}
-      onCancel={onCancel}
-      editingPost={editingPost}
-    />
   )
 }
 
@@ -898,6 +1283,27 @@ function PostInputContent({
   )
 }
 
+// 发布框组件
+function PostInput({ 
+  onSubmit, 
+  onCancel,
+  editingPost,
+}: { 
+  onSubmit: (content: string, images: string[], video?: { url: string; thumbnail: string; duration: string }) => void
+  onCancel: () => void
+  editingPost?: SocialPost | null
+}) {
+  // 使用 key 来强制重新渲染，避免在 useEffect 中调用 setState
+  return (
+    <PostInputContent
+      key={editingPost?.id || 'new'}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      editingPost={editingPost}
+    />
+  )
+}
+
 // 动态卡片组件
 function PostCard({ 
   post, 
@@ -1200,9 +1606,6 @@ function Moments() {
     </div>
   )
 }
-
-/* ===== 3D Map Components ===== */
-// 已迁移到独立的 ChinaMap.tsx 组件
 
 /* ===== Travel Album ===== */
 function TravelAlbum({ onSelect }: {

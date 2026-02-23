@@ -2,7 +2,6 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { ThemeProvider } from './contexts/ThemeContext'
 import Navbar from './components/layout/Navbar'
-import ThemeSwitcher from './components/ui/ThemeSwitcher'
 import StarCursor from './components/ui/StarCursor'
 import Home from './pages/Home'
 import Learning from './pages/Learning'
@@ -17,8 +16,7 @@ function AppContent() {
     <div className="min-h-screen bg-bg text-text">
       <StarCursor />
       <Navbar />
-      <ThemeSwitcher />
-      <main className="pt-20 pb-20 md:pb-0">
+      <main className="pt-0 md:pt-20 pb-20 md:pb-0">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Home />} />

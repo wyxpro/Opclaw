@@ -1,9 +1,19 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Music, Film, Bookmark as BookmarkIcon, Play, Pause, SkipBack, SkipForward, Star, Search, List, Heart, X, Edit2, Trash2, Calendar, User, Plus, ExternalLink, Link as LinkIcon } from 'lucide-react'
+import { Music, Film, Bookmark as BookmarkIcon, Play, Pause, SkipBack, SkipForward, Star, Search, List, Heart, X, Edit2, Trash2, Calendar, User, Plus, ExternalLink, Link as LinkIcon, Upload } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
-import { musicPlaylist, movieCollection, bookmarks } from '../data/mock'
+import { musicPlaylist as initialMusicPlaylist, movieCollection, bookmarks } from '../data/mock'
 import type { Movie, Bookmark } from '../data/mock'
+
+interface Song {
+  id: string
+  title: string
+  artist: string
+  album: string
+  duration: string
+  color: string
+  url?: string
+}
 
 const tabs = [
   { id: 'music', label: '音乐盒', icon: Music },
@@ -118,8 +128,8 @@ function VinylRecord({
 }) {
   return (
     <div className="relative">
-      {/* 唱片外圈底座 */}
-      <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72">
+      {/* 唱片外圈底座 - 移动端尺寸缩小 */}
+      <div className="relative w-36 h-36 sm:w-52 sm:h-52 md:w-72 md:h-72">
         {/* 唱片旋转动画容器 */}
         <motion.div
           className="absolute inset-0"
@@ -166,22 +176,7 @@ function VinylRecord({
         {/* 唱片反光效果 - 不旋转 */}
         <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none" />
         
-        {/* 播放状态指示器 */}
-        <AnimatePresence>
-          {isPlaying && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-primary/90 text-white text-xs font-medium shadow-lg"
-            >
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                播放中
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* 播放状态指示器 - 已移除文字提示 */}
       </div>
     </div>
   )
@@ -193,6 +188,13 @@ function MusicBox() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [isLiked, setIsLiked] = useState(false)
+  const [musicPlaylist, setMusicPlaylist] = useState<Song[]>(initialMusicPlaylist)
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+  const [importType, setImportType] = useState<'local' | 'link'>('local')
+  const [linkUrl, setLinkUrl] = useState('')
+  const [linkTitle, setLinkTitle] = useState('')
+  const [linkArtist, setLinkArtist] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
 
   const song = musicPlaylist[currentSong]
@@ -200,12 +202,12 @@ function MusicBox() {
   const handlePrev = useCallback(() => {
     setCurrentSong((prev) => (prev - 1 + musicPlaylist.length) % musicPlaylist.length)
     setProgress(0)
-  }, [])
+  }, [musicPlaylist.length])
 
   const handleNext = useCallback(() => {
     setCurrentSong((prev) => (prev + 1) % musicPlaylist.length)
     setProgress(0)
-  }, [])
+  }, [musicPlaylist.length])
 
   // Simulate progress
   useEffect(() => {
@@ -235,6 +237,58 @@ function MusicBox() {
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // 检查文件类型
+    if (!file.type.startsWith('audio/') && !file.name.endsWith('.mp3')) {
+      alert('请选择有效的音频文件（MP3格式）')
+      return
+    }
+
+    // 创建本地URL
+    const url = URL.createObjectURL(file)
+    const newSong: Song = {
+      id: `song-${Date.now()}`,
+      title: file.name.replace(/\.[^/.]+$/, ''),
+      artist: '本地音乐',
+      album: '导入音乐',
+      duration: '3:45',
+      color: '#8b5cf6',
+      url: url
+    }
+
+    setMusicPlaylist(prev => [...prev, newSong])
+    setIsImportModalOpen(false)
+    
+    // 清空input
+    e.target.value = ''
+  }
+
+  const handleImportFromLink = () => {
+    if (!linkUrl.trim() || !linkTitle.trim()) {
+      alert('请填写音乐链接和标题')
+      return
+    }
+
+    const newSong: Song = {
+      id: `song-${Date.now()}`,
+      title: linkTitle,
+      artist: linkArtist || '未知艺术家',
+      album: '网络音乐',
+      duration: '3:30',
+      color: '#3b82f6',
+      url: linkUrl
+    }
+
+    setMusicPlaylist(prev => [...prev, newSong])
+    setIsImportModalOpen(false)
+    setLinkUrl('')
+    setLinkTitle('')
+    setLinkArtist('')
   }
 
   const currentSeconds = (progress / 100) * 240
@@ -351,10 +405,19 @@ function MusicBox() {
 
       {/* Playlist Panel */}
       <div className="glass-card overflow-hidden">
-        <div className="p-3 sm:p-4 border-b border-border">
+        <div className="p-3 sm:p-4 border-b border-border flex items-center justify-between">
           <h3 className="text-xs sm:text-sm font-semibold text-text-secondary">
             播放列表 · {musicPlaylist.length} 首
           </h3>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setIsImportModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+          >
+            <Plus size={14} />
+            <span>导入音乐</span>
+          </motion.button>
         </div>
         <div className="divide-y divide-border max-h-[300px] sm:max-h-96 overflow-y-auto">
           {musicPlaylist.map((s, i) => (
@@ -401,6 +464,131 @@ function MusicBox() {
           ))}
         </div>
       </div>
+
+      {/* Import Music Modal */}
+      <AnimatePresence>
+        {isImportModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            onClick={() => setIsImportModalOpen(false)}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md glass-card"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-border/50">
+                <h3 className="text-lg font-semibold text-text">导入音乐</h3>
+                <button
+                  onClick={() => setIsImportModalOpen(false)}
+                  className="p-1.5 rounded-lg text-text-muted hover:text-text hover:bg-surface transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex p-4 pb-0 gap-2">
+                <button
+                  onClick={() => setImportType('local')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    importType === 'local' 
+                      ? 'bg-primary text-white' 
+                      : 'bg-surface text-text-secondary hover:text-text'
+                  }`}
+                >
+                  <Upload size={16} />
+                  本地上传
+                </button>
+                <button
+                  onClick={() => setImportType('link')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    importType === 'link' 
+                      ? 'bg-primary text-white' 
+                      : 'bg-surface text-text-secondary hover:text-text'
+                  }`}
+                >
+                  <LinkIcon size={16} />
+                  链接导入
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-4">
+                {importType === 'local' ? (
+                  <div className="space-y-4">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="audio/mp3,audio/*"
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                    >
+                      <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                        <Upload size={24} className="text-primary" />
+                      </div>
+                      <p className="text-sm font-medium text-text mb-1">点击上传 MP3 文件</p>
+                      <p className="text-xs text-text-muted">支持 MP3 格式的音频文件</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-medium text-text-muted mb-1.5">音乐链接</label>
+                      <input
+                        type="url"
+                        value={linkUrl}
+                        onChange={e => setLinkUrl(e.target.value)}
+                        placeholder="https://music.163.com/... 或 https://y.qq.com/..."
+                        className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-text text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50"
+                      />
+                      <p className="text-xs text-text-muted mt-1">支持网易云音乐、QQ音乐等平台链接</p>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-text-muted mb-1.5">歌曲名称</label>
+                      <input
+                        type="text"
+                        value={linkTitle}
+                        onChange={e => setLinkTitle(e.target.value)}
+                        placeholder="输入歌曲名称"
+                        className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-text text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-text-muted mb-1.5">艺术家</label>
+                      <input
+                        type="text"
+                        value={linkArtist}
+                        onChange={e => setLinkArtist(e.target.value)}
+                        placeholder="输入艺术家名称（选填）"
+                        className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-text text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50"
+                      />
+                    </div>
+                    <button
+                      onClick={handleImportFromLink}
+                      disabled={!linkUrl.trim() || !linkTitle.trim()}
+                      className="w-full py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      添加音乐
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -948,8 +1136,8 @@ function TreasureBox() {
         ))}
       </div>
 
-      {/* Bookmarks grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Bookmarks grid - 移动端2列布局 */}
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="popLayout">
           {filtered.map((bookmark, index) => (
             <motion.div
@@ -960,16 +1148,16 @@ function TreasureBox() {
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ delay: index * 0.04 }}
               onClick={() => handleCardClick(bookmark)}
-              className="glass-card p-4 group cursor-pointer hover:border-primary/30 transition-all"
+              className="glass-card p-3 sm:p-4 group cursor-pointer hover:border-primary/30 transition-all"
             >
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{bookmark.icon}</span>
+              <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3">
+                <span className="text-xl sm:text-2xl">{bookmark.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm text-text group-hover:text-primary transition-colors mb-0.5">
+                  <h3 className="font-semibold text-xs sm:text-sm text-text group-hover:text-primary transition-colors mb-0.5 line-clamp-1">
                     {bookmark.title}
                   </h3>
-                  <p className="text-xs text-text-muted line-clamp-2">{bookmark.description}</p>
-                  <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-surface border border-border text-text-dim">
+                  <p className="text-[10px] sm:text-xs text-text-muted line-clamp-1 sm:line-clamp-2">{bookmark.description}</p>
+                  <span className="inline-block mt-1.5 sm:mt-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-surface border border-border text-text-dim">
                     {bookmark.category}
                   </span>
                 </div>

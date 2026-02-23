@@ -175,11 +175,6 @@ export function TravelManager({ locations, onAdd, onEdit, onDelete, onLocationCl
                 {/* 图片遮罩 - 悬停时显示 */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
-                {/* 序号标记 - 右下角 */}
-                <div className="absolute bottom-3 right-3 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-xs font-semibold text-text shadow-lg">
-                  {index + 1}
-                </div>
-
                 {/* 操作按钮 - 悬停时显示在右上角 */}
                 <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                   <button
@@ -233,7 +228,7 @@ export function TravelManager({ locations, onAdd, onEdit, onDelete, onLocationCl
                 </p>
 
                 {/* 底部信息 */}
-                <div className="flex items-center justify-between pt-3 border-t border-border/20">
+                <div className="flex items-center pt-3 border-t border-border/20">
                   <div className="flex items-center gap-2 text-[11px] text-text-muted">
                     <span className="flex items-center gap-1">
                       <div 
@@ -243,9 +238,6 @@ export function TravelManager({ locations, onAdd, onEdit, onDelete, onLocationCl
                       {location.details.bestTime || '全年适宜'}
                     </span>
                   </div>
-                  <span className="text-[11px] text-primary/70 group-hover:text-primary transition-colors">
-                    查看详情 →
-                  </span>
                 </div>
               </div>
             </div>

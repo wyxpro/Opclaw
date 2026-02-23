@@ -10,6 +10,24 @@ export const personalInfo = {
   email: 'xiaoye@example.com',
 }
 
+// 预设头像列表
+export const presetAvatars = [
+  { id: 'avatar1', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix', name: '阳光男孩' },
+  { id: 'avatar2', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka', name: '知性女孩' },
+  { id: 'avatar3', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Zack', name: '潮流达人' },
+  { id: 'avatar4', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bella', name: '甜美少女' },
+  { id: 'avatar5', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Leo', name: '商务精英' },
+]
+
+// 预设背景图列表
+export const presetBackgrounds = [
+  { id: 'bg1', url: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=800&q=80', name: '渐变紫蓝' },
+  { id: 'bg2', url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80', name: '暖色渐变' },
+  { id: 'bg3', url: 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800&q=80', name: '粉紫梦幻' },
+  { id: 'bg4', url: 'https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=800&q=80', name: '深蓝星空' },
+  { id: 'bg5', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80', name: '抽象艺术' },
+]
+
 export const skills = [
   { name: 'React', level: 95, category: '前端' },
   { name: 'TypeScript', level: 92, category: '前端' },
@@ -870,3 +888,109 @@ export const socialAccounts = [
   { platform: '微信公众号', username: '叶子技术周刊', url: '#', icon: 'message', followers: '3.2K', color: '#07c160' },
   { platform: '即刻', username: '@小叶', url: '#', icon: 'zap', followers: '1.5K', color: '#ffe411' },
 ]
+
+// ===== Digital Card Types & Data =====
+
+export interface DigitalCard {
+  id: string
+  title: string
+  subtitle: string
+  name: string
+  title_en: string
+  bio: string
+  avatar: string
+  skills: { name: string; level: number; category: string }[]
+  stats: { label: string; value: string }[]
+  projects: { title: string; description: string; tags: string[]; icon: string; gradient: string }[]
+  socialLinks: { platform: string; username: string }[]
+  milestones: { date: string; title: string; icon: string }[]
+  theme: CardTheme
+  createdAt: number
+  updatedAt: number
+}
+
+export interface CardHistory {
+  id: string
+  cardId: string
+  previewImage?: string
+  createdAt: number
+}
+
+export type CardTheme = 'blue' | 'purple' | 'green' | 'orange' | 'pink' | 'dark'
+
+export const cardThemes: Record<CardTheme, { name: string; gradient: string; primary: string; secondary: string }> = {
+  blue: {
+    name: '科技蓝',
+    gradient: 'from-blue-500 via-cyan-500 to-teal-400',
+    primary: '#3b82f6',
+    secondary: '#06b6d4',
+  },
+  purple: {
+    name: '梦幻紫',
+    gradient: 'from-violet-500 via-purple-500 to-fuchsia-400',
+    primary: '#8b5cf6',
+    secondary: '#d946ef',
+  },
+  green: {
+    name: '生机绿',
+    gradient: 'from-emerald-500 via-teal-500 to-cyan-400',
+    primary: '#10b981',
+    secondary: '#14b8a6',
+  },
+  orange: {
+    name: '活力橙',
+    gradient: 'from-orange-500 via-amber-500 to-yellow-400',
+    primary: '#f97316',
+    secondary: '#fbbf24',
+  },
+  pink: {
+    name: '温柔粉',
+    gradient: 'from-rose-500 via-pink-500 to-rose-300',
+    primary: '#f43f5e',
+    secondary: '#fb7185',
+  },
+  dark: {
+    name: '深邃黑',
+    gradient: 'from-slate-800 via-gray-700 to-slate-600',
+    primary: '#475569',
+    secondary: '#64748b',
+  },
+}
+
+// 聚合用户数据生成数字名片
+export function generateDigitalCard(theme: CardTheme = 'blue'): DigitalCard {
+  const now = Date.now()
+  return {
+    id: `card-${now}`,
+    title: '个人数字名片',
+    subtitle: '全栈开发者 / 创意设计师',
+    name: personalInfo.name,
+    title_en: personalInfo.title,
+    bio: personalInfo.bio,
+    avatar: personalInfo.avatar,
+    skills: skills.slice(0, 6).map(s => ({ name: s.name, level: s.level, category: s.category })),
+    stats: stats.slice(0, 4).map(s => ({ label: s.label, value: s.value })),
+    projects: portfolioProjects.slice(0, 3).map(p => ({
+      title: p.title,
+      description: p.description,
+      tags: p.tags,
+      icon: p.icon,
+      gradient: p.gradient,
+    })),
+    socialLinks: socialAccounts.slice(0, 4).map(s => ({
+      platform: s.platform,
+      username: s.username,
+    })),
+    milestones: growthTimeline.slice(-3).map(g => ({
+      date: g.date,
+      title: g.title,
+      icon: g.icon,
+    })),
+    theme,
+    createdAt: now,
+    updatedAt: now,
+  }
+}
+
+// 默认名片数据
+export const defaultDigitalCard = generateDigitalCard('blue')

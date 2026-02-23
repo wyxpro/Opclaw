@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, BookOpen, Heart, Music2, Users, Menu, X, Cloud, Sun, CloudRain } from 'lucide-react'
+import { Home, BookOpen, Heart, Music2, Users, Menu, X, Cloud, Sun, CloudRain, Palette } from 'lucide-react'
+import { useTheme } from '../../hooks/useTheme'
+import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
 
 const navItems = [
   { path: '/', label: '首页', icon: Home },
   { path: '/learning', label: '学习', icon: BookOpen },
   { path: '/life', label: '生活', icon: Heart },
   { path: '/entertainment', label: '娱乐', icon: Music2 },
-  { path: '/social', label: '社交', icon: Users },
+  { path: '/social', label: '我的', icon: Users },
 ]
 
 // 天气图标映射
@@ -52,23 +54,58 @@ function TimeWeatherWidget() {
   const { hours, minutes, seconds } = formatTimeParts(currentTime)
 
   return (
-    <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-xl bg-surface/50 border border-border/50">
+    <div className="hidden sm:flex items-center gap-4 px-4 py-2 rounded-xl bg-surface/50 border border-border/50">
       {/* 时间 - 固定宽度避免跳动 */}
-      <div className="flex items-center gap-0.5 font-mono">
-        <span className="text-sm font-semibold text-text w-[22px] text-center">{hours}</span>
-        <span className="text-sm font-semibold text-text-muted">:</span>
-        <span className="text-sm font-semibold text-text w-[22px] text-center">{minutes}</span>
-        <span className="text-sm font-semibold text-text-muted">:</span>
-        <span className="text-sm font-semibold text-text w-[22px] text-center">{seconds}</span>
+      <div className="flex items-center gap-1 font-mono">
+        <span className="text-base font-bold text-text w-[26px] text-center">{hours}</span>
+        <span className="text-base font-bold text-text-muted">:</span>
+        <span className="text-base font-bold text-text w-[26px] text-center">{minutes}</span>
+        <span className="text-base font-bold text-text-muted">:</span>
+        <span className="text-base font-bold text-text w-[26px] text-center">{seconds}</span>
       </div>
-      <span className="text-xs text-text-muted">{formatDate(currentTime)}</span>
-      <div className="w-px h-4 bg-border" />
+      <span className="text-sm text-text-muted font-medium">{formatDate(currentTime)}</span>
+      <div className="w-px h-5 bg-border" />
       {/* 天气 */}
-      <div className="flex items-center gap-1.5">
-        <WeatherIcon size={14} className="text-accent" />
-        <span className="text-xs text-text-secondary">{weather.location}</span>
-        <span className="text-xs font-medium text-text">{weather.temp}°C</span>
+      <div className="flex items-center gap-2">
+        <WeatherIcon size={18} className="text-accent" />
+        <span className="text-sm text-text-secondary font-medium">{weather.location}</span>
+        <span className="text-sm font-bold text-text">{weather.temp}°C</span>
       </div>
+    </div>
+  )
+}
+
+// 主题切换按钮组件
+function ThemeToggle() {
+  const { currentTheme, setTheme, themeConfig } = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <motion.button
+        onClick={() => setIsOpen(!isOpen)}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card text-base font-semibold transition-all duration-300"
+        style={{
+          background: themeConfig.glassEffect.background,
+          border: themeConfig.glassEffect.border,
+          color: themeConfig.colors.text,
+          boxShadow: themeConfig.shadows.card,
+        }}
+      >
+        <span className="text-lg">{themeConfig.icon}</span>
+        <span>{themeConfig.name}</span>
+        <Palette size={18} className="opacity-70" />
+      </motion.button>
+
+      <ThemeSelectorPanel
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        currentTheme={currentTheme}
+        themeConfig={themeConfig}
+        onThemeChange={setTheme}
+      />
     </div>
   )
 }
@@ -94,22 +131,22 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Desktop Navbar */}
+      {/* Desktop Navbar - 仅在桌面端显示 */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`hidden md:block fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? 'glass shadow-card py-3'
             : 'bg-transparent py-5'
         }`}
       >
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-6">
-          {/* Logo & TimeWeather */}
-          <div className="flex items-center gap-4">
-            <NavLink to="/" className="flex items-center gap-2 group">
-              <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-primary/20 text-primary transition-all group-hover:bg-primary/30 group-hover:shadow-glow">
-                <span className="text-lg font-bold">叶</span>
+        <nav className="flex items-center justify-between px-6">
+          {/* Left: Logo & TimeWeather - 靠最左端 */}
+          <div className="flex items-center gap-5">
+            <NavLink to="/" className="flex items-center gap-3 group">
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 text-primary transition-all group-hover:bg-primary/30 group-hover:shadow-glow">
+                <span className="text-xl font-bold">叶</span>
               </div>
-              <span className="text-lg font-semibold text-text hidden sm:block">
+              <span className="text-xl font-bold text-text hidden sm:block">
                 小叶<span className="text-text-muted font-normal">.dev</span>
               </span>
             </NavLink>
@@ -117,15 +154,15 @@ export default function Navbar() {
             <TimeWeatherWidget />
           </div>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Right: Desktop Nav Links + Theme Toggle */}
+          <div className="hidden md:flex items-center gap-2">
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
                 end={item.path === '/'}
                 className={({ isActive }) =>
-                  `relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  `relative px-5 py-2.5 rounded-xl text-base font-semibold transition-all duration-200 ${
                     isActive
                       ? 'text-primary'
                       : 'text-text-secondary hover:text-text hover:bg-surface/60'
@@ -146,6 +183,10 @@ export default function Navbar() {
                 )}
               </NavLink>
             ))}
+            {/* Theme Toggle - 紧靠在"我的"右边，间隔2个空格 */}
+            <div className="ml-4">
+              <ThemeToggle />
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
