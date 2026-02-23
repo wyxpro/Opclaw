@@ -525,28 +525,28 @@ export function ChinaMap({
         </button>
       </div>
 
-      {/* 操作提示 */}
-      <div className="absolute bottom-4 left-4 flex items-center gap-3 text-[11px] text-text-muted/70 bg-card/60 backdrop-blur-sm px-3 py-2 rounded-full border border-border/30">
-        <span className="flex items-center gap-1">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      {/* 操作提示 - 移动端和电脑端都显示完整文字 */}
+      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] text-gray-500 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:px-2.5 rounded-lg border border-gray-200 shadow-sm">
+        <span className="flex items-center gap-0.5 sm:gap-1">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary/70">
             <path d="M12 5v14M5 12h14"/>
           </svg>
-          滚轮缩放
+          <span>滚轮缩放</span>
         </span>
-        <span className="w-px h-3 bg-border/50" />
-        <span className="flex items-center gap-1">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <span className="w-px h-2 bg-gray-300" />
+        <span className="flex items-center gap-0.5 sm:gap-1">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-accent/70">
             <path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
           </svg>
-          拖拽平移
+          <span>拖拽平移</span>
         </span>
-        <span className="w-px h-3 bg-border/50" />
-        <span className="flex items-center gap-1">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <span className="w-px h-2 bg-gray-300" />
+        <span className="flex items-center gap-0.5 sm:gap-1">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-rose/70">
             <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
             <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
           </svg>
-          双击重置
+          <span>双击重置</span>
         </span>
       </div>
     </div>

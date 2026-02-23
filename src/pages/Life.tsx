@@ -28,7 +28,7 @@ const tabs = [
 type TabId = (typeof tabs)[number]['id']
 
 export default function Life() {
-  const [activeTab, setActiveTab] = useState<TabId>('love')
+  const [activeTab, setActiveTab] = useState<TabId>('moments')
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
   const [loveView, setLoveView] = useState<'main' | 'album' | 'wish' | 'blessing'>('main')
 
@@ -1123,25 +1123,28 @@ function PostInputContent({
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-card p-4 mb-6"
+      className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6"
     >
       <div className="flex gap-3">
-        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold flex-shrink-0 overflow-hidden">
+        {/* 头像 */}
+        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-gray-100">
           <img src="/avatar.png" alt="头像" className="w-full h-full object-cover" />
         </div>
+        
         <div className="flex-1">
-          {/* 文字输入区 */}
+          {/* 文字输入区 - 微信朋友圈风格 */}
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={isEditing ? '编辑你的动态...' : isListening ? '正在聆听...' : '分享你的想法...'}
-            rows={3}
-            className="w-full bg-transparent border-none resize-none text-sm text-text placeholder:text-text-muted focus:outline-none"
+            rows={isEditing ? 4 : 3}
+            className="w-full bg-transparent border-none resize-none text-[15px] text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed"
+            style={{ minHeight: isEditing ? '80px' : '60px' }}
           />
           
           {/* 语音输入指示器 */}
           {isListening && (
-            <div className="flex items-center gap-2 mt-2 text-rose text-xs">
+            <div className="flex items-center gap-2 mt-3 text-rose text-sm bg-rose/5 px-3 py-2 rounded-lg">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-rose"></span>
@@ -1150,15 +1153,15 @@ function PostInputContent({
             </div>
           )}
           
-          {/* 图片预览区 */}
+          {/* 图片预览区 - 微信朋友圈风格网格 */}
           {previewImages.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
+            <div className="grid grid-cols-3 gap-2 mt-3">
               {previewImages.map((img, index) => (
-                <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden">
+                <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
                   <img src={img} alt={`预览 ${index + 1}`} className="w-full h-full object-cover" />
                   <button
                     onClick={() => removeImage(index)}
-                    className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center text-white text-xs hover:bg-black/80"
+                    className="absolute top-1 right-1 w-5 h-5 bg-black/50 rounded-full flex items-center justify-center text-white text-xs hover:bg-black/70 transition-colors"
                   >
                     ×
                   </button>
@@ -1167,9 +1170,9 @@ function PostInputContent({
               {previewImages.length < 9 && (
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex items-center justify-center text-text-muted hover:border-primary hover:text-primary transition-colors"
+                  className="aspect-square rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-primary hover:text-primary transition-colors bg-gray-50"
                 >
-                  <ImageIcon size={20} />
+                  <Plus size={24} strokeWidth={1.5} />
                 </button>
               )}
             </div>
@@ -1177,37 +1180,37 @@ function PostInputContent({
 
           {/* 视频预览区 */}
           {previewVideo && (
-            <div className="relative mt-3 max-w-[200px]">
-              <div className="relative aspect-video rounded-lg overflow-hidden bg-surface">
+            <div className="relative mt-3 max-w-[240px]">
+              <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
                 <img src={previewVideo.thumbnail} alt="视频封面" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                  <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
-                    <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-text border-b-[6px] border-b-transparent ml-0.5" />
+                <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                    <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-gray-800 border-b-[8px] border-b-transparent ml-1" />
                   </div>
                 </div>
-                <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 bg-black/60 rounded text-[10px] text-white">
+                <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 rounded text-xs text-white">
                   {previewVideo.duration}
                 </div>
               </div>
               <button
                 onClick={removeVideo}
-                className="absolute -top-2 -right-2 w-5 h-5 bg-rose text-white rounded-full flex items-center justify-center text-xs hover:bg-rose/80"
+                className="absolute -top-2 -right-2 w-6 h-6 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs hover:bg-gray-700 transition-colors shadow-md"
               >
                 ×
               </button>
             </div>
           )}
           
-          {/* 操作栏 */}
-          <div className="flex items-center justify-between pt-3 mt-3 border-t border-border">
+          {/* 操作栏 - 微信朋友圈风格 */}
+          <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-100">
             <div className="flex items-center gap-1">
               {/* 图片按钮 */}
               {!previewVideo && previewImages.length < 9 && (
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-text-muted hover:text-primary hover:bg-primary/10 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors"
                 >
-                  <ImageIcon size={14} />
+                  <ImageIcon size={18} strokeWidth={1.5} />
                   <span className="hidden sm:inline">图片</span>
                 </button>
               )}
@@ -1224,9 +1227,9 @@ function PostInputContent({
               {!previewVideo && previewImages.length === 0 && (
                 <button
                   onClick={() => videoInputRef.current?.click()}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-text-muted hover:text-primary hover:bg-primary/10 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors"
                 >
-                  <Film size={14} />
+                  <Film size={18} strokeWidth={1.5} />
                   <span className="hidden sm:inline">视频</span>
                 </button>
               )}
@@ -1242,23 +1245,23 @@ function PostInputContent({
               {isSupported && previewImages.length === 0 && !previewVideo && (
                 <button
                   onClick={toggleVoiceInput}
-                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                     isListening 
                       ? 'text-rose bg-rose/10' 
-                      : 'text-text-muted hover:text-primary hover:bg-primary/10'
+                      : 'text-gray-600 hover:text-primary hover:bg-primary/5'
                   }`}
                 >
-                  {isListening ? <Square size={12} /> : <Mic size={14} />}
+                  {isListening ? <Square size={16} strokeWidth={1.5} /> : <Mic size={18} strokeWidth={1.5} />}
                   <span className="hidden sm:inline">{isListening ? '停止' : '语音'}</span>
                 </button>
               )}
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {isEditing && (
                 <button
                   onClick={onCancel}
-                  className="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm text-text-muted hover:text-text transition-colors"
+                  className="px-4 py-2 rounded-lg text-sm text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   取消
                 </button>
@@ -1266,12 +1269,12 @@ function PostInputContent({
               <button
                 onClick={handleSubmit}
                 disabled={(!content.trim() && previewImages.length === 0 && !previewVideo) || isSubmitting}
-                className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg bg-primary text-white text-xs sm:text-sm font-medium hover:bg-primary-dim disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
               >
                 {isSubmitting ? (
-                  <Loader2 size={14} className="animate-spin" />
+                  <Loader2 size={16} className="animate-spin" />
                 ) : (
-                  <Send size={14} />
+                  <Send size={16} strokeWidth={1.5} />
                 )}
                 {isEditing ? '保存' : '发布'}
               </button>

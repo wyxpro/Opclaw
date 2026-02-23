@@ -4,7 +4,8 @@ import {
   Link2, MessageCircle, Clock, Share2, ExternalLink,
   Send, Github, Edit3, Twitter, Play, MessageSquare, Zap, Award,
   X, Trash2, Edit2, Calendar, ChevronRight, ArrowLeft,
-  IdCard, Download, Share, History, Palette, Sparkles, Loader2, Plus
+  IdCard, Download, Share, History, Palette, Sparkles, Loader2, Plus,
+  Crown, Check, CreditCard, Shield, Star
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { ThemeSelectorPanel } from '../components/ui/ThemeSwitcher'
@@ -35,6 +36,8 @@ export default function Social() {
   const [activeTab, setActiveTab] = useState<TabId>('friends')
   const [mobileView, setMobileView] = useState<'menu' | TabId>('menu')
   const [showDesktopCardModal, setShowDesktopCardModal] = useState(false)
+  const [showDesktopVipModal, setShowDesktopVipModal] = useState(false)
+  const [selectedVipPlan, setSelectedVipPlan] = useState('yearly')
   
   // 用户资料状态
   const [userProfile, setUserProfile] = useState<ProfileData>({
@@ -115,6 +118,14 @@ export default function Social() {
                   <Edit2 size={18} />
                   <span>编辑资料</span>
                 </button>
+                {/* 桌面端VIP会员入口 */}
+                <button
+                  onClick={() => setShowDesktopVipModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-400 via-amber-400 to-amber-600 text-white font-medium hover:shadow-lg hover:scale-105 transition-all shadow-lg shadow-amber-500/40"
+                >
+                  <Crown size={18} />
+                  <span>VIP会员</span>
+                </button>
                 {/* 桌面端数字名片入口 */}
                 <button
                   onClick={() => setShowDesktopCardModal(true)}
@@ -192,6 +203,17 @@ export default function Social() {
             />
           )}
         </AnimatePresence>
+
+        {/* 桌面端VIP会员弹窗 */}
+        <AnimatePresence>
+          {showDesktopVipModal && (
+            <MembershipModal 
+              onClose={() => setShowDesktopVipModal(false)}
+              selectedPlan={selectedVipPlan}
+              onSelectPlan={setSelectedVipPlan}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* 移动端布局 - 个人中心样式 */}
@@ -234,6 +256,7 @@ function FriendLinks() {
   const [selectedLink, setSelectedLink] = useState<typeof friendLinks[0] | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [editForm, setEditForm] = useState({
     name: '',
     url: '',
@@ -247,6 +270,7 @@ function FriendLinks() {
     setIsEditing(false)
     setSelectedLink(null)
     setEditForm({ name: '', url: '', description: '', initials: '', color: '#3b82f6' })
+    setShowModal(true)
   }
 
   const handleEdit = (link: typeof friendLinks[0]) => {
@@ -260,6 +284,7 @@ function FriendLinks() {
       initials: link.initials,
       color: link.color
     })
+    setShowModal(true)
   }
 
   const handleDelete = (id: string) => {
@@ -289,6 +314,7 @@ function FriendLinks() {
   }
 
   const closeModal = () => {
+    setShowModal(false)
     setSelectedLink(null)
     setIsEditing(false)
     setIsAdding(false)
@@ -298,6 +324,7 @@ function FriendLinks() {
     setSelectedLink(link)
     setIsEditing(false)
     setIsAdding(false)
+    setShowModal(true)
   }
 
   return (
@@ -358,7 +385,7 @@ function FriendLinks() {
 
       {/* 详情/编辑弹窗 */}
       <AnimatePresence>
-        {selectedLink && (
+        {showModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -431,7 +458,7 @@ function FriendLinks() {
                     </button>
                   </div>
                 </>
-              ) : (
+              ) : selectedLink ? (
                 // 详情展示
                 <>
                   <div className="flex items-center gap-4 mb-6">
@@ -472,7 +499,7 @@ function FriendLinks() {
                     </button>
                   </div>
                 </>
-              )}
+              ) : null}
             </motion.div>
           </motion.div>
         )}
@@ -1007,19 +1034,34 @@ const aiLearningTimeline: TimelineEvent[] = [
 function GrowthTimeline() {
   const [events, setEvents] = useState<TimelineEvent[]>(aiLearningTimeline)
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null)
-  const [selectedIndex, setSelectedIndex] = useState<number>(0)
   const [isEditing, setIsEditing] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
   const [editImage, setEditImage] = useState('')
+  const [editDate, setEditDate] = useState('')
 
-  const handleCardClick = (event: TimelineEvent, index: number) => {
+  const handleCardClick = (event: TimelineEvent) => {
     setSelectedEvent(event)
-    setSelectedIndex(index)
     setEditTitle(event.title)
     setEditDescription(event.description)
     setEditImage(event.image)
+    setEditDate(event.date)
     setIsEditing(false)
+    setIsAdding(false)
+    setShowModal(true)
+  }
+
+  const handleAdd = () => {
+    setIsAdding(true)
+    setIsEditing(false)
+    setSelectedEvent(null)
+    setEditTitle('')
+    setEditDescription('')
+    setEditImage('')
+    setEditDate(new Date().toISOString().slice(0, 16).replace('T', ' '))
+    setShowModal(true)
   }
 
   const handleEdit = () => {
@@ -1027,11 +1069,24 @@ function GrowthTimeline() {
     
     setEvents(prev => prev.map(event => 
       event.id === selectedEvent.id 
-        ? { ...event, title: editTitle.trim(), description: editDescription.trim(), image: editImage }
+        ? { ...event, title: editTitle.trim(), description: editDescription.trim(), image: editImage, date: editDate }
         : event
     ))
-    setIsEditing(false)
-    setSelectedEvent(null)
+    closeModal()
+  }
+
+  const handleSaveNew = () => {
+    if (!editTitle.trim()) return
+    
+    const newEvent: TimelineEvent = {
+      id: `event-${crypto.randomUUID()}`,
+      title: editTitle.trim(),
+      description: editDescription.trim(),
+      image: editImage || 'https://picsum.photos/seed/new/400/300',
+      date: editDate || new Date().toISOString().slice(0, 16).replace('T', ' ')
+    }
+    setEvents(prev => [...prev, newEvent])
+    closeModal()
   }
 
   const handleDelete = () => {
@@ -1039,94 +1094,88 @@ function GrowthTimeline() {
     
     if (confirm('确定要删除这条学习记录吗？')) {
       setEvents(prev => prev.filter(event => event.id !== selectedEvent.id))
-      setSelectedEvent(null)
+      closeModal()
     }
   }
 
   const closeModal = () => {
+    setShowModal(false)
     setSelectedEvent(null)
     setIsEditing(false)
+    setIsAdding(false)
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-start gap-4"
-      >
-        <div className="flex-shrink-0">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-primary/20">
-            <Clock size={24} className="sm:size-7 text-primary" />
-          </div>
-        </div>
-        <div>
-          <h2 className="text-lg sm:text-xl font-bold text-text mb-1">时间线</h2>
-          <p className="text-xs sm:text-sm text-text-muted">The soul is walking</p>
-        </div>
-      </motion.div>
-
-      {/* Timeline Grid */}
+      {/* Timeline Grid - 一行最多5个卡片 */}
       <div className="relative">
-        {/* Grid Layout */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 relative z-10">
-          {events.map((event, index) => {
-            const number = index + 1
-            const isLastInRow = (index + 1) % 5 === 0 || index === events.length - 1
-            
-            return (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="group cursor-pointer relative"
-                onClick={() => handleCardClick(event, index)}
-              >
-                {/* Card */}
-                <div className="glass-card overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-primary/30 relative">
-                  {/* Image */}
-                  <div className="relative aspect-[4/3] overflow-hidden bg-surface">
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    {/* Overlay on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    {/* Number badge - 序号 */}
-                    <div className="absolute bottom-2 right-2 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/90 flex items-center justify-center text-[10px] sm:text-xs font-bold text-text shadow-lg">
-                      {number}
-                    </div>
-                  </div>
+        {/* Grid Layout - 一行最多5个卡片 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 relative z-10">
+          {/* Add Button - 第一个位置 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="group cursor-pointer relative"
+          >
+            <motion.button
+              whileHover={{ y: -4, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleAdd}
+              className="w-full h-full min-h-[200px] rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 text-primary"
+            >
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Plus size={24} />
+              </div>
+              <span className="text-sm font-medium">新增记录</span>
+            </motion.button>
+          </motion.div>
 
-                  {/* Content */}
-                  <div className="p-2 sm:p-3">
-                    <h3 className="text-xs sm:text-sm font-semibold text-text mb-1 line-clamp-1 group-hover:text-primary transition-colors">
-                      {event.title}
-                    </h3>
-                    <p className="text-[10px] sm:text-xs text-text-muted line-clamp-2 mb-1.5 sm:mb-2">
-                      {event.description}
-                    </p>
-                    <div className="flex items-center gap-1 text-[9px] sm:text-[10px] text-text-dim">
-                      <Calendar size={9} className="sm:size-2.5" />
-                      <span className="truncate">{event.date}</span>
-                    </div>
+          {events.map((event, index) => (
+            <motion.div
+              key={event.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="group cursor-pointer relative"
+              onClick={() => handleCardClick(event)}
+            >
+              {/* Card */}
+              <motion.div 
+                className="glass-card overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/40 relative"
+                whileHover={{ y: -4, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
+                {/* Image */}
+                <div className="relative aspect-[4/3] overflow-hidden bg-surface">
+                  <img
+                    src={event.image}
+                    alt={event.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* Date badge on image - 只显示年月日 */}
+                  <div className="absolute top-2 left-2 px-2 py-1 rounded-lg bg-black/40 backdrop-blur-sm text-white text-[10px] sm:text-xs flex items-center gap-1">
+                    <Calendar size={10} />
+                    <span>{event.date.split(' ')[0]}</span>
                   </div>
                 </div>
 
-                {/* Arrow connector between cards - 所有尺寸都显示 */}
-                {index < events.length - 1 && !isLastInRow && (
-                  <div className="hidden sm:flex absolute -right-2.5 top-1/2 -translate-y-1/2 text-text-dim/40 z-0">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path d="M6 4L12 10L6 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                )}
+                {/* Content */}
+                <div className="p-3">
+                  <h3 className="text-xs sm:text-sm font-semibold text-text mb-1 line-clamp-1 group-hover:text-primary transition-colors">
+                    {event.title}
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-text-muted line-clamp-2 leading-relaxed">
+                    {event.description}
+                  </p>
+                </div>
+                
+                {/* Hover indicator */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </motion.div>
-            )
-          })}
+            </motion.div>
+          ))}
         </div>
       </div>
 
@@ -1143,9 +1192,9 @@ function GrowthTimeline() {
         </div>
       </motion.div>
 
-      {/* Event Detail Modal */}
+      {/* Event Detail/Add Modal */}
       <AnimatePresence>
-        {selectedEvent && (
+        {showModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1161,39 +1210,40 @@ function GrowthTimeline() {
               className="glass-card w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Image */}
-              <div className="relative aspect-video">
-                <img
-                  src={isEditing ? editImage : selectedEvent.image}
-                  alt={selectedEvent.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                
-                {/* Close button */}
-                <button 
-                  onClick={closeModal}
-                  className="absolute top-3 right-3 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
-                >
-                  <X size={18} />
-                </button>
-
-                {/* Number badge - 显示序号 */}
-                <div className="absolute bottom-3 left-3 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/90 flex items-center justify-center text-base sm:text-lg font-bold text-text shadow-lg">
-                  {selectedIndex + 1}
+              {/* Image - only show for existing events */}
+              {(selectedEvent || editImage) && (
+                <div className="relative aspect-video">
+                  <img
+                    src={isEditing || isAdding ? editImage : selectedEvent!.image}
+                    alt={selectedEvent?.title || '新记录'}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  
+                  {/* Close button */}
+                  <button 
+                    onClick={closeModal}
+                    className="absolute top-3 right-3 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
                 </div>
-              </div>
+              )}
 
               {/* Content */}
               <div className="p-4 sm:p-5">
-                {isEditing ? (
+                {isEditing || isAdding ? (
                   <div className="space-y-4">
+                    <h3 className="text-lg font-bold text-text mb-4">
+                      {isAdding ? '新增学习记录' : '编辑记录'}
+                    </h3>
                     <div>
                       <label className="block text-xs text-text-muted mb-1">标题</label>
                       <input
                         type="text"
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
+                        placeholder="输入标题"
                         className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm"
                       />
                     </div>
@@ -1202,8 +1252,19 @@ function GrowthTimeline() {
                       <textarea
                         value={editDescription}
                         onChange={(e) => setEditDescription(e.target.value)}
+                        placeholder="输入描述"
                         className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm resize-none"
                         rows={3}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-text-muted mb-1">日期</label>
+                      <input
+                        type="text"
+                        value={editDate}
+                        onChange={(e) => setEditDate(e.target.value)}
+                        placeholder="YYYY-MM-DD HH:mm"
+                        className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm"
                       />
                     </div>
                     <div>
@@ -1212,31 +1273,32 @@ function GrowthTimeline() {
                         type="text"
                         value={editImage}
                         onChange={(e) => setEditImage(e.target.value)}
+                        placeholder="https://..."
                         className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm"
                       />
                     </div>
                     <div className="flex gap-2 pt-2">
                       <button
-                        onClick={handleEdit}
-                        className="flex-1 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dim transition-colors"
+                        onClick={isAdding ? handleSaveNew : handleEdit}
+                        disabled={!editTitle.trim()}
+                        className="flex-1 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        保存修改
+                        {isAdding ? '添加记录' : '保存修改'}
                       </button>
                       <button
-                        onClick={() => setIsEditing(false)}
+                        onClick={() => {
+                          if (isAdding) closeModal()
+                          else setIsEditing(false)
+                        }}
                         className="flex-1 py-2.5 rounded-lg bg-surface text-text text-sm font-medium hover:bg-surface/80 transition-colors border border-border"
                       >
                         取消
                       </button>
                     </div>
                   </div>
-                ) : (
+                ) : selectedEvent ? (
                   <>
                     <div className="flex items-center gap-2 text-xs text-text-muted mb-2">
-                      <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                        第 {selectedIndex + 1} 站
-                      </span>
-                      <span>·</span>
                       <Calendar size={12} />
                       <span>{selectedEvent.date}</span>
                     </div>
@@ -1263,7 +1325,7 @@ function GrowthTimeline() {
                       </button>
                     </div>
                   </>
-                )}
+                ) : null}
               </div>
             </motion.div>
           </motion.div>
@@ -1279,6 +1341,7 @@ function SocialMatrix() {
   const [selectedAccount, setSelectedAccount] = useState<typeof socialAccounts[0] | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [editForm, setEditForm] = useState({
     platform: '',
     username: '',
@@ -1293,6 +1356,7 @@ function SocialMatrix() {
     setIsEditing(false)
     setSelectedAccount(null)
     setEditForm({ platform: '', username: '', url: '', followers: '', icon: 'github', color: '#3b82f6' })
+    setShowModal(true)
   }
 
   const handleEdit = (account: typeof socialAccounts[0]) => {
@@ -1307,6 +1371,7 @@ function SocialMatrix() {
       icon: account.icon,
       color: account.color
     })
+    setShowModal(true)
   }
 
   const handleDelete = (platform: string) => {
@@ -1335,6 +1400,7 @@ function SocialMatrix() {
   }
 
   const closeModal = () => {
+    setShowModal(false)
     setSelectedAccount(null)
     setIsEditing(false)
     setIsAdding(false)
@@ -1344,6 +1410,7 @@ function SocialMatrix() {
     setSelectedAccount(account)
     setIsEditing(false)
     setIsAdding(false)
+    setShowModal(true)
   }
 
   return (
@@ -1402,7 +1469,7 @@ function SocialMatrix() {
 
       {/* 详情/编辑弹窗 */}
       <AnimatePresence>
-        {selectedAccount && (
+        {showModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1487,7 +1554,7 @@ function SocialMatrix() {
                     </button>
                   </div>
                 </>
-              ) : (
+              ) : selectedAccount ? (
                 // 详情展示
                 <>
                   <div className="flex items-center gap-4 mb-6">
@@ -1529,7 +1596,7 @@ function SocialMatrix() {
                     </button>
                   </div>
                 </>
-              )}
+              ) : null}
             </motion.div>
           </motion.div>
         )}
@@ -1674,11 +1741,48 @@ function DigitalCardEntry({ onOpen }: { onOpen: () => void }) {
   )
 }
 
+// 会员权益配置
+const membershipPlans = [
+  {
+    id: 'monthly',
+    name: '月度会员',
+    price: 19.9,
+    period: '月',
+    features: ['无广告体验', '专属主题皮肤', '高级数据统计', '优先客服支持'],
+    popular: false,
+  },
+  {
+    id: 'yearly',
+    name: '年度会员',
+    price: 168,
+    period: '年',
+    features: ['无广告体验', '专属主题皮肤', '高级数据统计', '优先客服支持', '云同步备份', '专属徽章标识'],
+    popular: true,
+  },
+  {
+    id: 'lifetime',
+    name: '永久会员',
+    price: 368,
+    period: '永久',
+    features: ['所有年度会员权益', '终身免费更新', '专属VIP群组', '一对一技术支持', '定制功能优先'],
+    popular: false,
+  },
+]
+
+const memberBenefits = [
+  { icon: Shield, title: '无广告体验', desc: '享受纯净的使用环境' },
+  { icon: Sparkles, title: '专属主题', desc: '解锁限定主题皮肤' },
+  { icon: Star, title: '高级功能', desc: '使用全部高级功能' },
+  { icon: Zap, title: '优先服务', desc: '客服优先响应处理' },
+]
+
 // 移动端菜单主界面
 function MobileMenu({ onNavigate, userProfile, onEditProfile }: { onNavigate: (view: TabId | 'menu') => void; userProfile: ProfileData; onEditProfile: () => void }) {
   const [showCardModal, setShowCardModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showThemePanel, setShowThemePanel] = useState(false)
+  const [showVipModal, setShowVipModal] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState('yearly')
   const { currentTheme, setTheme, themeConfig } = useTheme()
 
   return (
@@ -1693,11 +1797,32 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile }: { onNavigate: (v
       
       {/* 功能菜单列表 */}
       <div className="px-4 mt-6 space-y-2">
-        {/* 主题风格选择入口 - 放在最上方 */}
+        {/* VIP会员入口 - 放在最上方 */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0 * 0.05 }}
+          onClick={() => setShowVipModal(true)}
+          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-violet-600 to-blue-600 border border-white/20 active:scale-[0.98] transition-transform shadow-lg shadow-violet-500/25"
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-yellow-400 via-amber-400 to-amber-600 shadow-lg shadow-amber-500/50 ring-2 ring-white/30">
+            <Crown size={20} className="text-white" />
+          </div>
+          <div className="flex-1 text-left">
+            <h3 className="font-medium text-white flex items-center gap-2">
+              VIP会员
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-gradient-to-r from-yellow-400 via-amber-400 to-amber-500 text-white font-medium shadow-sm">PRO</span>
+            </h3>
+            <p className="text-xs text-white/80 mt-0.5">解锁专属特权，享受尊贵体验</p>
+          </div>
+          <ChevronRight size={18} className="text-white/80" />
+        </motion.button>
+        
+        {/* 主题风格选择入口 */}
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 1 * 0.05 }}
           onClick={() => setShowThemePanel(true)}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
@@ -1716,7 +1841,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile }: { onNavigate: (v
             key={item.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: (index + 1) * 0.05 }}
+            transition={{ delay: (index + 2) * 0.05 }}
             onClick={() => onNavigate(item.id)}
             className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
           >
@@ -1738,7 +1863,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile }: { onNavigate: (v
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: (mobileMenuItems.length + 1) * 0.05 }}
+          transition={{ delay: (mobileMenuItems.length + 2) * 0.05 }}
           onClick={() => setShowHistoryModal(true)}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
@@ -1781,6 +1906,17 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile }: { onNavigate: (v
         themeConfig={themeConfig}
         onThemeChange={setTheme}
       />
+
+      {/* VIP会员订阅弹窗 */}
+      <AnimatePresence>
+        {showVipModal && (
+          <MembershipModal 
+            onClose={() => setShowVipModal(false)}
+            selectedPlan={selectedPlan}
+            onSelectPlan={setSelectedPlan}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
@@ -2420,9 +2556,12 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null)
   const [selectedIndex, setSelectedIndex] = useState<number>(0)
   const [isEditing, setIsEditing] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
   const [editImage, setEditImage] = useState('')
+  const [editDate, setEditDate] = useState('')
 
   const handleCardClick = (event: TimelineEvent, index: number) => {
     setSelectedEvent(event)
@@ -2430,7 +2569,21 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
     setEditTitle(event.title)
     setEditDescription(event.description)
     setEditImage(event.image)
+    setEditDate(event.date)
     setIsEditing(false)
+    setIsAdding(false)
+    setShowModal(true)
+  }
+
+  const handleAdd = () => {
+    setIsAdding(true)
+    setIsEditing(false)
+    setSelectedEvent(null)
+    setEditTitle('')
+    setEditDescription('')
+    setEditImage('')
+    setEditDate(new Date().toISOString().slice(0, 16).replace('T', ' '))
+    setShowModal(true)
   }
 
   const handleEdit = () => {
@@ -2438,11 +2591,31 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
     
     setEvents(prev => prev.map(event => 
       event.id === selectedEvent.id 
-        ? { ...event, title: editTitle.trim(), description: editDescription.trim(), image: editImage }
+        ? { ...event, title: editTitle.trim(), description: editDescription.trim(), image: editImage, date: editDate }
         : event
     ))
     setIsEditing(false)
     setSelectedEvent(null)
+    setShowModal(false)
+  }
+
+  const handleSaveNew = () => {
+    if (!editTitle.trim()) return
+    
+    const newEvent: TimelineEvent = {
+      id: `event-${crypto.randomUUID()}`,
+      title: editTitle.trim(),
+      description: editDescription.trim(),
+      date: editDate,
+      image: editImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400',
+    }
+    
+    setEvents(prev => [...prev, newEvent])
+    setIsAdding(false)
+    setShowModal(false)
+    setEditTitle('')
+    setEditDescription('')
+    setEditImage('')
   }
 
   const handleDelete = () => {
@@ -2451,12 +2624,15 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
     if (confirm('确定要删除这条学习记录吗？')) {
       setEvents(prev => prev.filter(event => event.id !== selectedEvent.id))
       setSelectedEvent(null)
+      setShowModal(false)
     }
   }
 
   const closeModal = () => {
     setSelectedEvent(null)
     setIsEditing(false)
+    setIsAdding(false)
+    setShowModal(false)
   }
 
   return (
@@ -2468,15 +2644,16 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
     >
       <MobilePageHeader title="成长时间轴" onBack={onBack} />
       
-      {/* 头部信息 */}
-      <div className="px-4 py-4 flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-primary/20">
-          <Clock size={22} className="text-primary" />
-        </div>
-        <div>
-          <h2 className="font-bold text-text">时间线</h2>
-          <p className="text-xs text-text-muted">The soul is walking</p>
-        </div>
+      {/* 新增按钮 */}
+      <div className="px-4 py-3">
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          onClick={handleAdd}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-white text-sm font-medium"
+        >
+          <Plus size={18} />
+          <span>新增记录</span>
+        </motion.button>
       </div>
 
       {/* 时间轴网格 */}
@@ -2497,8 +2674,9 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
                   alt={event.title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-white/90 flex items-center justify-center text-xs font-bold text-text shadow-lg">
-                  {index + 1}
+                {/* Date badge - 只显示年月日 */}
+                <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/50 backdrop-blur-sm text-white text-[9px]">
+                  {event.date.split(' ')[0]}
                 </div>
               </div>
               <div className="p-2.5">
@@ -2508,10 +2686,6 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
                 <p className="text-[10px] text-text-muted line-clamp-1 mt-0.5">
                   {event.description}
                 </p>
-                <div className="flex items-center gap-1 text-[9px] text-text-dim mt-1">
-                  <Calendar size={8} />
-                  <span className="truncate">{event.date}</span>
-                </div>
               </div>
             </motion.div>
           ))}
@@ -2526,9 +2700,9 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
         </div>
       </div>
 
-      {/* 详情弹窗 */}
+      {/* 详情/新增弹窗 */}
       <AnimatePresence>
-        {selectedEvent && (
+        {showModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -2543,33 +2717,37 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
               className="glass-card w-full max-w-sm overflow-hidden max-h-[85vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="relative aspect-video">
-                <img
-                  src={isEditing ? editImage : selectedEvent.image}
-                  alt={selectedEvent.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <button 
-                  onClick={closeModal}
-                  className="absolute top-3 right-3 p-2 rounded-full bg-black/30 text-white"
-                >
-                  <X size={16} />
-                </button>
-                <div className="absolute bottom-3 left-3 w-8 h-8 rounded-lg bg-white/90 flex items-center justify-center text-sm font-bold text-text shadow-lg">
-                  {selectedIndex + 1}
+              {/* Image preview */}
+              {(selectedEvent || editImage) && (
+                <div className="relative aspect-video">
+                  <img
+                    src={isEditing || isAdding ? editImage : selectedEvent!.image}
+                    alt={selectedEvent?.title || '新记录'}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <button 
+                    onClick={closeModal}
+                    className="absolute top-3 right-3 p-2 rounded-full bg-black/30 text-white"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
-              </div>
+              )}
 
               <div className="p-4">
-                {isEditing ? (
+                {isEditing || isAdding ? (
                   <div className="space-y-3">
+                    <h3 className="text-base font-bold text-text mb-3">
+                      {isAdding ? '新增学习记录' : '编辑记录'}
+                    </h3>
                     <div>
                       <label className="block text-xs text-text-muted mb-1">标题</label>
                       <input
                         type="text"
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
+                        placeholder="输入标题"
                         className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm"
                       />
                     </div>
@@ -2578,8 +2756,19 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
                       <textarea
                         value={editDescription}
                         onChange={(e) => setEditDescription(e.target.value)}
+                        placeholder="输入描述"
                         className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm resize-none"
                         rows={3}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-text-muted mb-1">日期</label>
+                      <input
+                        type="text"
+                        value={editDate}
+                        onChange={(e) => setEditDate(e.target.value)}
+                        placeholder="YYYY-MM-DD HH:mm"
+                        className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm"
                       />
                     </div>
                     <div>
@@ -2588,25 +2777,30 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
                         type="text"
                         value={editImage}
                         onChange={(e) => setEditImage(e.target.value)}
+                        placeholder="https://..."
                         className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm"
                       />
                     </div>
                     <div className="flex gap-2 pt-2">
                       <button
-                        onClick={handleEdit}
-                        className="flex-1 py-2 rounded-lg bg-primary text-white text-sm font-medium"
+                        onClick={isAdding ? handleSaveNew : handleEdit}
+                        disabled={!editTitle.trim()}
+                        className="flex-1 py-2 rounded-lg bg-primary text-white text-sm font-medium disabled:opacity-50"
                       >
-                        保存修改
+                        {isAdding ? '添加记录' : '保存修改'}
                       </button>
                       <button
-                        onClick={() => setIsEditing(false)}
+                        onClick={() => {
+                          if (isAdding) closeModal()
+                          else setIsEditing(false)
+                        }}
                         className="flex-1 py-2 rounded-lg bg-surface text-text text-sm font-medium border border-border"
                       >
                         取消
                       </button>
                     </div>
                   </div>
-                ) : (
+                ) : selectedEvent ? (
                   <>
                     <div className="flex items-center gap-2 text-xs text-text-muted mb-2">
                       <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
@@ -2637,7 +2831,7 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
                       </button>
                     </div>
                   </>
-                )}
+                ) : null}
               </div>
             </motion.div>
           </motion.div>
@@ -3516,6 +3710,213 @@ function CardHistoryModal({ onClose }: { onClose: () => void }) {
               ))}
             </div>
           )}
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// 会员订阅弹窗组件
+function MembershipModal({ 
+  onClose, 
+  selectedPlan, 
+  onSelectPlan 
+}: { 
+  onClose: () => void
+  selectedPlan: string
+  onSelectPlan: (plan: string) => void
+}) {
+  const [paymentMethod, setPaymentMethod] = useState<'wechat' | 'alipay'>('wechat')
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const handlePayment = async () => {
+    setIsProcessing(true)
+    // 模拟支付处理
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    setIsProcessing(false)
+    alert('支付功能演示：支付流程已完成！')
+    onClose()
+  }
+
+  const currentPlan = membershipPlans.find(p => p.id === selectedPlan)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        className="w-full max-w-lg bg-bg rounded-t-3xl sm:rounded-2xl max-h-[90vh] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header - 使用紫色到蓝色的梦幻渐变 */}
+        <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 px-6 py-8 text-white overflow-hidden">
+          {/* 装饰性光晕 */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors z-10"
+          >
+            <X size={20} />
+          </button>
+          
+          <div className="relative flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/50 ring-4 ring-white/20">
+              <Crown size={32} className="text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <h2 className="text-2xl font-bold">VIP会员</h2>
+                <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-yellow-400 via-amber-400 to-amber-500 text-white text-[10px] font-medium shadow-lg">PRO</span>
+              </div>
+              <p className="text-white/80 text-sm">解锁专属特权，享受尊贵体验</p>
+            </div>
+          </div>
+          
+          {/* 会员权益预览 - 使用彩色图标 */}
+          <div className="relative grid grid-cols-4 gap-3 mt-4">
+            {memberBenefits.map((benefit, index) => {
+              const colors = ['bg-blue-400', 'bg-purple-400', 'bg-pink-400', 'bg-emerald-400']
+              return (
+                <div key={index} className="text-center">
+                  <div className={`w-11 h-11 mx-auto rounded-xl ${colors[index]} flex items-center justify-center mb-2 shadow-lg ring-2 ring-white/20`}>
+                    <benefit.icon size={20} className="text-white" />
+                  </div>
+                  <p className="text-[11px] text-white/95 font-medium">{benefit.title}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto max-h-[50vh]">
+          {/* 会员套餐选择 */}
+          <h3 className="text-sm font-medium text-text mb-4">选择套餐</h3>
+          <div className="space-y-3 mb-6">
+            {membershipPlans.map((plan) => (
+              <motion.button
+                key={plan.id}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => onSelectPlan(plan.id)}
+                className={`w-full relative p-4 rounded-2xl border-2 transition-all ${
+                  selectedPlan === plan.id
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border/50 bg-surface hover:border-primary/30'
+                }`}
+              >
+                {plan.popular && (
+                  <span className="absolute -top-2 right-4 px-2 py-0.5 rounded-full bg-gradient-to-r from-primary to-accent text-white text-[10px] font-medium shadow-sm">
+                    最受欢迎
+                  </span>
+                )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      selectedPlan === plan.id ? 'border-primary' : 'border-text-muted'
+                    }`}>
+                      {selectedPlan === plan.id && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                      )}
+                    </div>
+                    <div className="text-left">
+                      <h4 className="font-medium text-text">{plan.name}</h4>
+                      <p className="text-xs text-text-muted mt-0.5">
+                        {plan.features.slice(0, 2).join(' · ')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xl font-bold text-primary">¥{plan.price}</span>
+                    <span className="text-xs text-text-muted">/{plan.period}</span>
+                  </div>
+                </div>
+              </motion.button>
+            ))}
+          </div>
+
+          {/* 权益详情 */}
+          <h3 className="text-sm font-medium text-text mb-3">会员权益</h3>
+          <div className="bg-surface rounded-2xl p-4 mb-6">
+            <ul className="space-y-2">
+              {currentPlan?.features.map((feature, index) => (
+                <li key={index} className="flex items-center gap-2 text-sm text-text-secondary">
+                  <Check size={14} className="text-primary flex-shrink-0" />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 支付方式 */}
+          <h3 className="text-sm font-medium text-text mb-3">支付方式</h3>
+          <div className="flex gap-3 mb-6">
+            <button
+              onClick={() => setPaymentMethod('wechat')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-colors ${
+                paymentMethod === 'wechat'
+                  ? 'border-green-500 bg-green-500/5'
+                  : 'border-border/50 hover:border-green-500/30'
+              }`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-green-500">
+                <path d="M8.5 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm7 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.73.55-3.33 1.48-4.64.38.56.98.93 1.66.93.65 0 1.24-.34 1.62-.87.38.53.97.87 1.62.87s1.24-.34 1.62-.87c.38.53.97.87 1.62.87.68 0 1.28-.37 1.66-.93C19.45 10.67 20 12.27 20 14c0 4.41-3.59 8-8 8z"/>
+              </svg>
+              <span className="text-sm font-medium">微信支付</span>
+            </button>
+            <button
+              onClick={() => setPaymentMethod('alipay')}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-colors ${
+                paymentMethod === 'alipay'
+                  ? 'border-blue-500 bg-blue-500/5'
+                  : 'border-border/50 hover:border-blue-500/30'
+              }`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-blue-500">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                <path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/>
+              </svg>
+              <span className="text-sm font-medium">支付宝</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-border/50 bg-surface/50">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-text-muted text-sm">实付金额</span>
+            <span className="text-2xl font-bold text-primary">¥{currentPlan?.price}</span>
+          </div>
+          <button
+            onClick={handlePayment}
+            disabled={isProcessing}
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-primary-dim text-white font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/25"
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                处理中...
+              </>
+            ) : (
+              <>
+                <CreditCard size={18} />
+                立即支付
+              </>
+            )}
+          </button>
+          <p className="text-center text-xs text-text-dim mt-3">
+            支付即表示同意《会员服务协议》
+          </p>
         </div>
       </motion.div>
     </motion.div>
