@@ -5,10 +5,11 @@ import {
   Send, Github, Edit3, Twitter, Play, MessageSquare, Zap, Award,
   X, Trash2, Edit2, Calendar, ChevronRight, ArrowLeft,
   IdCard, Download, Share, History, Palette, Sparkles, Loader2, Plus,
-  Crown, Check, CreditCard, Shield, Star
+  Crown, Check, CreditCard, Shield, Star, Settings
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { ThemeSelectorPanel } from '../components/ui/ThemeSwitcher'
+import { SettingsModal } from '../components/ui/SettingsModal'
 import ProfileEditModal, { type ProfileData } from '../components/ProfileEditModal'
 import { useTheme } from '../hooks/useTheme'
 import { friendLinks, danmakuMessages, socialAccounts, generateDigitalCard, cardThemes, type DigitalCard, type CardTheme, presetAvatars } from '../data/mock'
@@ -38,6 +39,7 @@ export default function Social() {
   const [showDesktopCardModal, setShowDesktopCardModal] = useState(false)
   const [showDesktopVipModal, setShowDesktopVipModal] = useState(false)
   const [selectedVipPlan, setSelectedVipPlan] = useState('yearly')
+  const [showSettingsModal, setShowSettingsModal] = useState(false)
   
   // 用户资料状态
   const [userProfile, setUserProfile] = useState<ProfileData>({
@@ -1818,11 +1820,29 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile }: { onNavigate: (v
           <ChevronRight size={18} className="text-white/80" />
         </motion.button>
         
-        {/* 主题风格选择入口 */}
+        {/* 系统设置入口 */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 1 * 0.05 }}
+          onClick={() => setShowSettingsModal(true)}
+          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/15">
+            <Settings size={20} className="text-blue-500" />
+          </div>
+          <div className="flex-1 text-left">
+            <h3 className="font-medium text-text">系统设置</h3>
+            <p className="text-xs text-text-muted mt-0.5">语言、鼠标特效等设置</p>
+          </div>
+          <ChevronRight size={18} className="text-text-dim" />
+        </motion.button>
+
+        {/* 主题风格选择入口 */}
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 2 * 0.05 }}
           onClick={() => setShowThemePanel(true)}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >

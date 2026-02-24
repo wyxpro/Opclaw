@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Home, BookOpen, Heart, Music2, Users, Menu, X, Cloud, Sun, CloudRain, Palette } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
+import { LanguageToggle } from '../ui/LanguageToggle'
+import { CursorEffectToggle } from '../ui/CursorEffectToggle'
 
 const navItems = [
   { path: '/', label: '首页', icon: Home },

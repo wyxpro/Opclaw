@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Calendar, Clock, ChevronRight, ChevronDown, ArrowLeft, Tag, Hash, Menu, X, BookOpen, GitBranch } from 'lucide-react'
+import { Search, Calendar, Clock, ChevronRight, ChevronDown, ArrowLeft, Tag, Hash, Menu, X, BookOpen, GitBranch, Plus, Upload } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import SkillTreeView from '../components/ui/SkillTreeView'
+import ArticleEditor from '../components/learning/ArticleEditor'
+import DocumentImport from '../components/learning/DocumentImport'
 import { learningCategories } from '../data/mock'
 import type { Article } from '../data/mock'
 
@@ -18,6 +20,7 @@ interface ArticleWithMeta extends Article {
 }
 
 type ViewMode = 'knowledge' | 'skilltree'
+type EditorMode = 'none' | 'create' | 'import'
 
 export default function Learning() {
   const [viewMode, setViewMode] = useState<ViewMode>('knowledge')
@@ -31,6 +34,8 @@ export default function Learning() {
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeHeading, setActiveHeading] = useState<string>('')
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [editorMode, setEditorMode] = useState<EditorMode>('none')
+  const [customArticles, setCustomArticles] = useState<ArticleWithMeta[]>([])
   const contentRef = useRef<HTMLDivElement>(null)
 
   const toggleCategory = (name: string) => {
@@ -39,16 +44,19 @@ export default function Learning() {
     )
   }
 
-  // Get all articles flat
-  const allArticles: ArticleWithMeta[] = learningCategories.flatMap((cat) =>
-    cat.series.flatMap((series) =>
-      series.articles.map((article) => ({
-        ...article,
-        categoryName: cat.name,
-        seriesName: series.name,
-      }))
-    )
-  )
+  // Get all articles flat (including custom articles)
+  const allArticles: ArticleWithMeta[] = [
+    ...learningCategories.flatMap((cat) =>
+      cat.series.flatMap((series) =>
+        series.articles.map((article) => ({
+          ...article,
+          categoryName: cat.name,
+          seriesName: series.name,
+        }))
+      )
+    ),
+    ...customArticles
+  ]
 
   // Filter articles
   const filteredArticles = allArticles.filter((article) => {
@@ -142,6 +150,40 @@ export default function Learning() {
     setSelectedArticle(null)
     setHeadings([])
     setActiveHeading('')
+  }
+
+  // Handle article creation
+  const handleCreateArticle = (data: { title: string; content: string; excerpt: string }) => {
+    const newArticle: ArticleWithMeta = {
+      id: `custom-${Date.now()}`,
+      title: data.title,
+      excerpt: data.excerpt,
+      content: data.content,
+      date: new Date().toISOString().split('T')[0],
+      tags: ['自定义'],
+      readTime: `${Math.ceil(data.content.length / 500)} 分钟`,
+      categoryName: selectedCategory || '前端开发',
+      seriesName: selectedSeries || '自定义文章',
+    }
+    setCustomArticles(prev => [newArticle, ...prev])
+    setEditorMode('none')
+  }
+
+  // Handle document import
+  const handleImportDocuments = (articles: Array<{ title: string; content: string; excerpt: string; tags: string[] }>) => {
+    const newArticles: ArticleWithMeta[] = articles.map((article, index) => ({
+      id: `imported-${Date.now()}-${index}`,
+      title: article.title,
+      excerpt: article.excerpt,
+      content: article.content,
+      date: new Date().toISOString().split('T')[0],
+      tags: article.tags.length > 0 ? article.tags : ['导入'],
+      readTime: `${Math.ceil(article.content.length / 500)} 分钟`,
+      categoryName: selectedCategory || '前端开发',
+      seriesName: selectedSeries || '导入文档',
+    }))
+    setCustomArticles(prev => [...newArticles, ...prev])
+    setEditorMode('none')
   }
 
   // Category Sidebar JSX
@@ -465,11 +507,34 @@ export default function Learning() {
           </div>
         </motion.div>
 
-        {/* Search */}
+        {/* Action Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
+          className="mb-6 flex flex-wrap items-center gap-3"
+        >
+          <button
+            onClick={() => setEditorMode('create')}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dim transition-all shadow-lg shadow-primary/20"
+          >
+            <Plus size={18} />
+            新建文章
+          </button>
+          <button
+            onClick={() => setEditorMode('import')}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border border-border text-text text-sm font-medium hover:bg-surface/80 transition-all"
+          >
+            <Upload size={18} />
+            导入文档
+          </button>
+        </motion.div>
+
+        {/* Search */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
           className="mb-8"
         >
           <div className="relative">
@@ -567,6 +632,43 @@ export default function Learning() {
             </motion.div>
           </div>
         </div>
+
+        {/* Editor Modal */}
+        <AnimatePresence>
+          {editorMode === 'create' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+              onClick={() => setEditorMode('none')}
+            >
+              <div className="w-full max-w-4xl max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+                <ArticleEditor
+                  onSave={handleCreateArticle}
+                  onCancel={() => setEditorMode('none')}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {editorMode === 'import' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+              onClick={() => setEditorMode('none')}
+            >
+              <div className="w-full max-w-2xl max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+                <DocumentImport
+                  onImport={handleImportDocuments}
+                  onCancel={() => setEditorMode('none')}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </PageTransition>
   )

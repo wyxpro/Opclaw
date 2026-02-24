@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useSettings } from '../../hooks/useSettings'
 
 interface Star {
   id: number
@@ -39,6 +40,7 @@ export default function StarCursor() {
   const [stars, setStars] = useState<Star[]>([])
   const starIdRef = useRef(0)
   const starsRef = useRef<Star[]>([])
+  const { cursorEffectEnabled } = useSettings()
 
   // 同步 starsRef 和 stars state
   useEffect(() => {
