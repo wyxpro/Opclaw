@@ -857,6 +857,226 @@ export const socialAccounts = [
   { platform: '即刻', username: '@小叶', url: '#', icon: 'zap', followers: '1.5K', color: '#ffe411' },
 ]
 
+// ===== Product Data =====
+
+export const productInfo = {
+  name: 'SuperUI',
+  tagline: '你的全能数字生活管家',
+  description: '一个集学习管理、生活记录、娱乐休闲、社交互动于一体的综合个人管理平台，让数字生活更有序、更有趣、更有意义。',
+  targetUsers: ['终身学习者', '生活记录者', '效率追求者', '创意工作者'],
+  valueProposition: '用一套系统，管理你的全部数字生活',
+}
+
+export const coreFeatures = [
+  {
+    id: 'learning',
+    title: '学习空间',
+    subtitle: 'Learning Space',
+    description: '构建个人知识管理体系，追踪技能成长轨迹，让学习可视化、可量化',
+    icon: 'BookOpen',
+    gradient: 'bg-gradient-card-violet',
+    color: '#8b5cf6',
+    features: ['技能树可视化', '文章知识库', '学习进度追踪', '3D知识图谱'],
+    stats: { users: '10K+', satisfaction: '98%' },
+  },
+  {
+    id: 'life',
+    title: '生活管理',
+    subtitle: 'Life Manager',
+    description: '记录生活点滴，管理旅行足迹，珍藏美好回忆，让每一天都值得铭记',
+    icon: 'Heart',
+    gradient: 'bg-gradient-card-rose',
+    color: '#f43f5e',
+    features: ['旅行足迹地图', '爱情纪念册', '时光相册', '愿望清单'],
+    stats: { users: '8K+', satisfaction: '96%' },
+  },
+  {
+    id: 'entertainment',
+    title: '娱乐中心',
+    subtitle: 'Entertainment Hub',
+    description: '汇聚音乐、电影、游戏，打造属于你的私人娱乐空间，放松身心的绝佳去处',
+    icon: 'Gamepad2',
+    gradient: 'bg-gradient-card-cyan',
+    color: '#06b6d4',
+    features: ['音乐播放器', '电影收藏夹', '游戏推荐', '书签管理'],
+    stats: { users: '12K+', satisfaction: '97%' },
+  },
+  {
+    id: 'social',
+    title: '社交互动',
+    subtitle: 'Social Connect',
+    description: '分享生活动态，连接志同道合的朋友，在互动中发现更多精彩',
+    icon: 'Users',
+    gradient: 'bg-gradient-card-emerald',
+    color: '#10b981',
+    features: ['朋友圈动态', '好友链接', '弹幕互动', '成长时间线'],
+    stats: { users: '15K+', satisfaction: '95%' },
+  },
+]
+
+export interface CompetitorData {
+  name: string
+  scores: {
+    functionality: number
+    usability: number
+    aesthetics: number
+    performance: number
+    extensibility: number
+  }
+  color: string
+}
+
+export const competitorData: CompetitorData[] = [
+  {
+    name: 'SuperUI',
+    scores: { functionality: 95, usability: 92, aesthetics: 96, performance: 94, extensibility: 90 },
+    color: '#8b5cf6',
+  },
+  {
+    name: 'Notion',
+    scores: { functionality: 90, usability: 85, aesthetics: 82, performance: 78, extensibility: 95 },
+    color: '#3b82f6',
+  },
+  {
+    name: '个人博客',
+    scores: { functionality: 50, usability: 75, aesthetics: 70, performance: 85, extensibility: 40 },
+    color: '#10b981',
+  },
+]
+
+export const comparisonDimensions = [
+  { key: 'functionality', name: '功能丰富度', fullMark: 100 },
+  { key: 'usability', name: '易用性', fullMark: 100 },
+  { key: 'aesthetics', name: '美观度', fullMark: 100 },
+  { key: 'performance', name: '性能', fullMark: 100 },
+  { key: 'extensibility', name: '扩展性', fullMark: 100 },
+]
+
+export interface Testimonial {
+  id: string
+  name: string
+  avatar: string
+  role: string
+  content: string
+  rating: number
+  usageTime: string
+  tags: string[]
+}
+
+export const userTestimonials: Testimonial[] = [
+  {
+    id: 't1',
+    name: '李明',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=LiMing',
+    role: '前端工程师',
+    content: '技能树功能太棒了！终于能直观看到自己的技术成长路径，学习动力满满！',
+    rating: 5,
+    usageTime: '使用3个月',
+    tags: ['技能树', '学习管理'],
+  },
+  {
+    id: 't2',
+    name: '王小红',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=WangXiaohong',
+    role: '产品经理',
+    content: '界面设计非常精美，主题切换功能让每天打开都有新鲜感，已经推荐给了整个团队。',
+    rating: 5,
+    usageTime: '使用6个月',
+    tags: ['UI设计', '主题系统'],
+  },
+  {
+    id: 't3',
+    name: '张伟',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ZhangWei',
+    role: '独立开发者',
+    content: '一个平台整合了学习、生活、娱乐所有需求，再也不用切换多个应用了。',
+    rating: 5,
+    usageTime: '使用1年',
+    tags: ['All-in-One', '效率工具'],
+  },
+  {
+    id: 't4',
+    name: '刘芳',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=LiuFang',
+    role: 'UI设计师',
+    content: '旅行足迹地图功能很赞，记录了我去过的每一个城市，看着地图上的标记超有成就感！',
+    rating: 5,
+    usageTime: '使用4个月',
+    tags: ['旅行足迹', '生活记录'],
+  },
+  {
+    id: 't5',
+    name: '陈杰',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ChenJie',
+    role: '全栈开发者',
+    content: '代码开源，技术栈很现代，作为学习参考也非常有价值。期待更多功能！',
+    rating: 4,
+    usageTime: '使用2个月',
+    tags: ['开源', '技术栈'],
+  },
+  {
+    id: 't6',
+    name: '赵静',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ZhaoJing',
+    role: '学生',
+    content: '爱情纪念册功能太甜了！和男朋友一起记录我们的点点滴滴，超有意义。',
+    rating: 5,
+    usageTime: '使用5个月',
+    tags: ['爱情纪念', '生活记录'],
+  },
+  {
+    id: 't7',
+    name: '孙涛',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SunTao',
+    role: '后端工程师',
+    content: '响应速度很快，动画效果流畅，体验比很多商业产品都好。',
+    rating: 5,
+    usageTime: '使用3个月',
+    tags: ['性能', '动效'],
+  },
+  {
+    id: 't8',
+    name: '周雪',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ZhouXue',
+    role: '自由职业者',
+    content: '朋友圈功能让我可以和朋友们分享生活，弹幕互动也很有趣，社区氛围很好。',
+    rating: 5,
+    usageTime: '使用7个月',
+    tags: ['社交', '朋友圈'],
+  },
+]
+
+export const productStats = [
+  { label: '活跃用户', value: '25K+', icon: 'Users', color: '#8b5cf6' },
+  { label: '功能模块', value: '20+', icon: 'Layers', color: '#06b6d4' },
+  { label: '代码行数', value: '50K+', icon: 'Code', color: '#10b981' },
+  { label: '更新频率', value: '周更', icon: 'RefreshCw', color: '#f59e0b' },
+]
+
+// 词云数据
+export const wordCloudData = [
+  { text: 'All-in-One', weight: 10, color: '#8b5cf6' },
+  { text: '技能树', weight: 8, color: '#ec4899' },
+  { text: '可视化', weight: 8, color: '#06b6d4' },
+  { text: '响应式', weight: 7, color: '#10b981' },
+  { text: '主题切换', weight: 7, color: '#f59e0b' },
+  { text: '3D效果', weight: 6, color: '#8b5cf6' },
+  { text: '知识图谱', weight: 6, color: '#f43f5e' },
+  { text: '旅行足迹', weight: 5, color: '#0ea5e9' },
+  { text: '爱情纪念', weight: 5, color: '#ec4899' },
+  { text: '朋友圈', weight: 5, color: '#10b981' },
+  { text: '音乐播放', weight: 4, color: '#8b5cf6' },
+  { text: '电影收藏', weight: 4, color: '#f59e0b' },
+  { text: '弹幕互动', weight: 4, color: '#06b6d4' },
+  { text: '玻璃态', weight: 3, color: '#ec4899' },
+  { text: '动效', weight: 3, color: '#8b5cf6' },
+  { text: '开源', weight: 3, color: '#10b981' },
+  { text: 'TypeScript', weight: 3, color: '#0ea5e9' },
+  { text: 'React', weight: 3, color: '#06b6d4' },
+  { text: 'Tailwind', weight: 2, color: '#8b5cf6' },
+  { text: 'Framer', weight: 2, color: '#f43f5e' },
+]
+
 // ===== Digital Card Types & Data =====
 
 export interface DigitalCard {
