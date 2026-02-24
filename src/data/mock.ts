@@ -1,6 +1,6 @@
 // ===== Personal Info =====
 export const personalInfo = {
-  name: '小叶',
+  name: '晓叶',
   nameEn: 'XiaoYe',
   title: '全栈开发者 / 创意设计师',
   tagline: '用代码编织梦想，用设计点亮生活',
@@ -247,7 +247,7 @@ process.nextTick 和 Promise 在每个阶段之间执行，具有最高优先级
             tags: ['AI', 'LangChain', 'Agent'],
             readTime: '20 分钟',
             coverImage: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&q=80',
-            content: `AI Agent 是 2025 年最热门的技术趋势之一。
+            content: `AI Agent 是 2026 年最热门的技术趋势之一。
 
 ## 什么是 AI Agent？
 
@@ -397,7 +397,7 @@ const unsplashImages = {
 export const socialPosts: SocialPost[] = [
   {
     id: 'post-1',
-    author: '小叶',
+    author: '晓叶',
     avatar: '/avatar.png',
     date: '2025-12-10 18:30',
     content: '今天终于把新项目的架构设计完成了！用了 React Server Components + Edge Runtime，性能提升了 3 倍 🚀 这段时间的辛苦没有白费，看着代码一点点成型，真的很有成就感！',
@@ -412,7 +412,7 @@ export const socialPosts: SocialPost[] = [
   },
   {
     id: 'post-2',
-    author: '小叶',
+    author: '晓叶',
     avatar: '/avatar.png',
     date: '2025-12-08 12:15',
     content: '周末和朋友们去了趟莫干山，冬天的竹海别有一番风味。泡了温泉、吃了农家菜，满满的幸福感 ❤️ 有时候真的需要放慢脚步，享受一下生活的美好。',
@@ -422,13 +422,13 @@ export const socialPosts: SocialPost[] = [
     comments: [
       { id: 'c3', author: '小美', content: '风景太美了！求攻略', date: '2025-12-08 14:20' },
       { id: 'c4', author: '阿泽', content: '下次带我一起啊', date: '2025-12-08 16:45' },
-      { id: 'c5', author: '小叶', content: '回复小美：住宿推荐裸心谷，温泉很棒！', date: '2025-12-08 18:00' },
+      { id: 'c5', author: '晓叶', content: '回复小美：住宿推荐裸心谷，温泉很棒！', date: '2025-12-08 18:00' },
     ],
     location: '湖州 · 莫干山',
   },
   {
     id: 'post-3',
-    author: '小叶',
+    author: '晓叶',
     avatar: '/avatar.png',
     date: '2025-11-25 11:20',
     content: '九宫格测试 🎨 生活就是要多姿多彩，记录每一个美好瞬间',
@@ -446,7 +446,7 @@ export const socialPosts: SocialPost[] = [
   },
   {
     id: 'post-4',
-    author: '小叶',
+    author: '晓叶',
     avatar: '/avatar.png',
     date: '2025-11-20 19:00',
     content: '今天是个特别的日子，和朋友们一起庆祝 🎉 感谢有你们陪伴的每一天',
@@ -850,19 +850,19 @@ export const growthTimeline = [
 
 export const socialAccounts = [
   { platform: 'GitHub', username: '@xiaoye', url: '#', icon: 'github', followers: '2.5K', color: '#333' },
-  { platform: '掘金', username: '@小叶同学', url: '#', icon: 'edit', followers: '5.2K', color: '#1e80ff' },
+  { platform: '掘金', username: '@晓叶同学', url: '#', icon: 'edit', followers: '5.2K', color: '#1e80ff' },
   { platform: 'Twitter / X', username: '@xiaoye_dev', url: '#', icon: 'twitter', followers: '1.8K', color: '#1da1f2' },
   { platform: 'Bilibili', username: '@叶子的代码间', url: '#', icon: 'play', followers: '8.6K', color: '#fb7299' },
   { platform: '微信公众号', username: '叶子技术周刊', url: '#', icon: 'message', followers: '3.2K', color: '#07c160' },
-  { platform: '即刻', username: '@小叶', url: '#', icon: 'zap', followers: '1.5K', color: '#ffe411' },
+  { platform: '即刻', username: '@晓叶', url: '#', icon: 'zap', followers: '1.5K', color: '#ffe411' },
 ]
 
 // ===== Product Data =====
 
 export const productInfo = {
   name: 'SuperUI',
-  tagline: '你的全能数字生活管家',
-  description: '一个集学习管理、生活记录、娱乐休闲、社交互动于一体的综合个人管理平台，让数字生活更有序、更有趣、更有意义。',
+  tagline: 'OPC超级个体-全能数字资产管家',
+  description: '一个集学习管理、生活记录、娱乐休闲、我的互动于一体的综合个人管理平台，让数字生活更有序、更有趣、更有意义。',
   targetUsers: ['终身学习者', '生活记录者', '效率追求者', '创意工作者'],
   valueProposition: '用一套系统，管理你的全部数字生活',
 }
@@ -903,7 +903,7 @@ export const coreFeatures = [
   },
   {
     id: 'social',
-    title: '社交互动',
+    title: '我的互动',
     subtitle: 'Social Connect',
     description: '分享生活动态，连接志同道合的朋友，在互动中发现更多精彩',
     icon: 'Users',
@@ -928,11 +928,6 @@ export interface CompetitorData {
 
 export const competitorData: CompetitorData[] = [
   {
-    name: 'SuperUI',
-    scores: { functionality: 95, usability: 92, aesthetics: 96, performance: 94, extensibility: 90 },
-    color: '#8b5cf6',
-  },
-  {
     name: 'Notion',
     scores: { functionality: 90, usability: 85, aesthetics: 82, performance: 78, extensibility: 95 },
     color: '#3b82f6',
@@ -941,6 +936,11 @@ export const competitorData: CompetitorData[] = [
     name: '个人博客',
     scores: { functionality: 50, usability: 75, aesthetics: 70, performance: 85, extensibility: 40 },
     color: '#10b981',
+  },
+  {
+    name: 'SuperUI',
+    scores: { functionality: 95, usability: 92, aesthetics: 96, performance: 94, extensibility: 90 },
+    color: '#8b5cf6',
   },
 ]
 
@@ -992,7 +992,7 @@ export const userTestimonials: Testimonial[] = [
     content: '一个平台整合了学习、生活、娱乐所有需求，再也不用切换多个应用了。',
     rating: 5,
     usageTime: '使用1年',
-    tags: ['All-in-One', '效率工具'],
+    tags: ['All in ai', '效率工具'],
   },
   {
     id: 't4',
@@ -1042,7 +1042,7 @@ export const userTestimonials: Testimonial[] = [
     content: '朋友圈功能让我可以和朋友们分享生活，弹幕互动也很有趣，社区氛围很好。',
     rating: 5,
     usageTime: '使用7个月',
-    tags: ['社交', '朋友圈'],
+    tags: ['我的', '朋友圈'],
   },
 ]
 
@@ -1053,9 +1053,9 @@ export const productStats = [
   { label: '更新频率', value: '周更', icon: 'RefreshCw', color: '#f59e0b' },
 ]
 
-// 词云数据
+// 词云数据 - 精简版，避免移动端重叠
 export const wordCloudData = [
-  { text: 'All-in-One', weight: 10, color: '#8b5cf6' },
+  { text: 'All in ai', weight: 10, color: '#8b5cf6' },
   { text: '技能树', weight: 8, color: '#ec4899' },
   { text: '可视化', weight: 8, color: '#06b6d4' },
   { text: '响应式', weight: 7, color: '#10b981' },
@@ -1070,11 +1070,6 @@ export const wordCloudData = [
   { text: '弹幕互动', weight: 4, color: '#06b6d4' },
   { text: '玻璃态', weight: 3, color: '#ec4899' },
   { text: '动效', weight: 3, color: '#8b5cf6' },
-  { text: '开源', weight: 3, color: '#10b981' },
-  { text: 'TypeScript', weight: 3, color: '#0ea5e9' },
-  { text: 'React', weight: 3, color: '#06b6d4' },
-  { text: 'Tailwind', weight: 2, color: '#8b5cf6' },
-  { text: 'Framer', weight: 2, color: '#f43f5e' },
 ]
 
 // ===== Digital Card Types & Data =====

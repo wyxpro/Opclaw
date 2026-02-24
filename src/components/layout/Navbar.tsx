@@ -144,10 +144,10 @@ export default function Navbar() {
           <div className="flex items-center gap-5">
             <NavLink to="/" className="flex items-center gap-3 group">
               <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 text-primary transition-all group-hover:bg-primary/30 group-hover:shadow-glow">
-                <span className="text-xl font-bold">叶</span>
+                <span className="text-xl font-bold">S</span>
               </div>
               <span className="text-xl font-bold text-text hidden sm:block">
-                小叶<span className="text-text-muted font-normal">.dev</span>
+                SuperUI
               </span>
             </NavLink>
             {/* Time & Weather Widget */}

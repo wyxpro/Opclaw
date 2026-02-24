@@ -474,7 +474,7 @@ function FeaturesSection() {
             四大模块，覆盖你的数字生活
           </h2>
           <p className="text-text-muted max-w-xl mx-auto">
-            从学习到娱乐，从生活到社交，一个平台满足你的全部需求
+            从学习到娱乐，从生活到我的，一个平台满足你的全部需求
           </p>
         </motion.div>
 
@@ -854,7 +854,7 @@ function ComparisonSection() {
               
               <div className="grid grid-cols-2 gap-2 relative z-10">
                 {[
-                  { icon: Layers, text: 'All-in-One', desc: '整合方案' },
+                  { icon: Layers, text: 'All in ai', desc: '整合方案' },
                   { icon: Sparkles, text: '现代化', desc: 'UI/UX 设计' },
                   { icon: BarChart3, text: '强大的', desc: '可视化能力' },
                   { icon: Code2, text: '开源', desc: '可扩展' },
@@ -1013,11 +1013,11 @@ function TestimonialsWall() {
 
       {/* Scrolling Wall - Full Width, Outside Container */}
       <div className="space-y-4">
-        {/* Row 1 - Left to Right */}
+        {/* Row 1 - Left to Right - Faster on mobile */}
         <div className="relative overflow-hidden">
           <motion.div
             animate={{ x: ['0%', '-50%'] }}
-            transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
             className="flex gap-4 hover:[animation-play-state:paused]"
           >
             {[...row1, ...row1, ...row1, ...row1, ...row1, ...row1, ...row1, ...row1].map((testimonial, index) => (
@@ -1026,11 +1026,11 @@ function TestimonialsWall() {
           </motion.div>
         </div>
 
-        {/* Row 2 - Right to Left */}
+        {/* Row 2 - Right to Left - Faster on mobile */}
         <div className="relative overflow-hidden">
           <motion.div
             animate={{ x: ['-50%', '0%'] }}
-            transition={{ duration: 45, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
             className="flex gap-4 hover:[animation-play-state:paused]"
           >
             {[...row2, ...row2, ...row2, ...row2, ...row2, ...row2, ...row2, ...row2].map((testimonial, index) => (
@@ -1117,7 +1117,7 @@ function Footer() {
                 <a href="/learning" className="text-sm text-text-muted hover:text-primary transition-colors">学习空间</a>
                 <a href="/life" className="text-sm text-text-muted hover:text-primary transition-colors">生活管理</a>
                 <a href="/entertainment" className="text-sm text-text-muted hover:text-primary transition-colors">娱乐中心</a>
-                <a href="/social" className="text-sm text-text-muted hover:text-primary transition-colors">社交互动</a>
+                <a href="/social" className="text-sm text-text-muted hover:text-primary transition-colors">我的互动</a>
               </div>
             </div>
 
@@ -1140,10 +1140,10 @@ function Footer() {
 
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-text-muted">
-            © 2025 {productInfo.name}. All rights reserved.
+            © 2026 {productInfo.name}. All rights reserved.
           </p>
           <p className="text-sm text-text-muted">
-            Made with <Heart size={14} className="inline text-rose" /> by SuperUI Team
+            Made with <Heart size={14} className="inline text-rose" /> by Xiaoye Team
           </p>
         </div>
       </div>

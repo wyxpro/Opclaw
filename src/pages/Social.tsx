@@ -1662,7 +1662,7 @@ function SocialMatrix() {
                 className="w-14 h-14 rounded-xl object-cover ring-2 ring-primary/20"
               />
               <div>
-                <h4 className="font-bold text-text">小叶</h4>
+                <h4 className="font-bold text-text">晓叶</h4>
                 <p className="text-xs text-text-muted">全栈开发者 / 创意设计师</p>
               </div>
             </div>
@@ -1705,7 +1705,7 @@ const mobileMenuItems = [
   { id: 'friends' as const, label: '友链', description: '连接志同道合的朋友', icon: Link2, color: '#3b82f6' },
   { id: 'danmaku' as const, label: '留言墙', description: '留下你的足迹和祝福', icon: MessageCircle, color: '#ec4899' },
   { id: 'timeline' as const, label: '成长时间轴', description: '记录学习与成长历程', icon: Clock, color: '#10b981' },
-  { id: 'social' as const, label: '自媒体矩阵', description: '关注我的社交媒体', icon: Share2, color: '#f59e0b' },
+  { id: 'social' as const, label: '自媒体矩阵', description: '关注我的我的媒体', icon: Share2, color: '#f59e0b' },
 ]
 
 // 移动端顶部用户信息组件
@@ -3168,7 +3168,7 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
                 className="w-12 h-12 rounded-xl object-cover ring-2 ring-primary/20"
               />
               <div>
-                <h4 className="font-bold text-text text-sm">小叶</h4>
+                <h4 className="font-bold text-text text-sm">晓叶</h4>
                 <p className="text-xs text-text-muted">全栈开发者 / 创意设计师</p>
               </div>
             </div>
@@ -3417,7 +3417,7 @@ function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onO
 
                 {/* Social Links */}
                 <div>
-                  <h4 className="text-xs font-medium text-text-muted mb-2">社交账号</h4>
+                  <h4 className="text-xs font-medium text-text-muted mb-2">我的账号</h4>
                   <div className="flex flex-wrap gap-2">
                     {card.socialLinks.map((link, i) => (
                       <div key={i} className="flex items-center gap-1 text-xs text-text-secondary bg-surface/50 px-2 py-1 rounded-lg">
@@ -3430,7 +3430,7 @@ function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onO
 
                 {/* Footer */}
                 <div className="pt-3 border-t border-border/50 flex items-center justify-between">
-                  <span className="text-xs text-text-dim">小叶的个人空间</span>
+                  <span className="text-xs text-text-dim">晓叶的个人空间</span>
                   <Sparkles size={14} className="text-primary" />
                 </div>
               </div>

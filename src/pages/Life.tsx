@@ -14,7 +14,7 @@ import { BlessingBoard } from '../components/love/BlessingBoard'
 
 // Couple info configuration
 const coupleInfo = {
-  person1: { name: '小叶', avatar: '/avatar.png' },
+  person1: { name: '晓叶', avatar: '/avatar.png' },
   person2: { name: '小安', avatar: '/avatar.png' },
   startDate: '2024-02-14T00:00:00',
 }
@@ -1123,7 +1123,7 @@ function PostInputContent({
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6"
+      className="glass-card rounded-xl p-4 mb-6"
     >
       <div className="flex gap-3">
         {/* 头像 */}
@@ -1138,7 +1138,7 @@ function PostInputContent({
             onChange={(e) => setContent(e.target.value)}
             placeholder={isEditing ? '编辑你的动态...' : isListening ? '正在聆听...' : '分享你的想法...'}
             rows={isEditing ? 4 : 3}
-            className="w-full bg-transparent border-none resize-none text-[15px] text-gray-800 placeholder:text-gray-400 focus:outline-none leading-relaxed"
+            className="w-full bg-transparent border-none resize-none text-[15px] text-text placeholder:text-text-muted focus:outline-none leading-relaxed"
             style={{ minHeight: isEditing ? '80px' : '60px' }}
           />
           
@@ -1513,7 +1513,7 @@ function Moments() {
       // 新建模式
       const newPost: SocialPost = {
         id: `post-${Date.now()}`,
-        author: '小叶',
+        author: '晓叶',
         avatar: '/avatar.png',
         date: new Date().toLocaleString('zh-CN', {
           year: 'numeric',

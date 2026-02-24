@@ -1,0 +1,15 @@
+{
+  "repoWiki": {
+    "enabled": true,
+    "autoUpdate": true,
+    "includePatterns": [
+      "src/**/*.{ts,tsx}",
+      "README.md"
+    ],
+    "excludePatterns": [
+      "node_modules/**",
+      "dist/**",
+      ".git/**"
+    ]
+  }
+}

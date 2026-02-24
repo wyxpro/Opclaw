@@ -431,7 +431,7 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 
   const features = [
     { label: '版本', value: 'v1.0.0' },
-    { label: '开发者', value: '小叶团队' },
+    { label: '开发者', value: '晓叶团队' },
     { label: '技术栈', value: 'React + TypeScript + Tailwind' },
     { label: '更新日期', value: '2026年2月' },
   ]
@@ -495,7 +495,7 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   className="text-lg font-bold mb-1"
                   style={{ color: themeConfig.colors.text }}
                 >
-                  小叶的个人空间
+                  晓叶的个人空间
                 </h3>
                 <p 
                   className="text-sm"
