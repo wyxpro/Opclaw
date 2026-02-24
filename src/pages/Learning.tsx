@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Calendar, Clock, ChevronRight, ChevronDown, ArrowLeft, Tag, Hash, Menu, X, BookOpen, GitBranch, Plus, Upload } from 'lucide-react'
+import { Search, Calendar, Clock, ChevronDown, ChevronRight, ArrowLeft, Hash, Menu, X, BookOpen, GitBranch, Plus, Upload, Edit2, Trash2 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import SkillTreeView from '../components/ui/SkillTreeView'
 import ArticleEditor from '../components/learning/ArticleEditor'
@@ -20,7 +20,7 @@ interface ArticleWithMeta extends Article {
 }
 
 type ViewMode = 'knowledge' | 'skilltree'
-type EditorMode = 'none' | 'create' | 'import'
+type EditorMode = 'none' | 'create' | 'edit' | 'import'
 
 export default function Learning() {
   const [viewMode, setViewMode] = useState<ViewMode>('knowledge')
@@ -36,6 +36,7 @@ export default function Learning() {
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [editorMode, setEditorMode] = useState<EditorMode>('none')
   const [customArticles, setCustomArticles] = useState<ArticleWithMeta[]>([])
+  const [editingArticle, setEditingArticle] = useState<ArticleWithMeta | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
   const toggleCategory = (name: string) => {
@@ -142,6 +143,9 @@ export default function Learning() {
   // Handle article selection
   const handleSelectArticle = (article: ArticleWithMeta) => {
     setSelectedArticle(article)
+    // Auto-show mobile menu (TOC) on mobile devices when article has headings
+    const hasHeadings = article.content.includes('## ')
+    setShowMobileMenu(hasHeadings)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -150,23 +154,74 @@ export default function Learning() {
     setSelectedArticle(null)
     setHeadings([])
     setActiveHeading('')
+    setShowMobileMenu(false)
   }
 
   // Handle article creation
-  const handleCreateArticle = (data: { title: string; content: string; excerpt: string }) => {
+  const handleCreateArticle = (data: { title: string; content: string; excerpt: string; tags?: string[]; coverImage?: string }) => {
     const newArticle: ArticleWithMeta = {
       id: `custom-${Date.now()}`,
       title: data.title,
       excerpt: data.excerpt,
       content: data.content,
       date: new Date().toISOString().split('T')[0],
-      tags: ['自定义'],
+      tags: data.tags || ['自定义'],
       readTime: `${Math.ceil(data.content.length / 500)} 分钟`,
       categoryName: selectedCategory || '前端开发',
       seriesName: selectedSeries || '自定义文章',
+      coverImage: data.coverImage,
     }
     setCustomArticles(prev => [newArticle, ...prev])
     setEditorMode('none')
+  }
+
+  // Handle article update
+  const handleUpdateArticle = (data: { title: string; content: string; excerpt: string; tags?: string[]; coverImage?: string }) => {
+    if (!editingArticle) return
+    
+    const updatedArticle: ArticleWithMeta = {
+      ...editingArticle,
+      title: data.title,
+      excerpt: data.excerpt,
+      content: data.content,
+      tags: data.tags || editingArticle.tags,
+      readTime: `${Math.ceil(data.content.length / 500)} 分钟`,
+      coverImage: data.coverImage,
+    }
+    
+    // Update in customArticles if it's a custom article
+    if (editingArticle.id.startsWith('custom-') || editingArticle.id.startsWith('imported-')) {
+      setCustomArticles(prev => prev.map(article => 
+        article.id === editingArticle.id ? updatedArticle : article
+      ))
+    }
+    
+    // Update selected article
+    setSelectedArticle(updatedArticle)
+    setEditingArticle(null)
+    setEditorMode('none')
+  }
+
+  // Handle article delete
+  const handleDeleteArticle = () => {
+    if (!selectedArticle) return
+    
+    if (confirm('确定要删除这篇文章吗？此操作不可恢复。')) {
+      // Remove from customArticles if it's a custom article
+      if (selectedArticle.id.startsWith('custom-') || selectedArticle.id.startsWith('imported-')) {
+        setCustomArticles(prev => prev.filter(article => article.id !== selectedArticle.id))
+      }
+      
+      // Return to list
+      handleBackToList()
+    }
+  }
+
+  // Handle edit button click
+  const handleEditClick = () => {
+    if (!selectedArticle) return
+    setEditingArticle(selectedArticle)
+    setEditorMode('edit')
   }
 
   // Handle document import
@@ -300,6 +355,72 @@ export default function Learning() {
     )
   }
 
+  // Editor Modal Component
+  const editorModal = (
+    <AnimatePresence>
+      {editorMode === 'create' && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setEditorMode('none')}
+        >
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+            <ArticleEditor
+              onSave={handleCreateArticle}
+              onCancel={() => setEditorMode('none')}
+            />
+          </div>
+        </motion.div>
+      )}
+
+      {editorMode === 'import' && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setEditorMode('none')}
+        >
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+            <DocumentImport
+              onImport={handleImportDocuments}
+              onCancel={() => setEditorMode('none')}
+            />
+          </div>
+        </motion.div>
+      )}
+
+      {editorMode === 'edit' && editingArticle && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setEditorMode('none')}
+        >
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+            <ArticleEditor
+              mode="edit"
+              initialData={{
+                title: editingArticle.title,
+                content: editingArticle.content,
+                excerpt: editingArticle.excerpt,
+                tags: editingArticle.tags,
+              }}
+              onSave={handleUpdateArticle}
+              onCancel={() => {
+                setEditorMode('none')
+                setEditingArticle(null)
+              }}
+            />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+
   // Article Detail View (Three Column Layout)
   if (selectedArticle) {
     return (
@@ -386,6 +507,22 @@ export default function Learning() {
                     <Clock size={14} />
                     {selectedArticle.readTime}
                   </span>
+                  <div className="flex items-center gap-2 ml-auto">
+                    <button
+                      onClick={handleEditClick}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-medium"
+                    >
+                      <Edit2 size={14} />
+                      编辑
+                    </button>
+                    <button
+                      onClick={handleDeleteArticle}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose/10 text-rose hover:bg-rose/20 transition-colors text-xs font-medium"
+                    >
+                      <Trash2 size={14} />
+                      删除
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {selectedArticle.tags.map((tag) => (
@@ -420,6 +557,7 @@ export default function Learning() {
             </motion.aside>
           </div>
         </div>
+        {editorModal}
       </PageTransition>
     )
   }
@@ -572,7 +710,7 @@ export default function Learning() {
 
             <motion.div
               layout
-              className="space-y-4"
+              className="grid grid-cols-2 lg:grid-cols-3 gap-4"
             >
               <AnimatePresence mode="popLayout">
                 {filteredArticles.map((article, index) => (
@@ -581,44 +719,72 @@ export default function Learning() {
                     layout
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     onClick={() => handleSelectArticle(article)}
-                    className="glass-card p-5 cursor-pointer group"
+                    className="glass-card overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-2 text-xs text-text-muted">
-                          <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                            {article.categoryName}
-                          </span>
-                          <span>·</span>
-                          <span>{article.seriesName}</span>
+                    {/* Card Header - Cover Image or Gradient Background */}
+                    <div className="h-28 sm:h-36 relative overflow-hidden">
+                      {article.coverImage ? (
+                        <>
+                          <img
+                            src={article.coverImage}
+                            alt={article.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
+                        </>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center">
+                          <BookOpen size={36} className="text-primary/30 group-hover:text-primary/50 group-hover:scale-110 transition-all duration-300" />
                         </div>
-                        <h3 className="text-lg font-semibold text-text group-hover:text-primary transition-colors mb-2">
-                          {article.title}
-                        </h3>
-                        <p className="text-sm text-text-muted line-clamp-2 mb-3">
-                          {article.excerpt}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-3">
-                          <span className="flex items-center gap-1 text-xs text-text-dim">
-                            <Calendar size={12} />
-                            {article.date}
-                          </span>
-                          <span className="flex items-center gap-1 text-xs text-text-dim">
-                            <Clock size={12} />
-                            {article.readTime}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            <Tag size={12} className="text-text-dim" />
-                            {article.tags.map((tag) => (
-                              <span key={tag} className="text-xs text-text-dim">{tag}</span>
-                            ))}
-                          </div>
-                        </div>
+                      )}
+
+                    </div>
+                    
+                    {/* Card Content */}
+                    <div className="p-3 sm:p-4">
+                      {/* Series Name */}
+                      <div className="text-[10px] sm:text-xs text-text-muted mb-1.5 truncate">
+                        {article.seriesName}
                       </div>
-                      <ChevronRight size={18} className="text-text-muted group-hover:text-primary transition-colors mt-1 flex-shrink-0" />
+                      
+                      {/* Title */}
+                      <h3 className="text-sm sm:text-base font-semibold text-text group-hover:text-primary transition-colors mb-2 line-clamp-2 leading-tight">
+                        {article.title}
+                      </h3>
+                      
+                      {/* Excerpt */}
+                      <p className="text-[11px] sm:text-xs text-text-muted line-clamp-2 mb-3 leading-relaxed">
+                        {article.excerpt}
+                      </p>
+                      
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {article.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-surface text-text-dim">
+                            #{tag}
+                          </span>
+                        ))}
+                        {article.tags.length > 3 && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface text-text-dim">
+                            +{article.tags.length - 3}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Footer Info */}
+                      <div className="flex items-center justify-between text-[10px] sm:text-xs text-text-dim pt-2 border-t border-border/50">
+                        <span className="flex items-center gap-1">
+                          <Calendar size={11} />
+                          {article.date}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock size={11} />
+                          {article.readTime}
+                        </span>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -633,42 +799,7 @@ export default function Learning() {
           </div>
         </div>
 
-        {/* Editor Modal */}
-        <AnimatePresence>
-          {editorMode === 'create' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-              onClick={() => setEditorMode('none')}
-            >
-              <div className="w-full max-w-4xl max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
-                <ArticleEditor
-                  onSave={handleCreateArticle}
-                  onCancel={() => setEditorMode('none')}
-                />
-              </div>
-            </motion.div>
-          )}
-
-          {editorMode === 'import' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-              onClick={() => setEditorMode('none')}
-            >
-              <div className="w-full max-w-2xl max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
-                <DocumentImport
-                  onImport={handleImportDocuments}
-                  onCancel={() => setEditorMode('none')}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {editorModal}
       </div>
     </PageTransition>
   )

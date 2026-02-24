@@ -22,20 +22,32 @@ import {
   Edit3,
   X,
   Check,
-  Type
+  Type,
+  Tag as TagIcon,
+  Plus as PlusIcon,
+  Upload
 } from 'lucide-react'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
+import type { LucideIcon } from 'lucide-react'
 
 interface ArticleEditorProps {
   initialContent?: string
-  onSave: (content: { title: string; content: string; excerpt: string }) => void
+  initialData?: {
+    title: string
+    content: string
+    excerpt: string
+    tags?: string[]
+    coverImage?: string
+  }
+  onSave: (content: { title: string; content: string; excerpt: string; tags?: string[]; coverImage?: string }) => void
   onCancel: () => void
+  mode?: 'create' | 'edit'
 }
 
 interface ToolbarButtonProps {
   onClick: () => void
   active?: boolean
-  icon: React.ElementType
+  icon: LucideIcon
   title: string
 }
 
@@ -55,11 +67,15 @@ function ToolbarButton({ onClick, active = false, icon: Icon, title }: ToolbarBu
   )
 }
 
-export function ArticleEditor({ initialContent = '', onSave, onCancel }: ArticleEditorProps) {
-  const [title, setTitle] = useState('')
+export function ArticleEditor({ initialContent = '', initialData, onSave, onCancel, mode = 'create' }: ArticleEditorProps) {
+  const [title, setTitle] = useState(initialData?.title || '')
+  const [tags, setTags] = useState<string[]>(initialData?.tags || [])
+  const [tagInput, setTagInput] = useState('')
+  const [coverImage, setCoverImage] = useState(initialData?.coverImage || '')
   const [isPreview, setIsPreview] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
   const [showLinkInput, setShowLinkInput] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const editor = useEditor({
     extensions: [
@@ -72,7 +88,7 @@ export function ArticleEditor({ initialContent = '', onSave, onCancel }: Article
         placeholder: '开始写作...',
       }),
     ],
-    content: initialContent,
+    content: initialData?.content || initialContent,
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose-base max-w-none focus:outline-none min-h-[300px] px-4 py-4',
@@ -109,7 +125,20 @@ export function ArticleEditor({ initialContent = '', onSave, onCancel }: Article
       title: title.trim(),
       content,
       excerpt,
+      tags: tags.length > 0 ? tags : ['自定义'],
+      coverImage: coverImage || undefined,
     })
+  }
+
+  const handleAddTag = () => {
+    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+      setTags([...tags, tagInput.trim()])
+      setTagInput('')
+    }
+  }
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove))
   }
 
   if (!editor) return null
@@ -126,7 +155,7 @@ export function ArticleEditor({ initialContent = '', onSave, onCancel }: Article
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text flex items-center gap-2">
             <Type size={20} className="text-primary" />
-            新建文章
+            {mode === 'edit' ? '编辑文章' : '新建文章'}
           </h2>
           <div className="flex items-center gap-2">
             <button
@@ -157,6 +186,116 @@ export function ArticleEditor({ initialContent = '', onSave, onCancel }: Article
           placeholder="输入文章标题..."
           className="w-full text-xl sm:text-2xl font-bold bg-transparent border-none text-text placeholder:text-text-muted focus:outline-none"
         />
+
+        {/* Tags Input */}
+        <div className="mt-4">
+          <div className="flex items-center gap-2 mb-2">
+            <TagIcon size={14} className="text-text-muted" />
+            <span className="text-sm text-text-muted">标签</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-xs"
+              >
+                {tag}
+                <button
+                  onClick={() => handleRemoveTag(tag)}
+                  className="hover:text-rose transition-colors"
+                >
+                  <X size={12} />
+                </button>
+              </span>
+            ))}
+            <div className="flex items-center gap-1">
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                placeholder="添加标签..."
+                className="px-2 py-1 rounded-lg bg-surface border border-border text-xs text-text placeholder:text-text-muted focus:outline-none focus:border-primary/50 w-24"
+              />
+              <button
+                onClick={handleAddTag}
+                disabled={!tagInput.trim()}
+                className="p-1 rounded-lg bg-surface border border-border text-text-muted hover:text-primary hover:border-primary/50 transition-colors disabled:opacity-50"
+              >
+                <PlusIcon size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Cover Image Input */}
+        <div className="mt-4">
+          <div className="flex items-center gap-2 mb-2">
+            <ImageIcon size={14} className="text-text-muted" />
+            <span className="text-sm text-text-muted">封面图片</span>
+          </div>
+          
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) {
+                const reader = new FileReader()
+                reader.onload = (event) => {
+                  setCoverImage(event.target?.result as string)
+                }
+                reader.readAsDataURL(file)
+              }
+            }}
+          />
+          
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={coverImage}
+              onChange={(e) => setCoverImage(e.target.value)}
+              placeholder="输入图片URL、上传本地文件或留空使用默认封面..."
+              className="flex-1 px-3 py-2 rounded-lg bg-surface border border-border text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-primary/50"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface/80 transition-colors text-sm whitespace-nowrap"
+            >
+              <Upload size={14} />
+              上传
+            </button>
+            <button
+              onClick={() => {
+                const url = window.prompt('请输入图片URL:')
+                if (url) setCoverImage(url)
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface/80 transition-colors text-sm whitespace-nowrap"
+            >
+              <ImageIcon size={14} />
+              URL
+            </button>
+          </div>
+          {coverImage && (
+            <div className="mt-2 relative">
+              <img
+                src={coverImage}
+                alt="封面预览"
+                className="w-full h-24 object-cover rounded-lg"
+                onError={() => setCoverImage('')}
+              />
+              <button
+                onClick={() => setCoverImage('')}
+                className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Toolbar */}

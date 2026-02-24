@@ -72,6 +72,9 @@ export default function StarCursor() {
   }, [])
 
   useEffect(() => {
+    // 如果鼠标特效被禁用，不添加事件监听
+    if (!cursorEffectEnabled) return
+
     let lastX = 0
     let lastY = 0
     let lastTime = 0
@@ -114,7 +117,7 @@ export default function StarCursor() {
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('click', handleClick)
     }
-  }, [createStar])
+  }, [createStar, cursorEffectEnabled])
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">

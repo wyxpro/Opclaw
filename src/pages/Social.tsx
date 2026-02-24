@@ -38,6 +38,7 @@ export default function Social() {
   const [mobileView, setMobileView] = useState<'menu' | TabId>('menu')
   const [showDesktopCardModal, setShowDesktopCardModal] = useState(false)
   const [showDesktopVipModal, setShowDesktopVipModal] = useState(false)
+  const [showDesktopHistoryModal, setShowDesktopHistoryModal] = useState(false)
   const [selectedVipPlan, setSelectedVipPlan] = useState('yearly')
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   
@@ -53,6 +54,24 @@ export default function Social() {
     email: ''
   })
   const [showProfileEditModal, setShowProfileEditModal] = useState(false)
+  const { currentTheme } = useTheme()
+
+  // 主题切换时自动更新背景
+  useEffect(() => {
+    const themeBackgrounds: Record<string, string> = {
+      'minimal': 'https://images.unsplash.com/photo-1557683316-973673baf926?w=800&q=80',
+      'cyber': 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800&q=80',
+      'artistic': 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80',
+      'cartoon': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80',
+      'retro': 'https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=800&q=80',
+    }
+    
+    // 只有当用户没有自定义背景时，才根据主题自动设置
+    const savedBackground = localStorage.getItem('userProfile_background')
+    if (!savedBackground && themeBackgrounds[currentTheme]) {
+      setUserProfile(prev => ({ ...prev, background: themeBackgrounds[currentTheme] }))
+    }
+  }, [currentTheme])
 
   // 检测是否为移动端
   useEffect(() => {
@@ -119,6 +138,14 @@ export default function Social() {
                 >
                   <Edit2 size={18} />
                   <span>编辑资料</span>
+                </button>
+                {/* 桌面端系统设置入口 */}
+                <button
+                  onClick={() => setShowSettingsModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 text-white font-medium hover:bg-white/30 transition-colors"
+                >
+                  <Settings size={18} />
+                  <span>系统设置</span>
                 </button>
                 {/* 桌面端VIP会员入口 */}
                 <button
@@ -197,12 +224,20 @@ export default function Social() {
         {/* 桌面端数字名片弹窗 */}
         <AnimatePresence>
           {showDesktopCardModal && (
-            <DigitalCardModal 
+            <DigitalCardModal
               onClose={() => setShowDesktopCardModal(false)} 
               onOpenHistory={() => {
                 setShowDesktopCardModal(false)
+                setShowDesktopHistoryModal(true)
               }}
             />
+          )}
+        </AnimatePresence>
+        
+        {/* 桌面端历史记录弹窗 */}
+        <AnimatePresence>
+          {showDesktopHistoryModal && (
+            <CardHistoryModal onClose={() => setShowDesktopHistoryModal(false)} />
           )}
         </AnimatePresence>
 
@@ -216,17 +251,19 @@ export default function Social() {
             />
           )}
         </AnimatePresence>
+
       </div>
 
       {/* 移动端布局 - 个人中心样式 */}
       <div className="md:hidden min-h-screen pb-20">
         <AnimatePresence mode="wait">
           {mobileView === 'menu' ? (
-            <MobileMenu 
+            <MobileMenu
               key="menu" 
               onNavigate={setMobileView} 
               userProfile={userProfile}
               onEditProfile={() => setShowProfileEditModal(true)}
+              onOpenSettings={() => setShowSettingsModal(true)}
             />
           ) : mobileView === 'friends' ? (
             <MobileFriendLinks key="friends" onBack={() => setMobileView('menu')} />
@@ -239,6 +276,12 @@ export default function Social() {
           ) : null}
         </AnimatePresence>
       </div>
+
+      {/* 系统设置弹窗 - 桌面端和移动端共用 */}
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+      />
 
       {/* 个人信息编辑弹窗 - 使用 key 确保重新挂载时同步最新数据 */}
       <ProfileEditModal
@@ -1779,7 +1822,7 @@ const memberBenefits = [
 ]
 
 // 移动端菜单主界面
-function MobileMenu({ onNavigate, userProfile, onEditProfile }: { onNavigate: (view: TabId | 'menu') => void; userProfile: ProfileData; onEditProfile: () => void }) {
+function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings }: { onNavigate: (view: TabId | 'menu') => void; userProfile: ProfileData; onEditProfile: () => void; onOpenSettings: () => void }) {
   const [showCardModal, setShowCardModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showThemePanel, setShowThemePanel] = useState(false)
@@ -1811,38 +1854,19 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile }: { onNavigate: (v
             <Crown size={20} className="text-white" />
           </div>
           <div className="flex-1 text-left">
-            <h3 className="font-medium text-white flex items-center gap-2">
+            <h3 className="font-medium text-white">
               VIP会员
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-gradient-to-r from-yellow-400 via-amber-400 to-amber-500 text-white font-medium shadow-sm">PRO</span>
             </h3>
             <p className="text-xs text-white/80 mt-0.5">解锁专属特权，享受尊贵体验</p>
           </div>
           <ChevronRight size={18} className="text-white/80" />
-        </motion.button>
-        
-        {/* 系统设置入口 */}
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 1 * 0.05 }}
-          onClick={() => setShowSettingsModal(true)}
-          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
-        >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/15">
-            <Settings size={20} className="text-blue-500" />
-          </div>
-          <div className="flex-1 text-left">
-            <h3 className="font-medium text-text">系统设置</h3>
-            <p className="text-xs text-text-muted mt-0.5">语言、鼠标特效等设置</p>
-          </div>
-          <ChevronRight size={18} className="text-text-dim" />
         </motion.button>
 
         {/* 主题风格选择入口 */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 2 * 0.05 }}
+          transition={{ delay: 1 * 0.05 }}
           onClick={() => setShowThemePanel(true)}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
@@ -1879,20 +1903,20 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile }: { onNavigate: (v
           </motion.button>
         ))}
         
-        {/* 名片历史记录入口 */}
+        {/* 系统设置入口 - 放在最下面 */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: (mobileMenuItems.length + 2) * 0.05 }}
-          onClick={() => setShowHistoryModal(true)}
+          onClick={() => onOpenSettings()}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/15">
-            <History size={20} className="text-amber-500" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/15">
+            <Settings size={20} className="text-blue-500" />
           </div>
           <div className="flex-1 text-left">
-            <h3 className="font-medium text-text">名片历史记录</h3>
-            <p className="text-xs text-text-muted mt-0.5">查看和管理已生成的名片</p>
+            <h3 className="font-medium text-text">系统设置</h3>
+            <p className="text-xs text-text-muted mt-0.5">鼠标特效等设置</p>
           </div>
           <ChevronRight size={18} className="text-text-dim" />
         </motion.button>
@@ -3252,7 +3276,7 @@ function SimpleRadarChart({ skills, theme }: { skills: { name: string; level: nu
 }
 
 // 数字名片弹窗
-function DigitalCardModal({ onClose }: { onClose: () => void; onOpenHistory?: () => void }) {
+function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onOpenHistory?: () => void }) {
   const [card, setCard] = useState<DigitalCard>(() => generateDigitalCard('blue'))
   const [isGenerating, setIsGenerating] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -3413,30 +3437,37 @@ function DigitalCardModal({ onClose }: { onClose: () => void; onOpenHistory?: ()
             </div>
           </div>
 
-          {/* Actions - 简化为只有下载、分享、编辑 */}
+          {/* Actions - 下载、分享、编辑、历史记录 */}
           <div className="p-4 border-t border-border/50">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-4 gap-3">
               <button
                 onClick={handleDownload}
                 disabled={isGenerating}
-                className="flex flex-col items-center gap-1.5 p-4 rounded-xl bg-primary/10 text-primary active:scale-95 transition-transform disabled:opacity-50"
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-primary/10 text-primary active:scale-95 transition-transform disabled:opacity-50"
               >
-                {isGenerating ? <Loader2 size={24} className="animate-spin" /> : <Download size={24} />}
+                {isGenerating ? <Loader2 size={20} className="animate-spin" /> : <Download size={20} />}
                 <span className="text-sm font-medium">下载</span>
               </button>
               <button
                 onClick={handleShare}
-                className="flex flex-col items-center gap-1.5 p-4 rounded-xl bg-green-500/10 text-green-500 active:scale-95 transition-transform"
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-green-500/10 text-green-500 active:scale-95 transition-transform"
               >
-                <Share size={24} />
+                <Share size={20} />
                 <span className="text-sm font-medium">分享</span>
               </button>
               <button
                 onClick={() => setShowEditModal(true)}
-                className="flex flex-col items-center gap-1.5 p-4 rounded-xl bg-amber-500/10 text-amber-500 active:scale-95 transition-transform"
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-amber-500/10 text-amber-500 active:scale-95 transition-transform"
               >
-                <Palette size={24} />
+                <Palette size={20} />
                 <span className="text-sm font-medium">编辑</span>
+              </button>
+              <button
+                onClick={() => onOpenHistory?.()}
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-rose-500/10 text-rose-500 active:scale-95 transition-transform"
+              >
+                <History size={20} />
+                <span className="text-sm font-medium">历史</span>
               </button>
             </div>
           </div>
@@ -3794,9 +3825,8 @@ function MembershipModal({
               <Crown size={32} className="text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="mb-1">
                 <h2 className="text-2xl font-bold">VIP会员</h2>
-                <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-yellow-400 via-amber-400 to-amber-500 text-white text-[10px] font-medium shadow-lg">PRO</span>
               </div>
               <p className="text-white/80 text-sm">解锁专属特权，享受尊贵体验</p>
             </div>
