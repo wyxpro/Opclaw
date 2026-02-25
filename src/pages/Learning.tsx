@@ -5,6 +5,7 @@ import PageTransition from '../components/ui/PageTransition'
 import SkillTreeView from '../components/ui/SkillTreeView'
 import ArticleEditor from '../components/learning/ArticleEditor'
 import DocumentImport from '../components/learning/DocumentImport'
+import { AIAssistant } from '../components/learning/AIAssistant'
 import { learningCategories } from '../data/mock'
 import type { Article } from '../data/mock'
 
@@ -37,6 +38,7 @@ export default function Learning() {
   const [editorMode, setEditorMode] = useState<EditorMode>('none')
   const [customArticles, setCustomArticles] = useState<ArticleWithMeta[]>([])
   const [editingArticle, setEditingArticle] = useState<ArticleWithMeta | null>(null)
+  const [aiAssistantOpen, setAiAssistantOpen] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
 
   const toggleCategory = (name: string) => {
@@ -558,6 +560,15 @@ export default function Learning() {
           </div>
         </div>
         {editorModal}
+        
+        {/* AI Assistant */}
+        <AIAssistant 
+          currentArticle={selectedArticle}
+          isOpen={aiAssistantOpen}
+          onToggle={() => setAiAssistantOpen(prev => !prev)}
+        />
+        
+
       </PageTransition>
     )
   }
@@ -601,6 +612,15 @@ export default function Learning() {
           {/* Skill Tree Content */}
           <SkillTreeView />
         </div>
+        
+        {/* AI Assistant */}
+        <AIAssistant 
+          currentArticle={selectedArticle}
+          isOpen={aiAssistantOpen}
+          onToggle={() => setAiAssistantOpen(prev => !prev)}
+        />
+        
+
       </PageTransition>
     )
   }
@@ -800,6 +820,15 @@ export default function Learning() {
         </div>
 
         {editorModal}
+        
+        {/* AI Assistant */}
+        <AIAssistant 
+          currentArticle={selectedArticle}
+          isOpen={aiAssistantOpen}
+          onToggle={() => setAiAssistantOpen(prev => !prev)}
+        />
+        
+
       </div>
     </PageTransition>
   )
