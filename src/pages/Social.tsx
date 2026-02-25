@@ -5,7 +5,7 @@ import {
   Send, Github, Edit3, Twitter, Play, MessageSquare, Zap, Award,
   X, Trash2, Edit2, Calendar, ChevronRight, ArrowLeft,
   IdCard, Download, Share, History, Palette, Sparkles, Loader2, Plus,
-  Crown, Check, CreditCard, Shield, Star, Settings
+  Crown, Check, CreditCard, Shield, Star, Settings, Info
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { ThemeSelectorPanel } from '../components/ui/ThemeSwitcher'
@@ -41,6 +41,7 @@ export default function Social() {
   const [showDesktopHistoryModal, setShowDesktopHistoryModal] = useState(false)
   const [selectedVipPlan, setSelectedVipPlan] = useState('yearly')
   const [showSettingsModal, setShowSettingsModal] = useState(false)
+    const [showAboutModal, setShowAboutModal] = useState(false)
   
   // 用户资料状态
   const [userProfile, setUserProfile] = useState<ProfileData>({
@@ -146,6 +147,14 @@ export default function Social() {
                 >
                   <Settings size={18} />
                   <span>系统设置</span>
+                </button>
+                {/* 桌面端关于我们入口 */}
+                <button
+                  onClick={() => setShowAboutModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 text-white font-medium hover:bg-white/30 transition-colors"
+                >
+                  <Info size={18} />
+                  <span>关于我们</span>
                 </button>
                 {/* 桌面端VIP会员入口 */}
                 <button
@@ -258,12 +267,13 @@ export default function Social() {
       <div className="md:hidden min-h-screen pb-20">
         <AnimatePresence mode="wait">
           {mobileView === 'menu' ? (
-            <MobileMenu
-              key="menu" 
+            <MobileMenu 
+              key="menu"
               onNavigate={setMobileView} 
               userProfile={userProfile}
               onEditProfile={() => setShowProfileEditModal(true)}
               onOpenSettings={() => setShowSettingsModal(true)}
+              onOpenAbout={() => setShowAboutModal(true)}
             />
           ) : mobileView === 'friends' ? (
             <MobileFriendLinks key="friends" onBack={() => setMobileView('menu')} />
@@ -281,6 +291,12 @@ export default function Social() {
       <SettingsModal
         isOpen={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
+      />
+
+      {/* 关于我们弹窗 */}
+      <AboutModal
+        isOpen={showAboutModal}
+        onClose={() => setShowAboutModal(false)}
       />
 
       {/* 个人信息编辑弹窗 - 使用 key 确保重新挂载时同步最新数据 */}
@@ -1822,7 +1838,7 @@ const memberBenefits = [
 ]
 
 // 移动端菜单主界面
-function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings }: { onNavigate: (view: TabId | 'menu') => void; userProfile: ProfileData; onEditProfile: () => void; onOpenSettings: () => void }) {
+function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, onOpenAbout }: { onNavigate: (view: TabId | 'menu') => void; userProfile: ProfileData; onEditProfile: () => void; onOpenSettings: () => void; onOpenAbout: () => void }) {
   const [showCardModal, setShowCardModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showThemePanel, setShowThemePanel] = useState(false)
@@ -1903,7 +1919,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings }: 
           </motion.button>
         ))}
         
-        {/* 系统设置入口 - 放在最下面 */}
+        {/* 系统设置入口 */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -1917,6 +1933,24 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings }: 
           <div className="flex-1 text-left">
             <h3 className="font-medium text-text">系统设置</h3>
             <p className="text-xs text-text-muted mt-0.5">鼠标特效等设置</p>
+          </div>
+          <ChevronRight size={18} className="text-text-dim" />
+        </motion.button>
+
+        {/* 关于我们入口 - 放在最下面 */}
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: (mobileMenuItems.length + 3) * 0.05 }}
+          onClick={() => onOpenAbout()}
+          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/15">
+            <Info size={20} className="text-purple-500" />
+          </div>
+          <div className="flex-1 text-left">
+            <h3 className="font-medium text-text">关于我们</h3>
+            <p className="text-xs text-text-muted mt-0.5">开发者信息与反馈</p>
           </div>
           <ChevronRight size={18} className="text-text-dim" />
         </motion.button>
@@ -3970,5 +4004,277 @@ function MembershipModal({
         </div>
       </motion.div>
     </motion.div>
+  )
+}
+
+// 关于我们弹窗
+function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { themeConfig } = useTheme()
+  const [showFeedback, setShowFeedback] = useState(false)
+  const [feedback, setFeedback] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+
+  const handleSubmitFeedback = () => {
+    if (!feedback.trim()) return
+    // 这里可以添加实际的提交逻辑
+    setSubmitted(true)
+    setTimeout(() => {
+      setSubmitted(false)
+      setFeedback('')
+      setShowFeedback(false)
+    }, 1500)
+  }
+
+  const socialLinks = [
+    {
+      name: '公众号',
+      value: '晓叶笔记',
+      icon: '📱',
+      desc: '扫码关注获取更多内容',
+      hasQR: true
+    },
+    {
+      name: '哔哩哔哩',
+      value: '@晓叶同学',
+      icon: '📺',
+      desc: '视频教程与技术分享',
+      url: 'https://space.bilibili.com'
+    }
+  ]
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[102]"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[103] flex items-center justify-center p-4 pointer-events-none"
+          >
+            <div 
+              className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl p-6 pointer-events-auto"
+              style={{
+                background: themeConfig.glassEffect.background,
+                border: themeConfig.glassEffect.border,
+                backdropFilter: themeConfig.glassEffect.backdropBlur,
+                WebkitBackdropFilter: themeConfig.glassEffect.backdropBlur,
+                boxShadow: themeConfig.shadows.float,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 
+                  className="text-xl font-bold"
+                  style={{ color: themeConfig.colors.text }}
+                >
+                  关于我们
+                </h2>
+                <button
+                  onClick={onClose}
+                  className="p-2 rounded-full transition-colors hover:opacity-70"
+                  style={{ color: themeConfig.colors.textMuted }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Logo & Title */}
+              <div className="text-center mb-6">
+                <div 
+                  className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-3xl font-bold"
+                  style={{ 
+                    background: themeConfig.colors.primaryMuted,
+                    color: themeConfig.colors.primary,
+                  }}
+                >
+                  叶
+                </div>
+                <h3 
+                  className="text-lg font-bold mb-1"
+                  style={{ color: themeConfig.colors.text }}
+                >
+                  晓叶的个人空间
+                </h3>
+                <p 
+                  className="text-sm"
+                  style={{ color: themeConfig.colors.textMuted }}
+                >
+                  记录生活，分享成长
+                </p>
+              </div>
+
+              {/* Social Links */}
+              <div className="space-y-3 mb-6">
+                <h4 
+                  className="text-sm font-semibold mb-3"
+                  style={{ color: themeConfig.colors.text }}
+                >
+                  关注我们
+                </h4>
+                {socialLinks.map((link, index) => (
+                  <motion.div
+                    key={link.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="p-4 rounded-xl"
+                    style={{
+                      background: themeConfig.colors.surface,
+                      border: `1px solid ${themeConfig.colors.border}`,
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{link.icon}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span 
+                            className="font-medium"
+                            style={{ color: themeConfig.colors.text }}
+                          >
+                            {link.name}
+                          </span>
+                          <span 
+                            className="text-sm font-semibold"
+                            style={{ color: themeConfig.colors.primary }}
+                          >
+                            {link.value}
+                          </span>
+                        </div>
+                        <p 
+                          className="text-xs mt-1"
+                          style={{ color: themeConfig.colors.textMuted }}
+                        >
+                          {link.desc}
+                        </p>
+                      </div>
+                    </div>
+                    {link.hasQR && (
+                      <div 
+                        className="mt-3 p-3 rounded-lg text-center"
+                        style={{ background: themeConfig.colors.bg }}
+                      >
+                        <div 
+                          className="w-24 h-24 mx-auto rounded-lg flex items-center justify-center text-xs"
+                          style={{ 
+                            background: themeConfig.colors.surface,
+                            border: `1px dashed ${themeConfig.colors.border}`
+                          }}
+                        >
+                          二维码区域
+                        </div>
+                        <p 
+                          className="text-xs mt-2"
+                          style={{ color: themeConfig.colors.textMuted }}
+                        >
+                          扫码关注公众号
+                        </p>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Version Info */}
+              <div 
+                className="flex items-center justify-between py-3 px-4 rounded-xl mb-6"
+                style={{
+                  background: themeConfig.colors.surface,
+                  border: `1px solid ${themeConfig.colors.border}`,
+                }}
+              >
+                <span style={{ color: themeConfig.colors.textMuted }}>版本</span>
+                <span 
+                  className="font-medium"
+                  style={{ color: themeConfig.colors.text }}
+                >
+                  v1.0.0
+                </span>
+              </div>
+
+              {/* Feedback Section */}
+              <div className="mb-6">
+                {!showFeedback ? (
+                  <button
+                    onClick={() => setShowFeedback(true)}
+                    className="w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                    style={{
+                      background: themeConfig.colors.surface,
+                      border: `1px solid ${themeConfig.colors.border}`,
+                      color: themeConfig.colors.text,
+                    }}
+                  >
+                    <MessageSquare size={18} />
+                    建议反馈
+                  </button>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="space-y-3"
+                  >
+                    <textarea
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      placeholder="请输入您的宝贵建议..."
+                      rows={4}
+                      className="w-full px-4 py-3 rounded-xl text-sm resize-none outline-none"
+                      style={{
+                        background: themeConfig.colors.surface,
+                        border: `1px solid ${themeConfig.colors.border}`,
+                        color: themeConfig.colors.text,
+                      }}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setShowFeedback(false)}
+                        className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-all"
+                        style={{
+                          background: themeConfig.colors.surface,
+                          border: `1px solid ${themeConfig.colors.border}`,
+                          color: themeConfig.colors.textMuted,
+                        }}
+                      >
+                        取消
+                      </button>
+                      <button
+                        onClick={handleSubmitFeedback}
+                        disabled={!feedback.trim() || submitted}
+                        className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+                        style={{
+                          background: themeConfig.colors.primary,
+                          color: '#fff',
+                        }}
+                      >
+                        {submitted ? '提交成功！' : '提交'}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              <button
+                onClick={onClose}
+                className="w-full py-3 rounded-xl font-medium transition-all"
+                style={{
+                  background: themeConfig.colors.primary,
+                  color: '#fff',
+                }}
+              >
+                知道了
+              </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   )
 }

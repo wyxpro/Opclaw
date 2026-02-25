@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Calendar, Clock, ChevronDown, ChevronRight, ArrowLeft, Hash, Menu, X, BookOpen, GitBranch, Plus, Upload, Edit2, Trash2 } from 'lucide-react'
+import { Search, Calendar, Clock, ChevronDown, ChevronRight, ArrowLeft, Hash, Menu, X, BookOpen, GitBranch, Plus, Upload, Edit2, Trash2, FileText } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import SkillTreeView from '../components/ui/SkillTreeView'
 import ArticleEditor from '../components/learning/ArticleEditor'
 import DocumentImport from '../components/learning/DocumentImport'
 import { AIAssistant } from '../components/learning/AIAssistant'
+import { OnlineResume } from '../components/learning/resume'
 import { learningCategories } from '../data/mock'
 import type { Article } from '../data/mock'
 
@@ -39,6 +40,7 @@ export default function Learning() {
   const [customArticles, setCustomArticles] = useState<ArticleWithMeta[]>([])
   const [editingArticle, setEditingArticle] = useState<ArticleWithMeta | null>(null)
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false)
+  const [showResume, setShowResume] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
 
   const toggleCategory = (name: string) => {
@@ -260,6 +262,17 @@ export default function Learning() {
       >
         全部文章
       </button>
+
+      {/* Online Resume Button */}
+      <button
+        onClick={() => setShowResume(true)}
+        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-4 transition-all text-text-secondary hover:text-text hover:bg-surface border border-dashed border-border hover:border-primary/30"
+      >
+        <FileText size={16} />
+        在线简历
+      </button>
+
+      <div className="border-t border-border my-3" />
 
       {learningCategories.map((category) => (
         <div key={category.name} className="mb-1">
@@ -594,16 +607,24 @@ export default function Learning() {
               <div className="flex items-center gap-1 p-1 rounded-xl bg-surface border border-border">
                 <button
                   onClick={() => setViewMode('knowledge')}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-text-muted hover:text-text"
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all text-text-muted hover:text-text"
                 >
                   <BookOpen size={16} />
-                  <span className="hidden sm:inline">知识库</span>
+                  <span>知识库</span>
                 </button>
                 <button
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all bg-primary/10 text-primary"
+                  onClick={() => setViewMode('skilltree')}
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all bg-primary/10 text-primary"
                 >
                   <GitBranch size={16} />
-                  <span className="hidden sm:inline">技能树</span>
+                  <span>技能树</span>
+                </button>
+                <button
+                  onClick={() => setShowResume(true)}
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all text-text-muted hover:text-text"
+                >
+                  <FileText size={16} />
+                  <span>在线简历</span>
                 </button>
               </div>
             </div>
@@ -613,13 +634,11 @@ export default function Learning() {
           <SkillTreeView />
         </div>
         
-        {/* AI Assistant */}
-        <AIAssistant 
-          currentArticle={selectedArticle}
-          isOpen={aiAssistantOpen}
-          onToggle={() => setAiAssistantOpen(prev => !prev)}
+        {/* Online Resume - Available in skill tree view too */}
+        <OnlineResume 
+          isOpen={showResume}
+          onClose={() => setShowResume(false)}
         />
-        
 
       </PageTransition>
     )
@@ -645,21 +664,36 @@ export default function Learning() {
             <div className="flex items-center gap-1 p-1 rounded-xl bg-surface border border-border">
               <button
                 onClick={() => setViewMode('knowledge')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   viewMode === 'knowledge'
                     ? 'bg-primary/10 text-primary'
                     : 'text-text-muted hover:text-text'
                 }`}
               >
                 <BookOpen size={16} />
-                <span className="hidden sm:inline">知识库</span>
+                <span>知识库</span>
               </button>
               <button
                 onClick={() => setViewMode('skilltree')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-text-muted hover:text-text"
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  viewMode === 'skilltree'
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-text-muted hover:text-text'
+                }`}
               >
                 <GitBranch size={16} />
-                <span className="hidden sm:inline">技能树</span>
+                <span>技能树</span>
+              </button>
+              <button
+                onClick={() => setShowResume(true)}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  showResume
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-text-muted hover:text-text'
+                }`}
+              >
+                <FileText size={16} />
+                <span>在线简历</span>
               </button>
             </div>
           </div>
@@ -745,22 +779,18 @@ export default function Learning() {
                     className="glass-card overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
                   >
                     {/* Card Header - Cover Image or Gradient Background */}
-                    <div className="h-28 sm:h-36 relative overflow-hidden">
+                    <div className="h-28 sm:h-36 relative overflow-hidden bg-surface">
                       {article.coverImage ? (
-                        <>
-                          <img
-                            src={article.coverImage}
-                            alt={article.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
-                        </>
+                        <img
+                          src={article.coverImage}
+                          alt={article.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center">
                           <BookOpen size={36} className="text-primary/30 group-hover:text-primary/50 group-hover:scale-110 transition-all duration-300" />
                         </div>
                       )}
-
                     </div>
                     
                     {/* Card Content */}
@@ -828,6 +858,11 @@ export default function Learning() {
           onToggle={() => setAiAssistantOpen(prev => !prev)}
         />
         
+        {/* Online Resume */}
+        <OnlineResume 
+          isOpen={showResume}
+          onClose={() => setShowResume(false)}
+        />
 
       </div>
     </PageTransition>
