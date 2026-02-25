@@ -1864,18 +1864,18 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0 * 0.05 }}
           onClick={() => setShowVipModal(true)}
-          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-violet-600 to-blue-600 border border-white/20 active:scale-[0.98] transition-transform shadow-lg shadow-violet-500/25"
+          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-200 via-orange-200 to-rose-200 border border-white/50 active:scale-[0.98] transition-transform shadow-lg shadow-orange-200/50"
         >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-yellow-400 via-amber-400 to-amber-600 shadow-lg shadow-amber-500/50 ring-2 ring-white/30">
-            <Crown size={20} className="text-white" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/60 shadow-inner">
+            <Crown size={20} className="text-amber-600" />
           </div>
           <div className="flex-1 text-left">
-            <h3 className="font-medium text-white">
+            <h3 className="font-medium text-amber-800">
               VIP会员
             </h3>
-            <p className="text-xs text-white/80 mt-0.5">解锁专属特权，享受尊贵体验</p>
+            <p className="text-xs text-amber-600/70 mt-0.5">解锁专属特权，享受尊贵体验</p>
           </div>
-          <ChevronRight size={18} className="text-white/80" />
+          <ChevronRight size={18} className="text-amber-600/60" />
         </motion.button>
 
         {/* 主题风格选择入口 */}

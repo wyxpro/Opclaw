@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon } from 'lucide-react'
+import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, ChevronLeft, Star, Zap, Medal } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { loveTimeline as initialLoveTimeline, socialPosts as initialSocialPosts, travelLocations as initialTravelLocations } from '../data/mock'
 import type { SocialPost, PostComment, TravelLocation } from '../data/mock'
@@ -23,6 +23,8 @@ const tabs = [
   { id: 'moments', label: '朋友圈', icon: MessageCircle },
   { id: 'travel', label: '旅拍相册', icon: Camera },
   { id: 'love', label: '恋爱记录', icon: Heart },
+  { id: 'sports', label: '运动', icon: Dumbbell },
+  { id: 'games', label: '游戏', icon: Gamepad2 },
 ] as const
 
 type TabId = (typeof tabs)[number]['id']
@@ -121,6 +123,28 @@ export default function Life() {
               transition={{ duration: 0.3 }}
             >
               <TravelAlbum selectedLocation={selectedLocation} onSelect={setSelectedLocation} />
+            </motion.div>
+          )}
+          {activeTab === 'sports' && (
+            <motion.div
+              key="sports"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <SportsSection />
+            </motion.div>
+          )}
+          {activeTab === 'games' && (
+            <motion.div
+              key="games"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <GamesSection />
             </motion.div>
           )}
         </AnimatePresence>
@@ -1708,6 +1732,414 @@ function TravelAlbum({ onSelect }: {
         isOpen={!!modalLocation}
         onClose={closeModal}
       />
+    </div>
+  )
+}
+
+/* ===== Sports Section ===== */
+function SportsSection() {
+  const [, setActiveSport] = useState<'running' | 'cycling' | 'swimming' | 'fitness' | null>(null)
+  const [stats] = useState({
+    running: { distance: 156.8, time: '12h 30m', calories: 12540 },
+    cycling: { distance: 289.5, time: '18h 45m', calories: 18920 },
+    swimming: { distance: 15.2, time: '8h 20m', calories: 8960 },
+    fitness: { count: 48, time: '24h 00m', calories: 15600 }
+  })
+
+  const sportTypes = [
+    { id: 'running', name: '跑步', icon: Flame, color: 'from-orange-400 to-red-500', bgColor: 'bg-orange-50', iconColor: 'text-orange-500' },
+    { id: 'cycling', name: '骑行', icon: Zap, color: 'from-cyan-400 to-blue-500', bgColor: 'bg-cyan-50', iconColor: 'text-cyan-500' },
+    { id: 'swimming', name: '游泳', icon: Timer, color: 'from-blue-400 to-indigo-500', bgColor: 'bg-blue-50', iconColor: 'text-blue-500' },
+    { id: 'fitness', name: '健身', icon: Dumbbell, color: 'from-violet-400 to-purple-500', bgColor: 'bg-violet-50', iconColor: 'text-violet-500' },
+  ] as const
+
+  const weeklyData = [
+    { day: '周一', value: 65 },
+    { day: '周二', value: 80 },
+    { day: '周三', value: 45 },
+    { day: '周四', value: 90 },
+    { day: '周五', value: 70 },
+    { day: '周六', value: 100 },
+    { day: '周日', value: 85 },
+  ]
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-8"
+      >
+        <h2 className="text-2xl font-bold text-text mb-2 flex items-center justify-center gap-2">
+          <Trophy className="text-amber-500" size={28} />
+          运动中心
+        </h2>
+        <p className="text-text-muted">记录每一次汗水，见证更好的自己</p>
+      </motion.div>
+
+      {/* Sport Type Cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+      >
+        {sportTypes.map((sport, index) => (
+          <motion.button
+            key={sport.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + index * 0.05 }}
+            whileHover={{ scale: 1.03, y: -4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setActiveSport(sport.id)}
+            className={`relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-300 group bg-gradient-to-br ${sport.color}`}
+          >
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/20 to-transparent" />
+            
+            <div className="relative z-10">
+              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-3 backdrop-blur-sm">
+                <sport.icon size={24} className="text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-1">{sport.name}</h3>
+              <p className="text-white/70 text-sm">
+                {sport.id === 'fitness' ? `${stats.fitness.count} 次` : `${stats[sport.id].distance} km`}
+              </p>
+            </div>
+            
+            <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-white/10 blur-2xl group-hover:scale-150 transition-transform duration-500" />
+          </motion.button>
+        ))}
+      </motion.div>
+
+      {/* Weekly Activity Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="glass-card rounded-2xl p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-text flex items-center gap-2">
+            <Target size={20} className="text-primary" />
+            本周运动趋势
+          </h3>
+          <span className="text-sm text-text-muted">总消耗 2,450 千卡</span>
+        </div>
+        
+        <div className="flex items-end justify-between gap-2 h-40">
+          {weeklyData.map((data, index) => (
+            <div key={data.day} className="flex-1 flex flex-col items-center gap-2">
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: `${data.value}%` }}
+                transition={{ delay: 0.4 + index * 0.05, duration: 0.5 }}
+                className="w-full max-w-12 bg-gradient-to-t from-primary to-primary/50 rounded-t-lg relative group"
+              >
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-text text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  {data.value}%
+                </div>
+              </motion.div>
+              <span className="text-xs text-text-muted">{data.day}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Achievement Badges */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="glass-card rounded-2xl p-6"
+      >
+        <h3 className="text-lg font-semibold text-text mb-4 flex items-center gap-2">
+          <Medal size={20} className="text-amber-500" />
+          成就徽章
+        </h3>
+        
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+          {[
+            { name: '初跑者', icon: '🏃', color: 'from-orange-300 to-orange-400', unlocked: true },
+            { name: '骑行者', icon: '🚴', color: 'from-cyan-300 to-cyan-400', unlocked: true },
+            { name: '游泳健将', icon: '🏊', color: 'from-blue-300 to-blue-400', unlocked: true },
+            { name: '健身达人', icon: '💪', color: 'from-violet-300 to-violet-400', unlocked: false },
+            { name: '坚持30天', icon: '📅', color: 'from-green-300 to-green-400', unlocked: true },
+            { name: '燃脂高手', icon: '🔥', color: 'from-red-300 to-red-400', unlocked: false },
+          ].map((badge, index) => (
+            <motion.div
+              key={badge.name}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6 + index * 0.05 }}
+              className={`flex flex-col items-center gap-2 p-3 rounded-xl ${
+                badge.unlocked ? 'bg-surface' : 'bg-surface/50 opacity-50'
+              }`}
+            >
+              <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${badge.color} flex items-center justify-center text-2xl ${!badge.unlocked && 'grayscale'}`}>
+                {badge.icon}
+              </div>
+              <span className="text-xs text-text-muted text-center">{badge.name}</span>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="flex gap-3"
+      >
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex-1 py-3 rounded-xl bg-primary text-white font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+        >
+          <Plus size={18} />
+          记录运动
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex-1 py-3 rounded-xl bg-surface border border-border text-text font-medium hover:bg-surface/80 transition-colors flex items-center justify-center gap-2"
+        >
+          <Target size={18} />
+          设置目标
+        </motion.button>
+      </motion.div>
+    </div>
+  )
+}
+
+/* ===== Games Section ===== */
+function GamesSection() {
+  const [, setSelectedGame] = useState<string | null>(null)
+
+  const games = [
+    {
+      id: 'memory',
+      name: '记忆翻牌',
+      description: '考验你的记忆力',
+      icon: '🧠',
+      color: 'from-pink-400 to-rose-500',
+      players: '1人',
+      difficulty: '简单'
+    },
+    {
+      id: 'puzzle',
+      name: '数字拼图',
+      description: '经典益智游戏',
+      icon: '🧩',
+      color: 'from-blue-400 to-indigo-500',
+      players: '1人',
+      difficulty: '中等'
+    },
+    {
+      id: 'reaction',
+      name: '反应测试',
+      description: '挑战反应速度',
+      icon: '⚡',
+      color: 'from-yellow-400 to-orange-500',
+      players: '1人',
+      difficulty: '简单'
+    },
+    {
+      id: 'word',
+      name: '猜词游戏',
+      description: '丰富你的词汇',
+      icon: '📝',
+      color: 'from-green-400 to-emerald-500',
+      players: '2-4人',
+      difficulty: '中等'
+    }
+  ]
+
+  const gameStats = {
+    totalPlayTime: '128小时',
+    favoriteGame: '记忆翻牌',
+    achievements: 24,
+    streak: 7
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-8"
+      >
+        <h2 className="text-2xl font-bold text-text mb-2 flex items-center justify-center gap-2">
+          <Gamepad2 className="text-primary" size={28} />
+          游戏中心
+        </h2>
+        <p className="text-text-muted">放松身心，享受游戏时光</p>
+      </motion.div>
+
+      {/* Stats Overview */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+      >
+        {[
+          { label: '游戏时长', value: gameStats.totalPlayTime, icon: Timer, color: 'text-blue-500', bgColor: 'bg-blue-50' },
+          { label: '最爱游戏', value: gameStats.favoriteGame, icon: Star, color: 'text-amber-500', bgColor: 'bg-amber-50' },
+          { label: '成就解锁', value: gameStats.achievements, icon: Trophy, color: 'text-violet-500', bgColor: 'bg-violet-50' },
+          { label: '连续打卡', value: `${gameStats.streak}天`, icon: Flame, color: 'text-orange-500', bgColor: 'bg-orange-50' },
+        ].map((stat, index) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + index * 0.05 }}
+            className="glass-card rounded-xl p-4 text-center"
+          >
+            <div className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center mx-auto mb-2`}>
+              <stat.icon size={20} className={stat.color} />
+            </div>
+            <p className="text-2xl font-bold text-text">{stat.value}</p>
+            <p className="text-xs text-text-muted">{stat.label}</p>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Games Grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+      >
+        {games.map((game, index) => (
+          <motion.button
+            key={game.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 + index * 0.05 }}
+            whileHover={{ scale: 1.02, y: -4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setSelectedGame(game.id)}
+            className={`relative overflow-hidden rounded-2xl p-6 text-left transition-all duration-300 group bg-gradient-to-br ${game.color}`}
+          >
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/20 to-transparent" />
+            
+            <div className="relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-4xl backdrop-blur-sm">
+                  {game.icon}
+                </div>
+                <div className="flex gap-2">
+                  <span className="px-2 py-1 rounded-full bg-white/20 text-white text-xs backdrop-blur-sm">
+                    {game.players}
+                  </span>
+                  <span className="px-2 py-1 rounded-full bg-white/20 text-white text-xs backdrop-blur-sm">
+                    {game.difficulty}
+                  </span>
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold text-white mb-1">{game.name}</h3>
+              <p className="text-white/70 text-sm">{game.description}</p>
+              
+              <div className="mt-4 flex items-center gap-2 text-white/80 text-sm">
+                <span className="flex items-center gap-1">
+                  <Zap size={14} />
+                  开始游戏
+                </span>
+                <span className="text-white/40">→</span>
+              </div>
+            </div>
+            
+            <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/10 blur-3xl group-hover:scale-150 transition-transform duration-500" />
+          </motion.button>
+        ))}
+      </motion.div>
+
+      {/* Recent Achievements */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="glass-card rounded-2xl p-6"
+      >
+        <h3 className="text-lg font-semibold text-text mb-4 flex items-center gap-2">
+          <Trophy size={20} className="text-amber-500" />
+          最近成就
+        </h3>
+        
+        <div className="space-y-3">
+          {[
+            { name: '记忆大师', description: '记忆翻牌连续通关10次', icon: '🧠', time: '2小时前', color: 'from-pink-400 to-rose-500' },
+            { name: '速度之王', description: '反应测试达到S级评价', icon: '⚡', time: '昨天', color: 'from-yellow-400 to-orange-500' },
+            { name: '拼图达人', description: '完成困难难度拼图', icon: '🧩', time: '3天前', color: 'from-blue-400 to-indigo-500' },
+          ].map((achievement, index) => (
+            <motion.div
+              key={achievement.name}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 + index * 0.05 }}
+              className="flex items-center gap-4 p-3 rounded-xl bg-surface/50 hover:bg-surface transition-colors"
+            >
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${achievement.color} flex items-center justify-center text-2xl flex-shrink-0`}>
+                {achievement.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-text">{achievement.name}</h4>
+                <p className="text-sm text-text-muted truncate">{achievement.description}</p>
+              </div>
+              <span className="text-xs text-text-muted flex-shrink-0">{achievement.time}</span>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Daily Challenge */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="glass-card rounded-2xl p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <Target size={24} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-text">今日挑战</h3>
+              <p className="text-sm text-text-muted">完成挑战获得双倍积分</p>
+            </div>
+          </div>
+          <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
+            +100 积分
+          </span>
+        </div>
+        
+        <div className="p-4 rounded-xl bg-surface/80">
+          <p className="text-text font-medium mb-2">🎮 在记忆翻牌中获得3星评价</p>
+          <div className="flex items-center gap-2 text-sm text-text-muted">
+            <span>进度: 0/1</span>
+            <div className="flex-1 h-2 rounded-full bg-surface overflow-hidden">
+              <div className="h-full w-0 bg-gradient-to-r from-primary to-accent rounded-full" />
+            </div>
+          </div>
+        </div>
+        
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full mt-4 py-3 rounded-xl bg-primary text-white font-medium hover:bg-primary/90 transition-colors"
+        >
+          接受挑战
+        </motion.button>
+      </motion.div>
     </div>
   )
 }

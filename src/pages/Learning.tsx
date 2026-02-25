@@ -263,15 +263,6 @@ export default function Learning() {
         全部文章
       </button>
 
-      {/* Online Resume Button */}
-      <button
-        onClick={() => setShowResume(true)}
-        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-4 transition-all text-text-secondary hover:text-text hover:bg-surface border border-dashed border-border hover:border-primary/30"
-      >
-        <FileText size={16} />
-        在线简历
-      </button>
-
       <div className="border-t border-border my-3" />
 
       {learningCategories.map((category) => (
@@ -344,7 +335,7 @@ export default function Learning() {
     if (headings.length === 0) return null
     
     return (
-      <div className={`glass-card p-5 ${isSticky ? 'sticky top-24' : ''}`}>
+      <div className={`glass-card p-5 pointer-events-auto ${isSticky ? 'sticky top-24' : ''}`}>
         <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4 flex items-center gap-2">
           <Hash size={14} />
           目录索引
@@ -353,8 +344,13 @@ export default function Learning() {
           {headings.map((heading) => (
             <button
               key={heading.id}
-              onClick={() => scrollToHeading(heading.id)}
-              className={`w-full text-left text-sm transition-all py-1.5 rounded-md ${
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                scrollToHeading(heading.id)
+              }}
+              className={`w-full text-left text-sm transition-all py-1.5 rounded-md pointer-events-auto ${
                 heading.level === 3 ? 'pl-4' : 'pl-2'
               } ${
                 activeHeading === heading.id
@@ -562,14 +558,16 @@ export default function Learning() {
             </motion.article>
 
             {/* Right Sidebar - Table of Contents */}
-            <motion.aside
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="hidden lg:block w-56 flex-shrink-0"
-            >
-              {tocSidebarJSX(true)}
-            </motion.aside>
+            {headings.length > 0 && (
+              <motion.aside
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="hidden lg:block w-56 flex-shrink-0"
+              >
+                {tocSidebarJSX(true)}
+              </motion.aside>
+            )}
           </div>
         </div>
         {editorModal}

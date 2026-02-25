@@ -10,13 +10,20 @@ export const personalInfo = {
   email: 'xiaoye@example.com',
 }
 
-// 预设头像列表
+// 预设头像列表 - 使用卡通可爱风格（Notionists）
 export const presetAvatars = [
-  { id: 'avatar1', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix', name: '阳光男孩' },
-  { id: 'avatar2', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka', name: '知性女孩' },
-  { id: 'avatar3', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Zack', name: '潮流达人' },
-  { id: 'avatar4', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bella', name: '甜美少女' },
-  { id: 'avatar5', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Leo', name: '商务精英' },
+  // 女孩头像
+  { id: 'avatar1', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Lily&backgroundColor=ffdfbf', name: '可爱女孩' },
+  { id: 'avatar2', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Coco&backgroundColor=ffd5dc', name: '粉色公主' },
+  { id: 'avatar3', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Momo&backgroundColor=b6e3f4', name: '蓝色精灵' },
+  { id: 'avatar4', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Kiki&backgroundColor=d1d4f9', name: '紫色魔女' },
+  { id: 'avatar5', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sunny&backgroundColor=ffdfbf', name: '阳光少女' },
+  // 男孩头像
+  { id: 'avatar6', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Bob&backgroundColor=c0aede', name: '萌萌男孩' },
+  { id: 'avatar7', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Tom&backgroundColor=b6e3f4', name: '活力少年' },
+  { id: 'avatar8', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Jack&backgroundColor=c0aede', name: '酷酷小哥' },
+  { id: 'avatar9', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Leo&backgroundColor=ffd5dc', name: '温柔男孩' },
+  { id: 'avatar10', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Max&backgroundColor=d1d4f9', name: '聪明小子' },
 ]
 
 // 预设背景图列表
