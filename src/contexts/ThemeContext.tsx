@@ -13,18 +13,31 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 const STORAGE_KEY = 'site-theme'
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [currentTheme, setCurrentTheme] = useState<ThemeType>(defaultTheme)
+  // 从localStorage读取主题，如果没有则使用默认主题
+  const getInitialTheme = (): ThemeType => {
+    if (typeof window === 'undefined') return defaultTheme
+    const stored = localStorage.getItem(STORAGE_KEY) as ThemeType | null
+    return stored && themes[stored] ? stored : defaultTheme
+  }
+  
+  const [currentTheme, setCurrentTheme] = useState<ThemeType>(getInitialTheme)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
 
-  // Load theme from localStorage on mount
+  // 初始化完成后标记
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) as ThemeType | null
-    if (stored && themes[stored]) {
-      requestAnimationFrame(() => {
-        setCurrentTheme(stored)
-      })
-    }
+    // 立即应用主题，避免闪烁
+    const theme = themes[currentTheme]
+    const root = document.documentElement
+    
+    // 在渲染前立即应用关键CSS变量
+    root.style.setProperty('--color-bg', theme.colors.bg)
+    root.style.setProperty('--color-text', theme.colors.text)
+    root.style.setProperty('--color-surface', theme.colors.surface)
+    root.style.setProperty('--color-primary', theme.colors.primary)
+    document.body.style.backgroundColor = theme.colors.bg
+    document.body.style.color = theme.colors.text
+    
     requestAnimationFrame(() => {
       setIsInitialized(true)
     })
@@ -32,8 +45,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Apply theme CSS variables
   useEffect(() => {
-    if (!isInitialized) return
-
     const theme = themes[currentTheme]
     const root = document.documentElement
 

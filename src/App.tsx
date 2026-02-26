@@ -5,10 +5,12 @@ import { SettingsProvider } from './contexts/SettingsContext'
 import Navbar from './components/layout/Navbar'
 import StarCursor from './components/ui/StarCursor'
 import Home from './pages/Home'
+import Assets from './pages/Assets'
 import Learning from './pages/Learning'
 import Life from './pages/Life'
 import Entertainment from './pages/Entertainment'
 import Social from './pages/Social'
+import AICharacter from './pages/AICharacter'
 
 function AppContent() {
   const location = useLocation()
@@ -21,9 +23,11 @@ function AppContent() {
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Home />} />
+            <Route path="/assets" element={<Assets />} />
             <Route path="/learning" element={<Learning />} />
             <Route path="/life" element={<Life />} />
             <Route path="/entertainment" element={<Entertainment />} />
+            <Route path="/ai-character" element={<AICharacter />} />
             <Route path="/social" element={<Social />} />
           </Routes>
         </AnimatePresence>

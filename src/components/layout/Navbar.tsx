@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, BookOpen, Heart, Music2, Users, Menu, X, Cloud, Sun, CloudRain, Palette } from 'lucide-react'
+import { Home, Wallet, Users, Menu, X, Cloud, Sun, CloudRain, Palette, Sparkles } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
 
 const navItems = [
   { path: '/', label: '首页', icon: Home },
-  { path: '/learning', label: '学习', icon: BookOpen },
-  { path: '/life', label: '生活', icon: Heart },
-  { path: '/entertainment', label: '娱乐', icon: Music2 },
+  { path: '/ai-character', label: 'AI分身', icon: Sparkles },
+  { path: '/assets', label: '资产', icon: Wallet },
   { path: '/social', label: '我的', icon: Users },
 ]
 
