@@ -53,7 +53,7 @@ export function CharacterChat({ messages, isLoading, themeConfig }: CharacterCha
   return (
     <div 
       ref={scrollContainerRef}
-      className="h-full overflow-y-auto p-4 space-y-4 scrollbar-thin"
+      className="h-full overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 scrollbar-thin"
       style={{ 
         scrollBehavior: 'smooth',
         overscrollBehavior: 'contain'
@@ -70,11 +70,11 @@ export function CharacterChat({ messages, isLoading, themeConfig }: CharacterCha
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div 
-              className={`flex gap-3 max-w-[85%] ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
+              className={`flex gap-2 md:gap-3 max-w-[85%] md:max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
               {/* 头像 */}
               <div 
-                className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+                className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center"
                 style={{ 
                   background: message.role === 'user' 
                     ? themeConfig.colors.primaryMuted 
@@ -83,16 +83,16 @@ export function CharacterChat({ messages, isLoading, themeConfig }: CharacterCha
                 }}
               >
                 {message.role === 'user' ? (
-                  <User size={18} style={{ color: themeConfig.colors.primary }} />
+                  <User size={16} className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: themeConfig.colors.primary }} />
                 ) : (
-                  <Bot size={18} style={{ color: themeConfig.colors.accent }} />
+                  <Bot size={16} className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: themeConfig.colors.accent }} />
                 )}
               </div>
 
               {/* 消息内容 */}
               <div className="flex flex-col">
                 <div
-                  className={`px-4 py-3 rounded-2xl ${
+                  className={`px-3 md:px-4 py-2 md:py-3 rounded-2xl ${
                     message.role === 'user' 
                       ? 'rounded-br-md' 
                       : 'rounded-bl-md'
@@ -108,20 +108,20 @@ export function CharacterChat({ messages, isLoading, themeConfig }: CharacterCha
                     boxShadow: themeConfig.shadows.card
                   }}
                 >
-                  <div className="text-sm leading-relaxed">
+                  <div className="text-xs md:text-sm leading-relaxed">
                     {formatMessageContent(message.content)}
                   </div>
 
                   {/* 附件显示 */}
                   {message.attachments && message.attachments.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-2 md:mt-3 flex flex-wrap gap-2">
                       {message.attachments.map((attachment, index) => (
                         <div key={index} className="relative group">
                           {attachment.type === 'image' && (
                             <img
                               src={attachment.url}
                               alt={attachment.name}
-                              className="max-w-32 max-h-32 rounded-lg object-cover border cursor-pointer hover:scale-105 transition-transform"
+                              className="max-w-24 max-h-24 md:max-w-32 md:max-h-32 rounded-lg object-cover border cursor-pointer hover:scale-105 transition-transform"
                               style={{ borderColor: themeConfig.colors.border }}
                               onClick={() => window.open(attachment.url, '_blank')}
                             />
@@ -136,9 +136,9 @@ export function CharacterChat({ messages, isLoading, themeConfig }: CharacterCha
                     <button
                       onClick={() => speakMessage(message.content)}
                       className="mt-2 flex items-center gap-1 text-xs opacity-70 hover:opacity-100 transition-opacity"
-                      style={{ color: message.role === 'user' ? 'rgba(255,255,255,0.8)' : themeConfig.colors.textMuted }}
+                      style={{ color: themeConfig.colors.textMuted }}
                     >
-                      <Volume2 size={12} />
+                      <Volume2 size={12} className="w-3 h-3 md:w-3 md:h-3" />
                       <span>播放语音</span>
                     </button>
                   )}
@@ -163,18 +163,18 @@ export function CharacterChat({ messages, isLoading, themeConfig }: CharacterCha
             animate={{ opacity: 1 }}
             className="flex justify-start"
           >
-            <div className="flex gap-3">
+            <div className="flex gap-2 md:gap-3">
               <div 
-                className="w-8 h-8 rounded-full flex items-center justify-center"
+                className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center"
                 style={{ 
                   background: themeConfig.colors.surface,
                   border: `2px solid ${themeConfig.colors.border}`
                 }}
               >
-                <Bot size={18} style={{ color: themeConfig.colors.accent }} />
+                <Bot size={16} className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: themeConfig.colors.accent }} />
               </div>
               <div
-                className="px-4 py-3 rounded-2xl rounded-bl-md"
+                className="px-3 md:px-4 py-2 md:py-3 rounded-2xl rounded-bl-md"
                 style={{
                   background: themeConfig.colors.surface,
                   border: `1px solid ${themeConfig.colors.border}`,

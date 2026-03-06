@@ -672,9 +672,9 @@ export default function Learning() {
                 <span>知识库</span>
               </button>
               <button
-                onClick={() => setViewMode('skilltree')}
+                onClick={() => setViewMode('skilltree' as ViewMode)}
                 className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  viewMode === 'skilltree'
+                  (viewMode as string) === 'skilltree'
                     ? 'bg-primary/10 text-primary'
                     : 'text-text-muted hover:text-text'
                 }`}

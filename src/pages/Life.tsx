@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, ChevronLeft, Star, Zap, Medal } from 'lucide-react'
+import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, Star, Zap, Medal } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { loveTimeline as initialLoveTimeline, socialPosts as initialSocialPosts, travelLocations as initialTravelLocations } from '../data/mock'
 import type { SocialPost, PostComment, TravelLocation } from '../data/mock'

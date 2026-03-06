@@ -24,8 +24,9 @@ export interface BackgroundOption {
 }
 
 export interface CharacterExpression {
-  type: 'neutral' | 'happy' | 'thinking' | 'surprised' | 'listening'
+  type: 'neutral' | 'happy' | 'thinking' | 'surprised' | 'listening' | 'sad' | 'excited'
   duration: number
+  intensity?: number // 0-1, 表情强度
 }
 
 export interface RAGContext {

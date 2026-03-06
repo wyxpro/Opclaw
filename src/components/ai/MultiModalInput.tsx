@@ -33,8 +33,8 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
   ]
 
   const handleSend = () => {
-    if (inputValue.trim() || attachments.length > 0) {
-      onSend(inputValue.trim(), attachments.length > 0 ? attachments : undefined)
+    if (inputValue.trim() || (attachments && attachments.length > 0)) {
+      onSend(inputValue.trim(), (attachments && attachments.length > 0) ? attachments : undefined)
       setInputValue('')
       setAttachments([])
       setShowEmojiPicker(false)
@@ -51,7 +51,7 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files) {
-      const newAttachments: Message['attachments'] = []
+      const newAttachments: NonNullable<Message['attachments']> = []
       Array.from(files).forEach(file => {
         if (file.type.startsWith('image/')) {
           const reader = new FileReader()
@@ -62,7 +62,7 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
               name: file.name
             })
             if (newAttachments.length === files.length) {
-              setAttachments(prev => [...prev, ...newAttachments])
+              setAttachments(prev => [...(prev || []), ...newAttachments])
             }
           }
           reader.readAsDataURL(file)
@@ -73,7 +73,7 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
 
   const handleVoiceInput = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
       const recognition = new SpeechRecognition()
       
       recognition.lang = 'zh-CN'
@@ -82,7 +82,7 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
       
       recognition.onstart = () => setIsRecording(true)
       recognition.onend = () => setIsRecording(false)
-      recognition.onresult = (event) => {
+      recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript
         setInputValue(prev => prev + transcript)
       }
@@ -100,13 +100,13 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
   }
 
   const removeAttachment = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index))
+    setAttachments(prev => (prev || []).filter((_, i) => i !== index))
   }
 
   return (
     <div className="space-y-3 relative">
       {/* 附件预览 */}
-      {attachments.length > 0 && (
+      {attachments && attachments.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {attachments.map((attachment, index) => (
             <div 
@@ -140,7 +140,7 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
 
       {/* 输入区域 */}
       <div 
-        className="relative rounded-xl transition-all z-20"
+        className="relative rounded-lg md:rounded-xl transition-all z-20"
         style={{
           background: themeConfig.colors.surface,
           border: `1px solid ${themeConfig.colors.border}`,
@@ -164,9 +164,9 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
         />
         
         {/* 功能按钮 */}
-        <div className="flex items-center justify-between px-3 py-1.5 border-t"
+        <div className="flex items-center justify-between px-2 md:px-3 py-1.5 border-t"
              style={{ borderColor: themeConfig.colors.border }}>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -182,7 +182,7 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
               style={{ color: themeConfig.colors.textMuted }}
               title="上传图片"
             >
-              <Image size={16} />
+              <Image size={16} className="w-4 h-4 md:w-4 md:h-4" />
             </button>
             
             <button
@@ -192,7 +192,7 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
               style={{ color: themeConfig.colors.textMuted }}
               title="表情符号"
             >
-              <Smile size={16} />
+              <Smile size={16} className="w-4 h-4 md:w-4 md:h-4" />
             </button>
             
             <button
@@ -206,26 +206,26 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
               }}
               title={isRecording ? "正在录音..." : "语音输入"}
             >
-              <Mic size={16} />
+              <Mic size={16} className="w-4 h-4 md:w-4 md:h-4" />
             </button>
           </div>
           
           <motion.button
             onClick={handleSend}
-            disabled={disabled || (!inputValue.trim() && attachments.length === 0)}
+            disabled={disabled || (!inputValue.trim() && (!attachments || attachments.length === 0))}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium transition-all text-sm"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium transition-all text-xs md:text-sm"
             style={{
-              background: (!inputValue.trim() && attachments.length === 0) || disabled
+              background: (!inputValue.trim() && (!attachments || attachments.length === 0)) || disabled
                 ? themeConfig.colors.border
                 : `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`,
               color: 'white',
-              opacity: (!inputValue.trim() && attachments.length === 0) || disabled ? 0.5 : 1
+              opacity: (!inputValue.trim() && (!attachments || attachments.length === 0)) || disabled ? 0.5 : 1
             }}
           >
-            <Send size={14} />
-            <span>发送</span>
+            <Send size={14} className="w-3 h-3 md:w-3.5 md:h-3.5" />
+            <span className="hidden sm:inline">发送</span>
           </motion.button>
         </div>
       </div>
@@ -241,18 +241,18 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
             background: themeConfig.colors.surface,
             border: `1px solid ${themeConfig.colors.border}`,
             boxShadow: themeConfig.shadows.float,
-            maxHeight: '250px',
+            maxHeight: '200px',
             overflowY: 'auto'
           }}
         >
-          <div className="grid grid-cols-8 gap-1">
+          <div className="grid grid-cols-6 md:grid-cols-8 gap-1">
             {emojis.map((emoji, index) => (
               <motion.button
                 key={index}
                 onClick={() => addEmoji(emoji)}
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
-                className="text-2xl p-2 rounded-lg hover:bg-primary/10 transition-colors"
+                className="text-xl md:text-2xl p-1.5 md:p-2 rounded-lg hover:bg-primary/10 transition-colors"
                 style={{ color: themeConfig.colors.text }}
               >
                 {emoji}
