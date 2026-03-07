@@ -190,24 +190,46 @@ export default function AICharacter() {
   return (
     <PageTransition>
       <div className="fixed inset-0 top-0 md:top-[64px] bottom-[60px] md:bottom-0 flex flex-col bg-bg text-text overflow-hidden">
-        {/* Header */}
+        {/* Header - 桌面端：标题和导航在一行，导航在标题右侧 */}
         <div 
-          className="flex items-center justify-between px-3 md:px-4 py-1.5 md:py-2 border-b flex-shrink-0"
+          className="flex items-center justify-between px-3 md:px-6 py-2 md:py-3 border-b flex-shrink-0"
           style={{ 
             borderColor: themeConfig.colors.border,
             background: themeConfig.glassEffect.background,
             backdropFilter: themeConfig.glassEffect.backdropBlur
           }}
         >
-          <div className="flex-1 min-w-0">
-            <h1 className="text-sm md:text-lg font-bold truncate" style={{ color: themeConfig.colors.text }}>
-              AI分身助手
-            </h1>
-            <p className="text-xs hidden sm:block" style={{ color: themeConfig.colors.textMuted }}>
-              智能对话 · 3D交互 · 内容检索
-            </p>
+          {/* 左侧：标题 + Step Navigator */}
+          <div className="flex items-center gap-6">
+            {/* 标题 */}
+            <div className="flex-shrink-0 hidden md:block">
+              <h1 className="text-lg font-bold truncate" style={{ color: themeConfig.colors.text }}>
+                AI分身助手
+              </h1>
+              <p className="text-xs" style={{ color: themeConfig.colors.textMuted }}>
+                智能对话 · 3D交互 · 内容检索
+              </p>
+            </div>
+
+            {/* 移动端标题 */}
+            <div className="flex-shrink-0 md:hidden">
+              <h1 className="text-sm font-bold truncate" style={{ color: themeConfig.colors.text }}>
+                AI分身助手
+              </h1>
+            </div>
+            
+            {/* 桌面端 Step Navigator - 紧挨着标题右侧 */}
+            <div className="hidden md:flex items-center">
+              <StepNavigator 
+                currentStep={currentStep}
+                completedSteps={completedSteps}
+                onStepChange={handleStepChange}
+                themeConfig={themeConfig}
+              />
+            </div>
           </div>
           
+          {/* 右侧：操作按钮 */}
           {currentStep === 'chat' && (
             <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
               <BackgroundCustomizer 
@@ -233,9 +255,9 @@ export default function AICharacter() {
           )}
         </div>
 
-        {/* Step Navigator */}
+        {/* 移动端 Step Navigator - 单独一行 */}
         <div 
-          className="border-b flex-shrink-0"
+          className="md:hidden border-b flex-shrink-0"
           style={{ 
             borderColor: themeConfig.colors.border,
             background: themeConfig.colors.surface

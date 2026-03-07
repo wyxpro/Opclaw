@@ -171,35 +171,35 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
 
   return (
     <div className="h-full flex flex-col">
-      {/* 标题 */}
-      <div className="text-center mb-6">
-        <motion.h2 
-          className="text-xl font-bold mb-2"
-          style={{ color: themeConfig.colors.text }}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          声音克隆
-        </motion.h2>
-        <p className="text-sm" style={{ color: themeConfig.colors.textMuted }}>
-          录制一段语音，让AI学习并克隆您的声音
-        </p>
-      </div>
-
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-auto">
-        {/* 左侧：录音区域 */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 overflow-auto">
+        {/* 左侧：录音区域 - 包含标题 */}
         <div 
-          className="rounded-2xl p-6"
+          className="rounded-2xl p-4 md:p-6"
           style={{ 
             background: themeConfig.colors.surface,
             border: `1px solid ${themeConfig.colors.border}`
           }}
         >
+          {/* 标题合并到卡片中 */}
+          <div className="mb-4">
+            <motion.h2 
+              className="text-lg md:text-xl font-bold mb-1"
+              style={{ color: themeConfig.colors.text }}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              声音克隆
+            </motion.h2>
+            <p className="text-xs md:text-sm" style={{ color: themeConfig.colors.textMuted }}>
+              录制一段语音，让AI学习并克隆您的声音
+            </p>
+          </div>
+
           <h3 
-            className="text-lg font-semibold mb-4 flex items-center gap-2"
+            className="text-base md:text-lg font-semibold mb-4 flex items-center gap-2"
             style={{ color: themeConfig.colors.text }}
           >
-            <Mic size={20} style={{ color: themeConfig.colors.primary }} />
+            <Mic size={18} style={{ color: themeConfig.colors.primary }} />
             录音
           </h3>
 
@@ -325,17 +325,17 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
 
         {/* 右侧：测试区域 */}
         <div 
-          className="rounded-2xl p-6"
+          className="rounded-2xl p-4 md:p-6"
           style={{ 
             background: themeConfig.colors.surface,
             border: `1px solid ${themeConfig.colors.border}`
           }}
         >
           <h3 
-            className="text-lg font-semibold mb-4 flex items-center gap-2"
+            className="text-base md:text-lg font-semibold mb-4 flex items-center gap-2"
             style={{ color: themeConfig.colors.text }}
           >
-            <Volume2 size={20} style={{ color: themeConfig.colors.primary }} />
+            <Volume2 size={18} style={{ color: themeConfig.colors.primary }} />
             声音测试
           </h3>
 

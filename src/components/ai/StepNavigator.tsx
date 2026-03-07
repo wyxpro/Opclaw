@@ -59,8 +59,8 @@ export function StepNavigator({
 
   return (
     <div className="w-full">
-      {/* 桌面端横向时间轴 */}
-      <div className="hidden md:flex items-center justify-center py-4">
+      {/* 桌面端横向时间轴 - 紧凑布局 */}
+      <div className="hidden md:flex items-center justify-center">
         <div className="flex items-center justify-center" style={{ gap: '0' }}>
           {steps.map((step, index) => {
             const status = getStepStatus(step.id)
@@ -76,14 +76,14 @@ export function StepNavigator({
                   disabled={!isClickable}
                   whileHover={isClickable ? { scale: 1.05 } : {}}
                   whileTap={isClickable ? { scale: 0.95 } : {}}
-                  className={`relative flex flex-col items-center gap-2 transition-all duration-300 ${
+                  className={`relative flex flex-col items-center gap-1 transition-all duration-300 ${
                     !isClickable ? 'cursor-not-allowed' : 'cursor-pointer'
                   }`}
-                  style={{ minWidth: '120px' }}
+                  style={{ minWidth: '100px' }}
                 >
-                  {/* 图标圆圈 */}
+                  {/* 图标圆圈 - 更紧凑 */}
                   <motion.div
-                    className="relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300"
+                    className="relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300"
                     style={{
                       background: status === 'active' 
                         ? themeConfig.colors.primary
@@ -101,22 +101,22 @@ export function StepNavigator({
                         ? 'white'
                         : themeConfig.colors.textMuted,
                       boxShadow: status === 'active' 
-                        ? `0 0 0 4px ${themeConfig.colors.primaryMuted}`
+                        ? `0 0 0 3px ${themeConfig.colors.primaryMuted}`
                         : status === 'completed'
-                        ? `0 0 0 4px rgba(16, 185, 129, 0.15)`
+                        ? `0 0 0 3px rgba(16, 185, 129, 0.15)`
                         : 'none'
                     }}
                     animate={status === 'active' ? {
                       boxShadow: [
-                        `0 0 0 4px ${themeConfig.colors.primaryMuted}`,
-                        `0 0 0 8px ${themeConfig.colors.primaryMuted}`,
-                        `0 0 0 4px ${themeConfig.colors.primaryMuted}`
+                        `0 0 0 3px ${themeConfig.colors.primaryMuted}`,
+                        `0 0 0 6px ${themeConfig.colors.primaryMuted}`,
+                        `0 0 0 3px ${themeConfig.colors.primaryMuted}`
                       ]
                     } : {}}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
                     {status === 'completed' ? (
-                      <Check size={20} />
+                      <Check size={18} />
                     ) : (
                       step.icon
                     )}
@@ -124,7 +124,7 @@ export function StepNavigator({
 
                   {/* 标题文字 */}
                   <span 
-                    className="text-sm font-medium whitespace-nowrap transition-colors duration-300"
+                    className="text-xs font-medium whitespace-nowrap transition-colors duration-300"
                     style={{
                       color: status === 'active' 
                         ? themeConfig.colors.primary 
@@ -139,7 +139,7 @@ export function StepNavigator({
 
                 {/* 连接线 - 只有完成上一步才显示 */}
                 {!isLast && (
-                  <div className="w-24 h-0.5 relative mx-2">
+                  <div className="w-16 h-0.5 relative mx-2">
                     {/* 背景线（未完成时显示） */}
                     <div 
                       className="absolute inset-0 rounded-full transition-opacity duration-300"

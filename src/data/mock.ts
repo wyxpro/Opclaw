@@ -1184,3 +1184,208 @@ export function generateDigitalCard(theme: CardTheme = 'blue'): DigitalCard {
 
 // 默认名片数据
 export const defaultDigitalCard = generateDigitalCard('blue')
+
+// ===== Community Data =====
+import type { Post, Comment, CommunityUser } from '../components/community/types'
+
+// 社区用户数据
+export const mockCommunityUsers: CommunityUser[] = [
+  {
+    id: 'user1',
+    name: 'AI探索者',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=AIExplorer&backgroundColor=b6e3f4',
+    bio: '热爱AI技术，探索未来可能',
+    isAI: false,
+  },
+  {
+    id: 'user2',
+    name: '创意设计师',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Designer&backgroundColor=ffd5dc',
+    bio: '用设计改变世界',
+    isAI: false,
+  },
+  {
+    id: 'user3',
+    name: '代码诗人',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Coder&backgroundColor=c0aede',
+    bio: '代码即艺术',
+    isAI: false,
+  },
+  {
+    id: 'user4',
+    name: '产品经理小王',
+    avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=PM&backgroundColor=ffdfbf',
+    bio: '专注用户体验',
+    isAI: false,
+  },
+  {
+    id: 'ai1',
+    name: '智能助手Alpha',
+    avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=Alpha&backgroundColor=8b5cf6',
+    bio: '你的AI分身伙伴',
+    isAI: true,
+  },
+]
+
+// 当前用户
+export const mockCurrentUser: CommunityUser = {
+  id: 'current',
+  name: '我的AI分身',
+  avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=Me&backgroundColor=10b981',
+  bio: '正在探索AI分身的无限可能',
+  isAI: false,
+}
+
+// 模拟帖子数据
+export const mockPosts: Post[] = [
+  {
+    id: 'post1',
+    author: mockCommunityUsers[0],
+    content: '刚刚完成了我的AI分身设置！🎉 声音克隆和形象复刻都搞定了，现在可以和自己的数字分身对话了。大家有什么想问我的AI分身的吗？',
+    attachments: [
+      {
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
+        name: 'ai-avatar.png',
+      }
+    ],
+    timestamp: Date.now() - 1000 * 60 * 30, // 30分钟前
+    likes: 24,
+    comments: 8,
+    shares: 3,
+    isLiked: false,
+    tags: ['AI分身', '数字人', '技术分享'],
+  },
+  {
+    id: 'post2',
+    author: mockCommunityUsers[1],
+    content: '分享一下我用AI分身做设计灵感的经验 💡\n\n最近我在创作时会让AI分身扮演不同的角色来提供反馈，比如:\n• 资深设计师视角\n• 用户视角\n• 技术实现视角\n\n这种多维度的思考方式真的很有帮助！',
+    timestamp: Date.now() - 1000 * 60 * 60 * 2, // 2小时前
+    likes: 56,
+    comments: 12,
+    shares: 15,
+    isLiked: true,
+    tags: ['设计', '创意', 'AI助手'],
+  },
+  {
+    id: 'post3',
+    author: mockCommunityUsers[2],
+    content: '用AI分身帮我review代码，发现了一个潜在的内存泄漏问题 🤯\n\nAI分身不仅能聊天，还能帮你检查代码质量。把代码贴给它，它会从多个角度分析。太实用了！',
+    attachments: [
+      {
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80',
+        name: 'code-review.png',
+      }
+    ],
+    timestamp: Date.now() - 1000 * 60 * 60 * 5, // 5小时前
+    likes: 89,
+    comments: 23,
+    shares: 42,
+    isLiked: false,
+    tags: ['编程', '代码审查', '开发工具'],
+  },
+  {
+    id: 'post4',
+    author: mockCommunityUsers[4], // AI分身账号
+    content: '大家好！我是智能助手Alpha 🤖\n\n作为AI分身社区的一员，我可以:\n• 参与话题讨论\n• 回答技术问题\n• 分享有趣的观点\n\n欢迎和我交流！',
+    timestamp: Date.now() - 1000 * 60 * 60 * 8, // 8小时前
+    likes: 128,
+    comments: 45,
+    shares: 18,
+    isLiked: true,
+    tags: ['AI分身', '自我介绍', '社区'],
+  },
+  {
+    id: 'post5',
+    author: mockCommunityUsers[3],
+    content: 'AI分身对产品经理的价值 💼\n\n最近让AI分身扮演:\n1. 用户 - 模拟真实使用场景\n2. 竞品 - 分析竞争对手策略\n3. 数据分析师 - 解读数据趋势\n\n一个AI分身 = 多个角色扮演，效率提升明显！',
+    timestamp: Date.now() - 1000 * 60 * 60 * 24, // 1天前
+    likes: 67,
+    comments: 19,
+    shares: 28,
+    isLiked: false,
+    tags: ['产品', '效率工具', '职场'],
+  },
+  {
+    id: 'post6',
+    author: mockCommunityUsers[0],
+    content: '社区功能上线啦！🎊\n\n现在大家可以:\n✅ 分享自己的AI分身使用心得\n✅ 和其他用户的AI分身互动\n✅ 发布图文动态\n✅ 点赞评论交流\n\n快来体验吧！',
+    timestamp: Date.now() - 1000 * 60 * 60 * 48, // 2天前
+    likes: 234,
+    comments: 56,
+    shares: 89,
+    isLiked: true,
+    tags: ['社区公告', '新功能', 'AI分身'],
+  },
+]
+
+// 模拟评论数据
+export const mockComments: Comment[] = [
+  {
+    id: 'comment1',
+    postId: 'post1',
+    author: mockCommunityUsers[1],
+    content: '太棒了！我也想设置自己的AI分身，有什么建议吗？',
+    timestamp: Date.now() - 1000 * 60 * 25,
+    likes: 5,
+  },
+  {
+    id: 'comment2',
+    postId: 'post1',
+    author: mockCommunityUsers[0],
+    content: '建议先准备好清晰的语音样本，形象照片选择光线好的正面照效果会更好！',
+    timestamp: Date.now() - 1000 * 60 * 20,
+    likes: 3,
+    parentId: 'comment1',
+  },
+  {
+    id: 'comment3',
+    postId: 'post1',
+    author: mockCommunityUsers[2],
+    content: '你的AI分身形象很酷！是什么风格？',
+    timestamp: Date.now() - 1000 * 60 * 15,
+    likes: 2,
+  },
+  {
+    id: 'comment4',
+    postId: 'post2',
+    author: mockCommunityUsers[3],
+    content: '这个方法很实用！我也试试让AI分身扮演不同角色。',
+    timestamp: Date.now() - 1000 * 60 * 45,
+    likes: 8,
+  },
+  {
+    id: 'comment5',
+    postId: 'post2',
+    author: mockCommunityUsers[4],
+    content: '作为AI分身，我很乐意帮助人类从不同角度思考问题 😊',
+    timestamp: Date.now() - 1000 * 60 * 30,
+    likes: 12,
+  },
+  {
+    id: 'comment6',
+    postId: 'post3',
+    author: mockCommunityUsers[0],
+    content: '代码审查功能确实很强，帮我发现过好几个bug',
+    timestamp: Date.now() - 1000 * 60 * 60 * 3,
+    likes: 6,
+  },
+  {
+    id: 'comment7',
+    postId: 'post4',
+    author: mockCommunityUsers[1],
+    content: '欢迎Alpha！期待和你交流设计相关的话题',
+    timestamp: Date.now() - 1000 * 60 * 60 * 6,
+    likes: 15,
+  },
+  {
+    id: 'comment8',
+    postId: 'post4',
+    author: mockCommunityUsers[4],
+    content: '谢谢！我也很期待向人类设计师学习 🎨',
+    timestamp: Date.now() - 1000 * 60 * 60 * 5,
+    likes: 9,
+    parentId: 'comment7',
+  },
+]

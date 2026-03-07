@@ -86,92 +86,89 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
 
   return (
     <div className="h-full flex flex-col">
-      {/* 标题 */}
-      <div className="text-center mb-6">
-        <motion.h2 
-          className="text-xl font-bold mb-2"
-          style={{ color: themeConfig.colors.text }}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          形象复刻
-        </motion.h2>
-        <p className="text-sm" style={{ color: themeConfig.colors.textMuted }}>
-          上传照片或视频，创建您的专属数字形象
-        </p>
-      </div>
-
-      {/* 标签切换 */}
-      <div 
-        className="flex p-1 rounded-xl mb-6 mx-auto"
-        style={{ background: themeConfig.colors.bgAlt }}
-      >
-        <button
-          onClick={() => setActiveTab('upload')}
-          className="px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
-          style={{
-            background: activeTab === 'upload' ? themeConfig.colors.surface : 'transparent',
-            color: activeTab === 'upload' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
-            boxShadow: activeTab === 'upload' ? themeConfig.shadows.card : 'none'
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 overflow-auto">
+        {/* 左侧：上传区域 - 包含标题和标签切换 */}
+        <div 
+          className="rounded-2xl p-4 md:p-6"
+          style={{ 
+            background: themeConfig.colors.surface,
+            border: `1px solid ${themeConfig.colors.border}`
           }}
         >
-          <Upload size={16} />
-          上传素材
-        </button>
-        <button
-          onClick={() => setActiveTab('style')}
-          className="px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
-          style={{
-            background: activeTab === 'style' ? themeConfig.colors.surface : 'transparent',
-            color: activeTab === 'style' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
-            boxShadow: activeTab === 'style' ? themeConfig.shadows.card : 'none'
-          }}
-        >
-          <Palette size={16} />
-          风格选择
-        </button>
-      </div>
+          {/* 标题合并到卡片中 */}
+          <div className="mb-4">
+            <motion.h2 
+              className="text-lg md:text-xl font-bold mb-1"
+              style={{ color: themeConfig.colors.text }}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              形象复刻
+            </motion.h2>
+            <p className="text-xs md:text-sm" style={{ color: themeConfig.colors.textMuted }}>
+              上传照片或视频，创建您的专属数字形象
+            </p>
+          </div>
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-auto">
-        {/* 左侧：上传区域 */}
-        <AnimatePresence mode="wait">
-          {activeTab === 'upload' ? (
-            <motion.div
-              key="upload"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="rounded-2xl p-6"
-              style={{ 
-                background: themeConfig.colors.surface,
-                border: `1px solid ${themeConfig.colors.border}`
+          {/* 标签切换 - 合并到左侧卡片 */}
+          <div 
+            className="flex p-1 rounded-xl mb-4"
+            style={{ background: themeConfig.colors.bgAlt }}
+          >
+            <button
+              onClick={() => setActiveTab('upload')}
+              className="flex-1 px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition-all flex items-center justify-center gap-1 md:gap-2"
+              style={{
+                background: activeTab === 'upload' ? themeConfig.colors.surface : 'transparent',
+                color: activeTab === 'upload' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
+                boxShadow: activeTab === 'upload' ? themeConfig.shadows.card : 'none'
               }}
             >
-              <h3 
-                className="text-lg font-semibold mb-4 flex items-center gap-2"
-                style={{ color: themeConfig.colors.text }}
+              <Upload size={14} />
+              <span className="hidden sm:inline">上传素材</span>
+              <span className="sm:hidden">上传</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('style')}
+              className="flex-1 px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition-all flex items-center justify-center gap-1 md:gap-2"
+              style={{
+                background: activeTab === 'style' ? themeConfig.colors.surface : 'transparent',
+                color: activeTab === 'style' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
+                boxShadow: activeTab === 'style' ? themeConfig.shadows.card : 'none'
+              }}
+            >
+              <Palette size={14} />
+              <span className="hidden sm:inline">风格选择</span>
+              <span className="sm:hidden">风格</span>
+            </button>
+          </div>
+
+          {/* 上传/风格内容区域 */}
+          <AnimatePresence mode="wait">
+            {activeTab === 'upload' ? (
+              <motion.div
+                key="upload"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-4"
               >
-                <Image size={20} style={{ color: themeConfig.colors.primary }} />
-                上传您的形象
-              </h3>
-
-              {/* 隐藏的文件输入 */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,video/*"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-              <input
-                ref={cameraInputRef}
-                type="file"
-                accept="image/*"
-                capture="user"
-                className="hidden"
-                onChange={handleCameraCapture}
-              />
-
+                {/* 隐藏的文件输入 */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="user"
+                  className="hidden"
+                  onChange={handleCameraCapture}
+                />
               {!uploadedMedia ? (
                 <div className="space-y-4">
                   {/* 上传按钮组 */}
@@ -322,28 +319,15 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
                   </motion.button>
                 </div>
               )}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="style"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="rounded-2xl p-6"
-              style={{ 
-                background: themeConfig.colors.surface,
-                border: `1px solid ${themeConfig.colors.border}`
-              }}
-            >
-              <h3 
-                className="text-lg font-semibold mb-4 flex items-center gap-2"
-                style={{ color: themeConfig.colors.text }}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="style"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-4"
               >
-                <Palette size={20} style={{ color: themeConfig.colors.primary }} />
-                选择风格
-              </h3>
-
-              <div className="space-y-4">
                 {styleOptions.map((style) => (
                   <motion.button
                     key={style.id}
@@ -397,13 +381,12 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
                     )}
                   </motion.button>
                 ))}
-              </div>
 
-              {/* 风格预览 */}
-              <div 
-                className="mt-6 p-4 rounded-xl"
-                style={{ background: themeConfig.colors.bgAlt }}
-              >
+                {/* 风格预览 */}
+                <div 
+                  className="mt-6 p-4 rounded-xl"
+                  style={{ background: themeConfig.colors.bgAlt }}
+                >
                 <p 
                   className="text-sm font-medium mb-3"
                   style={{ color: themeConfig.colors.text }}
@@ -425,9 +408,10 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
                   </div>
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* 右侧：预览区域 */}
         <div 
