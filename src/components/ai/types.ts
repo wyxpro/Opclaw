@@ -4,6 +4,8 @@ export type CharacterStyle = 'cartoon' | 'realistic'
 
 export type BackgroundType = 'office' | 'living-room' | 'outdoor' | 'custom' | string
 
+export type StepType = 'voice-clone' | 'avatar-clone' | 'chat'
+
 export interface Message {
   id: string
   role: 'user' | 'assistant'
@@ -33,4 +35,32 @@ export interface RAGContext {
   relevantContent: string[]
   sourceModules: ('learning' | 'life' | 'entertainment')[]
   confidence: number
+}
+
+// 声音模型
+export interface VoiceModel {
+  id: string
+  name: string
+  audioUrl: string
+  duration: number
+  createdAt: number
+  isCloned: boolean
+}
+
+// 形象模型
+export interface AvatarModel {
+  id: string
+  name: string
+  type: 'image' | 'video' | '3d'
+  url: string
+  style: CharacterStyle
+  createdAt: number
+  isCloned: boolean
+}
+
+// 数字人配置
+export interface DigitalHumanConfig {
+  voice: VoiceModel | null
+  avatar: AvatarModel | null
+  isComplete: boolean
 }
