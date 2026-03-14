@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Wallet, Users, Menu, X, Cloud, Sun, CloudRain, Palette, Sparkles, MessageCircle } from 'lucide-react'
+import { Home, Wallet, Users, Menu, X, Cloud, Sun, CloudRain, Palette, Sparkles, Atom, Globe } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
 
 const navItems = [
   { path: '/', label: '首页', icon: Home },
   { path: '/ai-character', label: 'AI分身', icon: Sparkles },
-  { path: '/community', label: '社区', icon: MessageCircle },
+  { path: '/community', label: '元宇宙', icon: Atom },
   { path: '/assets', label: '资产', icon: Wallet },
   { path: '/social', label: '我的', icon: Users },
 ]
@@ -114,6 +114,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
+  const { themeConfig } = useTheme()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -142,14 +143,19 @@ export default function Navbar() {
         <nav className="flex items-center justify-between px-6">
           {/* Left: Logo & TimeWeather - 靠最左端 */}
           <div className="flex items-center gap-5">
-            <NavLink to="/" className="flex items-center gap-3 group">
+            {/* Logo - 点击跳转到官网首页 */}
+            <a 
+              href="/index.html" 
+              className="flex items-center gap-3 group"
+              title="返回官网"
+            >
               <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 text-primary transition-all group-hover:bg-primary/30 group-hover:shadow-glow">
-                <span className="text-xl font-bold">S</span>
+                <Globe size={18} />
               </div>
               <span className="text-xl font-bold text-text hidden sm:block">
                 SuperUI
               </span>
-            </NavLink>
+            </a>
             {/* Time & Weather Widget */}
             <TimeWeatherWidget />
           </div>
@@ -233,31 +239,160 @@ export default function Navbar() {
       </header>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass border-t border-border">
-        <div className="flex items-center justify-around px-2 py-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/'}
-              className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg text-xs transition-all ${
-                  isActive
-                    ? 'text-primary'
-                    : 'text-text-muted hover:text-text-secondary'
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <item.icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
-                  <span className={`${isActive ? 'font-medium' : 'font-normal'}`}>
-                    {item.label}
-                  </span>
-                </>
-              )}
-            </NavLink>
-          ))}
+      <nav 
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50"
+        style={{
+          background: themeConfig.glassEffect.background,
+          backdropFilter: themeConfig.glassEffect.backdropBlur,
+          borderTop: `1px solid ${themeConfig.colors.border}`,
+        }}
+      >
+        <div className="flex items-center justify-around px-2 py-2">
+          {navItems.map((item) => {
+            const isMetaverse = item.label === '元宇宙'
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/'}
+                className={({ isActive }) =>
+                  `relative flex flex-col items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
+                    isActive && !isMetaverse
+                      ? 'text-primary'
+                      : isMetaverse
+                      ? ''
+                      : 'text-text-muted hover:text-text-secondary'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {/* 元宇宙特殊按钮 */}
+                    {isMetaverse ? (
+                      <>
+                        {/* 按钮容器 */}
+                        <motion.div 
+                          className="relative mb-0.5"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.92 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        >
+                          {/* 外发光层 - 始终显示柔和光晕 */}
+                          <div 
+                            className="absolute -inset-1 rounded-3xl opacity-60 blur-sm"
+                            style={{
+                              background: isActive 
+                                ? `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`
+                                : 'transparent',
+                            }}
+                          />
+                          
+                          {/* 动态脉冲光环 - 仅激活时 */}
+                          {isActive && (
+                            <motion.div
+                              className="absolute -inset-2 rounded-3xl"
+                              animate={{ 
+                                scale: [1, 1.15, 1],
+                                opacity: [0.5, 0, 0.5],
+                              }}
+                              transition={{ 
+                                duration: 2, 
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                              style={{
+                                background: `radial-gradient(circle, ${themeConfig.colors.primary}40 0%, transparent 70%)`,
+                              }}
+                            />
+                          )}
+                          
+                          {/* 主按钮 */}
+                          <div 
+                            className="w-11 h-11 rounded-2xl flex items-center justify-center relative overflow-hidden"
+                            style={{
+                              background: isActive 
+                                ? `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.sky})`
+                                : `linear-gradient(145deg, ${themeConfig.colors.surface}, ${themeConfig.colors.bg})`,
+                              border: isActive 
+                                ? `2px solid ${themeConfig.colors.primary}`
+                                : `2px solid ${themeConfig.colors.border}`,
+                              boxShadow: isActive 
+                                ? `0 4px 15px ${themeConfig.colors.primary}60, inset 0 2px 4px rgba(255,255,255,0.25)`
+                                : `0 2px 8px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255,255,255,0.5)`,
+                            }}
+                          >
+                            {/* 玻璃光泽效果 */}
+                            <div 
+                              className="absolute top-0 left-0 right-0 h-[55%] rounded-t-2xl"
+                              style={{
+                                background: 'linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 100%)',
+                              }}
+                            />
+                            
+                            {/* 图标容器 */}
+                            <motion.div
+                              className="relative z-10"
+                              animate={isActive ? { 
+                                rotate: [0, -10, 10, -10, 10, 0],
+                                scale: [1, 1.1, 1]
+                              } : { rotate: 0, scale: 1 }}
+                              transition={{ 
+                                duration: 0.5,
+                                repeat: isActive ? Infinity : 0,
+                                repeatDelay: 3,
+                                ease: "easeInOut"
+                              }}
+                            >
+                              <item.icon 
+                                size={22} 
+                                strokeWidth={1.5}
+                                style={{ 
+                                  color: isActive ? 'white' : themeConfig.colors.primary,
+                                  filter: isActive 
+                                    ? 'drop-shadow(0 2px 3px rgba(0,0,0,0.25))' 
+                                    : 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
+                                }}
+                              />
+                            </motion.div>
+                          </div>
+                        </motion.div>
+                        
+                        {/* 标签 */}
+                        <motion.span 
+                          className="text-[10px] font-semibold"
+                          animate={isActive ? { y: [0, -1, 0] } : { y: 0 }}
+                          transition={{ duration: 0.3 }}
+                          style={{ 
+                            color: isActive ? themeConfig.colors.primary : themeConfig.colors.textMuted,
+                          }}
+                        >
+                          {item.label}
+                        </motion.span>
+                      </>
+                    ) : (
+                      <>
+                        <item.icon 
+                          size={20} 
+                          strokeWidth={isActive ? 2.5 : 1.5}
+                          style={{
+                            color: isActive ? themeConfig.colors.primary : themeConfig.colors.textMuted
+                          }}
+                        />
+                        <span 
+                          className={`text-[10px] ${isActive ? 'font-medium' : 'font-normal'}`}
+                          style={{
+                            color: isActive ? themeConfig.colors.primary : themeConfig.colors.textMuted
+                          }}
+                        >
+                          {item.label}
+                        </span>
+                      </>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            )
+          })}
         </div>
       </nav>
     </>

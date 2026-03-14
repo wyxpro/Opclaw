@@ -1267,73 +1267,6 @@ const apiUrl = import.meta.env.VITE_API_URL
                style-src 'self' 'unsafe-inline';">
 ```
 
----
-
-## 📊 项目统计
-
-### 代码规模
-
-- 总文件数: ~50+
-- 代码行数: ~5000+ 行
-- 组件数量: ~30+
-- 页面数量: 5 个主页面
-
-### 技术债务
-
-- [ ] 添加单元测试（Jest + React Testing Library）
-- [ ] 添加 E2E 测试（Playwright / Cypress）
-- [ ] 完善 TypeScript 类型定义
-- [ ] 添加错误边界组件
-- [ ] 实现国际化（i18n）
-- [ ] 添加无障碍支持（ARIA）
-
-### 浏览器兼容性
-
-| 浏览器 | 最低版本 |
-|--------|----------|
-| Chrome | 90+ |
-| Firefox | 88+ |
-| Safari | 14+ |
-| Edge | 90+ |
-
----
-
-## 🤝 贡献指南
-
-### 开发流程
-
-1. Fork 本仓库
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
-
-### 代码规范
-
-- 使用 ESLint 进行代码检查
-- 遵循 Airbnb JavaScript Style Guide
-- 组件使用函数式组件 + Hooks
-- 使用 TypeScript 严格模式
-- 提交信息遵循 Conventional Commits
-
-### Commit 规范
-
-```
-feat: 新功能
-fix: 修复 bug
-docs: 文档更新
-style: 代码格式调整
-refactor: 重构
-perf: 性能优化
-test: 测试相关
-chore: 构建/工具链相关
-```
-
----
-
-## 📄 许可证
-
-本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
 
 ---
 
@@ -1370,30 +1303,7 @@ chore: 构建/工具链相关
 - GitHub: [@xiaoye](https://github.com/xiaoye)
 - 个人网站: [https://xiaoye.dev](https://xiaoye.dev)
 
----
 
-## 🗺️ 路线图
-
-### v1.0 (当前版本)
-- ✅ 基础功能实现
-- ✅ 5 种主题系统
-- ✅ 响应式设计
-- ✅ 动画效果
-
-### v1.1 (计划中)
-- [ ] 后端 API 集成
-- [ ] 用户认证系统
-- [ ] 评论系统
-- [ ] 搜索功能增强
-
-### v2.0 (未来)
-- [ ] 多语言支持
-- [ ] PWA 支持
-- [ ] 深色模式优化
-- [ ] 性能监控
-- [ ] 数据分析
-
----
 
 <div align="center">
 

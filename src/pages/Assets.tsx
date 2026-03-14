@@ -163,7 +163,7 @@ export default function Assets() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="px-4 sm:px-6 pt-6 pb-4"
+          className="px-4 sm:px-6 lg:px-8 pt-6 pb-4"
         >
           <h1 
             className="text-2xl sm:text-3xl font-bold mb-2 transition-colors duration-300"
@@ -179,14 +179,197 @@ export default function Assets() {
           </p>
         </motion.div>
 
-        {/* Main Cards Grid - 两列布局 */}
+        {/* Category Summary Cards - 分类汇总卡片 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="px-4 sm:px-6"
+          className="px-4 sm:px-6 lg:px-8 mb-4"
         >
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-3 gap-2 md:gap-4">
+            {/* Learning Summary */}
+            <div 
+              onClick={() => navigate('/learning')}
+              className="relative overflow-hidden rounded-xl md:rounded-2xl p-2.5 md:p-4 cursor-pointer group transition-all duration-300 hover:shadow-md"
+              style={{ 
+                backgroundColor: colors.surface,
+                border: `1px solid ${colors.border}`
+              }}
+            >
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-500 flex items-center justify-center shadow-md flex-shrink-0">
+                  <GraduationCap size={16} className="text-white md:size-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 
+                    className="font-semibold text-xs md:text-sm transition-colors duration-300 truncate"
+                    style={{ color: colors.text }}
+                  >
+                    学习空间
+                  </h3>
+                  <p 
+                    className="text-[9px] md:text-xs transition-colors duration-300"
+                    style={{ color: colors.textMuted }}
+                  >
+                    {learningCards.length} 个功能模块
+                  </p>
+                </div>
+              </div>
+              <div 
+                className="absolute -bottom-3 -right-3 w-12 h-12 md:w-16 md:h-16 rounded-full blur-lg transition-colors duration-300"
+                style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)' }}
+              />
+            </div>
+
+            {/* Life Summary */}
+            <div 
+              onClick={() => navigate('/life')}
+              className="relative overflow-hidden rounded-xl md:rounded-2xl p-2.5 md:p-4 cursor-pointer group transition-all duration-300 hover:shadow-md"
+              style={{ 
+                backgroundColor: colors.surface,
+                border: `1px solid ${colors.border}`
+              }}
+            >
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-rose-500 flex items-center justify-center shadow-md flex-shrink-0">
+                  <Heart size={16} className="text-white md:size-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 
+                    className="font-semibold text-xs md:text-sm transition-colors duration-300 truncate"
+                    style={{ color: colors.text }}
+                  >
+                    生活记录
+                  </h3>
+                  <p 
+                    className="text-[9px] md:text-xs transition-colors duration-300"
+                    style={{ color: colors.textMuted }}
+                  >
+                    {lifeCards.length} 个功能模块
+                  </p>
+                </div>
+              </div>
+              <div 
+                className="absolute -bottom-3 -right-3 w-12 h-12 md:w-16 md:h-16 rounded-full blur-lg transition-colors duration-300"
+                style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}
+              />
+            </div>
+
+            {/* Entertainment Summary */}
+            <div 
+              onClick={() => navigate('/entertainment')}
+              className="relative overflow-hidden rounded-xl md:rounded-2xl p-2.5 md:p-4 cursor-pointer group transition-all duration-300 hover:shadow-md"
+              style={{ 
+                backgroundColor: colors.surface,
+                border: `1px solid ${colors.border}`
+              }}
+            >
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-violet-500 flex items-center justify-center shadow-md flex-shrink-0">
+                  <Music size={16} className="text-white md:size-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 
+                    className="font-semibold text-xs md:text-sm transition-colors duration-300 truncate"
+                    style={{ color: colors.text }}
+                  >
+                    娱乐中心
+                  </h3>
+                  <p 
+                    className="text-[9px] md:text-xs transition-colors duration-300"
+                    style={{ color: colors.textMuted }}
+                  >
+                    {entertainmentCards.length} 个功能模块
+                  </p>
+                </div>
+              </div>
+              <div 
+                className="absolute -bottom-3 -right-3 w-12 h-12 md:w-16 md:h-16 rounded-full blur-lg transition-colors duration-300"
+                style={{ backgroundColor: 'rgba(139, 92, 246, 0.15)' }}
+              />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Section Title - 快速访问 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="px-4 sm:px-6 lg:px-8 mt-4 md:mt-6 mb-3"
+        >
+          <div className="flex items-center justify-between">
+            <h2 
+              className="text-base md:text-lg font-bold flex items-center gap-2 transition-colors duration-300"
+              style={{ color: colors.text }}
+            >
+              <Sparkles size={16} style={{ color: colors.accent }} />
+              快速访问
+            </h2>
+            <button 
+              onClick={() => navigate('/learning')}
+              className="flex items-center gap-1 text-xs transition-colors duration-300 hover:opacity-80"
+              style={{ color: colors.textMuted }}
+            >
+              查看全部
+              <ChevronRight size={12} />
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Quick Access - Horizontal Scroll */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="px-4 sm:px-6 lg:px-8"
+        >
+          <div className="flex gap-2.5 md:gap-3 overflow-x-auto no-scrollbar pb-2">
+            {quickAccessItems.map((item, index) => (
+              <motion.button
+                key={item.label}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.25 + index * 0.03 }}
+                onClick={() => navigate(item.path)}
+                className="flex-shrink-0 flex flex-col items-center gap-1.5 group"
+              >
+                {/* Icon Container */}
+                <div 
+                  className={`w-11 h-11 md:w-12 md:h-12 rounded-xl ${item.color} p-0.5 transform group-hover:scale-105 transition-transform duration-300 shadow-md`}
+                >
+                  <div 
+                    className="w-full h-full rounded-[11px] md:rounded-[11px] flex items-center justify-center"
+                    style={{ backgroundColor: colors.bg }}
+                  >
+                    <div 
+                      className={`w-8 h-8 md:w-9 md:h-9 rounded-lg ${item.color} flex items-center justify-center`}
+                    >
+                      <item.icon size={16} className="text-white md:size-[18px]" />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Label */}
+                <span 
+                  className="text-[10px] md:text-xs whitespace-nowrap transition-colors duration-300"
+                  style={{ color: colors.textMuted }}
+                >
+                  {item.label}
+                </span>
+              </motion.button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Main Cards Grid - 响应式网格布局 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="px-4 sm:px-6 lg:px-8"
+        >
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
             {allCards.map((card, index) => (
               <motion.div
                 key={card.id}
@@ -194,16 +377,16 @@ export default function Assets() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + index * 0.05 }}
                 onClick={() => navigate(card.path)}
-                className="relative overflow-hidden rounded-2xl sm:rounded-3xl cursor-pointer group transition-all duration-300"
+                className="relative overflow-hidden rounded-xl md:rounded-2xl cursor-pointer group transition-all duration-300"
                 style={{ 
-                  aspectRatio: '1.6/1',
+                  aspectRatio: '1.8/1',
                   backgroundColor: colors.surface,
                   border: `1px solid ${colors.border}`
                 }}
               >
                 {/* Color Accent Bar */}
                 <div 
-                  className={`absolute top-0 left-0 right-0 h-1 ${card.color} opacity-80`}
+                  className={`absolute top-0 left-0 right-0 h-0.5 md:h-1 ${card.color} opacity-80`}
                 />
                 
                 {/* Hover Overlay */}
@@ -213,12 +396,12 @@ export default function Assets() {
                 />
                 
                 {/* Content */}
-                <div className="relative h-full p-3 sm:p-4 flex flex-col justify-between">
+                <div className="relative h-full p-2.5 md:p-3 flex flex-col justify-between">
                   {/* Top Row - Tag and Icon */}
                   <div className="flex items-start justify-between">
                     {/* Tag */}
                     <span 
-                      className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium backdrop-blur-sm transition-colors duration-300"
+                      className="px-1.5 py-0.5 md:px-2 md:py-0.5 rounded-full text-[9px] md:text-[10px] font-medium backdrop-blur-sm transition-colors duration-300"
                       style={{ 
                         backgroundColor: colors.primaryMuted,
                         color: colors.primary
@@ -229,22 +412,22 @@ export default function Assets() {
                     
                     {/* Icon */}
                     <div 
-                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl ${card.color} flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                      className={`w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl ${card.color} flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-md`}
                     >
-                      <card.icon size={16} className="text-white sm:size-5" />
+                      <card.icon size={14} className="text-white md:size-4" />
                     </div>
                   </div>
                   
                   {/* Bottom Row - Title and Subtitle */}
                   <div>
                     <h3 
-                      className="font-bold text-sm sm:text-base mb-0.5 sm:mb-1 transition-colors duration-300"
+                      className="font-semibold text-xs md:text-sm mb-0.5 transition-colors duration-300"
                       style={{ color: colors.text }}
                     >
                       {card.title}
                     </h3>
                     <p 
-                      className="text-[10px] sm:text-xs line-clamp-1 transition-colors duration-300"
+                      className="text-[9px] md:text-[10px] line-clamp-1 transition-colors duration-300"
                       style={{ color: colors.textMuted }}
                     >
                       {card.subtitle}
@@ -254,7 +437,7 @@ export default function Assets() {
                 
                 {/* Decorative Elements */}
                 <div 
-                  className="absolute -bottom-4 -right-4 w-16 h-16 sm:w-20 sm:h-20 rounded-full blur-xl transition-colors duration-300"
+                  className="absolute -bottom-3 -right-3 w-12 h-12 md:w-14 md:h-14 rounded-full blur-lg transition-colors duration-300"
                   style={{ backgroundColor: colors.primaryMuted }}
                 />
               </motion.div>
@@ -262,188 +445,6 @@ export default function Assets() {
           </div>
         </motion.div>
 
-        {/* Section Title - 快速访问 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="px-4 sm:px-6 mt-8 sm:mt-10 mb-4"
-        >
-          <div className="flex items-center justify-between">
-            <h2 
-              className="text-lg sm:text-xl font-bold flex items-center gap-2 transition-colors duration-300"
-              style={{ color: colors.text }}
-            >
-              <Sparkles size={18} style={{ color: colors.accent }} />
-              快速访问
-            </h2>
-            <button 
-              onClick={() => navigate('/learning')}
-              className="flex items-center gap-1 text-xs sm:text-sm transition-colors duration-300 hover:opacity-80"
-              style={{ color: colors.textMuted }}
-            >
-              查看全部
-              <ChevronRight size={14} />
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Quick Access - Horizontal Scroll */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="px-4 sm:px-6"
-        >
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-            {quickAccessItems.map((item, index) => (
-              <motion.button
-                key={item.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 + index * 0.03 }}
-                onClick={() => navigate(item.path)}
-                className="flex-shrink-0 flex flex-col items-center gap-2 group"
-              >
-                {/* Icon Container */}
-                <div 
-                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${item.color} p-0.5 transform group-hover:scale-105 transition-transform duration-300 shadow-lg`}
-                >
-                  <div 
-                    className="w-full h-full rounded-[14px] sm:rounded-[15px] flex items-center justify-center"
-                    style={{ backgroundColor: colors.bg }}
-                  >
-                    <div 
-                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${item.color} flex items-center justify-center`}
-                    >
-                      <item.icon size={20} className="text-white sm:size-6" />
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Label */}
-                <span 
-                  className="text-[11px] sm:text-xs whitespace-nowrap transition-colors duration-300"
-                  style={{ color: colors.textMuted }}
-                >
-                  {item.label}
-                </span>
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Category Summary Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="px-4 sm:px-6 mt-8 sm:mt-10"
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            {/* Learning Summary */}
-            <div 
-              onClick={() => navigate('/learning')}
-              className="relative overflow-hidden rounded-2xl p-4 cursor-pointer group transition-all duration-300 hover:shadow-lg"
-              style={{ 
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-500 flex items-center justify-center shadow-lg">
-                  <GraduationCap size={20} className="text-white sm:size-6" />
-                </div>
-                <div>
-                  <h3 
-                    className="font-semibold text-sm sm:text-base transition-colors duration-300"
-                    style={{ color: colors.text }}
-                  >
-                    学习空间
-                  </h3>
-                  <p 
-                    className="text-xs transition-colors duration-300"
-                    style={{ color: colors.textMuted }}
-                  >
-                    {learningCards.length} 个功能模块
-                  </p>
-                </div>
-              </div>
-              <div 
-                className="absolute -bottom-6 -right-6 w-20 h-20 rounded-full blur-xl transition-colors duration-300"
-                style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)' }}
-              />
-            </div>
-
-            {/* Life Summary */}
-            <div 
-              onClick={() => navigate('/life')}
-              className="relative overflow-hidden rounded-2xl p-4 cursor-pointer group transition-all duration-300 hover:shadow-lg"
-              style={{ 
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-rose-500 flex items-center justify-center shadow-lg">
-                  <Heart size={20} className="text-white sm:size-6" />
-                </div>
-                <div>
-                  <h3 
-                    className="font-semibold text-sm sm:text-base transition-colors duration-300"
-                    style={{ color: colors.text }}
-                  >
-                    生活记录
-                  </h3>
-                  <p 
-                    className="text-xs transition-colors duration-300"
-                    style={{ color: colors.textMuted }}
-                  >
-                    {lifeCards.length} 个功能模块
-                  </p>
-                </div>
-              </div>
-              <div 
-                className="absolute -bottom-6 -right-6 w-20 h-20 rounded-full blur-xl transition-colors duration-300"
-                style={{ backgroundColor: 'rgba(244, 63, 94, 0.15)' }}
-              />
-            </div>
-
-            {/* Entertainment Summary */}
-            <div 
-              onClick={() => navigate('/entertainment')}
-              className="relative overflow-hidden rounded-2xl p-4 cursor-pointer group transition-all duration-300 hover:shadow-lg"
-              style={{ 
-                backgroundColor: colors.surface,
-                border: `1px solid ${colors.border}`
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-violet-500 flex items-center justify-center shadow-lg">
-                  <Music size={20} className="text-white sm:size-6" />
-                </div>
-                <div>
-                  <h3 
-                    className="font-semibold text-sm sm:text-base transition-colors duration-300"
-                    style={{ color: colors.text }}
-                  >
-                    娱乐中心
-                  </h3>
-                  <p 
-                    className="text-xs transition-colors duration-300"
-                    style={{ color: colors.textMuted }}
-                  >
-                    {entertainmentCards.length} 个功能模块
-                  </p>
-                </div>
-              </div>
-              <div 
-                className="absolute -bottom-6 -right-6 w-20 h-20 rounded-full blur-xl transition-colors duration-300"
-                style={{ backgroundColor: 'rgba(139, 92, 246, 0.15)' }}
-              />
-            </div>
-          </div>
-        </motion.div>
       </div>
     </PageTransition>
   )
