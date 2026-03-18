@@ -183,6 +183,87 @@
         opacity: 1;
         transform: translateY(0);
       }
+      /* 雷达图和词云区域特殊动画 */
+      .animate-radar {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+      }
+      .animate-radar.visible {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      .animate-word-cloud {
+        opacity: 0;
+        transform: translateX(30px);
+        transition: opacity 0.8s ease-out 0.2s, transform 0.8s ease-out 0.2s;
+      }
+      .animate-word-cloud.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .animate-comparison-left {
+        opacity: 0;
+        transform: translateX(-30px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      }
+      .animate-comparison-left.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .animate-stagger-1 { transition-delay: 0s; }
+      .animate-stagger-2 { transition-delay: 0.1s; }
+      .animate-stagger-3 { transition-delay: 0.2s; }
+      .animate-stagger-4 { transition-delay: 0.3s; }
+      .animate-stagger-5 { transition-delay: 0.4s; }
+      /* 进度条动画 */
+      .progress-bar-fill {
+        transition: width 1s ease-out;
+      }
+      /* 雷达图内部元素动画 */
+      .radar-svg-element {
+        opacity: 0;
+        transition: opacity 0.6s ease-out;
+      }
+      .animate-radar.visible .radar-svg-element {
+        opacity: 1;
+      }
+      .radar-polygon {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        transition: stroke-dashoffset 1.5s ease-out;
+      }
+      .animate-radar.visible .radar-polygon {
+        stroke-dashoffset: 0;
+      }
+      .radar-point {
+        opacity: 0;
+        transform: scale(0);
+        transform-origin: center;
+        transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+      }
+      .animate-radar.visible .radar-point {
+        opacity: 1;
+        transform: scale(1);
+      }
+      /* 词云标签动画 */
+      .word-cloud-item {
+        position: absolute;
+        cursor: pointer;
+        font-weight: 500;
+        opacity: 0;
+        transform: translateY(20px) scale(0.8);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      .animate-word-cloud.visible .word-cloud-item {
+        opacity: 0.85;
+        transform: translateY(0) scale(1);
+      }
+      .word-cloud-item:hover {
+        transform: scale(1.15) translateY(0) !important;
+        z-index: 10;
+        opacity: 1 !important;
+      }
       #hero-canvas {
         position: absolute;
         inset: 0;
@@ -192,16 +273,7 @@
         position: absolute;
         animation: float 4s ease-in-out infinite;
       }
-      .word-cloud-item {
-        position: absolute;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.3s ease;
-      }
-      .word-cloud-item:hover {
-        transform: scale(1.2);
-        z-index: 10;
-      }
+
       .testimonial-card {
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(10px);
@@ -219,13 +291,51 @@
           font-size: 1.25rem !important;
         }
         .feature-grid {
-          grid-template-columns: 1fr !important;
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
+        .feature-grid .glass-card h3 {
+          font-size: 0.875rem !important;
+        }
+        .feature-grid .glass-card .text-xs {
+          font-size: 0.6rem !important;
+        }
+        .feature-grid .glass-card p {
+          font-size: 0.7rem !important;
+          line-height: 1.4 !important;
+          margin-bottom: 0.5rem !important;
+        }
+        .feature-grid .glass-card .flex-wrap {
+          display: none !important;
+        }
+        .feature-grid .glass-card .p-6 {
+          padding: 0.75rem !important;
+        }
+        .feature-grid .glass-card .h-32 {
+          height: 5rem !important;
+        }
+        .feature-grid .glass-card .w-12 {
+          width: 2rem !important;
+          height: 2rem !important;
+        }
+        .feature-grid .glass-card .pt-4 {
+          padding-top: 0.5rem !important;
+          margin-top: 0.5rem !important;
         }
         .comparison-grid {
           grid-template-columns: 1fr !important;
         }
         .testimonial-card {
           width: 260px;
+        }
+        /* 雷达图和词云移动端优化 */
+        .animate-radar svg {
+          max-width: 240px !important;
+        }
+        #word-cloud {
+          min-height: 180px !important;
+        }
+        .word-cloud-item {
+          font-size: 0.75rem !important;
         }
       }
       .btn-primary {
@@ -589,7 +699,7 @@
             从学习到娱乐，从生活到我的，一个平台满足你的全部需求
           </p>
         </div>
-        <div class="feature-grid grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="feature-grid grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
           <div class="glass-card overflow-hidden animate-on-scroll">
             <div
               class="bg-gradient-card-violet h-32 flex items-center justify-center relative overflow-hidden"
@@ -849,7 +959,7 @@
         >
           <div class="lg:col-span-3 space-y-3">
             <div
-              class="glass-card p-3 cursor-pointer hover:shadow-lg transition-all animate-on-scroll"
+              class="glass-card p-3 cursor-pointer hover:shadow-lg transition-all animate-on-scroll comparison-card"
             >
               <div class="flex items-center gap-2 mb-2">
                 <div
@@ -881,10 +991,10 @@
                     >功能</span
                   >
                   <div
-                    class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"
+                    class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden progress-bar-container"
                   >
                     <div
-                      class="h-full rounded-full bg-blue-500"
+                      class="h-full rounded-full bg-blue-500 progress-bar-fill"
                       style="width: 90%"
                     ></div>
                   </div>
@@ -895,10 +1005,10 @@
                     >易用</span
                   >
                   <div
-                    class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"
+                    class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden progress-bar-container"
                   >
                     <div
-                      class="h-full rounded-full bg-blue-500"
+                      class="h-full rounded-full bg-blue-500 progress-bar-fill"
                       style="width: 85%"
                     ></div>
                   </div>
@@ -909,10 +1019,10 @@
                     >美观</span
                   >
                   <div
-                    class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"
+                    class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden progress-bar-container"
                   >
                     <div
-                      class="h-full rounded-full bg-blue-500"
+                      class="h-full rounded-full bg-blue-500 progress-bar-fill"
                       style="width: 82%"
                     ></div>
                   </div>
@@ -921,7 +1031,7 @@
               </div>
             </div>
             <div
-              class="glass-card p-3 cursor-pointer hover:shadow-lg transition-all animate-on-scroll"
+              class="glass-card p-3 cursor-pointer hover:shadow-lg transition-all animate-on-scroll comparison-card"
             >
               <div class="flex items-center gap-2 mb-2">
                 <div
@@ -953,11 +1063,11 @@
                     >功能</span
                   >
                   <div
-                    class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"
+                    class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden progress-bar-container"
                   >
                     <div
-                      class="h-full rounded-full bg-emerald-500"
-                      style="width: 50%"
+                      class="h-full rounded-full progress-bar-fill"
+                      style="width: 50%; background-color: #10b981;"
                     ></div>
                   </div>
                   <span class="text-[9px] text-gray-500 w-4">50</span>
@@ -967,11 +1077,11 @@
                     >易用</span
                   >
                   <div
-                    class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"
+                    class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden progress-bar-container"
                   >
                     <div
-                      class="h-full rounded-full bg-emerald-500"
-                      style="width: 75%"
+                      class="h-full rounded-full progress-bar-fill"
+                      style="width: 75%; background-color: #10b981;"
                     ></div>
                   </div>
                   <span class="text-[9px] text-gray-500 w-4">75</span>
@@ -981,11 +1091,11 @@
                     >美观</span
                   >
                   <div
-                    class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"
+                    class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden progress-bar-container"
                   >
                     <div
-                      class="h-full rounded-full bg-emerald-500"
-                      style="width: 70%"
+                      class="h-full rounded-full progress-bar-fill"
+                      style="width: 70%; background-color: #10b981;"
                     ></div>
                   </div>
                   <span class="text-[9px] text-gray-500 w-4">70</span>
@@ -993,7 +1103,7 @@
               </div>
             </div>
             <div
-              class="glass-card p-3 cursor-pointer ring-2 ring-violet-500/50 animate-on-scroll"
+              class="glass-card p-3 cursor-pointer ring-2 ring-violet-500/50 animate-on-scroll comparison-card"
             >
               <div class="flex items-center gap-2 mb-2">
                 <div
@@ -1025,10 +1135,10 @@
                     >功能</span
                   >
                   <div
-                    class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"
+                    class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden progress-bar-container"
                   >
                     <div
-                      class="h-full rounded-full bg-violet-500"
+                      class="h-full rounded-full bg-violet-500 progress-bar-fill"
                       style="width: 95%"
                     ></div>
                   </div>
@@ -1039,10 +1149,10 @@
                     >易用</span
                   >
                   <div
-                    class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"
+                    class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden progress-bar-container"
                   >
                     <div
-                      class="h-full rounded-full bg-violet-500"
+                      class="h-full rounded-full bg-violet-500 progress-bar-fill"
                       style="width: 92%"
                     ></div>
                   </div>
@@ -1053,10 +1163,10 @@
                     >美观</span
                   >
                   <div
-                    class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden"
+                    class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden progress-bar-container"
                   >
                     <div
-                      class="h-full rounded-full bg-violet-500"
+                      class="h-full rounded-full bg-violet-500 progress-bar-fill"
                       style="width: 96%"
                     ></div>
                   </div>
@@ -1161,7 +1271,7 @@
           <div class="lg:col-span-9">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 h-full">
               <div
-                class="glass-card p-3 sm:p-6 flex flex-col animate-on-scroll"
+                class="glass-card p-3 sm:p-6 flex flex-col animate-radar"
               >
                 <h3
                   class="text-sm sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-4 text-center"
@@ -1173,7 +1283,7 @@
                 >
                   <svg
                     viewBox="0 0 260 260"
-                    class="w-full max-w-[280px] h-auto overflow-visible"
+                    class="w-full max-w-[280px] h-auto overflow-visible radar-svg"
                   >
                     <polygon
                       points="130,35 209,82 209,178 130,225 51,178 51,82"
@@ -1181,6 +1291,8 @@
                       stroke="#e5e7eb"
                       stroke-width="1"
                       opacity="0.5"
+                      class="radar-svg-element"
+                      style="transition-delay: 0s"
                     />
                     <polygon
                       points="130,54 188,88 188,172 130,206 72,172 72,88"
@@ -1188,6 +1300,8 @@
                       stroke="#e5e7eb"
                       stroke-width="1"
                       opacity="0.4"
+                      class="radar-svg-element"
+                      style="transition-delay: 0.05s"
                     />
                     <polygon
                       points="130,73 167,94 167,153 130,187 93,153 93,94"
@@ -1195,6 +1309,8 @@
                       stroke="#e5e7eb"
                       stroke-width="1"
                       opacity="0.3"
+                      class="radar-svg-element"
+                      style="transition-delay: 0.1s"
                     />
                     <polygon
                       points="130,92 146,100 146,134 130,168 114,134 114,100"
@@ -1202,6 +1318,8 @@
                       stroke="#e5e7eb"
                       stroke-width="1"
                       opacity="0.2"
+                      class="radar-svg-element"
+                      style="transition-delay: 0.15s"
                     />
                     <line
                       x1="130"
@@ -1211,6 +1329,8 @@
                       stroke="#e5e7eb"
                       stroke-width="1"
                       opacity="0.3"
+                      class="radar-svg-element"
+                      style="transition-delay: 0.2s"
                     />
                     <line
                       x1="130"
@@ -1220,6 +1340,8 @@
                       stroke="#e5e7eb"
                       stroke-width="1"
                       opacity="0.3"
+                      class="radar-svg-element"
+                      style="transition-delay: 0.22s"
                     />
                     <line
                       x1="130"
@@ -1229,6 +1351,8 @@
                       stroke="#e5e7eb"
                       stroke-width="1"
                       opacity="0.3"
+                      class="radar-svg-element"
+                      style="transition-delay: 0.24s"
                     />
                     <line
                       x1="130"
@@ -1238,6 +1362,8 @@
                       stroke="#e5e7eb"
                       stroke-width="1"
                       opacity="0.3"
+                      class="radar-svg-element"
+                      style="transition-delay: 0.26s"
                     />
                     <line
                       x1="130"
@@ -1247,6 +1373,8 @@
                       stroke="#e5e7eb"
                       stroke-width="1"
                       opacity="0.3"
+                      class="radar-svg-element"
+                      style="transition-delay: 0.28s"
                     />
                     <line
                       x1="130"
@@ -1256,6 +1384,8 @@
                       stroke="#e5e7eb"
                       stroke-width="1"
                       opacity="0.3"
+                      class="radar-svg-element"
+                      style="transition-delay: 0.3s"
                     />
                     <polygon
                       points="130,39 203,84 203,175 130,218 57,175 57,84"
@@ -1263,6 +1393,8 @@
                       stroke="#3b82f6"
                       stroke-width="1"
                       stroke-dasharray="4 4"
+                      class="radar-polygon"
+                      style="transition-delay: 0.4s"
                     />
                     <polygon
                       points="130,78 178,103 178,166 130,200 82,166 82,103"
@@ -1270,12 +1402,16 @@
                       stroke="#10b981"
                       stroke-width="1"
                       stroke-dasharray="4 4"
+                      class="radar-polygon"
+                      style="transition-delay: 0.5s"
                     />
                     <polygon
                       points="130,24 216,72 216,180 130,228 44,180 44,72"
                       fill="rgba(139, 92, 246, 0.18)"
                       stroke="#8b5cf6"
                       stroke-width="3"
+                      class="radar-polygon"
+                      style="transition-delay: 0.6s"
                     />
                     <circle
                       cx="130"
@@ -1284,6 +1420,8 @@
                       fill="#8b5cf6"
                       stroke="white"
                       stroke-width="2"
+                      class="radar-point"
+                      style="transition-delay: 0.7s"
                     />
                     <circle
                       cx="216"
@@ -1292,6 +1430,8 @@
                       fill="#8b5cf6"
                       stroke="white"
                       stroke-width="2"
+                      class="radar-point"
+                      style="transition-delay: 0.75s"
                     />
                     <circle
                       cx="216"
@@ -1300,6 +1440,8 @@
                       fill="#8b5cf6"
                       stroke="white"
                       stroke-width="2"
+                      class="radar-point"
+                      style="transition-delay: 0.8s"
                     />
                     <circle
                       cx="130"
@@ -1308,6 +1450,8 @@
                       fill="#8b5cf6"
                       stroke="white"
                       stroke-width="2"
+                      class="radar-point"
+                      style="transition-delay: 0.85s"
                     />
                     <circle
                       cx="44"
@@ -1316,6 +1460,8 @@
                       fill="#8b5cf6"
                       stroke="white"
                       stroke-width="2"
+                      class="radar-point"
+                      style="transition-delay: 0.9s"
                     />
                     <circle
                       cx="44"
@@ -1324,6 +1470,8 @@
                       fill="#8b5cf6"
                       stroke="white"
                       stroke-width="2"
+                      class="radar-point"
+                      style="transition-delay: 0.95s"
                     />
                     <text
                       x="130"
@@ -1408,7 +1556,7 @@
                 </div>
               </div>
               <div
-                class="glass-card p-3 sm:p-6 flex flex-col animate-on-scroll"
+                class="glass-card p-3 sm:p-6 flex flex-col animate-word-cloud"
               >
                 <h3
                   class="text-sm sm:text-lg font-semibold text-gray-900 mb-0.5 sm:mb-2 text-center"
@@ -1433,7 +1581,7 @@
 
     <section
       id="testimonials"
-      class="testimonial-section py-24 bg-gradient-section overflow-visible"
+      class="testimonial-section pt-4 pb-6 sm:pt-6 sm:pb-8 bg-gradient-section overflow-visible"
     >
       <div class="mx-auto max-w-6xl px-6">
         <div class="text-center mb-12 animate-on-scroll">
@@ -1451,7 +1599,7 @@
           </p>
         </div>
       </div>
-      <div class="space-y-6 pb-8 w-full">
+      <div class="space-y-3 sm:space-y-4 pb-2 sm:pb-4 w-full">
         <!-- 第一行轮播 - 向左滚动 -->
         <div class="testimonial-row">
           <div class="testimonial-track animate-scroll-left">
@@ -2672,8 +2820,18 @@
         { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
       );
       document
-        .querySelectorAll(".animate-on-scroll")
+        .querySelectorAll(".animate-on-scroll, .animate-radar, .animate-word-cloud, .animate-comparison-left")
         .forEach((el) => observer.observe(el));
+
+      // 为竞品对比区域的卡片添加交错动画
+      const comparisonCards = document.querySelectorAll('.comparison-card');
+      comparisonCards.forEach((card, index) => {
+        card.classList.add('animate-comparison-left');
+        card.style.transitionDelay = `${index * 0.1}s`;
+        observer.observe(card);
+      });
+
+      // 进度条动画已在CSS中处理，无需额外JavaScript
       const canvas = document.getElementById("hero-canvas");
       const ctx = canvas.getContext("2d");
       let animationId,
@@ -2824,7 +2982,7 @@
           word.color
         }; font-size: ${0.7 + word.weight * 0.08}rem; transform: rotate(${
           pos.rotation
-        }deg); opacity: 0.8;`;
+        }deg); transition-delay: ${index * 0.05}s;`;
         wordCloudContainer.appendChild(span);
       });
     </script>
