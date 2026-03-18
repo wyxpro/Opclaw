@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { 
   BookOpen, Heart, Music, GraduationCap, Camera, Film, 
   GitBranch, FileText, MessageCircle, Dumbbell, Gamepad2, 
-  Bookmark, Sparkles, ChevronRight 
+  Bookmark
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { useTheme } from '../hooks/useTheme'
@@ -132,21 +132,6 @@ const entertainmentCards = [
 
 // 合并所有卡片用于网格展示
 const allCards = [...learningCards, ...lifeCards, ...entertainmentCards]
-
-// 快速访问数据
-const quickAccessItems = [
-  { icon: GraduationCap, label: '知识库', path: '/learning', color: 'bg-blue-500' },
-  { icon: GitBranch, label: '技能树', path: '/learning', color: 'bg-violet-500' },
-  { icon: FileText, label: '在线简历', path: '/learning', color: 'bg-emerald-500' },
-  { icon: MessageCircle, label: '朋友圈', path: '/life', color: 'bg-rose-500' },
-  { icon: Camera, label: '旅拍相册', path: '/life', color: 'bg-amber-500' },
-  { icon: Heart, label: '恋爱记录', path: '/life', color: 'bg-pink-500' },
-  { icon: Dumbbell, label: '运动', path: '/life', color: 'bg-lime-500' },
-  { icon: Gamepad2, label: '游戏', path: '/life', color: 'bg-indigo-500' },
-  { icon: Music, label: '音乐盒', path: '/entertainment', color: 'bg-fuchsia-500' },
-  { icon: Film, label: '收藏电影', path: '/entertainment', color: 'bg-red-500' },
-  { icon: Bookmark, label: '百宝箱', path: '/entertainment', color: 'bg-cyan-500' },
-]
 
 export default function Assets() {
   const navigate = useNavigate()
@@ -288,77 +273,6 @@ export default function Assets() {
                 style={{ backgroundColor: 'rgba(139, 92, 246, 0.15)' }}
               />
             </div>
-          </div>
-        </motion.div>
-
-        {/* Section Title - 快速访问 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="px-4 sm:px-6 lg:px-8 mt-4 md:mt-6 mb-3"
-        >
-          <div className="flex items-center justify-between">
-            <h2 
-              className="text-base md:text-lg font-bold flex items-center gap-2 transition-colors duration-300"
-              style={{ color: colors.text }}
-            >
-              <Sparkles size={16} style={{ color: colors.accent }} />
-              快速访问
-            </h2>
-            <button 
-              onClick={() => navigate('/learning')}
-              className="flex items-center gap-1 text-xs transition-colors duration-300 hover:opacity-80"
-              style={{ color: colors.textMuted }}
-            >
-              查看全部
-              <ChevronRight size={12} />
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Quick Access - Horizontal Scroll */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="px-4 sm:px-6 lg:px-8"
-        >
-          <div className="flex gap-2.5 md:gap-3 overflow-x-auto no-scrollbar pb-2">
-            {quickAccessItems.map((item, index) => (
-              <motion.button
-                key={item.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.25 + index * 0.03 }}
-                onClick={() => navigate(item.path)}
-                className="flex-shrink-0 flex flex-col items-center gap-1.5 group"
-              >
-                {/* Icon Container */}
-                <div 
-                  className={`w-11 h-11 md:w-12 md:h-12 rounded-xl ${item.color} p-0.5 transform group-hover:scale-105 transition-transform duration-300 shadow-md`}
-                >
-                  <div 
-                    className="w-full h-full rounded-[11px] md:rounded-[11px] flex items-center justify-center"
-                    style={{ backgroundColor: colors.bg }}
-                  >
-                    <div 
-                      className={`w-8 h-8 md:w-9 md:h-9 rounded-lg ${item.color} flex items-center justify-center`}
-                    >
-                      <item.icon size={16} className="text-white md:size-[18px]" />
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Label */}
-                <span 
-                  className="text-[10px] md:text-xs whitespace-nowrap transition-colors duration-300"
-                  style={{ color: colors.textMuted }}
-                >
-                  {item.label}
-                </span>
-              </motion.button>
-            ))}
           </div>
         </motion.div>
 
