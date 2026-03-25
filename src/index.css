@@ -171,6 +171,13 @@ body {
   background-clip: text;
 }
 
+/* Dynamic Gradient Text - 用于主题化的渐变文字 */
+.gradient-text-dynamic {
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
 /* Gradient Backgrounds - Dynamic */
 .bg-gradient-hero {
   background:
