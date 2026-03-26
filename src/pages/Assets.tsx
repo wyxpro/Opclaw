@@ -175,25 +175,25 @@ export default function Assets() {
             {/* Learning Summary */}
             <div 
               onClick={() => navigate('/learning')}
-              className="relative overflow-hidden rounded-xl md:rounded-2xl p-2.5 md:p-4 cursor-pointer group transition-all duration-300 hover:shadow-md"
+              className="relative overflow-hidden rounded-xl md:rounded-2xl p-3 md:p-6 cursor-pointer group transition-all duration-300 hover:shadow-md"
               style={{ 
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`
               }}
             >
               <div className="flex items-center gap-2 md:gap-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-500 flex items-center justify-center shadow-md flex-shrink-0">
-                  <GraduationCap size={16} className="text-white md:size-5" />
+                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-blue-500 flex items-center justify-center shadow-md flex-shrink-0">
+                  <GraduationCap size={18} className="text-white md:size-6" />
                 </div>
                 <div className="min-w-0">
                   <h3 
-                    className="font-semibold text-xs md:text-sm transition-colors duration-300 truncate"
+                    className="font-semibold text-sm md:text-base transition-colors duration-300 truncate"
                     style={{ color: colors.text }}
                   >
                     学习空间
                   </h3>
                   <p 
-                    className="text-[9px] md:text-xs transition-colors duration-300"
+                    className="text-[10px] md:text-sm transition-colors duration-300"
                     style={{ color: colors.textMuted }}
                   >
                     {learningCards.length} 个功能模块
@@ -209,25 +209,25 @@ export default function Assets() {
             {/* Life Summary */}
             <div 
               onClick={() => navigate('/life')}
-              className="relative overflow-hidden rounded-xl md:rounded-2xl p-2.5 md:p-4 cursor-pointer group transition-all duration-300 hover:shadow-md"
+              className="relative overflow-hidden rounded-xl md:rounded-2xl p-3 md:p-6 cursor-pointer group transition-all duration-300 hover:shadow-md"
               style={{ 
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`
               }}
             >
               <div className="flex items-center gap-2 md:gap-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-rose-500 flex items-center justify-center shadow-md flex-shrink-0">
-                  <Heart size={16} className="text-white md:size-5" />
+                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-rose-500 flex items-center justify-center shadow-md flex-shrink-0">
+                  <Heart size={18} className="text-white md:size-6" />
                 </div>
                 <div className="min-w-0">
                   <h3 
-                    className="font-semibold text-xs md:text-sm transition-colors duration-300 truncate"
+                    className="font-semibold text-sm md:text-base transition-colors duration-300 truncate"
                     style={{ color: colors.text }}
                   >
                     生活记录
                   </h3>
                   <p 
-                    className="text-[9px] md:text-xs transition-colors duration-300"
+                    className="text-[10px] md:text-sm transition-colors duration-300"
                     style={{ color: colors.textMuted }}
                   >
                     {lifeCards.length} 个功能模块
@@ -243,25 +243,25 @@ export default function Assets() {
             {/* Entertainment Summary */}
             <div 
               onClick={() => navigate('/entertainment')}
-              className="relative overflow-hidden rounded-xl md:rounded-2xl p-2.5 md:p-4 cursor-pointer group transition-all duration-300 hover:shadow-md"
+              className="relative overflow-hidden rounded-xl md:rounded-2xl p-3 md:p-6 cursor-pointer group transition-all duration-300 hover:shadow-md"
               style={{ 
                 backgroundColor: colors.surface,
                 border: `1px solid ${colors.border}`
               }}
             >
               <div className="flex items-center gap-2 md:gap-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-violet-500 flex items-center justify-center shadow-md flex-shrink-0">
-                  <Music size={16} className="text-white md:size-5" />
+                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-violet-500 flex items-center justify-center shadow-md flex-shrink-0">
+                  <Music size={18} className="text-white md:size-6" />
                 </div>
                 <div className="min-w-0">
                   <h3 
-                    className="font-semibold text-xs md:text-sm transition-colors duration-300 truncate"
+                    className="font-semibold text-sm md:text-base transition-colors duration-300 truncate"
                     style={{ color: colors.text }}
                   >
                     娱乐中心
                   </h3>
                   <p 
-                    className="text-[9px] md:text-xs transition-colors duration-300"
+                    className="text-[10px] md:text-sm transition-colors duration-300"
                     style={{ color: colors.textMuted }}
                   >
                     {entertainmentCards.length} 个功能模块

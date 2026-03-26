@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, Video, Box } from 'lucide-react'
+import { Upload, Video, Box, Image } from 'lucide-react'
 import type { CharacterStyle } from './types'
 import type { Message } from './types'
+import { BackgroundCustomizer } from './BackgroundCustomizer'
 
 interface Character3DProps {
   style: CharacterStyle
   currentMessage?: Message
   background?: string
+  onStyleChange?: (style: CharacterStyle) => void
+  onBackgroundChange?: (background: string) => void
 }
 
-export function Character3D({ style, currentMessage, background }: Character3DProps) {
+export function Character3D({ style, currentMessage, background, onStyleChange, onBackgroundChange }: Character3DProps) {
   const [customMedia, setCustomMedia] = useState<{ type: 'video' | 'model', url: string, name: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -233,6 +236,32 @@ export function Character3D({ style, currentMessage, background }: Character3DPr
           <Upload size={12} className="md:w-3.5 md:h-3.5" />
           <span className="hidden sm:inline">上传数字人</span>
         </motion.button>
+        
+        {/* 场景切换和卡通切换按钮 - 仅电脑端显示 */}
+        <div className="hidden md:flex items-center gap-2">
+          {onBackgroundChange && (
+            <BackgroundCustomizer 
+              currentBackground={background || 'office'}
+              onBackgroundChange={onBackgroundChange}
+            />
+          )}
+          {onStyleChange && (
+            <motion.button
+              onClick={() => onStyleChange(style === 'cartoon' ? 'realistic' : 'cartoon')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
+              style={{
+                background: `linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 50%, #fab1a0 100%)`,
+                border: `2px solid ${style === 'cartoon' ? '#fd79a8' : '#2d3436'}`,
+                color: style === 'cartoon' ? '#fd79a8' : '#2d3436'
+              }}
+            >
+              <span className="text-base">{style === 'cartoon' ? '🎨' : '👤'}</span>
+              <span>{style === 'cartoon' ? '卡通' : '真实'}</span>
+            </motion.button>
+          )}
+        </div>
         
         {customMedia && (
           <motion.button

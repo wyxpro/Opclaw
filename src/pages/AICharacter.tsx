@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import PageTransition from '../components/ui/PageTransition'
 import { Character3D } from '../components/ai/Character3D'
 import { BackgroundCustomizer } from '../components/ai/BackgroundCustomizer'
@@ -151,6 +152,8 @@ export default function AICharacter() {
                 style={avatarModel?.style || characterStyle}
                 currentMessage={messages[messages.length - 1]}
                 background={background === 'custom' && customBackgroundUrl ? customBackgroundUrl : background}
+                onStyleChange={(newStyle) => setCharacterStyle(newStyle)}
+                onBackgroundChange={(newBackground) => setBackground(newBackground)}
               />
             </div>
 
@@ -192,34 +195,24 @@ export default function AICharacter() {
       <div className="fixed inset-0 top-0 md:top-[64px] bottom-[60px] md:bottom-0 flex flex-col bg-bg text-text overflow-hidden">
         {/* Header - 桌面端：标题和导航在一行，导航在标题右侧 */}
         <div 
-          className="flex items-center justify-between px-3 md:px-6 py-2 md:py-3 border-b flex-shrink-0"
+          className="flex items-center justify-between px-3 md:px-6 py-1.5 md:py-2 border-b flex-shrink-0"
           style={{ 
             borderColor: themeConfig.colors.border,
             background: themeConfig.glassEffect.background,
             backdropFilter: themeConfig.glassEffect.backdropBlur
           }}
         >
-          {/* 左侧：标题 + Step Navigator */}
-          <div className="flex items-center gap-6">
-            {/* 标题 */}
-            <div className="flex-shrink-0 hidden md:block">
-              <h1 className="text-lg font-bold truncate" style={{ color: themeConfig.colors.text }}>
-                AI分身助手
+          {/* 全部内容在同一行 */}
+          <div className="flex items-center gap-2 min-w-max">
+            {/* 电脑端标题 - 移动端隐藏 */}
+            <div className="hidden md:block flex-shrink-0">
+              <h1 className="text-base md:text-lg font-bold truncate whitespace-nowrap" style={{ color: themeConfig.colors.text }}>
+                AI 分身助手
               </h1>
-              <p className="text-xs" style={{ color: themeConfig.colors.textMuted }}>
-                智能对话 · 3D交互 · 内容检索
-              </p>
             </div>
 
-            {/* 移动端标题 */}
-            <div className="flex-shrink-0 md:hidden">
-              <h1 className="text-sm font-bold truncate" style={{ color: themeConfig.colors.text }}>
-                AI分身助手
-              </h1>
-            </div>
-            
-            {/* 桌面端 Step Navigator - 紧挨着标题右侧 */}
-            <div className="hidden md:flex items-center">
+            {/* Step Navigator - 移动端和电脑端都显示 */}
+            <div className="flex items-center">
               <StepNavigator 
                 currentStep={currentStep}
                 completedSteps={completedSteps}
@@ -228,47 +221,35 @@ export default function AICharacter() {
               />
             </div>
           </div>
-          
+                  
           {/* 右侧：操作按钮 */}
           {currentStep === 'chat' && (
-            <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
-              <BackgroundCustomizer 
-                currentBackground={background}
-                onBackgroundChange={setBackground}
-                onCustomImageUpload={handleCustomBackgroundUpload}
-              />
-              <button
-                onClick={() => setCharacterStyle((prev: CharacterStyle) => 
-                  prev === 'cartoon' ? 'realistic' : 'cartoon'
-                )}
-                className="px-2 md:px-3 py-1 md:py-2 rounded-lg md:rounded-xl text-xs font-medium transition-all flex items-center gap-1 md:gap-1.5"
-                style={{
-                  background: `linear-gradient(135deg, ${themeConfig.colors.primaryMuted}, ${themeConfig.colors.primaryDim})`,
-                  color: themeConfig.colors.primary,
-                  border: `1px solid ${themeConfig.colors.primary}`
-                }}
-              >
-                <span className="text-sm md:text-base">{characterStyle === 'cartoon' ? '🎨' : '👤'}</span>
-                <span className="hidden sm:inline text-xs">{characterStyle === 'cartoon' ? '卡通' : '真实'}</span>
-              </button>
+            <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
+              {/* 移动端：场景切换按钮 */}
+              <div className="md:hidden">
+                <BackgroundCustomizer 
+                  currentBackground={background === 'custom' && customBackgroundUrl ? customBackgroundUrl : background}
+                  onBackgroundChange={(newBackground) => setBackground(newBackground)}
+                />
+              </div>
+              {/* 移动端：卡通切换按钮 */}
+              <div className="md:hidden">
+                <motion.button
+                  onClick={() => setCharacterStyle(style => style === 'cartoon' ? 'realistic' : 'cartoon')}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-1 px-1.5 py-1 rounded-md text-xs font-medium transition-all"
+                  style={{
+                    background: `linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 50%, #fab1a0 100%)`,
+                    border: `2px solid ${characterStyle === 'cartoon' ? '#fd79a8' : '#2d3436'}`,
+                    color: characterStyle === 'cartoon' ? '#fd79a8' : '#2d3436'
+                  }}
+                >
+                  <span className="text-sm">{characterStyle === 'cartoon' ? '🎨' : '👤'}</span>
+                </motion.button>
+              </div>
             </div>
           )}
-        </div>
-
-        {/* 移动端 Step Navigator - 单独一行 */}
-        <div 
-          className="md:hidden border-b flex-shrink-0"
-          style={{ 
-            borderColor: themeConfig.colors.border,
-            background: themeConfig.colors.surface
-          }}
-        >
-          <StepNavigator 
-            currentStep={currentStep}
-            completedSteps={completedSteps}
-            onStepChange={handleStepChange}
-            themeConfig={themeConfig}
-          />
         </div>
 
         {/* Main Content */}

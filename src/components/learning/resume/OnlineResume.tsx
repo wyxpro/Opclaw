@@ -58,30 +58,26 @@ export function OnlineResume({ isOpen, onClose }: OnlineResumeProps) {
 
   if (isLoading) {
     return (
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            style={{ background: 'rgba(0,0,0,0.5)' }}
-          >
-            <div className="text-white">加载中...</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="flex items-center justify-center py-20"
+      >
+        <div style={{ color: themeConfig.colors.textMuted }}>加载中...</div>
+      </motion.div>
     )
   }
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex flex-col"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="flex flex-col min-h-screen"
           style={{ background: themeConfig.colors.bg }}
         >
           {/* Header */}
@@ -156,9 +152,15 @@ export function OnlineResume({ isOpen, onClose }: OnlineResumeProps) {
               
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
+                style={{ 
+                  background: themeConfig.colors.bg,
+                  color: themeConfig.colors.textMuted
+                }}
+                title="返回个人主页"
               >
-                <X size={20} style={{ color: themeConfig.colors.textMuted }} />
+                <X size={18} />
+                <span className="hidden sm:inline">关闭</span>
               </button>
             </div>
           </div>

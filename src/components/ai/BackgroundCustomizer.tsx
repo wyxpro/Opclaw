@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Image, Check } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
@@ -155,26 +156,31 @@ export function BackgroundCustomizer({
         </motion.span>
       </motion.button>
 
-      <AnimatePresence>
-        {isOpen && (
+      {isOpen && createPortal(
+        <AnimatePresence>
           <>
-            {/* Backdrop */}
+            {/* Backdrop - 使用更高的 z-index 确保在最顶层 */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/20"
+              className="fixed inset-0 bg-black/20"
+              style={{ zIndex: 99998 }}
               onClick={() => setIsOpen(false)}
             />
             
-            {/* Panel */}
+            {/* Panel - 使用更高的 z-index 确保在最顶层，定位在按钮组下方 */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ type: 'spring', damping: 25 }}
-              className="absolute right-0 top-full mt-2 w-72 md:w-80 rounded-2xl overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
+              className="fixed rounded-2xl overflow-hidden max-h-[70vh] overflow-y-auto"
               style={{
+                zIndex: 99999,
+                top: '220px',
+                left: '20px',
+                width: '320px',
                 background: themeConfig.glassEffect.background,
                 backdropFilter: themeConfig.glassEffect.backdropBlur,
                 border: themeConfig.glassEffect.border,
@@ -315,8 +321,9 @@ export function BackgroundCustomizer({
               </div>
             </motion.div>
           </>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Hidden file input */}
       <input
