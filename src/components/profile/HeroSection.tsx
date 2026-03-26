@@ -1,12 +1,12 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import type { PersonalProfile } from '../../types/profile'
 import { AnimatedSection, Floating } from './AnimatedSection'
 
-// 预定义的粒子数据（避免使用 Math.random）
-const PARTICLES = [
+// 预定义的粒子数据（避免使用 Math.random）- 移动端减少粒子数量
+const PARTICLES_DESKTOP = [
   { id: 0, x: 15, y: 20, size: 3, duration: 18, delay: 0, opacity: 0.4, offsetX: 8 },
   { id: 1, x: 85, y: 15, size: 4, duration: 22, delay: 1, opacity: 0.3, offsetX: -6 },
   { id: 2, x: 70, y: 80, size: 2, duration: 16, delay: 2, opacity: 0.5, offsetX: 10 },
@@ -29,11 +29,42 @@ const PARTICLES = [
   { id: 19, x: 88, y: 90, size: 3, duration: 18, delay: 2.5, opacity: 0.35, offsetX: -7 }
 ]
 
+// 移动端使用更少的粒子
+const PARTICLES_MOBILE = [
+  { id: 0, x: 20, y: 20, size: 3, duration: 20, delay: 0, opacity: 0.3, offsetX: 6 },
+  { id: 1, x: 80, y: 30, size: 4, duration: 24, delay: 1, opacity: 0.25, offsetX: -5 },
+  { id: 2, x: 50, y: 70, size: 2, duration: 18, delay: 2, opacity: 0.35, offsetX: 8 },
+  { id: 3, x: 30, y: 50, size: 3, duration: 22, delay: 0.5, opacity: 0.3, offsetX: -6 },
+  { id: 4, x: 70, y: 80, size: 4, duration: 26, delay: 1.5, opacity: 0.2, offsetX: 5 },
+  { id: 5, x: 10, y: 60, size: 2, duration: 19, delay: 3, opacity: 0.3, offsetX: -7 },
+  { id: 6, x: 90, y: 40, size: 3, duration: 21, delay: 2.5, opacity: 0.25, offsetX: 6 },
+  { id: 7, x: 40, y: 10, size: 4, duration: 23, delay: 4, opacity: 0.3, offsetX: -5 }
+]
+
+// 检测移动端的 hook
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
+  return isMobile
+}
+
 // 浮动粒子组件
 function FloatingParticles({ colors }: { colors: { primary: string; accent: string } }) {
+  const isMobile = useIsMobile()
+  const particles = isMobile ? PARTICLES_MOBILE : PARTICLES_DESKTOP
+  
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {PARTICLES.map((particle) => (
+      {particles.map((particle) => (
         <motion.div
           key={particle.id}
           className="absolute rounded-full"
@@ -64,8 +95,10 @@ function FloatingParticles({ colors }: { colors: { primary: string; accent: stri
   )
 }
 
-// 动态网格背景
+// 动态网格背景 - 移动端禁用动画
 function AnimatedGrid({ color }: { color: string }) {
+  const isMobile = useIsMobile()
+  
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.03]">
       <motion.div
@@ -77,10 +110,10 @@ function AnimatedGrid({ color }: { color: string }) {
           `,
           backgroundSize: '60px 60px'
         }}
-        animate={{
+        animate={isMobile ? undefined : {
           backgroundPosition: ['0px 0px', '60px 60px']
         }}
-        transition={{
+        transition={isMobile ? undefined : {
           duration: 20,
           repeat: Infinity,
           ease: 'linear'
@@ -90,8 +123,10 @@ function AnimatedGrid({ color }: { color: string }) {
   )
 }
 
-// 发光球体组件
+// 发光球体组件 - 移动端简化动画
 function GlowingOrbs({ colors }: { colors: { primary: string; accent: string } }) {
+  const isMobile = useIsMobile()
+  
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {/* 主发光球 - 左上 */}
@@ -99,59 +134,63 @@ function GlowingOrbs({ colors }: { colors: { primary: string; accent: string } }
         className="absolute -top-20 -left-20 w-[500px] h-[500px] rounded-full"
         style={{
           background: `radial-gradient(circle, ${colors.primary}25 0%, ${colors.primary}10 40%, transparent 70%)`,
-          filter: 'blur(60px)'
+          filter: isMobile ? 'blur(40px)' : 'blur(60px)'
         }}
-        animate={{
+        animate={isMobile ? undefined : {
           x: [0, 50, 0],
           y: [0, 30, 0],
           scale: [1, 1.1, 1]
         }}
-        transition={{
+        transition={isMobile ? undefined : {
           duration: 15,
           repeat: Infinity,
           ease: 'easeInOut'
         }}
       />
       
-      {/* 次发光球 - 右下 */}
-      <motion.div
-        className="absolute -bottom-40 -right-20 w-[600px] h-[600px] rounded-full"
-        style={{
-          background: `radial-gradient(circle, ${colors.accent}20 0%, ${colors.accent}08 40%, transparent 70%)`,
-          filter: 'blur(80px)'
-        }}
-        animate={{
-          x: [0, -40, 0],
-          y: [0, -50, 0],
-          scale: [1, 1.15, 1]
-        }}
-        transition={{
-          duration: 18,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: 2
-        }}
-      />
+      {/* 次发光球 - 右下 - 移动端隐藏以减少渲染负担 */}
+      {!isMobile && (
+        <motion.div
+          className="absolute -bottom-40 -right-20 w-[600px] h-[600px] rounded-full"
+          style={{
+            background: `radial-gradient(circle, ${colors.accent}20 0%, ${colors.accent}08 40%, transparent 70%)`,
+            filter: 'blur(80px)'
+          }}
+          animate={{
+            x: [0, -40, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.15, 1]
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: 2
+          }}
+        />
+      )}
 
-      {/* 小发光球 - 中间偏右 */}
-      <motion.div
-        className="absolute top-1/3 right-1/4 w-[300px] h-[300px] rounded-full"
-        style={{
-          background: `radial-gradient(circle, ${colors.primary}15 0%, transparent 60%)`,
-          filter: 'blur(40px)'
-        }}
-        animate={{
-          x: [0, 30, 0],
-          y: [0, -20, 0],
-          opacity: [0.5, 0.8, 0.5]
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: 1
-        }}
-      />
+      {/* 小发光球 - 中间偏右 - 移动端隐藏 */}
+      {!isMobile && (
+        <motion.div
+          className="absolute top-1/3 right-1/4 w-[300px] h-[300px] rounded-full"
+          style={{
+            background: `radial-gradient(circle, ${colors.primary}15 0%, transparent 60%)`,
+            filter: 'blur(40px)'
+          }}
+          animate={{
+            x: [0, 30, 0],
+            y: [0, -20, 0],
+            opacity: [0.5, 0.8, 0.5]
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: 1
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -179,6 +218,9 @@ const socialIcons: Record<string, React.ComponentType<{ size?: number; className
 export function HeroSection({ profile, showResume = false, onToggleResume }: HeroSectionProps) {
   const { themeConfig } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
+  const isMobile = useIsMobile()
+  
+  // 视差滚动效果 - 仅在桌面端启用
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end start']
@@ -187,6 +229,9 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
   const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
   const textY = useTransform(scrollYProgress, [0, 1], ['0%', '50%'])
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.3])
+  
+  // 移动端使用静态值而非动画值
+  const motionTextY = isMobile ? 0 : textY
 
   return (
     <section
@@ -271,7 +316,7 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
       {/* 主要内容 */}
       <motion.div
         className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20"
-        style={{ y: textY, opacity }}
+        style={{ y: motionTextY, opacity }}
       >
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
           {/* 左侧：头像和个人信息 */}
@@ -288,15 +333,15 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
                       transform: 'scale(1.2)'
                     }}
                   />
-                  {/* 旋转光环 */}
+                  {/* 旋转光环 - 移动端禁用旋转动画 */}
                   <motion.div
                     className="absolute -inset-2 rounded-full"
                     style={{
                       background: `conic-gradient(from 0deg, ${themeConfig.colors.primary}, ${themeConfig.colors.accent}, ${themeConfig.colors.primary})`,
                       padding: '2px'
                     }}
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+                    animate={isMobile ? undefined : { rotate: 360 }}
+                    transition={isMobile ? undefined : { duration: 10, repeat: Infinity, ease: 'linear' }}
                   >
                     <div
                       className="w-full h-full rounded-full"
@@ -466,12 +511,12 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
             <AnimatedSection delay={0.5} direction="right">
               <div className="mt-6">
                 <h3
-                  className="text-sm font-medium mb-3"
+                  className="text-sm font-medium mb-3 text-center sm:text-left"
                   style={{ color: themeConfig.colors.textMuted }}
                 >
                   荣誉成就
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                   {profile.achievements.map((achievement, index) => (
                     <motion.div
                       key={achievement.id}

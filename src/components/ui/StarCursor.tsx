@@ -2,6 +2,12 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSettings } from '../../hooks/useSettings'
 
+// 检测是否为触摸设备
+const isTouchDevice = () => {
+  if (typeof window === 'undefined') return false
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0
+}
+
 interface Star {
   id: number
   x: number
@@ -41,6 +47,11 @@ export default function StarCursor() {
   const starIdRef = useRef(0)
   const starsRef = useRef<Star[]>([])
   const { cursorEffectEnabled } = useSettings()
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    setIsMobile(isTouchDevice())
+  }, [])
 
   // 同步 starsRef 和 stars state
   useEffect(() => {
@@ -72,8 +83,8 @@ export default function StarCursor() {
   }, [])
 
   useEffect(() => {
-    // 如果鼠标特效被禁用，不添加事件监听
-    if (!cursorEffectEnabled) return
+    // 如果鼠标特效被禁用或是移动设备，不添加事件监听
+    if (!cursorEffectEnabled || isMobile) return
 
     let lastX = 0
     let lastY = 0

@@ -97,7 +97,14 @@
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb, #334155) var(--scrollbar-track, #0d1117);
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 仅在非触摸设备上应用过渡效果，优化移动端滚动性能 */
+/* 注意：避免使用 * 选择器应用过渡，这会导致页面切换时的闪烁问题 */
+@media (hover: hover) and (pointer: fine) {
+  body, div, span, p, h1, h2, h3, h4, h5, h6, a, button, input, textarea, section, article, aside, nav, header, footer, main {
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
 }
 
 *::-webkit-scrollbar {
@@ -119,10 +126,30 @@ html {
   scroll-behavior: smooth;
 }
 
+/* 移动端滚动优化 */
+@media (pointer: coarse) {
+  html {
+    scroll-behavior: auto; /* 移动端禁用平滑滚动，使用原生滚动 */
+  }
+  
+  /* 减少移动端的重绘和重排 */
+  body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+  
+  /* 禁用一些影响性能的 CSS 效果 */
+  .glass,
+  .glass-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 body {
   font-family: var(--font-sans, 'Inter', 'Noto Sans SC', system-ui, sans-serif);
-  background-color: var(--color-bg, #060910);
-  color: var(--color-text, #e2e8f0);
+  background-color: var(--color-bg, #fafafa);
+  color: var(--color-text, #1a1a1a);
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;

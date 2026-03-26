@@ -21,7 +21,7 @@ function AppContent() {
       <StarCursor />
       <Navbar />
       <main className="pt-0 md:pt-20 pb-20 md:pb-0">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Home />} />
             <Route path="/assets" element={<Assets />} />

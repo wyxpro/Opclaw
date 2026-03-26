@@ -68,19 +68,19 @@ export default function Entertainment() {
           ))}
         </motion.div>
 
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           {activeTab === 'music' && (
-            <motion.div key="music" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <motion.div key="music" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
               <MusicBox />
             </motion.div>
           )}
           {activeTab === 'movies' && (
-            <motion.div key="movies" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <motion.div key="movies" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
               <MovieWall />
             </motion.div>
           )}
           {activeTab === 'bookmarks' && (
-            <motion.div key="bookmarks" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <motion.div key="bookmarks" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
               <TreasureBox />
             </motion.div>
           )}

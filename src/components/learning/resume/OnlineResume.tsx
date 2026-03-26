@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  X, Edit3, Eye, FileText, Download
+  X, Edit3, Eye, FileText, Download, Home
 } from 'lucide-react'
 import { useTheme } from '../../../hooks/useTheme'
 import { useResume } from './useResume'
@@ -70,13 +70,13 @@ export function OnlineResume({ isOpen, onClose }: OnlineResumeProps) {
   }
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="sync">
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
           className="flex flex-col min-h-screen"
           style={{ background: themeConfig.colors.bg }}
         >
@@ -89,12 +89,30 @@ export function OnlineResume({ isOpen, onClose }: OnlineResumeProps) {
             }}
           >
             <div className="flex items-center gap-3">
+              {/* 主页/简历切换按钮 - 放在左侧 */}
               <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: themeConfig.colors.primaryMuted }}
+                className="flex items-center rounded-lg p-1"
+                style={{ background: themeConfig.colors.bg }}
               >
-                <FileText size={20} style={{ color: themeConfig.colors.primary }} />
+                <button
+                  onClick={onClose}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all"
+                  style={{ 
+                    color: themeConfig.colors.textMuted,
+                  }}
+                >
+                  <Home size={16} />
+                  <span className="hidden sm:inline">主页</span>
+                </button>
+                <button
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all text-white"
+                  style={{ background: themeConfig.colors.primary }}
+                >
+                  <FileText size={16} />
+                  <span className="hidden sm:inline">简历</span>
+                </button>
               </div>
+
               <div>
                 <h2 className="text-lg font-bold" style={{ color: themeConfig.colors.text }}>
                   在线简历

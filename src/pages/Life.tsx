@@ -91,14 +91,14 @@ export default function Life() {
         </motion.div>
 
         {/* Tab Content */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           {activeTab === 'love' && (
             <motion.div
               key="love"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
               <LoveTimeline onNavigate={setLoveView} />
             </motion.div>
@@ -106,10 +106,10 @@ export default function Life() {
           {activeTab === 'moments' && (
             <motion.div
               key="moments"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
               <Moments />
             </motion.div>
@@ -117,10 +117,10 @@ export default function Life() {
           {activeTab === 'travel' && (
             <motion.div
               key="travel"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
               <TravelAlbum selectedLocation={selectedLocation} onSelect={setSelectedLocation} />
             </motion.div>
@@ -128,10 +128,10 @@ export default function Life() {
           {activeTab === 'sports' && (
             <motion.div
               key="sports"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
               <SportsSection />
             </motion.div>
@@ -139,10 +139,10 @@ export default function Life() {
           {activeTab === 'games' && (
             <motion.div
               key="games"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
             >
               <GamesSection />
             </motion.div>

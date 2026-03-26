@@ -207,24 +207,24 @@ export default function Social() {
           ))}
         </motion.div>
 
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           {activeTab === 'friends' && (
-            <motion.div key="friends" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <motion.div key="friends" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
               <FriendLinks />
             </motion.div>
           )}
           {activeTab === 'danmaku' && (
-            <motion.div key="danmaku" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <motion.div key="danmaku" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
               <DanmakuWall />
             </motion.div>
           )}
           {activeTab === 'timeline' && (
-            <motion.div key="timeline" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <motion.div key="timeline" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
               <GrowthTimeline />
             </motion.div>
           )}
           {activeTab === 'social' && (
-            <motion.div key="social" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <motion.div key="social" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
               <SocialMatrix />
             </motion.div>
           )}
@@ -265,7 +265,7 @@ export default function Social() {
 
       {/* 移动端布局 - 个人中心样式 */}
       <div className="md:hidden min-h-screen pb-20">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           {mobileView === 'menu' ? (
             <MobileMenu 
               key="menu"

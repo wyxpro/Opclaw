@@ -313,7 +313,7 @@ export function ModulesSection({ modules = defaultModules }: ModulesSectionProps
             className="text-3xl sm:text-4xl font-bold mb-4"
             style={{ color: themeConfig.colors.text }}
           >
-            功能模块
+            我的世界
           </h2>
           <p
             className="text-lg max-w-2xl mx-auto"

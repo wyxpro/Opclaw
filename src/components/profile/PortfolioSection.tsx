@@ -53,7 +53,7 @@ function ProjectCard({
       className="group cursor-pointer"
     >
       <div
-        className="rounded-2xl overflow-hidden transition-shadow duration-300"
+        className="rounded-2xl overflow-hidden transition-shadow duration-300 h-full flex flex-col"
         style={{
           background: themeConfig.colors.surface,
           border: `1px solid ${themeConfig.colors.border}`,
@@ -102,23 +102,35 @@ function ProjectCard({
           )}
         </div>
 
-        {/* 内容 */}
-        <div className="p-5">
+        {/* 内容 - 使用 flex 布局确保高度一致 */}
+        <div className="p-5 flex flex-col" style={{ minHeight: '180px' }}>
+          {/* 标题 - 固定两行高度 */}
           <h3
-            className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors"
-            style={{ color: themeConfig.colors.text }}
+            className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2"
+            style={{ 
+              color: themeConfig.colors.text,
+              minHeight: '3.5rem' /* 2行文字的高度 */
+            }}
           >
             {project.title}
           </h3>
+          
+          {/* 描述 - 固定两行高度 */}
           <p
             className="text-sm line-clamp-2 mb-4"
-            style={{ color: themeConfig.colors.textMuted }}
+            style={{ 
+              color: themeConfig.colors.textMuted,
+              minHeight: '2.5rem' /* 2行文字的高度 */
+            }}
           >
             {project.description}
           </p>
 
-          {/* 标签 */}
-          <div className="flex flex-wrap gap-1.5">
+          {/* 标签 - 固定高度区域 */}
+          <div 
+            className="flex flex-wrap gap-1.5 mt-auto"
+            style={{ minHeight: '24px' }}
+          >
             {project.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}

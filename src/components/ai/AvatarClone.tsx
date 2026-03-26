@@ -144,13 +144,14 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
           </div>
 
           {/* 上传/风格内容区域 */}
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="sync">
             {activeTab === 'upload' ? (
               <motion.div
                 key="upload"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
                 className="space-y-4"
               >
                 {/* 隐藏的文件输入 */}
@@ -323,9 +324,10 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
             ) : (
               <motion.div
                 key="style"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
                 className="space-y-4"
               >
                 {styleOptions.map((style) => (
