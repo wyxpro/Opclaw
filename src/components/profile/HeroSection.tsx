@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
-import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin } from 'lucide-react'
+import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import type { PersonalProfile } from '../../types/profile'
 import { AnimatedSection, Floating } from './AnimatedSection'
@@ -158,6 +158,8 @@ function GlowingOrbs({ colors }: { colors: { primary: string; accent: string } }
 
 interface HeroSectionProps {
   profile: PersonalProfile
+  showResume?: boolean
+  onToggleResume?: (show: boolean) => void
 }
 
 // 社交媒体图标映射
@@ -174,7 +176,7 @@ const socialIcons: Record<string, React.ComponentType<{ size?: number; className
   website: LinkIcon
 }
 
-export function HeroSection({ profile }: HeroSectionProps) {
+export function HeroSection({ profile, showResume = false, onToggleResume }: HeroSectionProps) {
   const { themeConfig } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
@@ -209,6 +211,62 @@ export function HeroSection({ profile }: HeroSectionProps) {
           y: backgroundY
         }}
       />
+
+      {/* 模式切换按钮组 - 放置在背景图上方区域 */}
+      {onToggleResume && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="absolute top-6 left-6 z-20"
+        >
+          <div 
+            className="flex items-center p-1 rounded-xl backdrop-blur-md"
+            style={{ 
+              backgroundColor: `${themeConfig.colors.surface}80`,
+              border: `1px solid ${themeConfig.colors.border}`
+            }}
+          >
+            {/* 个人主页按钮 */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onToggleResume(false)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                !showResume 
+                  ? 'shadow-sm' 
+                  : 'opacity-60 hover:opacity-80'
+              }`}
+              style={{
+                backgroundColor: !showResume ? `${themeConfig.colors.bg}90` : 'transparent',
+                color: themeConfig.colors.text
+              }}
+            >
+              <HomeIcon size={16} />
+              <span className="hidden sm:inline">个人主页</span>
+            </motion.button>
+            
+            {/* 在线简历按钮 */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onToggleResume(true)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                showResume 
+                  ? 'shadow-sm' 
+                  : 'opacity-60 hover:opacity-80'
+              }`}
+              style={{
+                backgroundColor: showResume ? `${themeConfig.colors.bg}90` : 'transparent',
+                color: themeConfig.colors.text
+              }}
+            >
+              <FileText size={16} />
+              <span className="hidden sm:inline">在线简历</span>
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
 
       {/* 主要内容 */}
       <motion.div

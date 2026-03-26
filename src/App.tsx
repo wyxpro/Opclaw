@@ -4,7 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import { SettingsProvider } from './contexts/SettingsContext'
 import Navbar from './components/layout/Navbar'
 import StarCursor from './components/ui/StarCursor'
-// import Home from './pages/Home'  // 原首页组件，暂时保留
+import Home from './pages/Home'
 import Assets from './pages/Assets'
 import Learning from './pages/Learning'
 import Life from './pages/Life'
@@ -23,7 +23,7 @@ function AppContent() {
       <main className="pt-0 md:pt-20 pb-20 md:pb-0">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Community />} />
+            <Route path="/" element={<Home />} />
             <Route path="/assets" element={<Assets />} />
             <Route path="/learning" element={<Learning />} />
             <Route path="/life" element={<Life />} />
