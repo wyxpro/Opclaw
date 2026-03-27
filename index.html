@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <title>SuperUI - OPC超级个体-全能数字资产管家</title>
@@ -25,6 +25,11 @@
                 "system-ui",
                 "-apple-system",
                 "sans-serif",
+              ],
+              mono: [
+                "KaiTi",
+                "STKaiti",
+                "monospace",
               ],
             },
             colors: {
@@ -462,36 +467,30 @@
               >SuperUI</span
             >
           </a>
-          <!-- 时间天气组件 -->
+          <!-- 时间组件 -->
           <div
-            class="hidden lg:flex items-center gap-3 px-4 py-2 rounded-xl bg-white/50 border border-gray-200/50"
+            class="hidden lg:flex items-center gap-4 px-4 py-2 rounded-xl bg-white/50 border border-gray-200/50"
           >
-            <div class="flex items-center gap-1 font-mono text-sm">
+            <div class="flex items-center gap-1" style="font-family: 'KaiTi', 'STKaiti', monospace;">
               <span
                 id="clock-hours"
-                class="font-bold text-gray-700 w-[22px] text-center"
+                class="text-base font-bold text-gray-700 w-[26px] text-center"
                 >--</span
               >
-              <span class="text-gray-400">:</span>
+              <span class="text-base font-bold text-gray-400">:</span>
               <span
                 id="clock-minutes"
-                class="font-bold text-gray-700 w-[22px] text-center"
+                class="text-base font-bold text-gray-700 w-[26px] text-center"
                 >--</span
               >
-              <span class="text-gray-400">:</span>
+              <span class="text-base font-bold text-gray-400">:</span>
               <span
                 id="clock-seconds"
-                class="font-bold text-gray-700 w-[22px] text-center"
+                class="text-base font-bold text-gray-700 w-[26px] text-center"
                 >--</span
               >
             </div>
-            <span id="current-date" class="text-xs text-gray-500">--</span>
-            <div class="w-px h-4 bg-gray-300"></div>
-            <div class="flex items-center gap-1.5">
-              <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
-              <span class="text-xs text-gray-500">深圳</span>
-              <span class="text-sm font-bold text-gray-700">22°C</span>
-            </div>
+            <span id="current-date" class="text-sm text-gray-500 font-medium">--</span>
           </div>
         </div>
         <div class="hidden md:flex items-center gap-2">

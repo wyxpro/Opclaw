@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Wallet, Users, Menu, X, Cloud, Sun, CloudRain, Palette, Sparkles, Globe } from 'lucide-react'
+import { Home, Wallet, Users, Menu, X, Palette, Sparkles, Globe } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
 
@@ -12,30 +12,13 @@ const navItems = [
   { path: '/social', label: '我的', icon: Users },
 ]
 
-// 天气图标映射
-const weatherIcons: Record<string, typeof Sun> = {
-  sunny: Sun,
-  cloudy: Cloud,
-  rainy: CloudRain,
-}
-
-// 时间和天气组件
-function TimeWeatherWidget() {
+// 时间组件
+function TimeWidget() {
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [weather, setWeather] = useState({ temp: 22, condition: 'sunny', location: '深圳' })
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
-  }, [])
-
-  // 模拟获取天气（实际项目中可以调用天气API）
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      const mockWeatherData = { temp: 22, condition: 'sunny', location: '深圳' }
-      setWeather(mockWeatherData)
-    })
-    return () => cancelAnimationFrame(frame)
   }, [])
 
   const formatTimeParts = (date: Date) => {
@@ -49,13 +32,12 @@ function TimeWeatherWidget() {
     return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', weekday: 'short' })
   }
 
-  const WeatherIcon = weatherIcons[weather.condition] || Sun
   const { hours, minutes, seconds } = formatTimeParts(currentTime)
 
   return (
     <div className="hidden sm:flex items-center gap-4 px-4 py-2 rounded-xl bg-surface/50 border border-border/50">
       {/* 时间 - 固定宽度避免跳动 */}
-      <div className="flex items-center gap-1 font-mono">
+      <div className="flex items-center gap-1" style={{ fontFamily: "'KaiTi', 'STKaiti', monospace" }}>
         <span className="text-base font-bold text-text w-[26px] text-center">{hours}</span>
         <span className="text-base font-bold text-text-muted">:</span>
         <span className="text-base font-bold text-text w-[26px] text-center">{minutes}</span>
@@ -63,13 +45,6 @@ function TimeWeatherWidget() {
         <span className="text-base font-bold text-text w-[26px] text-center">{seconds}</span>
       </div>
       <span className="text-sm text-text-muted font-medium">{formatDate(currentTime)}</span>
-      <div className="w-px h-5 bg-border" />
-      {/* 天气 */}
-      <div className="flex items-center gap-2">
-        <WeatherIcon size={18} className="text-accent" />
-        <span className="text-sm text-text-secondary font-medium">{weather.location}</span>
-        <span className="text-sm font-bold text-text">{weather.temp}°C</span>
-      </div>
     </div>
   )
 }
@@ -155,8 +130,8 @@ export default function Navbar() {
                 SuperUI
               </span>
             </a>
-            {/* Time & Weather Widget */}
-            <TimeWeatherWidget />
+            {/* Time Widget */}
+            <TimeWidget />
           </div>
 
           {/* Right: Desktop Nav Links + Theme Toggle */}

@@ -455,167 +455,223 @@ function HobbyDetailModal({
   )
 }
 
-// 3D轮播卡片组件
-function Carousel3DCard({ 
+// 移动端横向滑动卡片组件
+function MobileHobbyCarousel({
+  hobbies,
+  onCardClick
+}: {
+  hobbies: HobbyItem[]
+  onCardClick: (hobby: HobbyItem) => void
+}) {
+  const { themeConfig } = useTheme()
+  const [currentPage, setCurrentPage] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const totalPages = Math.ceil(hobbies.length / 2)
+
+  // 处理滑动
+  const handleScroll = useCallback(() => {
+    if (containerRef.current) {
+      const scrollLeft = containerRef.current.scrollLeft
+      const itemWidth = containerRef.current.offsetWidth / 2
+      const newPage = Math.round(scrollLeft / itemWidth / 2)
+      setCurrentPage(Math.min(newPage, totalPages - 1))
+    }
+  }, [totalPages])
+
+  // 自动播放
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPage((prev) => {
+        const nextPage = (prev + 1) % totalPages
+        if (containerRef.current) {
+          const scrollWidth = containerRef.current.offsetWidth
+          containerRef.current.scrollTo({
+            left: nextPage * scrollWidth,
+            behavior: 'smooth'
+          })
+        }
+        return nextPage
+      })
+    }, 4000)
+
+    return () => clearInterval(interval)
+  }, [totalPages])
+
+  return (
+    <div className="w-full">
+      {/* 横向滑动容器 */}
+      <div
+        ref={containerRef}
+        onScroll={handleScroll}
+        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none'
+        }}
+      >
+        {hobbies.map((hobby, idx) => (
+          <MobileHobbyCard
+            key={hobby.id}
+            hobby={hobby}
+            hobbyIndex={idx}
+            onClick={() => onCardClick(hobby)}
+          />
+        ))}
+      </div>
+
+      {/* 页码指示器 */}
+      <div className="flex justify-center gap-2 mt-6">
+        {Array.from({ length: totalPages }).map((_, index) => (
+          <motion.button
+            key={index}
+            onClick={() => {
+              setCurrentPage(index)
+              if (containerRef.current) {
+                containerRef.current.scrollTo({
+                  left: index * containerRef.current.offsetWidth,
+                  behavior: 'smooth'
+                })
+              }
+            }}
+            className="relative h-2 rounded-full transition-all duration-300"
+            style={{
+              width: index === currentPage ? 32 : 8,
+              background: index === currentPage
+                ? hobbies[currentPage * 2]?.color || hobbies[0].color
+                : themeConfig.colors.border
+            }}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.9 }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// 移动端卡片组件
+function MobileHobbyCard({
+  hobby,
+  hobbyIndex,
+  onClick
+}: {
+  hobby: HobbyItem
+  hobbyIndex: number
+  onClick: () => void
+}) {
+  const DecorIcon = decorIconMap[hobby.id === 'sports' ? 'Trophy' : hobby.id === 'travel' ? 'MapPin' : hobby.id === 'food' ? 'ChefHat' : 'Joystick'] || Trophy
+  const imageUrl = hobbyImages[hobby.id]
+
+  return (
+    <motion.div
+      onClick={onClick}
+      className="flex-shrink-0 w-1/2 snap-start px-2"
+      whileTap={{ scale: 0.98 }}
+    >
+      <div className="relative overflow-hidden h-[320px] sm:h-[380px] rounded-2xl cursor-pointer"
+        style={{
+          boxShadow: `0 10px 30px ${hobby.color}30, 0 4px 10px rgba(0,0,0,0.1)`,
+          border: `2px solid ${hobby.color}60`
+        }}
+      >
+        {/* 全屏背景图片 */}
+        <div className="absolute inset-0">
+          <img
+            src={imageUrl}
+            alt={hobby.title}
+            className="w-full h-full object-cover"
+          />
+
+          {/* 渐变遮罩 */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(180deg, ${hobby.color}30 0%, ${hobby.color}70 50%, ${hobby.color} 100%)`
+            }}
+          />
+
+          {/* 底部深色渐变 */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(0deg, ${hobby.color} 0%, transparent 60%)`
+            }}
+          />
+        </div>
+
+        {/* 内容区域 - 底部对齐 */}
+        <div className="absolute inset-0 flex flex-col justify-end p-4">
+          {/* 编号 */}
+          <div
+            className="text-4xl font-bold mb-1"
+            style={{
+              color: 'rgba(255,255,255,0.3)',
+              fontFamily: 'serif'
+            }}
+          >
+            {String(hobbyIndex + 1).padStart(2, '0')}
+          </div>
+
+          {/* 标题 */}
+          <h3 className="text-lg font-bold text-white mb-1">
+            {hobby.title}
+          </h3>
+
+          {/* 点击提示 */}
+          <div className="mt-2 flex items-center gap-1 text-xs font-medium text-white/90">
+            <span>点击查看详情</span>
+            <ArrowRight size={14} />
+          </div>
+        </div>
+
+        {/* 装饰图标 - 右上角 */}
+        <div
+          className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-sm"
+          style={{ background: 'rgba(255, 255, 255, 0.2)' }}
+        >
+          <DecorIcon size={16} className="text-white" />
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// 桌面端网格卡片组件
+function HobbyCard({ 
   hobby, 
-  position,
   onClick,
   hobbyIndex
 }: { 
   hobby: HobbyItem
-  position: 'left' | 'center' | 'right' | 'hidden'
   onClick: () => void
   hobbyIndex: number
 }) {
   const { themeConfig } = useTheme()
   const DecorIcon = decorIconMap[hobby.id === 'sports' ? 'Trophy' : hobby.id === 'travel' ? 'MapPin' : hobby.id === 'food' ? 'ChefHat' : 'Joystick'] || Trophy
   const imageUrl = hobbyImages[hobby.id]
-
-  const get3DStyles = (isDesktop: boolean) => {
-    if (isDesktop) {
-      // 桌面端：显示3个卡片，左右部分可见
-      switch (position) {
-        case 'center':
-          return {
-            x: 0,
-            scale: 1,
-            zIndex: 30,
-            opacity: 1,
-            rotateY: 0,
-            z: 0
-          }
-        case 'left':
-          return {
-            x: '-65%',
-            scale: 0.9,
-            zIndex: 20,
-            opacity: 0.85,
-            rotateY: 8,
-            z: -40
-          }
-        case 'right':
-          return {
-            x: '65%',
-            scale: 0.9,
-            zIndex: 20,
-            opacity: 0.85,
-            rotateY: -8,
-            z: -40
-          }
-        default:
-          return {
-            x: 0,
-            scale: 0.7,
-            zIndex: 10,
-            opacity: 0,
-            rotateY: 0,
-            z: -200
-          }
-      }
-    } else {
-      // 移动端：只显示当前卡片
-      switch (position) {
-        case 'center':
-          return {
-            x: 0,
-            scale: 1,
-            zIndex: 30,
-            opacity: 1,
-            rotateY: 0,
-            z: 0
-          }
-        case 'left':
-          return {
-            x: '-100%',
-            scale: 0.9,
-            zIndex: 20,
-            opacity: 0,
-            rotateY: 0,
-            z: -50
-          }
-        case 'right':
-          return {
-            x: '100%',
-            scale: 0.9,
-            zIndex: 20,
-            opacity: 0,
-            rotateY: 0,
-            z: -50
-          }
-        default:
-          return {
-            x: 0,
-            scale: 0.7,
-            zIndex: 10,
-            opacity: 0,
-            rotateY: 0,
-            z: -200
-          }
-      }
-    }
-  }
-
-  // 检测是否为桌面端
-  const [isDesktop, setIsDesktop] = useState(false)
-  
-  useEffect(() => {
-    const checkDesktop = () => {
-      setIsDesktop(window.innerWidth >= 1024)
-    }
-    checkDesktop()
-    window.addEventListener('resize', checkDesktop)
-    return () => window.removeEventListener('resize', checkDesktop)
-  }, [])
-  
-  const styles = get3DStyles(isDesktop)
-  const isCenter = position === 'center'
   const [isHovered, setIsHovered] = useState(false)
 
   return (
     <motion.div
-      layout
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="absolute top-0 left-0 right-0 mx-auto w-[85%] sm:w-[70%] md:w-[55%] lg:w-[26%] max-w-[280px] cursor-pointer"
-      style={{
-        perspective: '1000px',
-        transformStyle: 'preserve-3d'
-      }}
-      initial={false}
-      animate={{
-        x: isDesktop 
-          ? (position === 'center' ? '-50%' : position === 'left' ? '-50%' : position === 'right' ? '-50%' : '-50%')
-          : (position === 'center' ? '-50%' : position === 'left' ? '-120%' : position === 'right' ? '20%' : '-50%'),
-        scale: isHovered && isDesktop ? 1.08 : styles.scale,
-        opacity: isHovered && isDesktop && !isCenter ? 1 : styles.opacity,
-        rotateY: isHovered && isDesktop ? 0 : styles.rotateY,
-        z: isHovered && isDesktop ? 100 : styles.z
-      }}
-      transition={{ 
-        type: 'spring', 
-        stiffness: 300, 
-        damping: 30,
-        duration: 0.5 
-      }}
-      whileTap={isCenter ? { scale: styles.scale * 0.98 } : {}}
+      className="cursor-pointer h-[420px] xl:h-[480px]"
+      whileHover={{ y: -8 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
       <motion.div
-        className="relative overflow-hidden h-[420px] lg:h-[480px]"
+        className="relative overflow-hidden h-full rounded-2xl"
         animate={{
-          boxShadow: isHovered && isDesktop
-            ? `0 35px 100px ${hobby.color}60, 0 15px 40px rgba(0,0,0,0.3)`
-            : isCenter 
-              ? `0 25px 80px ${hobby.color}40, 0 10px 30px rgba(0,0,0,0.2)` 
-              : `0 15px 50px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.08)`,
-          borderColor: isHovered && isDesktop ? hobby.color : isCenter ? hobby.color : themeConfig.colors.border
+          boxShadow: isHovered
+            ? `0 25px 60px ${hobby.color}50, 0 10px 30px rgba(0,0,0,0.25)`
+            : `0 15px 40px ${hobby.color}30, 0 5px 15px rgba(0,0,0,0.1)`,
+          borderColor: isHovered ? hobby.color : `${hobby.color}60`
         }}
         transition={{ duration: 0.3 }}
         style={{
           background: themeConfig.colors.surface,
           border: `2px solid`,
-          borderRadius: '16px',
-          transformStyle: 'preserve-3d'
         }}
       >
         {/* 全屏背景图片 */}
@@ -624,16 +680,15 @@ function Carousel3DCard({
             src={imageUrl}
             alt={hobby.title}
             className="w-full h-full object-cover"
-            initial={{ scale: 1.2 }}
-            animate={{ scale: isHovered && isDesktop ? 1.1 : isCenter ? 1 : 1.05 }}
-            transition={{ duration: 0.6 }}
+            animate={{ scale: isHovered ? 1.08 : 1 }}
+            transition={{ duration: 0.5 }}
           />
           
-          {/* 紫色渐变遮罩 - 参考图片风格 */}
+          {/* 渐变遮罩 */}
           <div 
             className="absolute inset-0"
             style={{
-              background: `linear-gradient(180deg, ${hobby.color}30 0%, ${hobby.color}80 50%, ${hobby.color} 100%)`
+              background: `linear-gradient(180deg, ${hobby.color}30 0%, ${hobby.color}70 50%, ${hobby.color} 100%)`
             }}
           />
           
@@ -647,13 +702,13 @@ function Carousel3DCard({
         </div>
 
         {/* 内容区域 - 底部对齐 */}
-        <div className="absolute inset-0 flex flex-col justify-end p-6">
+        <div className="absolute inset-0 flex flex-col justify-end p-5">
           {/* 编号 */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-6xl lg:text-7xl font-bold mb-2"
+            className="text-5xl xl:text-6xl font-bold mb-2"
             style={{ 
               color: 'rgba(255,255,255,0.3)',
               fontFamily: 'serif'
@@ -667,7 +722,7 @@ function Carousel3DCard({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-2xl lg:text-3xl font-bold text-white mb-3"
+            className="text-xl xl:text-2xl font-bold text-white mb-2"
           >
             {hobby.title}
           </motion.h3>
@@ -676,11 +731,11 @@ function Carousel3DCard({
           <motion.p
             initial={{ opacity: 0, height: 0 }}
             animate={{ 
-              opacity: isHovered && isDesktop ? 1 : 0,
-              height: isHovered && isDesktop ? 'auto' : 0
+              opacity: isHovered ? 1 : 0,
+              height: isHovered ? 'auto' : 0
             }}
             transition={{ duration: 0.3 }}
-            className="text-sm text-white/80 mb-4 overflow-hidden"
+            className="text-sm text-white/80 mb-3 overflow-hidden"
           >
             {hobby.description}
           </motion.p>
@@ -689,15 +744,15 @@ function Carousel3DCard({
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ 
-              opacity: isHovered && isDesktop ? 1 : 0,
-              height: isHovered && isDesktop ? 'auto' : 0
+              opacity: isHovered ? 1 : 0,
+              height: isHovered ? 'auto' : 0
             }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="flex gap-4 mb-4 overflow-hidden"
+            className="flex gap-3 mb-3 overflow-hidden"
           >
             {hobby.stats.slice(0, 2).map((stat, idx) => (
               <div key={idx} className="text-white">
-                <div className="text-xl font-bold">{stat.value}</div>
+                <div className="text-lg font-bold">{stat.value}</div>
                 <div className="text-xs text-white/70">{stat.label}</div>
               </div>
             ))}
@@ -707,16 +762,16 @@ function Carousel3DCard({
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ 
-              opacity: isHovered && isDesktop ? 1 : 0,
-              height: isHovered && isDesktop ? 'auto' : 0
+              opacity: isHovered ? 1 : 0,
+              height: isHovered ? 'auto' : 0
             }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="flex flex-wrap gap-2 overflow-hidden"
+            className="flex flex-wrap gap-1.5 overflow-hidden"
           >
-            {hobby.highlights.slice(0, 3).map((highlight) => (
+            {hobby.highlights.slice(0, 2).map((highlight) => (
               <span
                 key={highlight}
-                className="px-3 py-1 rounded-full text-xs font-medium bg-white/20 text-white backdrop-blur-sm"
+                className="px-2 py-0.5 rounded-full text-xs font-medium bg-white/20 text-white backdrop-blur-sm"
               >
                 {highlight}
               </span>
@@ -726,8 +781,8 @@ function Carousel3DCard({
           {/* 点击提示 */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: isCenter ? 1 : 0.6 }}
-            className="mt-4 flex items-center gap-2 text-sm font-medium text-white/90"
+            animate={{ opacity: 1 }}
+            className="mt-3 flex items-center gap-2 text-sm font-medium text-white/90"
           >
             <span>点击查看详情</span>
             <ArrowRight size={16} />
@@ -736,12 +791,12 @@ function Carousel3DCard({
         
         {/* 装饰图标 - 右上角 */}
         <motion.div
-          animate={{ rotate: isCenter ? [0, 10, -10, 0] : 0 }}
+          animate={{ rotate: isHovered ? [0, 10, -10, 0] : 0 }}
           transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-          className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm"
+          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm"
           style={{ background: 'rgba(255, 255, 255, 0.2)' }}
         >
-          <DecorIcon size={20} className="text-white" />
+          <DecorIcon size={18} className="text-white" />
         </motion.div>
       </motion.div>
     </motion.div>
@@ -750,57 +805,8 @@ function Carousel3DCard({
 
 export function HobbiesSection() {
   const { themeConfig } = useTheme()
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
   const [selectedHobby, setSelectedHobby] = useState<HobbyItem | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const touchStartX = useRef(0)
-  const touchEndX = useRef(0)
-  
-  const AUTO_PLAY_INTERVAL = 4000 // 4秒自动切换
-
-  // 获取卡片位置
-  const getCardPosition = (index: number): 'left' | 'center' | 'right' | 'hidden' => {
-    const diff = index - currentIndex
-    const len = hobbiesData.length
-    
-    // 处理循环
-    let normalizedDiff = diff
-    if (diff > len / 2) normalizedDiff = diff - len
-    if (diff < -len / 2) normalizedDiff = diff + len
-    
-    if (normalizedDiff === 0) return 'center'
-    if (normalizedDiff === -1 || normalizedDiff === len - 1) return 'left'
-    if (normalizedDiff === 1 || normalizedDiff === -(len - 1)) return 'right'
-    return 'hidden'
-  }
-
-  // 自动播放
-  useEffect(() => {
-    if (isPaused) return
-    
-    const interval = setInterval(() => {
-      // 自动向左切换（索引减1）
-      setCurrentIndex((prev) => (prev - 1 + hobbiesData.length) % hobbiesData.length)
-    }, AUTO_PLAY_INTERVAL)
-
-    return () => clearInterval(interval)
-  }, [isPaused])
-
-  // 切换到上一张
-  const goToPrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + hobbiesData.length) % hobbiesData.length)
-  }, [])
-
-  // 切换到下一张
-  const goToNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % hobbiesData.length)
-  }, [])
-
-  // 跳转到指定索引
-  const goToIndex = useCallback((index: number) => {
-    setCurrentIndex(index)
-  }, [])
 
   // 打开详情模态框
   const openModal = useCallback((hobby: HobbyItem) => {
@@ -813,28 +819,6 @@ export function HobbiesSection() {
     setIsModalOpen(false)
     setTimeout(() => setSelectedHobby(null), 300)
   }, [])
-
-  // 触摸事件处理
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX
-  }
-
-  const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        goToNext()
-      } else {
-        goToPrev()
-      }
-    }
-  }
-
-  const currentHobby = hobbiesData[currentIndex]
 
   return (
     <section 
@@ -858,62 +842,27 @@ export function HobbiesSection() {
           </p>
         </AnimatedSection>
 
-        {/* 3D轮播区域 */}
-        <div 
-          className="relative h-[420px] sm:h-[480px] lg:h-[520px]"
-          style={{ perspective: '2000px' }}
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* 3D轮播容器 */}
-          <div 
-            className="relative w-full h-full max-w-6xl mx-auto"
-            style={{ 
-              transformStyle: 'preserve-3d',
-              perspective: '2000px'
-            }}
-          >
+        {/* 桌面端：4个卡片并排显示 / 移动端：轮播 */}
+        <div className="hidden lg:block">
+          {/* 桌面端4卡片网格布局 */}
+          <div className="grid grid-cols-4 gap-4 xl:gap-6">
             {hobbiesData.map((hobby, idx) => (
-              <Carousel3DCard
+              <HobbyCard
                 key={hobby.id}
                 hobby={hobby}
                 hobbyIndex={idx}
-                position={getCardPosition(idx)}
                 onClick={() => openModal(hobby)}
               />
             ))}
           </div>
         </div>
 
-        {/* 页码指示器 */}
-        <div className="flex justify-center gap-2 mt-8">
-          {hobbiesData.map((_, index) => (
-            <motion.button
-              key={index}
-              onClick={() => goToIndex(index)}
-              className="relative h-2 rounded-full transition-all duration-300"
-              style={{
-                width: index === currentIndex ? 32 : 8,
-                background: index === currentIndex 
-                  ? currentHobby.color 
-                  : themeConfig.colors.border
-              }}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              {index === currentIndex && (
-                <motion.div
-                  layoutId="activeIndicator"
-                  className="absolute inset-0 rounded-full"
-                  style={{ background: currentHobby.color }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                />
-              )}
-            </motion.button>
-          ))}
+        <div className="lg:hidden">
+          {/* 移动端：横向滑动，一行显示两个卡片 */}
+          <MobileHobbyCarousel 
+            hobbies={hobbiesData}
+            onCardClick={openModal}
+          />
         </div>
 
         {/* 底部装饰线 */}

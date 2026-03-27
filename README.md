@@ -1,15 +1,16 @@
-# 🌿 晓叶的个人空间 - SuperUI
+# 🌈SuperUI - 个人数字空间
 
-> 一个现代化的全栈个人主页项目，融合技术博客、生活记录与社交互动的数字花园
+> 一个现代化的全栈个人主页项目，融合AI分身、学习管理、生活记录与社交互动的数字花园
 
 ---
 
 ## 📋 项目简介
 
-这是一个基于 React + TypeScript + Tailwind CSS 构建的现代化个人主页应用。项目采用模块化设计，包含五大核心功能模块：首页展示、学习知识库、生活记录、娱乐空间和社交互动。支持 5 种主题风格一键切换，拥有流畅的页面动画和完善的响应式设计。
+这是一个基于 React + TypeScript + Tailwind CSS 构建的现代化个人主页应用。项目采用模块化设计，包含九大核心功能模块：首页展示、资产管理、学习知识库、生活记录、娱乐空间、AI分身助手、社区互动、我的社交和实验室。支持 5 种主题风格一键切换，拥有流畅的页面动画和完善的响应式设计。
 
 ### ✨ 核心特性
 
+- 🤖 **AI分身系统** - 个性化数字分身创建，支持声音克隆和形象复刻
 - 🎨 **多主题系统** - 5 种精心设计的主题风格（极简/赛博/艺术/童趣/复古）
 - 📱 **响应式设计** - 完美适配桌面端和移动端，移动端底部导航栏
 - ✨ **流畅动画** - 基于 Framer Motion 的页面切换和交互动画
@@ -41,7 +42,6 @@
 | class-variance-authority | 0.7.1 | 样式变体管理 |
 | clsx | 2.1.1 | 类名工具 |
 | tailwind-merge | 3.4.1 | Tailwind 类名合并 |
-
 
 ### 可视化与富文本
 
@@ -84,9 +84,13 @@
     ┌────────────────────┼────────────────────┐
     ▼         ▼          ▼          ▼         ▼
 ┌────────┐┌──────┐┌──────────┐┌────────┐┌────────┐
-│  Home  ││Learn.││   Life   ││Entert. ││ Social │
-│ (首页) ││(学习)││  (生活)  ││ (娱乐) ││ (社交) │
+│  Home  ││Assets││ Learning ││  Life  ││Entert. │
+│ (首页) ││(资产)││  (学习)  ││ (生活) ││ (娱乐) │
 └────────┘└──────┘└──────────┘└────────┘└────────┘
+┌────────┐┌──────────┐┌────────┐┌──────────┐
+│ AIChar ││Community ││ Social ││Laboratory│
+│(AI分身)││ (社区)   ││ (社交) ││ (实验室) │
+└────────┘└──────────┘└────────┘└──────────┘
                          │
               ┌──────────┴──────────┐
               ▼                     ▼
@@ -115,61 +119,105 @@
    - lib/utils.ts: 通用工具函数
    - lib/themes.ts: 主题配置
    - lib/cardUtils.ts: 卡片工具
+   - lib/ragEngine.ts: RAG 知识库引擎
 
 ---
 
 ## 📁 目录结构
 
 ```
-temp-project/
+SuperUI/
 ├── public/                      # 静态资源
 │   ├── avatar.png              # 用户头像
 │   └── vite.svg                # Vite 图标
 ├── src/
 │   ├── components/             # 组件目录
+│   │   ├── ai/                # AI分身相关组件
+│   │   │   ├── AvatarClone.tsx      # 形象复刻
+│   │   │   ├── BackgroundCustomizer.tsx # 背景定制
+│   │   │   ├── Character3D.tsx      # 3D角色展示
+│   │   │   ├── CharacterChat.tsx    # 角色对话
+│   │   │   ├── MultiModalInput.tsx  # 多模态输入
+│   │   │   ├── StepNavigator.tsx    # 步骤导航
+│   │   │   ├── VoiceClone.tsx       # 声音克隆
+│   │   │   └── types.ts             # AI类型定义
+│   │   ├── community/         # 社区相关组件
+│   │   │   ├── AvatarChat.tsx       # 头像聊天
+│   │   │   ├── CommentSection.tsx   # 评论区
+│   │   │   ├── PostCard.tsx         # 帖子卡片
+│   │   │   ├── PostCreator.tsx      # 发帖器
+│   │   │   ├── PostList.tsx         # 帖子列表
+│   │   │   ├── types.ts             # 社区类型定义
+│   │   │   └── useCommunity.ts      # 社区Hook
 │   │   ├── layout/            # 布局组件
 │   │   │   └── Navbar.tsx     # 响应式导航栏
 │   │   ├── learning/          # 学习模块组件
-│   │   │   ├── ArticleEditor.tsx      # 文章编辑器
-│   │   │   └── DocumentImport.tsx     # 文档导入
-│   │   ├── love/              # 生活模块组件
-│   │   │   ├── BlessingBoard.tsx      # 祝福墙
-│   │   │   ├── TimeAlbum.tsx          # 时光相册
-│   │   │   └── WishList.tsx           # 愿望清单
+│   │   │   ├── resume/        # 简历相关
+│   │   │   │   ├── OnlineResume.tsx   # 在线简历
+│   │   │   │   ├── ResumeEditor.tsx   # 简历编辑器
+│   │   │   │   ├── ResumePreview.tsx  # 简历预览
+│   │   │   │   ├── types.ts           # 简历类型
+│   │   │   │   └── useResume.ts       # 简历Hook
+│   │   │   ├── AIAssistant.tsx      # AI学习助手
+│   │   │   ├── ArticleEditor.tsx    # 文章编辑器
+│   │   │   ├── ChatInput.tsx        # 聊天输入
+│   │   │   ├── ChatMessageList.tsx  # 消息列表
+│   │   │   ├── DocumentImport.tsx   # 文档导入
+│   │   │   └── types.ts             # 学习类型
+│   │   ├── love/              # 生活/恋爱模块组件
+│   │   │   ├── BlessingBoard.tsx    # 祝福墙
+│   │   │   ├── TimeAlbum.tsx        # 时光相册
+│   │   │   └── WishList.tsx         # 愿望清单
+│   │   ├── profile/           # 个人主页组件
+│   │   │   ├── AnimatedSection.tsx  # 动画区块
+│   │   │   ├── ContactSection.tsx   # 联系区域
+│   │   │   ├── HeroSection.tsx      # 主视觉区
+│   │   │   ├── HobbiesSection.tsx   # 兴趣爱好
+│   │   │   ├── ModulesSection.tsx   # 模块入口
+│   │   │   ├── PortfolioSection.tsx # 作品集
+│   │   │   ├── SkillsSection.tsx    # 技能展示
+│   │   │   └── SocialMediaSection.tsx # 自媒体
 │   │   ├── ui/                # 基础 UI 组件
+│   │   │   ├── CursorEffectToggle.tsx # 鼠标特效开关
 │   │   │   ├── PageTransition.tsx     # 页面切换动画
-│   │   │   ├── ThemeSwitcher.tsx      # 主题切换器
-│   │   │   ├── StarCursor.tsx         # 星星鼠标特效
-│   │   │   ├── SkillTreeView.tsx      # 技能树视图
 │   │   │   ├── SettingsModal.tsx      # 设置弹窗
-│   │   │   └── CursorEffectToggle.tsx # 鼠标特效开关
+│   │   │   ├── SkillTreeView.tsx      # 技能树视图
+│   │   │   ├── StarCursor.tsx         # 星星鼠标特效
+│   │   │   └── ThemeSwitcher.tsx      # 主题切换器
 │   │   ├── ChinaMap.tsx       # 中国地图组件
-│   │   ├── TravelManager.tsx  # 旅行管理
-│   │   ├── TravelDetailModal.tsx      # 旅行详情弹窗
-│   │   ├── LoveDetailModal.tsx        # 恋爱详情弹窗
-│   │   └── ProfileEditModal.tsx       # 个人资料编辑
+│   │   ├── LoveDetailModal.tsx      # 恋爱详情弹窗
+│   │   ├── ProfileEditModal.tsx     # 个人资料编辑
+│   │   └── TravelManager.tsx  # 旅行管理
 │   ├── contexts/              # 全局状态管理
-│   │   ├── ThemeContext.tsx   # 主题上下文
-│   │   └── SettingsContext.tsx # 设置上下文
+│   │   ├── SettingsContext.tsx   # 设置上下文
+│   │   └── ThemeContext.tsx      # 主题上下文
 │   ├── data/                  # 数据层
-│   │   ├── mock.ts            # 模拟数据（个人信息、文章、旅行等）
+│   │   ├── mock.ts            # 模拟数据
+│   │   ├── profile.ts         # 个人资料数据
 │   │   └── skillTree.ts       # 技能树数据
 │   ├── hooks/                 # 自定义 Hooks
-│   │   ├── useTheme.ts        # 主题 Hook
-│   │   └── useSettings.ts     # 设置 Hook
+│   │   ├── useSettings.ts     # 设置 Hook
+│   │   └── useTheme.ts        # 主题 Hook
 │   ├── lib/                   # 工具库
-│   │   ├── themes.ts          # 主题配置（5种主题）
-│   │   ├── utils.ts           # 通用工具函数
-│   │   └── cardUtils.ts       # 卡片工具函数
+│   │   ├── cardUtils.ts       # 卡片工具函数
+│   │   ├── ragEngine.ts       # RAG知识库引擎
+│   │   ├── themes.ts          # 主题配置
+│   │   └── utils.ts           # 通用工具函数
 │   ├── pages/                 # 页面组件
+│   │   ├── AICharacter.tsx    # AI分身页面
+│   │   ├── Assets.tsx         # 资产页面
+│   │   ├── Community.tsx      # 社区页面
+│   │   ├── Entertainment.tsx  # 娱乐页面
 │   │   ├── Home.tsx           # 首页
-│   │   ├── Learning.tsx       # 学习页
-│   │   ├── Life.tsx           # 生活页
-│   │   ├── Entertainment.tsx  # 娱乐页
-│   │   └── Social.tsx         # 社交页
+│   │   ├── Laboratory.tsx     # 实验室页面
+│   │   ├── Learning.tsx       # 学习页面
+│   │   ├── Life.tsx           # 生活页面
+│   │   └── Social.tsx         # 社交页面
+│   ├── types/                 # 类型定义
+│   │   └── profile.ts         # 个人资料类型
 │   ├── App.tsx                # 根组件
-│   ├── main.tsx               # 应用入口
-│   └── index.css              # 全局样式
+│   ├── index.css              # 全局样式
+│   └── main.tsx               # 应用入口
 ├── .vercel/                   # Vercel 配置
 ├── dist/                      # 构建输出目录
 ├── node_modules/              # 依赖包
@@ -190,9 +238,13 @@ temp-project/
 
 **功能概述**
 - 个人简介与头像展示
-- 技能标签云（按分类展示：前端、后端、DevOps、设计、探索）
+- 技能分类展示（前端、后端、DevOps、设计、探索）
 - 精选作品卡片墙（6个项目展示）
 - 数据统计展示（项目经验、开源贡献、技术文章、获得Star）
+- 在线简历展示
+- 兴趣爱好3D轮播
+- 自媒体矩阵展示
+- 功能模块快捷入口
 
 **技术实现**
 - 使用 Framer Motion 实现卡片动画
@@ -200,6 +252,21 @@ temp-project/
 - 渐变色卡片设计
 
 **数据来源**: `src/data/mock.ts` - `personalInfo`, `skills`, `portfolioProjects`, `stats`
+
+---
+
+### 📦 资产 (Assets)
+
+**功能概述**
+- 学习空间入口：知识库、技能树、在线简历
+- 生活记录入口：朋友圈、旅拍相册、恋爱记录、运动、游戏
+- 娱乐中心入口：音乐盒、收藏电影、百宝箱
+- 分类汇总卡片展示
+
+**技术实现**
+- 响应式网格布局
+- 卡片悬停动效
+- 快速导航跳转
 
 ---
 
@@ -212,6 +279,9 @@ temp-project/
 - 目录索引与锚点跳转
 - 文章编辑器（TipTap 富文本编辑）
 - 文档导入功能
+- AI学习助手对话
+- 技能树可视化
+- 在线简历编辑与预览
 
 **技术实现**
 - 三栏布局：目录树 + 文章列表 + 文章详情
@@ -224,6 +294,9 @@ temp-project/
 **核心组件**:
 - `ArticleEditor.tsx` - 文章编辑器
 - `DocumentImport.tsx` - 文档导入
+- `AIAssistant.tsx` - AI学习助手
+- `SkillTreeView.tsx` - 技能树视图
+- `OnlineResume.tsx` - 在线简历
 
 ---
 
@@ -283,7 +356,48 @@ temp-project/
 
 ---
 
-### 👥 社交 (Social)
+### 🤖 AI分身 (AICharacter)
+
+**功能概述**
+- **声音克隆** - 录制并克隆个人声音
+- **形象复刻** - 创建个性化数字形象
+  - 预设头像选择
+  - 自定义背景上传
+  - 卡通/写实风格切换
+- **3D角色展示** - 实时渲染数字分身
+- **智能对话** - 基于RAG的知识库问答
+- **多模态输入** - 支持文字、图片、语音输入
+
+**技术实现**
+- Three.js 3D渲染
+- Web Speech API 语音合成
+- RAG检索增强生成
+- 步骤引导流程
+
+**核心组件**:
+- `VoiceClone.tsx` - 声音克隆
+- `AvatarClone.tsx` - 形象复刻
+- `Character3D.tsx` - 3D角色
+- `CharacterChat.tsx` - 对话界面
+- `MultiModalInput.tsx` - 多模态输入
+
+---
+
+### 👥 社区 (Community)
+
+**功能概述**
+- 个人主页展示
+- 技能与作品分享
+- 功能模块导航
+- 社交互动入口
+
+**技术实现**
+- 复用首页组件
+- 统一主题风格
+
+---
+
+### 🌐 社交 (Social)
 
 **功能概述**
 - **友情链接** - 好友展示
@@ -308,6 +422,25 @@ temp-project/
 
 ---
 
+### 🧪 实验室 (Laboratory)
+
+**功能概述**
+- **历史时间轴** - 项目开发历程记录
+  - 功能迭代记录
+  - 技术栈演进
+  - 里程碑标记
+- **未来计划** - 开发路线图
+  - 功能规划
+  - 进度追踪
+  - 优先级管理
+
+**技术实现**
+- 时间线可视化
+- 进度条组件
+- 标签分类系统
+
+---
+
 ## 🎨 主题系统详解
 
 项目内置 5 种精心设计的主题风格，每种主题都有独特的视觉风格和配色方案。
@@ -319,14 +452,15 @@ temp-project/
 | ◐ 极简 | `minimal` | 白色米色调，简洁线条 | 白色/米色 | 专注阅读和工作 |
 | ◉ 赛博 | `cyber` | 深蓝黑底，霓虹蓝紫 | 蓝色/紫色 | 科技感展示 |
 | ❋ 艺术 | `artistic` | 柔和渐变，优雅字体 | 粉色/紫色 | 创意展示 |
-| ✿ 童趣 | `playful` | 明亮活泼，圆润边角 | 多彩 | 轻松愉快氛围 |
-| ✤ 复古 | `vintage` | 暖黄棕色，老式排版 | 黄色/棕色 | 怀旧风格 |
+| ✿ 童趣 | `cartoon` | 明亮活泼，圆润边角 | 多彩 | 轻松愉快氛围 |
+| ✤ 复古 | `retro` | 暖黄棕色，老式排版 | 黄色/棕色 | 怀旧风格 |
 
 ### 主题切换方式
 
 1. **快捷键**: `Shift + Q` 循环切换主题
 2. **UI 切换**: 点击页面右下角的主题切换浮窗
-3. **自动保存**: 主题选择会自动保存到 localStorage
+3. **移动端**: 点击顶部主题切换按钮
+4. **自动保存**: 主题选择会自动保存到 localStorage
 
 ### 主题配置结构
 
@@ -334,7 +468,10 @@ temp-project/
 
 ```typescript
 interface ThemeConfig {
+  id: ThemeType              // 主题标识
   name: string              // 主题名称
+  description: string       // 主题描述
+  icon: string              // 主题图标
   colors: {                 // 颜色配置
     bg: string             // 背景色
     bgAlt: string          // 次要背景色
@@ -378,7 +515,10 @@ interface ThemeConfig {
 export const themes: Record<ThemeType, ThemeConfig> = {
   // ... 现有主题
   myTheme: {
+    id: 'myTheme',
     name: '我的主题',
+    description: '主题描述',
+    icon: '🎨',
     colors: {
       // 自定义颜色
     },
@@ -408,7 +548,7 @@ Router 初始化（根据 URL 渲染对应页面）
     ↓
 Navbar 渲染（导航栏）
     ↓
-Page 组件渲染（首页/学习/生活/娱乐/社交）
+Page 组件渲染（首页/资产/学习/生活/娱乐/AI分身/社区/社交/实验室）
 ```
 
 ### 2. 主题切换流程
@@ -658,8 +798,8 @@ server {
 构建和运行:
 
 ```bash
-docker build -t my-personal-site .
-docker run -p 80:80 my-personal-site
+docker build -t superui .
+docker run -p 80:80 superui
 ```
 
 ---
@@ -768,7 +908,21 @@ docker run -p 80:80 my-personal-site
 }
 ```
 
----
+#### AI分身消息 (Message)
+
+```typescript
+{
+  id: string               // 唯一标识
+  role: 'user' | 'assistant'  // 角色
+  content: string          // 消息内容
+  timestamp: number        // 时间戳
+  attachments?: Array<{    // 附件（可选）
+    type: 'image' | 'audio' | 'file'
+    url: string
+    name: string
+  }>
+}
+```
 
 ### 数据扩展指南
 
@@ -834,6 +988,26 @@ export const personalInfo = {
 
 ---
 
+### RAG 知识库引擎
+
+项目集成了简单的 RAG (Retrieval-Augmented Generation) 引擎，位于 `src/lib/ragEngine.ts`。
+
+**功能特性**:
+- 基于关键词的知识检索
+- 学习、生活、娱乐相关内容检索
+- 智能回复生成
+
+**使用示例**:
+
+```typescript
+import { ragEngine } from './lib/ragEngine'
+
+// 生成回复
+const response = ragEngine.generateResponse('查询内容')
+```
+
+---
+
 ### 未来 API 集成
 
 项目当前使用静态数据，未来可以集成后端 API：
@@ -844,6 +1018,7 @@ export const personalInfo = {
 - **数据库**: PostgreSQL / MongoDB / Supabase
 - **认证**: JWT / OAuth 2.0
 - **文件存储**: AWS S3 / Cloudinary / 阿里云 OSS
+- **AI服务**: OpenAI API / Claude API / 文心一言
 
 #### API 设计示例
 
@@ -877,6 +1052,18 @@ POST /api/posts/:id/like
 // 评论动态
 POST /api/posts/:id/comments
 Body: { content }
+
+// AI对话
+POST /api/ai/chat
+Body: { message, sessionId }
+
+// 声音克隆
+POST /api/ai/voice-clone
+Body: { audioData }
+
+// 形象生成
+POST /api/ai/avatar-generate
+Body: { imageData, style }
 ```
 
 ---
@@ -930,6 +1117,7 @@ avatar: 'https://example.com/avatar.jpg'  // 在线图片
 
 ```typescript
 minimal: {
+  id: 'minimal',
   name: '极简',
   colors: {
     primary: '#your-color',  // 修改主色
@@ -986,11 +1174,25 @@ const [cursorEffectEnabled, setCursorEffectEnabled] = useState(false)
 2. 调整 `x` 和 `y` 坐标（百分比）来定位标记点
 3. 可以在浏览器开发者工具中查看鼠标位置来确定坐标
 
+#### Q11: AI分身的声音克隆如何使用？
+
+1. 进入 AI分身 页面
+2. 点击"声音克隆"步骤
+3. 按照提示录制语音样本
+4. 完成后即可在对话中使用克隆的声音
+
+#### Q12: 如何自定义AI分身的形象？
+
+1. 在 AI分身 页面选择"形象复刻"
+2. 选择预设头像或上传自定义图片
+3. 选择背景风格（办公室、自然、自定义）
+4. 切换卡通/写实风格
+
 ---
 
 ### 部署相关
 
-#### Q11: 部署后页面刷新 404 怎么办？
+#### Q13: 部署后页面刷新 404 怎么办？
 
 确保配置了路由重写规则：
 
@@ -998,7 +1200,7 @@ const [cursorEffectEnabled, setCursorEffectEnabled] = useState(false)
 - Netlify: 在 `public/` 添加 `_redirects` 文件
 - Nginx: 配置 `try_files $uri $uri/ /index.html`
 
-#### Q12: 如何配置自定义域名？
+#### Q14: 如何配置自定义域名？
 
 在 Vercel Dashboard 中：
 1. 进入项目设置
@@ -1006,7 +1208,7 @@ const [cursorEffectEnabled, setCursorEffectEnabled] = useState(false)
 3. 添加自定义域名
 4. 按照提示配置 DNS 记录
 
-#### Q13: 构建时内存不足怎么办？
+#### Q15: 构建时内存不足怎么办？
 
 增加 Node.js 内存限制：
 
@@ -1024,7 +1226,7 @@ NODE_OPTIONS=--max_old_space_size=4096 npm run build
 
 ### 性能优化
 
-#### Q14: 如何优化首屏加载速度？
+#### Q16: 如何优化首屏加载速度？
 
 1. 使用图片 CDN 和压缩
 2. 启用代码分割（已默认启用）
@@ -1037,7 +1239,7 @@ const LazyComponent = lazy(() => import('./Component'))
 4. 优化图片格式（使用 WebP）
 5. 启用 Gzip/Brotli 压缩
 
-#### Q15: 如何减小打包体积？
+#### Q17: 如何减小打包体积？
 
 1. 分析打包体积：
 
@@ -1061,13 +1263,13 @@ import debounce from 'lodash/debounce'
 
 ### 开发相关
 
-#### Q16: 如何添加新的 UI 组件？
+#### Q18: 如何添加新的 UI 组件？
 
 1. 在 `src/components/ui/` 创建组件文件
 2. 使用 Tailwind CSS 和 Framer Motion
 3. 导出组件供其他地方使用
 
-#### Q17: 如何集成后端 API？
+#### Q19: 如何集成后端 API？
 
 1. 安装 axios 或使用 fetch
 2. 创建 `src/services/api.ts`
@@ -1086,7 +1288,7 @@ useEffect(() => {
 }, [])
 ```
 
-#### Q18: 如何添加用户认证？
+#### Q20: 如何添加用户认证？
 
 推荐使用：
 - Supabase Auth
@@ -1094,7 +1296,7 @@ useEffect(() => {
 - Auth0
 - NextAuth.js (如果迁移到 Next.js)
 
-#### Q19: TypeScript 报错怎么办？
+#### Q21: TypeScript 报错怎么办？
 
 1. 检查类型定义是否正确
 2. 运行 `npm run build` 查看详细错误
@@ -1104,7 +1306,7 @@ useEffect(() => {
 npm install --save-dev @types/package-name
 ```
 
-#### Q20: 如何贡献代码？
+#### Q22: 如何贡献代码？
 
 1. Fork 项目
 2. 创建功能分支：`git checkout -b feature/new-feature`
@@ -1216,7 +1418,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: '晓叶的个人空间',
+        name: 'SuperUI - 个人数字空间',
         short_name: 'SuperUI',
         theme_color: '#8b5cf6',
       }
@@ -1264,9 +1466,10 @@ const apiUrl = import.meta.env.VITE_API_URL
 <meta http-equiv="Content-Security-Policy" 
       content="default-src 'self'; 
                script-src 'self' 'unsafe-inline'; 
-               style-src 'self' 'unsafe-inline';">
+               style-src 'self' 'unsafe-inline';
+               img-src 'self' https: data:;
+               connect-src 'self' https://api.example.com;">
 ```
-
 
 ---
 
@@ -1293,6 +1496,7 @@ const apiUrl = import.meta.env.VITE_API_URL
 
 - [Unsplash](https://unsplash.com/) - 免费高质量图片
 - [Picsum](https://picsum.photos/) - 占位图服务
+- [DiceBear](https://dicebear.com/) - 头像生成服务
 
 ---
 

@@ -12,6 +12,7 @@ import Entertainment from './pages/Entertainment'
 import Social from './pages/Social'
 import AICharacter from './pages/AICharacter'
 import Community from './pages/Community'
+import Laboratory from './pages/Laboratory'
 
 function AppContent() {
   const location = useLocation()
@@ -31,6 +32,7 @@ function AppContent() {
             <Route path="/ai-character" element={<AICharacter />} />
             <Route path="/community" element={<Community />} />
             <Route path="/social" element={<Social />} />
+            <Route path="/laboratory" element={<Laboratory />} />
           </Routes>
         </AnimatePresence>
       </main>

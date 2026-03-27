@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Link2, MessageCircle, Clock, Share2, ExternalLink,
   Send, Github, Edit3, Twitter, Play, MessageSquare, Zap, Award,
   X, Trash2, Edit2, Calendar, ChevronRight, ArrowLeft,
   IdCard, Download, Share, History, Palette, Sparkles, Loader2, Plus,
-  Crown, Check, CreditCard, Shield, Star, Settings, Info
+  Crown, Check, CreditCard, Shield, Star, Settings, Info, FlaskConical
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { ThemeSelectorPanel } from '../components/ui/ThemeSwitcher'
@@ -35,7 +36,7 @@ const platformIcons: Record<string, typeof Github> = {
 
 export default function Social() {
   const [activeTab, setActiveTab] = useState<TabId>('friends')
-  const [mobileView, setMobileView] = useState<'menu' | TabId>('menu')
+  const [mobileView, setMobileView] = useState<'menu' | TabId | 'laboratory'>('menu')
   const [showDesktopCardModal, setShowDesktopCardModal] = useState(false)
   const [showDesktopVipModal, setShowDesktopVipModal] = useState(false)
   const [showDesktopHistoryModal, setShowDesktopHistoryModal] = useState(false)
@@ -1722,6 +1723,7 @@ const mobileMenuItems = [
   { id: 'danmaku' as const, label: '留言墙', description: '留下你的足迹和祝福', icon: MessageCircle, color: '#ec4899' },
   { id: 'timeline' as const, label: '成长时间轴', description: '记录学习与成长历程', icon: Clock, color: '#10b981' },
   { id: 'social' as const, label: '自媒体矩阵', description: '关注我的我的媒体', icon: Share2, color: '#f59e0b' },
+  { id: 'laboratory' as const, label: '实验室', description: '技术实验与开发计划', icon: FlaskConical, color: '#8b5cf6' },
 ]
 
 // 移动端顶部用户信息组件
@@ -1838,13 +1840,14 @@ const memberBenefits = [
 ]
 
 // 移动端菜单主界面
-function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, onOpenAbout }: { onNavigate: (view: TabId | 'menu') => void; userProfile: ProfileData; onEditProfile: () => void; onOpenSettings: () => void; onOpenAbout: () => void }) {
+function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, onOpenAbout }: { onNavigate: (view: TabId | 'menu' | 'laboratory') => void; userProfile: ProfileData; onEditProfile: () => void; onOpenSettings: () => void; onOpenAbout: () => void }) {
   const [showCardModal, setShowCardModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showThemePanel, setShowThemePanel] = useState(false)
   const [showVipModal, setShowVipModal] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState('yearly')
   const { currentTheme, setTheme, themeConfig } = useTheme()
+  const navigate = useNavigate()
 
   return (
     <motion.div
@@ -1902,7 +1905,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: (index + 2) * 0.05 }}
-            onClick={() => onNavigate(item.id)}
+            onClick={() => item.id === 'laboratory' ? navigate('/laboratory') : onNavigate(item.id)}
             className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
           >
             <div
