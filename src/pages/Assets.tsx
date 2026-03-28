@@ -102,7 +102,7 @@ const entertainmentCards = [
     id: 'music',
     title: '音乐盒',
     subtitle: '收藏喜爱音乐',
-    path: '/entertainment',
+    path: '/life?tab=music',
     color: 'bg-fuchsia-500',
     colorLight: 'bg-fuchsia-500/20',
     icon: Music,
@@ -112,7 +112,7 @@ const entertainmentCards = [
     id: 'movies',
     title: '收藏电影',
     subtitle: '观影记录收藏',
-    path: '/entertainment',
+    path: '/life?tab=movies',
     color: 'bg-red-500',
     colorLight: 'bg-red-500/20',
     icon: Film,
@@ -122,7 +122,7 @@ const entertainmentCards = [
     id: 'bookmarks',
     title: '百宝箱',
     subtitle: '实用工具收藏',
-    path: '/entertainment',
+    path: '/life?tab=bookmarks',
     color: 'bg-cyan-500',
     colorLight: 'bg-cyan-500/20',
     icon: Bookmark,
@@ -242,7 +242,7 @@ export default function Assets() {
 
             {/* Entertainment Summary */}
             <div 
-              onClick={() => navigate('/entertainment')}
+              onClick={() => navigate('/life')}
               className="relative overflow-hidden rounded-xl md:rounded-2xl p-3 md:p-6 cursor-pointer group transition-all duration-300 hover:shadow-md"
               style={{ 
                 backgroundColor: colors.surface,

@@ -8,7 +8,6 @@ import Home from './pages/Home'
 import Assets from './pages/Assets'
 import Learning from './pages/Learning'
 import Life from './pages/Life'
-import Entertainment from './pages/Entertainment'
 import Social from './pages/Social'
 import AICharacter from './pages/AICharacter'
 import Community from './pages/Community'
@@ -28,7 +27,6 @@ function AppContent() {
             <Route path="/assets" element={<Assets />} />
             <Route path="/learning" element={<Learning />} />
             <Route path="/life" element={<Life />} />
-            <Route path="/entertainment" element={<Entertainment />} />
             <Route path="/ai-character" element={<AICharacter />} />
             <Route path="/community" element={<Community />} />
             <Route path="/social" element={<Social />} />

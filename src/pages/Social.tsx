@@ -2191,7 +2191,7 @@ const membershipPlans = [
     name: '永久会员',
     price: 368,
     period: '永久',
-    features: ['所有年度会员权益', '终身免费更新', '专属VIP群组', '一对一技术支持', '定制功能优先'],
+    features: ['所有年度会员权益', '终身免费更新', '专属VIP群组', '一对一技术支持', ''],
     popular: false,
   },
 ]

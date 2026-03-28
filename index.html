@@ -465,45 +465,74 @@
       @media (max-width: 768px) {
         .pricing-card {
           margin: 0 auto;
+          min-width: 0;
         }
         .pricing-card .p-6 {
-          padding: 0.75rem;
+          padding: 0.75rem 0.5rem;
         }
         .pricing-card .text-4xl {
-          font-size: 1.5rem;
+          font-size: 1.1rem;
         }
         .pricing-card .text-lg {
-          font-size: 0.875rem;
+          font-size: 0.6rem;
         }
         .pricing-card .text-xl {
-          font-size: 1rem;
+          font-size: 0.7rem;
+        }
+        .pricing-card .text-sm {
+          font-size: 0.55rem;
+        }
+        .pricing-card .text-xs {
+          font-size: 0.5rem;
         }
         .pricing-card .w-10 {
-          width: 2rem;
-          height: 2rem;
+          width: 1.25rem;
+          height: 1.25rem;
         }
         .pricing-card .w-10 svg {
-          width: 1rem;
-          height: 1rem;
+          width: 0.7rem;
+          height: 0.7rem;
+        }
+        .pricing-card ul.space-y-3 {
+          display: flex;
+          flex-direction: column;
+          gap: 0.1rem;
         }
         .pricing-card .space-y-3 > li {
-          font-size: 0.65rem;
+          font-size: 0.6rem;
+          white-space: nowrap;
+          margin: 0;
+          padding: 0.05rem 0;
+          line-height: 1.1;
+          min-height: auto;
         }
         .pricing-card .space-y-3 > li svg {
-          width: 0.75rem;
-          height: 0.75rem;
+          width: 0.65rem;
+          height: 0.65rem;
+          flex-shrink: 0;
+        }
+        .pricing-card .space-y-3 > li span {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .pricing-card button {
-          padding: 0.5rem;
-          font-size: 0.75rem;
+          padding: 0.35rem;
+          font-size: 0.6rem;
         }
         .pricing-card button svg {
-          width: 0.75rem;
-          height: 0.75rem;
+          width: 0.6rem;
+          height: 0.6rem;
         }
         .pricing-card .featured-badge {
-          padding: 0.25rem 0.5rem;
-          font-size: 0.6rem;
+          padding: 0.1rem 0.3rem;
+          font-size: 0.45rem;
+        }
+        .pricing-card .inline-flex {
+          gap: 0.2rem;
+        }
+        .pricing-card .flex.items-baseline.gap-1 {
+          gap: 0.1rem;
         }
       }
 
@@ -634,7 +663,7 @@
           </a>
           <!-- 时间组件 -->
           <div
-            class="hidden lg:flex items-center gap-4 px-4 py-2 rounded-xl bg-white/50 border border-gray-200/50"
+            class="hidden lg:flex items-center gap-4 px-4 py-2 rounded-xl bg-white/50"
           >
             <div
               class="flex items-center gap-1"
@@ -2726,9 +2755,7 @@
         </div>
 
         <!-- 付费计划卡片网格 -->
-        <div
-          class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-5"
-        >
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-5">
           <!-- Free 免费版 -->
           <div class="pricing-card group animate-on-scroll animate-stagger-1">
             <div class="pricing-card-inner h-full flex flex-col">
@@ -3078,13 +3105,6 @@
                     ></i>
                     <span class="text-sm text-gray-600">一对一技术支持</span>
                   </li>
-                  <li class="flex items-start gap-3">
-                    <i
-                      data-lucide="check"
-                      class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"
-                    ></i>
-                    <span class="text-sm text-gray-600">定制功能优先</span>
-                  </li>
                 </ul>
               </div>
 
@@ -3104,7 +3124,7 @@
         <!-- 底部说明 -->
         <div class="mt-12 text-center animate-on-scroll">
           <p class="text-sm text-gray-500 mb-4">
-            所有付费计划均支持 7 天无理由退款，年付及以上享受专属客服支持
+            所有付费计划均支持 7 天无理由退款，享受专属客服支持
           </p>
           <div
             class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500"
@@ -3207,7 +3227,11 @@
               <h4 class="font-semibold text-gray-900 mb-3 md:mb-4">联系我们</h4>
               <div class="flex flex-col gap-2 text-sm text-gray-500">
                 <span class="flex items-center gap-2"
-                  ><svg class="w-4 h-4" viewBox="0 0 24 24" fill="#07C160"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg><span>wyx200265</span></span
+                  ><svg class="w-4 h-4" viewBox="0 0 24 24" fill="#07C160">
+                    <path
+                      d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"
+                    /></svg
+                  ><span>wyx200265</span></span
                 >
                 <span class="flex items-center gap-2"
                   ><i data-lucide="mail" class="w-4 h-4"></i

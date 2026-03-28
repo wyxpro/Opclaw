@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Music, Film, Bookmark as BookmarkIcon, Play, Pause, SkipBack, SkipForward, Star, Search, List, Heart, X, Edit2, Trash2, Calendar, User, Plus, ExternalLink, Link as LinkIcon, Upload } from 'lucide-react'
-import PageTransition from '../components/ui/PageTransition'
-import { musicPlaylist as initialMusicPlaylist, movieCollection, bookmarks } from '../data/mock'
-import type { Movie, Bookmark } from '../data/mock'
+import type { Movie, Bookmark } from '../../data/mock'
+import { musicPlaylist as initialMusicPlaylist, movieCollection, bookmarks } from '../../data/mock'
 
 interface Song {
   id: string
@@ -13,81 +12,6 @@ interface Song {
   duration: string
   color: string
   url?: string
-}
-
-const tabs = [
-  { id: 'music', label: '音乐盒', icon: Music },
-  { id: 'movies', label: '收藏电影', icon: Film },
-  { id: 'bookmarks', label: '百宝箱', icon: BookmarkIcon },
-] as const
-
-type TabId = (typeof tabs)[number]['id']
-
-export default function Entertainment() {
-  const [activeTab, setActiveTab] = useState<TabId>('music')
-
-  return (
-    <PageTransition>
-      <div className="mx-auto max-w-6xl px-6 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-text mb-2">娱乐</h1>
-          <p className="text-text-muted">音乐、电影和收藏的宝藏</p>
-        </motion.div>
-
-        {/* Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex gap-2 mb-8 overflow-x-auto no-scrollbar"
-        >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                activeTab === tab.id
-                  ? 'text-primary'
-                  : 'text-text-muted hover:text-text-secondary'
-              }`}
-            >
-              <tab.icon size={16} />
-              {tab.label}
-              {activeTab === tab.id && (
-                <motion.div
-                  layoutId="entertainmentTab"
-                  className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-xl -z-10"
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                />
-              )}
-            </button>
-          ))}
-        </motion.div>
-
-        <AnimatePresence mode="sync">
-          {activeTab === 'music' && (
-            <motion.div key="music" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-              <MusicBox />
-            </motion.div>
-          )}
-          {activeTab === 'movies' && (
-            <motion.div key="movies" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-              <MovieWall />
-            </motion.div>
-          )}
-          {activeTab === 'bookmarks' && (
-            <motion.div key="bookmarks" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-              <TreasureBox />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </PageTransition>
-  )
 }
 
 /* ===== Audio Visualizer Component ===== */
@@ -182,8 +106,8 @@ function VinylRecord({
   )
 }
 
-/* ===== Vinyl Record Player (NetEase Style) ===== */
-function MusicBox() {
+/* ===== Music Box Component ===== */
+export function MusicBox() {
   const [currentSong, setCurrentSong] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -593,8 +517,8 @@ function MusicBox() {
   )
 }
 
-/* ===== Movie Wall ===== */
-function MovieWall() {
+/* ===== Movie Wall Component ===== */
+export function MovieWall() {
   const [movies, setMovies] = useState<Movie[]>(movieCollection)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null)
@@ -990,8 +914,8 @@ function MovieWall() {
   )
 }
 
-/* ===== Treasure Box (百宝箱) ===== */
-function TreasureBox() {
+/* ===== Treasure Box Component ===== */
+export function TreasureBox() {
   const [bookmarkList, setBookmarkList] = useState<Bookmark[]>(bookmarks)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)

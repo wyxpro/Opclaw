@@ -6,15 +6,24 @@ import { useTheme } from '../../hooks/useTheme'
 import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
 
 const navItems = [
-  { path: '/', label: '首页', icon: Home },
-  { path: '/ai-character', label: 'AI分身', icon: Sparkles },
-  { path: '/assets', label: '资产', icon: Wallet },
-  { path: '/social', label: '我的', icon: Users },
+  { path: '/', label: '🏠 首页', icon: Home },
+  { path: '/ai-character', label: '🤖 AI 分身', icon: Sparkles },
+  { path: '/assets', label: '💎 资产', icon: Wallet },
+  { path: '/social', label: '👤 我的', icon: Users },
 ]
+
+// 移动端导航项（不含表情）
+const mobileNavLabels = {
+  '/': '首页',
+  '/ai-character': 'AI 分身',
+  '/assets': '资产',
+  '/social': '我的',
+}
 
 // 时间组件
 function TimeWidget() {
   const [currentTime, setCurrentTime] = useState(new Date())
+  const { currentTheme } = useTheme()
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -34,15 +43,18 @@ function TimeWidget() {
 
   const { hours, minutes, seconds } = formatTimeParts(currentTime)
 
+  // 极简主题下使用黑色，其他主题使用主题色
+  const timeColor = currentTheme === 'minimal' ? '#1a1a1a' : undefined
+
   return (
-    <div className="hidden sm:flex items-center gap-4 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm">
+    <div className="hidden sm:flex items-center gap-4 px-4 py-2 rounded-xl backdrop-blur-sm">
       {/* 时间 - 固定宽度避免跳动 */}
       <div className="flex items-center gap-1" style={{ fontFamily: "'KaiTi', 'STKaiti', monospace" }}>
-        <span className="text-base font-bold text-primary w-[26px] text-center">{hours}</span>
-        <span className="text-base font-bold text-primary/60">:</span>
-        <span className="text-base font-bold text-primary w-[26px] text-center">{minutes}</span>
-        <span className="text-base font-bold text-primary/60">:</span>
-        <span className="text-base font-bold text-primary w-[26px] text-center">{seconds}</span>
+        <span className="text-base font-bold w-[26px] text-center" style={{ color: timeColor }}>{hours}</span>
+        <span className="text-base font-bold" style={{ color: timeColor ? `${timeColor}99` : undefined }}>:</span>
+        <span className="text-base font-bold w-[26px] text-center" style={{ color: timeColor }}>{minutes}</span>
+        <span className="text-base font-bold" style={{ color: timeColor ? `${timeColor}99` : undefined }}>:</span>
+        <span className="text-base font-bold w-[26px] text-center" style={{ color: timeColor }}>{seconds}</span>
       </div>
       <span className="text-sm text-text-muted font-medium">{formatDate(currentTime)}</span>
     </div>
@@ -244,7 +256,7 @@ export default function Navbar() {
                       color: isActive ? themeConfig.colors.primary : themeConfig.colors.textMuted
                     }}
                   >
-                    {item.label}
+                    {mobileNavLabels[item.path as keyof typeof mobileNavLabels]}
                   </span>
                 </>
               )}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, Star, Zap, Medal } from 'lucide-react'
+import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, Star, Zap, Medal, Music, Bookmark } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { loveTimeline as initialLoveTimeline, socialPosts as initialSocialPosts, travelLocations as initialTravelLocations } from '../data/mock'
 import type { SocialPost, PostComment, TravelLocation } from '../data/mock'
@@ -11,6 +11,7 @@ import { LoveDetailModal, type LoveTimelineEvent } from '../components/LoveDetai
 import { TimeAlbum } from '../components/love/TimeAlbum'
 import { WishList } from '../components/love/WishList'
 import { BlessingBoard } from '../components/love/BlessingBoard'
+import { MusicBox, MovieWall, TreasureBox } from '../components/entertainment/EntertainmentModules'
 
 // Couple info configuration
 const coupleInfo = {
@@ -25,6 +26,9 @@ const tabs = [
   { id: 'love', label: '恋爱记录', icon: Heart },
   { id: 'sports', label: '运动', icon: Dumbbell },
   { id: 'games', label: '游戏', icon: Gamepad2 },
+  { id: 'music', label: '音乐盒', icon: Music },
+  { id: 'movies', label: '收藏电影', icon: Film },
+  { id: 'bookmarks', label: '百宝箱', icon: Bookmark },
 ] as const
 
 type TabId = (typeof tabs)[number]['id']
@@ -145,6 +149,39 @@ export default function Life() {
               transition={{ duration: 0.15 }}
             >
               <GamesSection />
+            </motion.div>
+          )}
+          {activeTab === 'music' && (
+            <motion.div
+              key="music"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <MusicBox />
+            </motion.div>
+          )}
+          {activeTab === 'movies' && (
+            <motion.div
+              key="movies"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <MovieWall />
+            </motion.div>
+          )}
+          {activeTab === 'bookmarks' && (
+            <motion.div
+              key="bookmarks"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <TreasureBox />
             </motion.div>
           )}
         </AnimatePresence>

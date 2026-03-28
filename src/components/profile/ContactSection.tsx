@@ -152,8 +152,8 @@ export function ContactSection() {
             </div>
           </AnimatedSection>
 
-          {/* 右侧：联系表单 */}
-          <AnimatedSection delay={0.2}>
+          {/* 右侧：联系表单 - 移动端隐藏 */}
+          <AnimatedSection delay={0.2} className="hidden md:block">
             <div
               className="p-6 rounded-2xl h-full"
               style={{

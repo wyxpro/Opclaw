@@ -316,7 +316,7 @@ export const moduleEntries: ModuleEntry[] = [
     title: '音乐盒',
     description: '收藏喜爱的音乐和歌单',
     icon: 'Music',
-    path: '/entertainment',
+    path: '/life?tab=music',
     color: '#06B6D4',
     gradient: 'from-cyan-500 to-blue-500',
     features: ['黑胶播放', '歌单管理', '本地导入', '可视化']
@@ -326,7 +326,7 @@ export const moduleEntries: ModuleEntry[] = [
     title: '收藏电影',
     description: '电影收藏和观影记录',
     icon: 'Film',
-    path: '/entertainment',
+    path: '/life?tab=movies',
     color: '#6366F1',
     gradient: 'from-indigo-500 to-violet-500',
     features: ['评分系统', '观影记录', '推荐算法', '海报墙']
@@ -336,7 +336,7 @@ export const moduleEntries: ModuleEntry[] = [
     title: '百宝箱',
     description: '收藏有用的工具和资源链接',
     icon: 'Bookmark',
-    path: '/entertainment',
+    path: '/life?tab=bookmarks',
     color: '#14B8A6',
     gradient: 'from-teal-500 to-emerald-500',
     features: ['分类管理', '快速搜索', '标签系统', '链接预览']
