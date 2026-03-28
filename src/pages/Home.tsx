@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Palette, X, Check } from 'lucide-react'
+import { Palette, X, Check, Share2 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { useTheme } from '../hooks/useTheme'
 import { OnlineResume } from '../components/learning/resume'
@@ -49,6 +49,29 @@ export default function Home() {
         className="min-h-screen pb-24 transition-colors duration-300"
         style={{ backgroundColor: themeConfig.colors.bg }}
       >
+        {/* 移动端分享按钮 - 仅在移动端显示，位于主题切换按钮左边 */}
+        <motion.button
+          onClick={() => {
+            const url = window.location.href
+            navigator.clipboard.writeText(url)
+            alert('链接已复制到剪贴板')
+          }}
+          className="md:hidden fixed top-4 right-16 z-30 w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
+          style={{
+            background: themeConfig.colors.surface,
+            border: `1px solid ${themeConfig.colors.border}`,
+            color: themeConfig.colors.primary,
+          }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          title="分享当前页面"
+        >
+          <Share2 size={20} />
+        </motion.button>
+
         {/* 移动端主题切换按钮 - 仅在移动端显示 */}
         <motion.button
           onClick={() => setShowThemeModal(true)}

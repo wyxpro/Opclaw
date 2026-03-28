@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  X, Edit3, Eye, FileText, Download, Home
+  X, Edit3, Eye, FileText, Download, Home, Share2
 } from 'lucide-react'
 import { useTheme } from '../../../hooks/useTheme'
 import { useResume } from './useResume'
@@ -167,6 +167,19 @@ export function OnlineResume({ isOpen, onClose }: OnlineResumeProps) {
                   </button>
                 </>
               )}
+              
+              {/* 分享按钮 */}
+              <button
+                onClick={() => {
+                  const url = window.location.href
+                  navigator.clipboard.writeText(url)
+                  alert('链接已复制到剪贴板')
+                }}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                title="分享当前页面"
+              >
+                <Share2 size={18} style={{ color: themeConfig.colors.textMuted }} />
+              </button>
               
               <button
                 onClick={onClose}

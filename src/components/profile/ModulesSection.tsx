@@ -11,7 +11,9 @@ import {
   Film, 
   Bookmark,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  MessageCircle,
+  Dumbbell
 } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import type { ModuleEntry } from '../../types/profile'
@@ -31,7 +33,9 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
   Heart,
   Music,
   Film,
-  Bookmark
+  Bookmark,
+  MessageCircle,
+  Dumbbell
 }
 
 // 默认模块数据
@@ -77,6 +81,16 @@ const defaultModules: ModuleEntry[] = [
     features: ['技能雷达', '知识图谱', '学习进度', '3D可视化']
   },
   {
+    id: 'moments',
+    title: '朋友圈',
+    description: '分享生活点滴，记录美好瞬间',
+    icon: 'MessageCircle',
+    path: '/life',
+    color: '#F59E0B',
+    gradient: 'from-amber-500 to-orange-500',
+    features: ['图文动态', '视频分享', '好友互动', '评论点赞']
+  },
+  {
     id: 'travel',
     title: '旅拍相册',
     description: '记录美好的旅行时光和风景',
@@ -95,6 +109,16 @@ const defaultModules: ModuleEntry[] = [
     color: '#F43F5E',
     gradient: 'from-rose-500 to-red-500',
     features: ['纪念日', '时光相册', '愿望清单', '祝福墙']
+  },
+  {
+    id: 'sports',
+    title: '运动',
+    description: '记录运动数据，保持健康生活方式',
+    icon: 'Dumbbell',
+    path: '/life',
+    color: '#84CC16',
+    gradient: 'from-lime-500 to-green-500',
+    features: ['运动记录', '数据统计', '目标设定', '健康报告']
   },
   {
     id: 'music',
@@ -140,7 +164,7 @@ const moduleGroups = [
     id: 'life',
     title: '生活记录',
     description: '美好时光与回忆',
-    modules: ['travel', 'love']
+    modules: ['moments', 'travel', 'love', 'sports']
   },
   {
     id: 'entertainment',

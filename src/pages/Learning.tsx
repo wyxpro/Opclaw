@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Calendar, Clock, ChevronDown, ChevronRight, ArrowLeft, Hash, Menu, X, BookOpen, GitBranch, Plus, Upload, Edit2, Trash2, FileText } from 'lucide-react'
+import { Search, Calendar, Clock, ChevronDown, ChevronRight, ArrowLeft, Hash, Menu, X, BookOpen, GitBranch, Plus, Upload, Edit2, Trash2 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import SkillTreeView from '../components/ui/SkillTreeView'
 import ArticleEditor from '../components/learning/ArticleEditor'
@@ -617,13 +617,6 @@ export default function Learning() {
                   <GitBranch size={16} />
                   <span>技能树</span>
                 </button>
-                <button
-                  onClick={() => setShowResume(true)}
-                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all text-text-muted hover:text-text"
-                >
-                  <FileText size={16} />
-                  <span>在线简历</span>
-                </button>
               </div>
             </div>
           </motion.div>
@@ -682,17 +675,7 @@ export default function Learning() {
                 <GitBranch size={16} />
                 <span>技能树</span>
               </button>
-              <button
-                onClick={() => setShowResume(true)}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  showResume
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-text-muted hover:text-text'
-                }`}
-              >
-                <FileText size={16} />
-                <span>在线简历</span>
-              </button>
+  
             </div>
           </div>
         </motion.div>

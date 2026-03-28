@@ -35,14 +35,14 @@ function TimeWidget() {
   const { hours, minutes, seconds } = formatTimeParts(currentTime)
 
   return (
-    <div className="hidden sm:flex items-center gap-4 px-4 py-2 rounded-xl bg-surface/50 border border-border/50">
+    <div className="hidden sm:flex items-center gap-4 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm">
       {/* 时间 - 固定宽度避免跳动 */}
       <div className="flex items-center gap-1" style={{ fontFamily: "'KaiTi', 'STKaiti', monospace" }}>
-        <span className="text-base font-bold text-text w-[26px] text-center">{hours}</span>
-        <span className="text-base font-bold text-text-muted">:</span>
-        <span className="text-base font-bold text-text w-[26px] text-center">{minutes}</span>
-        <span className="text-base font-bold text-text-muted">:</span>
-        <span className="text-base font-bold text-text w-[26px] text-center">{seconds}</span>
+        <span className="text-base font-bold text-primary w-[26px] text-center">{hours}</span>
+        <span className="text-base font-bold text-primary/60">:</span>
+        <span className="text-base font-bold text-primary w-[26px] text-center">{minutes}</span>
+        <span className="text-base font-bold text-primary/60">:</span>
+        <span className="text-base font-bold text-primary w-[26px] text-center">{seconds}</span>
       </div>
       <span className="text-sm text-text-muted font-medium">{formatDate(currentTime)}</span>
     </div>
@@ -60,17 +60,11 @@ function ThemeToggle() {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card text-base font-semibold transition-all duration-300"
-        style={{
-          background: themeConfig.glassEffect.background,
-          border: themeConfig.glassEffect.border,
-          color: themeConfig.colors.text,
-          boxShadow: themeConfig.shadows.card,
-        }}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-base font-semibold transition-all duration-300 bg-primary/10 border border-primary/20 backdrop-blur-sm"
       >
         <span className="text-lg">{themeConfig.icon}</span>
-        <span>{themeConfig.name}</span>
-        <Palette size={18} className="opacity-70" />
+        <span className="text-text">{themeConfig.name}</span>
+        <Palette size={18} className="text-primary opacity-70" />
       </motion.button>
 
       <ThemeSelectorPanel

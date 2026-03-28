@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
-import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon } from 'lucide-react'
+import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon, Share2 } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import type { PersonalProfile } from '../../types/profile'
 import { AnimatedSection, Floating } from './AnimatedSection'
@@ -308,6 +308,26 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
             >
               <FileText size={16} />
               <span className="hidden sm:inline">在线简历</span>
+            </motion.button>
+            
+            {/* 分享按钮 - 仅在桌面端显示 */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                const url = window.location.href
+                navigator.clipboard.writeText(url)
+                alert('链接已复制到剪贴板')
+              }}
+              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all opacity-60 hover:opacity-80"
+              style={{
+                backgroundColor: 'transparent',
+                color: themeConfig.colors.text
+              }}
+              title="分享当前页面"
+            >
+              <Share2 size={16} />
+              <span className="hidden sm:inline">分享</span>
             </motion.button>
           </div>
         </motion.div>

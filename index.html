@@ -26,11 +26,7 @@
                 "-apple-system",
                 "sans-serif",
               ],
-              mono: [
-                "KaiTi",
-                "STKaiti",
-                "monospace",
-              ],
+              mono: ["KaiTi", "STKaiti", "monospace"],
             },
             colors: {
               primary: "#8b5cf6",
@@ -216,11 +212,21 @@
         opacity: 1;
         transform: translateX(0);
       }
-      .animate-stagger-1 { transition-delay: 0s; }
-      .animate-stagger-2 { transition-delay: 0.1s; }
-      .animate-stagger-3 { transition-delay: 0.2s; }
-      .animate-stagger-4 { transition-delay: 0.3s; }
-      .animate-stagger-5 { transition-delay: 0.4s; }
+      .animate-stagger-1 {
+        transition-delay: 0s;
+      }
+      .animate-stagger-2 {
+        transition-delay: 0.1s;
+      }
+      .animate-stagger-3 {
+        transition-delay: 0.2s;
+      }
+      .animate-stagger-4 {
+        transition-delay: 0.3s;
+      }
+      .animate-stagger-5 {
+        transition-delay: 0.4s;
+      }
       /* 进度条动画 */
       .progress-bar-fill {
         transition: width 1s ease-out;
@@ -360,61 +366,220 @@
         border-color: rgba(139, 92, 246, 0.3);
         transform: scale(1.05);
       }
+
+      /* 付费计划卡片样式 */
+      .pricing-card {
+        position: relative;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .pricing-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 60px rgba(139, 92, 246, 0.15);
+        border-color: rgba(139, 92, 246, 0.2);
+      }
+      .pricing-card-inner {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .pricing-card-featured {
+        border: 2px solid rgba(139, 92, 246, 0.3);
+        box-shadow: 0 8px 40px rgba(139, 92, 246, 0.12);
+        transform: scale(1.02);
+      }
+      .pricing-card-featured:hover {
+        transform: scale(1.02) translateY(-8px);
+        box-shadow: 0 24px 80px rgba(139, 92, 246, 0.2);
+      }
+      .featured-badge {
+        position: absolute;
+        top: -1px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        padding: 6px 16px;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        z-index: 10;
+      }
+      .pricing-btn-free {
+        position: relative;
+        overflow: hidden;
+      }
+      .pricing-btn-free::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+      .pricing-btn-free:hover::before {
+        left: 100%;
+      }
+      .pricing-btn-vip,
+      .pricing-btn-svip,
+      .pricing-btn-lifetime {
+        position: relative;
+        overflow: hidden;
+      }
+      .pricing-btn-vip::after,
+      .pricing-btn-svip::after,
+      .pricing-btn-lifetime::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+      .pricing-btn-vip:active::after,
+      .pricing-btn-svip:active::after,
+      .pricing-btn-lifetime:active::after {
+        width: 300px;
+        height: 300px;
+      }
+      @media (max-width: 1024px) {
+        .pricing-card-featured {
+          transform: scale(1);
+        }
+        .pricing-card-featured:hover {
+          transform: translateY(-8px);
+        }
+      }
+      @media (max-width: 768px) {
+        .pricing-card {
+          margin: 0 auto;
+        }
+        .pricing-card .p-6 {
+          padding: 0.75rem;
+        }
+        .pricing-card .text-4xl {
+          font-size: 1.5rem;
+        }
+        .pricing-card .text-lg {
+          font-size: 0.875rem;
+        }
+        .pricing-card .text-xl {
+          font-size: 1rem;
+        }
+        .pricing-card .w-10 {
+          width: 2rem;
+          height: 2rem;
+        }
+        .pricing-card .w-10 svg {
+          width: 1rem;
+          height: 1rem;
+        }
+        .pricing-card .space-y-3 > li {
+          font-size: 0.65rem;
+        }
+        .pricing-card .space-y-3 > li svg {
+          width: 0.75rem;
+          height: 0.75rem;
+        }
+        .pricing-card button {
+          padding: 0.5rem;
+          font-size: 0.75rem;
+        }
+        .pricing-card button svg {
+          width: 0.75rem;
+          height: 0.75rem;
+        }
+        .pricing-card .featured-badge {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.6rem;
+        }
+      }
+
       /* 主题选择弹窗 */
       .theme-modal {
         position: fixed;
-        inset: 0;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.5);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+        display: none;
+        align-items: flex-start;
+        justify-content: flex-end;
+        padding: 80px 16px 16px;
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(4px);
       }
       .theme-modal.active {
-        opacity: 1;
-        visibility: visible;
+        display: flex;
       }
       .theme-panel {
-        background: white;
-        border-radius: 20px;
-        padding: 24px;
-        width: 90%;
-        max-width: 400px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        transform: scale(0.95);
-        transition: transform 0.3s ease;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 16px;
+        padding: 16px;
+        width: 100%;
+        max-width: 288px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        animation: slideDown 0.2s ease;
       }
-      .theme-modal.active .theme-panel {
-        transform: scale(1);
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
       }
       .theme-option {
         display: flex;
         align-items: center;
-        gap: 16px;
-        padding: 16px;
+        gap: 12px;
+        padding: 12px;
         border-radius: 12px;
-        border: 2px solid transparent;
+        border: 1px solid transparent;
         cursor: pointer;
         transition: all 0.2s ease;
       }
       .theme-option:hover {
-        background: rgba(0, 0, 0, 0.02);
+        transform: translateX(2px);
       }
       .theme-option.active {
         border-color: #8b5cf6;
-        background: rgba(139, 92, 246, 0.05);
+        background: rgba(139, 92, 246, 0.08);
+      }
+      .theme-icon-wrapper {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
       }
       .theme-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
+        width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+      }
+      .theme-option.active .theme-icon {
+        border-color: currentColor;
       }
       /* 轮播图全宽样式 */
       .testimonial-section {
@@ -471,7 +636,10 @@
           <div
             class="hidden lg:flex items-center gap-4 px-4 py-2 rounded-xl bg-white/50 border border-gray-200/50"
           >
-            <div class="flex items-center gap-1" style="font-family: 'KaiTi', 'STKaiti', monospace;">
+            <div
+              class="flex items-center gap-1"
+              style="font-family: 'KaiTi', 'STKaiti', monospace"
+            >
               <span
                 id="clock-hours"
                 class="text-base font-bold text-gray-700 w-[26px] text-center"
@@ -490,40 +658,66 @@
                 >--</span
               >
             </div>
-            <span id="current-date" class="text-sm text-gray-500 font-medium">--</span>
+            <span id="current-date" class="text-sm text-gray-500 font-medium"
+              >--</span
+            >
           </div>
         </div>
         <div class="hidden md:flex items-center gap-2">
           <a
             href="#features"
-            class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
+            class="px-4 py-2 rounded-xl text-base font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
             >功能</a
           >
           <a
             href="#comparison"
-            class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
+            class="px-4 py-2 rounded-xl text-base font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
             >对比</a
           >
           <a
             href="#testimonials"
-            class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
+            class="px-4 py-2 rounded-xl text-base font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
             >评价</a
           >
-          <!-- 主题切换按钮 -->
+          <a
+            href="#pricing"
+            class="px-4 py-2 rounded-xl text-base font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
+            >价格</a
+          >
+          <!-- 桌面端主题切换按钮 -->
           <button
             id="theme-toggle"
-            class="ml-4 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-all flex items-center gap-2"
+            class="ml-4 flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card text-base font-semibold transition-all duration-300 hover:scale-105 active:scale-95"
+            style="
+              background: rgba(255, 255, 255, 0.8);
+              border: 1px solid rgba(0, 0, 0, 0.06);
+            "
           >
-            <i data-lucide="palette" class="w-4 h-4"></i>
-            <span>主题</span>
+            <span id="theme-icon" class="text-lg">◐</span>
+            <span id="theme-name">极简</span>
+            <i data-lucide="palette" class="w-4 h-4 opacity-70"></i>
           </button>
         </div>
-        <button
-          id="mobile-menu-btn"
-          class="md:hidden flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
-        >
-          <i data-lucide="menu" class="w-5 h-5"></i>
-        </button>
+        <!-- 移动端：主题切换按钮 + 汉堡菜单 -->
+        <div class="md:hidden flex items-center gap-2">
+          <button
+            id="theme-toggle-mobile-nav"
+            class="flex items-center gap-1.5 px-3 py-2 rounded-xl glass-card text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95"
+            style="
+              background: rgba(255, 255, 255, 0.8);
+              border: 1px solid rgba(0, 0, 0, 0.06);
+            "
+          >
+            <span id="theme-icon-mobile-nav" class="text-base">◐</span>
+            <span id="theme-name-mobile-nav">极简</span>
+          </button>
+          <button
+            id="mobile-menu-btn"
+            class="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+          >
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
       <div
         id="mobile-menu"
@@ -532,25 +726,24 @@
         <div class="px-4 py-3 flex flex-col gap-1">
           <a
             href="#features"
-            class="px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
+            class="px-4 py-3 rounded-lg text-lg font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
             >功能</a
           >
           <a
             href="#comparison"
-            class="px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
+            class="px-4 py-3 rounded-lg text-lg font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
             >对比</a
           >
           <a
             href="#testimonials"
-            class="px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
+            class="px-4 py-3 rounded-lg text-lg font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
             >评价</a
           >
-          <button
-            id="theme-toggle-mobile"
-            class="px-4 py-3 rounded-lg text-sm font-medium text-violet-600 bg-violet-50 w-full text-left flex items-center gap-2"
+          <a
+            href="#pricing"
+            class="px-4 py-3 rounded-lg text-lg font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
+            >价格</a
           >
-            <i data-lucide="palette" class="w-4 h-4"></i>切换主题
-          </button>
         </div>
       </div>
     </nav>
@@ -570,56 +763,7 @@
           background-size: 80px 80px;
         "
       ></div>
-      <div
-        class="floating-icon"
-        style="left: 10%; top: 20%; animation-delay: 0s"
-      >
-        <div class="p-4 rounded-2xl bg-violet-100/50 border border-violet-200">
-          <i data-lucide="book-open" class="w-6 h-6 text-violet-600"></i>
-        </div>
-      </div>
-      <div
-        class="floating-icon"
-        style="left: 85%; top: 15%; animation-delay: 0.5s"
-      >
-        <div class="p-4 rounded-2xl bg-pink-100/50 border border-pink-200">
-          <i data-lucide="heart" class="w-6 h-6 text-pink-500"></i>
-        </div>
-      </div>
-      <div
-        class="floating-icon"
-        style="left: 90%; top: 70%; animation-delay: 1s"
-      >
-        <div class="p-4 rounded-2xl bg-cyan-100/50 border border-cyan-200">
-          <i data-lucide="gamepad-2" class="w-6 h-6 text-cyan-500"></i>
-        </div>
-      </div>
-      <div
-        class="floating-icon"
-        style="left: 5%; top: 75%; animation-delay: 1.5s"
-      >
-        <div
-          class="p-4 rounded-2xl bg-emerald-100/50 border border-emerald-200"
-        >
-          <i data-lucide="users" class="w-6 h-6 text-emerald-500"></i>
-        </div>
-      </div>
-      <div
-        class="floating-icon"
-        style="left: 75%; top: 40%; animation-delay: 2s"
-      >
-        <div class="p-4 rounded-2xl bg-amber-100/50 border border-amber-200">
-          <i data-lucide="sparkles" class="w-6 h-6 text-amber-500"></i>
-        </div>
-      </div>
-      <div
-        class="floating-icon"
-        style="left: 20%; top: 60%; animation-delay: 2.5s"
-      >
-        <div class="p-4 rounded-2xl bg-rose-100/50 border border-rose-200">
-          <i data-lucide="zap" class="w-6 h-6 text-rose-500"></i>
-        </div>
-      </div>
+
       <div class="relative z-10 mx-auto max-w-6xl px-6 text-center">
         <div class="animate-fade-in-up" style="opacity: 0">
           <h1
@@ -698,7 +842,9 @@
             从学习到娱乐，从生活到我的，一个平台满足你的全部需求
           </p>
         </div>
-        <div class="feature-grid grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+        <div
+          class="feature-grid grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6"
+        >
           <div class="glass-card overflow-hidden animate-on-scroll">
             <div
               class="bg-gradient-card-violet h-32 flex items-center justify-center relative overflow-hidden"
@@ -1066,7 +1212,7 @@
                   >
                     <div
                       class="h-full rounded-full progress-bar-fill"
-                      style="width: 50%; background-color: #10b981;"
+                      style="width: 50%; background-color: #10b981"
                     ></div>
                   </div>
                   <span class="text-[9px] text-gray-500 w-4">50</span>
@@ -1080,7 +1226,7 @@
                   >
                     <div
                       class="h-full rounded-full progress-bar-fill"
-                      style="width: 75%; background-color: #10b981;"
+                      style="width: 75%; background-color: #10b981"
                     ></div>
                   </div>
                   <span class="text-[9px] text-gray-500 w-4">75</span>
@@ -1094,7 +1240,7 @@
                   >
                     <div
                       class="h-full rounded-full progress-bar-fill"
-                      style="width: 70%; background-color: #10b981;"
+                      style="width: 70%; background-color: #10b981"
                     ></div>
                   </div>
                   <span class="text-[9px] text-gray-500 w-4">70</span>
@@ -1269,9 +1415,7 @@
           </div>
           <div class="col-span-12 lg:col-span-9">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 h-full">
-              <div
-                class="glass-card p-3 sm:p-6 flex flex-col animate-radar"
-              >
+              <div class="glass-card p-3 sm:p-6 flex flex-col animate-radar">
                 <h3
                   class="text-sm sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-4 text-center"
                 >
@@ -2544,6 +2688,447 @@
       </div>
     </section>
 
+    <!-- 付费计划区域 -->
+    <section
+      id="pricing"
+      class="py-20 sm:py-28 px-6 relative overflow-hidden bg-gradient-section"
+    >
+      <!-- 背景装饰 -->
+      <div class="absolute inset-0 pointer-events-none">
+        <div
+          class="absolute top-20 left-10 w-72 h-72 bg-violet-500/5 rounded-full blur-3xl"
+        ></div>
+        <div
+          class="absolute bottom-20 right-10 w-72 h-72 bg-rose-500/5 rounded-full blur-3xl"
+        ></div>
+        <div
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl"
+        ></div>
+      </div>
+
+      <div class="relative z-10 mx-auto max-w-7xl">
+        <!-- 标题区域 -->
+        <div class="text-center mb-16 animate-on-scroll">
+          <div
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-100 border border-violet-200 mb-4"
+          >
+            <i data-lucide="crown" class="w-4 h-4 text-violet-600"></i>
+            <span class="text-sm font-medium text-violet-700">会员计划</span>
+          </div>
+          <h2
+            class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
+          >
+            选择适合你的<span class="gradient-text"> 会员方案 </span>
+          </h2>
+          <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+            从免费版到永久会员，满足不同需求，让数字生活更加精彩
+          </p>
+        </div>
+
+        <!-- 付费计划卡片网格 -->
+        <div
+          class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-5"
+        >
+          <!-- Free 免费版 -->
+          <div class="pricing-card group animate-on-scroll animate-stagger-1">
+            <div class="pricing-card-inner h-full flex flex-col">
+              <!-- 卡片头部 -->
+              <div class="p-6 pb-4">
+                <div class="flex items-center gap-3 mb-4">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center"
+                  >
+                    <i data-lucide="gift" class="w-5 h-5 text-gray-600"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-gray-900">Free</h3>
+                    <p class="text-xs text-gray-500">免费版</p>
+                  </div>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-4xl font-bold text-gray-900">¥0</span>
+                  <span class="text-gray-500">/永久</span>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">适合初次体验的用户</p>
+              </div>
+
+              <!-- 权益列表 -->
+              <div class="flex-1 px-6 py-4 border-t border-gray-100">
+                <ul class="space-y-3">
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">基础功能全部开放</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">5GB 云存储空间</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">3个主题风格切换</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">社区基础功能</span>
+                  </li>
+                  <li class="flex items-start gap-3 opacity-40">
+                    <i
+                      data-lucide="x"
+                      class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-400">AI 智能助手</span>
+                  </li>
+                  <li class="flex items-start gap-3 opacity-40">
+                    <i
+                      data-lucide="x"
+                      class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-400">高级数据分析</span>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- 按钮 -->
+              <div class="p-6 pt-0">
+                <button
+                  class="pricing-btn-free w-full py-3 px-4 rounded-xl font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  免费开始
+                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIP 普通会员 -->
+          <div class="pricing-card group animate-on-scroll animate-stagger-2">
+            <div class="pricing-card-inner h-full flex flex-col">
+              <!-- 卡片头部 -->
+              <div class="p-6 pb-4">
+                <div class="flex items-center gap-3 mb-4">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center"
+                  >
+                    <i data-lucide="star" class="w-5 h-5 text-violet-600"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-gray-900">VIP</h3>
+                    <p class="text-xs text-gray-500">普通会员</p>
+                  </div>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-4xl font-bold text-gray-900">¥19</span>
+                  <span class="text-gray-500">/月</span>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">适合个人用户日常使用</p>
+              </div>
+
+              <!-- 权益列表 -->
+              <div class="flex-1 px-6 py-4 border-t border-gray-100">
+                <ul class="space-y-3">
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">Free 版全部功能</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">50GB 云存储空间</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">全部主题风格解锁</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">AI 智能助手基础版</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">优先客服支持</span>
+                  </li>
+                  <li class="flex items-start gap-3 opacity-40">
+                    <i
+                      data-lucide="x"
+                      class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-400">专属定制功能</span>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- 按钮 -->
+              <div class="p-6 pt-0">
+                <button
+                  class="pricing-btn-vip w-full py-3 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 transition-all duration-300 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 flex items-center justify-center gap-2"
+                >
+                  立即订阅
+                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SVIP 超级会员 - 推荐 -->
+          <div
+            class="pricing-card pricing-card-featured group animate-on-scroll animate-stagger-3"
+          >
+            <!-- 推荐标签 -->
+            <div class="featured-badge">
+              <span class="text-xs font-bold text-white">最受欢迎</span>
+            </div>
+            <div
+              class="pricing-card-inner h-full flex flex-col relative overflow-hidden"
+            >
+              <!-- 特色背景 -->
+              <div
+                class="absolute inset-0 bg-gradient-to-br from-violet-50/50 to-rose-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              ></div>
+
+              <!-- 卡片头部 -->
+              <div class="relative p-6 pb-4">
+                <div class="flex items-center gap-3 mb-4">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-rose-500 flex items-center justify-center shadow-lg"
+                  >
+                    <i data-lucide="crown" class="w-5 h-5 text-white"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-gray-900">SVIP</h3>
+                    <p class="text-xs text-gray-500">超级会员</p>
+                  </div>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-4xl font-bold gradient-text">¥188</span>
+                  <span class="text-gray-500">/年</span>
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                  <p class="text-sm text-gray-500">相当于 ¥15.7/月</p>
+                  <span
+                    class="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 font-medium"
+                    >省 17%</span
+                  >
+                </div>
+              </div>
+
+              <!-- 权益列表 -->
+              <div class="relative flex-1 px-6 py-4 border-t border-gray-100">
+                <ul class="space-y-3">
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">VIP 版全部功能</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">200GB 云存储空间</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">AI 智能助手高级版</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">高级数据分析报告</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">专属会员徽章</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">7×24小时优先支持</span>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- 按钮 -->
+              <div class="relative p-6 pt-0">
+                <button
+                  class="pricing-btn-svip w-full py-3 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-violet-500 via-rose-500 to-orange-500 hover:from-violet-600 hover:via-rose-600 hover:to-orange-600 transition-all duration-300 shadow-lg shadow-rose-500/25 hover:shadow-rose-500/40 flex items-center justify-center gap-2"
+                >
+                  立即升级
+                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 永久会员 -->
+          <div class="pricing-card group animate-on-scroll animate-stagger-4">
+            <div
+              class="pricing-card-inner h-full flex flex-col relative overflow-hidden"
+            >
+              <!-- 特色背景 -->
+              <div
+                class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-orange-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              ></div>
+
+              <!-- 卡片头部 -->
+              <div class="relative p-6 pb-4">
+                <div class="flex items-center gap-3 mb-4">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg"
+                  >
+                    <i data-lucide="gem" class="w-5 h-5 text-white"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-gray-900">永久会员</h3>
+                    <p class="text-xs text-gray-500">Lifetime</p>
+                  </div>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-4xl font-bold text-gray-900">¥588</span>
+                  <span class="text-gray-500">/一次性</span>
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                  <p class="text-sm text-gray-500">终身尊享所有权益</p>
+                  <span
+                    class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 font-medium"
+                    >超值</span
+                  >
+                </div>
+              </div>
+
+              <!-- 权益列表 -->
+              <div class="relative flex-1 px-6 py-4 border-t border-gray-100">
+                <ul class="space-y-3">
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">SVIP 版全部功能</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">无限云存储空间</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">AI 智能助手无限制</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">终身免费更新</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">专属 VIP 群组</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">一对一技术支持</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i
+                      data-lucide="check"
+                      class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"
+                    ></i>
+                    <span class="text-sm text-gray-600">定制功能优先</span>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- 按钮 -->
+              <div class="relative p-6 pt-0">
+                <button
+                  class="pricing-btn-lifetime w-full py-3 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 transition-all duration-300 shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 flex items-center justify-center gap-2"
+                >
+                  终身尊享
+                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部说明 -->
+        <div class="mt-12 text-center animate-on-scroll">
+          <p class="text-sm text-gray-500 mb-4">
+            所有付费计划均支持 7 天无理由退款，年付及以上享受专属客服支持
+          </p>
+          <div
+            class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500"
+          >
+            <span class="flex items-center gap-2">
+              <i
+                data-lucide="shield-check"
+                class="w-4 h-4 text-emerald-500"
+              ></i>
+              安全支付
+            </span>
+            <span class="flex items-center gap-2">
+              <i data-lucide="refresh-cw" class="w-4 h-4 text-emerald-500"></i>
+              随时升级/降级
+            </span>
+            <span class="flex items-center gap-2">
+              <i data-lucide="headphones" class="w-4 h-4 text-emerald-500"></i>
+              专属客服
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="py-24 px-6 relative overflow-hidden">
       <div class="absolute inset-0 pointer-events-none">
         <div
@@ -2622,12 +3207,15 @@
               <h4 class="font-semibold text-gray-900 mb-3 md:mb-4">联系我们</h4>
               <div class="flex flex-col gap-2 text-sm text-gray-500">
                 <span class="flex items-center gap-2"
+                  ><svg class="w-4 h-4" viewBox="0 0 24 24" fill="#07C160"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg><span>wyx200265</span></span
+                >
+                <span class="flex items-center gap-2"
                   ><i data-lucide="mail" class="w-4 h-4"></i
-                  ><span>hello@superui.dev</span></span
+                  ><span>wyxcode@qq.com</span></span
                 >
                 <span class="flex items-center gap-2"
                   ><i data-lucide="map-pin" class="w-4 h-4"></i
-                  ><span>中国 · 深圳</span></span
+                  ><span>中国 · 杭州</span></span
                 >
               </div>
             </div>
@@ -2645,7 +3233,7 @@
               data-lucide="heart"
               class="w-4 h-4 text-rose-500 fill-rose-500"
             ></i>
-            by Xiaoye Team
+            by Xiaoye
           </p>
         </div>
       </div>
@@ -2679,58 +3267,364 @@
       const themeConfigs = {
         minimal: {
           name: "极简",
+          icon: "◐",
           bg: "#fafafa",
           text: "#1a1a1a",
-          primary: "#8b5cf6",
+          primary: "#2563eb",
           cardBg: "rgba(255, 255, 255, 0.9)",
           borderColor: "rgba(0, 0, 0, 0.06)",
+          glassBg: "rgba(255, 255, 255, 0.8)",
         },
         cyber: {
           name: "赛博",
-          bg: "#0a0a0f",
-          text: "#e0e0ff",
+          icon: "◉",
+          bg: "#0f0a1e",
+          text: "#f8fafc",
           primary: "#00d4ff",
-          cardBg: "rgba(15, 15, 30, 0.9)",
+          cardBg: "rgba(26, 20, 48, 0.9)",
           borderColor: "rgba(0, 212, 255, 0.2)",
+          glassBg: "rgba(26, 20, 48, 0.75)",
         },
-        art: {
+        artistic: {
           name: "艺术",
-          bg: "linear-gradient(135deg, #fef3f2 0%, #fdf4ff 50%, #eff6ff 100%)",
-          text: "#4a1d4a",
-          primary: "#ec4899",
-          cardBg: "rgba(255, 255, 255, 0.85)",
-          borderColor: "rgba(236, 72, 153, 0.15)",
+          icon: "❋",
+          bg: "#fef7f0",
+          text: "#2d3436",
+          primary: "#e85d75",
+          cardBg: "rgba(255, 255, 255, 0.9)",
+          borderColor: "rgba(232, 93, 117, 0.1)",
+          glassBg: "rgba(255, 248, 243, 0.85)",
         },
-        playful: {
+        cartoon: {
           name: "童趣",
-          bg: "#fffbeb",
-          text: "#78350f",
-          primary: "#f59e0b",
+          icon: "✿",
+          bg: "#f0f9ff",
+          text: "#374151",
+          primary: "#f472b6",
           cardBg: "rgba(255, 255, 255, 0.95)",
-          borderColor: "rgba(245, 158, 11, 0.2)",
+          borderColor: "rgba(244, 114, 182, 0.2)",
+          glassBg: "rgba(255, 255, 255, 0.9)",
         },
         retro: {
           name: "复古",
-          bg: "#faf6f1",
-          text: "#451a03",
-          primary: "#b45309",
-          cardBg: "rgba(255, 251, 247, 0.95)",
-          borderColor: "rgba(180, 83, 9, 0.15)",
+          icon: "✤",
+          bg: "#f5f0e6",
+          text: "#3d3830",
+          primary: "#8b6914",
+          cardBg: "rgba(255, 254, 249, 0.95)",
+          borderColor: "rgba(139, 105, 20, 0.15)",
+          glassBg: "rgba(250, 247, 242, 0.9)",
         },
       };
 
       let currentTheme = "minimal";
-      const themeModal = document.getElementById("theme-modal");
-      const themeOptions = document.querySelectorAll(".theme-option");
+      let themeModal = null;
+      let themeOptions = [];
+
+      function getThemeElements() {
+        if (!themeModal) {
+          themeModal = document.getElementById("theme-modal");
+        }
+        if (themeOptions.length === 0) {
+          themeOptions = document.querySelectorAll(".theme-option");
+        }
+        return { themeModal, themeOptions };
+      }
 
       function applyTheme(themeKey) {
         const theme = themeConfigs[themeKey];
+        if (!theme) return;
         currentTheme = themeKey;
 
         document.documentElement.style.setProperty("--color-bg", theme.bg);
         document.documentElement.style.setProperty("--color-text", theme.text);
         document.body.style.background = theme.bg;
         document.body.style.color = theme.text;
+
+        // 判断是否为深色主题
+        const isDarkTheme = themeKey === "cyber";
+        const textColor = isDarkTheme ? "#f8fafc" : "#1a1a1a";
+        const textSecondaryColor = isDarkTheme ? "#cbd5e1" : "#4a4a4a";
+        const textMutedColor = isDarkTheme ? "#94a3b8" : "#6b7280";
+
+        // 更新所有文字颜色
+        document
+          .querySelectorAll(
+            "h1, h2, h3, h4, h5, h6, p, span, a, button, div, nav"
+          )
+          .forEach((el) => {
+            // 跳过已经有特定样式的元素和主题相关元素
+            if (
+              el.closest(".theme-option") ||
+              el.closest(".theme-panel") ||
+              el.id === "theme-icon" ||
+              el.id === "theme-name" ||
+              el.id === "theme-icon-mobile-nav" ||
+              el.id === "theme-name-mobile-nav"
+            ) {
+              return;
+            }
+
+            // 检查元素是否有灰色文字类，如果有则更新颜色
+            const classes = el.className;
+            if (typeof classes === "string") {
+              if (
+                classes.includes("text-gray-900") ||
+                classes.includes("text-gray-800") ||
+                classes.includes("text-gray-700") ||
+                classes.includes("text-gray-600")
+              ) {
+                el.style.color = textColor;
+              } else if (
+                classes.includes("text-gray-500") ||
+                classes.includes("text-gray-400")
+              ) {
+                el.style.color = textSecondaryColor;
+              }
+            }
+          });
+
+        // 特别处理导航栏链接
+        document.querySelectorAll("nav a, nav button").forEach((el) => {
+          if (el.id !== "theme-toggle" && el.id !== "theme-toggle-mobile-nav") {
+            el.style.color = textColor;
+          }
+        });
+
+        // 处理标签（终身学习者等）
+        document.querySelectorAll(".rounded-full").forEach((el) => {
+          if (
+            el.textContent.includes("终身学习者") ||
+            el.textContent.includes("生活记录者") ||
+            el.textContent.includes("效率追求者") ||
+            el.textContent.includes("创意工作者") ||
+            el.textContent.includes("技能树") ||
+            el.textContent.includes("学习管理") ||
+            el.textContent.includes("性能") ||
+            el.textContent.includes("动效") ||
+            el.textContent.includes("我的") ||
+            el.textContent.includes("朋友圈") ||
+            el.textContent.includes("旅行记录")
+          ) {
+            if (isDarkTheme) {
+              el.style.background = "rgba(139, 92, 246, 0.2)";
+              el.style.borderColor = "rgba(139, 92, 246, 0.3)";
+              el.style.color = "#a78bfa";
+            } else {
+              el.style.background = "";
+              el.style.borderColor = "";
+              el.style.color = "";
+            }
+          }
+        });
+
+        // 处理核心功能和用户评价区域的标签
+        document.querySelectorAll(".inline-flex").forEach((el) => {
+          const span = el.querySelector("span");
+          if (
+            span &&
+            (span.textContent.includes("核心功能") ||
+              span.textContent.includes("用户评价"))
+          ) {
+            if (isDarkTheme) {
+              el.style.background = "rgba(139, 92, 246, 0.15)";
+              el.style.borderColor = "rgba(139, 92, 246, 0.25)";
+              const icon = el.querySelector("i");
+              if (icon) icon.style.color = "#a78bfa";
+              if (span) span.style.color = "#a78bfa";
+            } else {
+              el.style.background = "";
+              el.style.borderColor = "";
+              const icon = el.querySelector("i");
+              if (icon) icon.style.color = "";
+              if (span) span.style.color = "";
+            }
+          }
+        });
+
+        // 处理评价卡片的头像背景
+        document.querySelectorAll(".rounded-full").forEach((el) => {
+          if (el.tagName === "IMG" && el.classList.contains("bg-gray-100")) {
+            if (isDarkTheme) {
+              el.style.background = "rgba(255, 255, 255, 0.1)";
+            } else {
+              el.style.background = "";
+            }
+          }
+        });
+
+        // 处理 section 背景（核心功能、用户评价区域）
+        document.querySelectorAll(".bg-gradient-section").forEach((el) => {
+          if (isDarkTheme) {
+            el.style.background =
+              "linear-gradient(180deg, #1a1430 0%, #0f0a1e 100%)";
+          } else {
+            el.style.background = "";
+          }
+        });
+
+        // 处理移动端下拉菜单背景
+        document.querySelectorAll("#mobile-menu").forEach((el) => {
+          if (isDarkTheme) {
+            el.style.background = "rgba(26, 20, 48, 0.95)";
+            el.style.borderColor = "rgba(139, 92, 246, 0.2)";
+          } else {
+            el.style.background = "";
+            el.style.borderColor = "";
+          }
+        });
+
+        // 处理移动端菜单项
+        document.querySelectorAll("#mobile-menu a").forEach((el) => {
+          if (isDarkTheme) {
+            el.style.color = "#f8fafc";
+            el.addEventListener("mouseenter", () => {
+              el.style.background = "rgba(139, 92, 246, 0.15)";
+            });
+            el.addEventListener("mouseleave", () => {
+              el.style.background = "";
+            });
+          }
+        });
+
+        // 处理 btn-secondary 按钮（了解更多、加入社区）
+        document.querySelectorAll(".btn-secondary").forEach((el) => {
+          if (isDarkTheme) {
+            el.style.background = "rgba(139, 92, 246, 0.2)";
+            el.style.borderColor = "rgba(139, 92, 246, 0.3)";
+            el.style.color = "#a78bfa";
+          } else {
+            el.style.background = "";
+            el.style.borderColor = "";
+            el.style.color = "";
+          }
+        });
+
+        // 处理核心优势区域的卡片（bg-gray-50）
+        document.querySelectorAll(".bg-gray-50").forEach((el) => {
+          if (isDarkTheme) {
+            el.style.background = "rgba(139, 92, 246, 0.1)";
+          } else {
+            el.style.background = "";
+          }
+        });
+
+        // 处理核心优势区域的图标背景（bg-violet-100）
+        document.querySelectorAll(".bg-violet-100").forEach((el) => {
+          if (isDarkTheme) {
+            el.style.background = "rgba(139, 92, 246, 0.2)";
+          } else {
+            el.style.background = "";
+          }
+        });
+
+        // 处理核心功能区域的标签（文章知识库、学习进度追踪等）
+        document.querySelectorAll(".rounded-full").forEach((el) => {
+          const text = el.textContent.trim();
+          if (
+            text === "文章知识库" ||
+            text === "学习进度追踪" ||
+            text === "智能AI助手" ||
+            text === "多媒体笔记" ||
+            text === "生活记录" ||
+            text === "旅行足迹" ||
+            text === "愿望清单" ||
+            text === "纪念日提醒" ||
+            text === "游戏中心" ||
+            text === "影视推荐" ||
+            text === "音乐空间" ||
+            text === "创意工具" ||
+            text === "动态发布" ||
+            text === "朋友圈" ||
+            text === "私信聊天" ||
+            text === "兴趣圈子" ||
+            text === "旅行足迹地图" ||
+            text === "爱情纪念册" ||
+            text === "时光相册" ||
+            text === "音乐播放器" ||
+            text === "电影收藏夹" ||
+            text === "书签管理" ||
+            text === "好友链接" ||
+            text === "弹幕互动"
+          ) {
+            if (isDarkTheme) {
+              el.style.background = "rgba(139, 92, 246, 0.15)";
+              el.style.borderColor = "rgba(139, 92, 246, 0.25)";
+              el.style.color = "#a78bfa";
+            } else {
+              el.style.background = "";
+              el.style.borderColor = "";
+              el.style.color = "";
+            }
+          }
+        });
+
+        // 处理时间日期组件
+        document.querySelectorAll(".hidden.lg\\:flex").forEach((el) => {
+          if (el.querySelector("#clock-hours")) {
+            if (isDarkTheme) {
+              el.style.background = "rgba(139, 92, 246, 0.15)";
+              el.style.borderColor = "rgba(139, 92, 246, 0.25)";
+              el.querySelectorAll("span").forEach((span) => {
+                if (
+                  span.id === "clock-hours" ||
+                  span.id === "clock-minutes" ||
+                  span.id === "clock-seconds"
+                ) {
+                  span.style.color = "#a78bfa";
+                } else if (span.id === "current-date") {
+                  span.style.color = "#94a3b8";
+                } else {
+                  span.style.color = "#a78bfa";
+                }
+              });
+            } else {
+              el.style.background = "";
+              el.style.borderColor = "";
+              el.querySelectorAll("span").forEach((span) => {
+                span.style.color = "";
+              });
+            }
+          }
+        });
+
+        // 处理导航栏背景和文字
+        const navbar = document.getElementById("navbar");
+        if (navbar) {
+          if (isDarkTheme) {
+            navbar.style.background = "rgba(15, 10, 30, 0.9)";
+            navbar.style.backdropFilter = "blur(20px)";
+            navbar.style.borderBottom = "1px solid rgba(139, 92, 246, 0.2)";
+          } else {
+            navbar.style.background = "";
+            navbar.style.backdropFilter = "";
+            navbar.style.borderBottom = "";
+          }
+        }
+
+        // 更新 CSS 变量以适应深色主题
+        if (isDarkTheme) {
+          document.documentElement.style.setProperty(
+            "--glass-bg",
+            "rgba(26, 20, 48, 0.8)"
+          );
+        } else {
+          document.documentElement.style.setProperty(
+            "--glass-bg",
+            "rgba(255, 255, 255, 0.8)"
+          );
+        }
+
+        // 处理评价卡片的分隔线
+        document.querySelectorAll(".border-t").forEach((el) => {
+          if (el.classList.contains("border-gray-200")) {
+            if (isDarkTheme) {
+              el.style.borderColor = "rgba(255, 255, 255, 0.1)";
+            } else {
+              el.style.borderColor = "";
+            }
+          }
+        });
 
         // 更新卡片样式
         document
@@ -2740,8 +3634,40 @@
             card.style.borderColor = theme.borderColor;
           });
 
+        // 更新主题按钮显示
+        const themeIconEl = document.getElementById("theme-icon");
+        const themeNameEl = document.getElementById("theme-name");
+        const themeIconMobileEl = document.getElementById("theme-icon-mobile");
+        const themeNameMobileEl = document.getElementById("theme-name-mobile");
+        const themeIconMobileNavEl = document.getElementById(
+          "theme-icon-mobile-nav"
+        );
+        const themeNameMobileNavEl = document.getElementById(
+          "theme-name-mobile-nav"
+        );
+        const themeToggleBtn = document.getElementById("theme-toggle");
+        const themeToggleMobileNavBtn = document.getElementById(
+          "theme-toggle-mobile-nav"
+        );
+
+        if (themeIconEl) themeIconEl.textContent = theme.icon;
+        if (themeNameEl) themeNameEl.textContent = theme.name;
+        if (themeIconMobileEl) themeIconMobileEl.textContent = theme.icon;
+        if (themeNameMobileEl) themeNameMobileEl.textContent = theme.name;
+        if (themeIconMobileNavEl) themeIconMobileNavEl.textContent = theme.icon;
+        if (themeNameMobileNavEl) themeNameMobileNavEl.textContent = theme.name;
+
+        // 更新按钮背景色
+        if (themeToggleBtn) {
+          themeToggleBtn.style.background = theme.glassBg;
+        }
+        if (themeToggleMobileNavBtn) {
+          themeToggleMobileNavBtn.style.background = theme.glassBg;
+        }
+
         // 更新选中状态
-        themeOptions.forEach((opt) => {
+        const { themeOptions: opts } = getThemeElements();
+        opts.forEach((opt) => {
           const checkIcon = opt.querySelector(".check-icon");
           if (opt.dataset.theme === themeKey) {
             opt.classList.add("active");
@@ -2757,45 +3683,101 @@
       }
 
       function openThemeModal() {
-        themeModal.classList.add("active");
-        lucide.createIcons();
+        const { themeModal: modal } = getThemeElements();
+        if (modal) {
+          modal.classList.add("active");
+          lucide.createIcons();
+        }
       }
 
       function closeThemeModal() {
-        themeModal.classList.remove("active");
+        const { themeModal: modal } = getThemeElements();
+        if (modal) {
+          modal.classList.remove("active");
+        }
       }
 
-      // 主题选项点击事件
-      themeOptions.forEach((option) => {
-        option.addEventListener("click", () => {
-          const themeKey = option.dataset.theme;
-          applyTheme(themeKey);
+      // 绑定主题选项点击事件
+      function bindThemeOptionEvents() {
+        const { themeOptions: opts } = getThemeElements();
+        opts.forEach((option) => {
+          option.addEventListener("click", () => {
+            const themeKey = option.dataset.theme;
+            applyTheme(themeKey);
+          });
         });
-      });
+      }
 
       // 打开/关闭弹窗
-      document
-        .getElementById("theme-toggle")
-        ?.addEventListener("click", openThemeModal);
-      document
-        .getElementById("theme-toggle-mobile")
-        ?.addEventListener("click", openThemeModal);
-      document
-        .getElementById("close-theme-modal")
-        ?.addEventListener("click", closeThemeModal);
-      themeModal?.addEventListener("click", (e) => {
-        if (e.target === themeModal) closeThemeModal();
-      });
+      function bindThemeEvents() {
+        const themeToggle = document.getElementById("theme-toggle");
+        const themeToggleMobile = document.getElementById(
+          "theme-toggle-mobile"
+        );
+        const themeToggleMobileNav = document.getElementById(
+          "theme-toggle-mobile-nav"
+        );
+        const closeThemeModalBtn = document.getElementById("close-theme-modal");
+        const { themeModal: modal } = getThemeElements();
 
-      // 等待DOM加载完成后再绑定事件
-      document.addEventListener("DOMContentLoaded", function () {
+        if (themeToggle) {
+          themeToggle.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openThemeModal();
+          });
+        }
+
+        if (themeToggleMobile) {
+          themeToggleMobile.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openThemeModal();
+          });
+        }
+
+        if (themeToggleMobileNav) {
+          themeToggleMobileNav.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openThemeModal();
+          });
+        }
+
+        if (closeThemeModalBtn) {
+          closeThemeModalBtn.addEventListener("click", closeThemeModal);
+        }
+
+        if (modal) {
+          modal.addEventListener("click", (e) => {
+            if (e.target === modal) closeThemeModal();
+          });
+        }
+      }
+
+      // 初始化主题功能
+      function initTheme() {
+        // 先获取元素
+        getThemeElements();
+
+        // 绑定事件
+        bindThemeEvents();
+        bindThemeOptionEvents();
+
         // 加载保存的主题
         const savedTheme = localStorage.getItem("superui-theme") || "minimal";
         applyTheme(savedTheme);
 
-        // 重新初始化弹窗内的图标
+        // 初始化图标
         lucide.createIcons();
-      });
+      }
+
+      // 等待DOM加载完成后再初始化
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initTheme);
+      } else {
+        initTheme();
+      }
 
       const mobileMenuBtn = document.getElementById("mobile-menu-btn");
       const mobileMenu = document.getElementById("mobile-menu");
@@ -2819,13 +3801,15 @@
         { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
       );
       document
-        .querySelectorAll(".animate-on-scroll, .animate-radar, .animate-word-cloud, .animate-comparison-left")
+        .querySelectorAll(
+          ".animate-on-scroll, .animate-radar, .animate-word-cloud, .animate-comparison-left"
+        )
         .forEach((el) => observer.observe(el));
 
       // 为竞品对比区域的卡片添加交错动画
-      const comparisonCards = document.querySelectorAll('.comparison-card');
+      const comparisonCards = document.querySelectorAll(".comparison-card");
       comparisonCards.forEach((card, index) => {
-        card.classList.add('animate-comparison-left');
+        card.classList.add("animate-comparison-left");
         card.style.transitionDelay = `${index * 0.1}s`;
         observer.observe(card);
       });
@@ -2989,78 +3973,119 @@
     <!-- 主题选择弹窗 -->
     <div id="theme-modal" class="theme-modal">
       <div class="theme-panel">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-bold text-gray-900">选择主题风格</h3>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-semibold text-gray-900">选择主题风格</h3>
           <button
             id="close-theme-modal"
-            class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            class="p-1 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+            <i data-lucide="x" class="w-4 h-4 text-gray-500"></i>
           </button>
         </div>
-        <div class="space-y-3" id="theme-options">
+        <div class="space-y-2" id="theme-options">
           <div class="theme-option active" data-theme="minimal">
-            <div class="theme-icon bg-blue-50 text-blue-500">
-              <i data-lucide="sun" class="w-6 h-6"></i>
+            <div class="theme-icon-wrapper">
+              <div
+                class="theme-icon bg-blue-50 text-blue-500"
+                style="border-radius: 10px"
+              >
+                <i data-lucide="sun" class="w-5 h-5"></i>
+              </div>
             </div>
             <div class="flex-1">
-              <div class="font-semibold text-gray-900">极简</div>
-              <div class="text-sm text-gray-500">白色米白主色调，简洁线条</div>
+              <div class="font-medium text-sm text-gray-900">极简</div>
+              <div class="text-xs text-gray-500">白色米白主色调，简洁线条</div>
             </div>
-            <div class="check-icon text-violet-600">
-              <i data-lucide="check-circle-2" class="w-6 h-6 fill-current"></i>
+            <div class="check-icon">
+              <div
+                class="w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center"
+              >
+                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+              </div>
             </div>
           </div>
           <div class="theme-option" data-theme="cyber">
-            <div class="theme-icon bg-gray-900 text-violet-400">
-              <i data-lucide="moon" class="w-6 h-6"></i>
-            </div>
-            <div class="flex-1">
-              <div class="font-semibold text-gray-900">赛博</div>
-              <div class="text-sm text-gray-500">
-                深蓝黑色背景，霓虹蓝青点缀
+            <div class="theme-icon-wrapper">
+              <div
+                class="theme-icon bg-gray-900 text-violet-400"
+                style="border-radius: 10px"
+              >
+                <i data-lucide="moon" class="w-5 h-5"></i>
               </div>
             </div>
-            <div class="check-icon text-violet-600 hidden">
-              <i data-lucide="check-circle-2" class="w-6 h-6 fill-current"></i>
+            <div class="flex-1">
+              <div class="font-medium text-sm text-gray-900">赛博</div>
+              <div class="text-xs text-gray-500">霓虹紫蓝渐变，未来科技感</div>
+            </div>
+            <div class="check-icon hidden">
+              <div
+                class="w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center"
+              >
+                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+              </div>
             </div>
           </div>
-          <div class="theme-option" data-theme="art">
-            <div
-              class="theme-icon bg-gradient-to-br from-pink-100 to-violet-100 text-pink-500"
-            >
-              <i data-lucide="sparkles" class="w-6 h-6"></i>
+          <div class="theme-option" data-theme="artistic">
+            <div class="theme-icon-wrapper">
+              <div
+                class="theme-icon bg-gradient-to-br from-pink-100 to-violet-100 text-pink-500"
+                style="border-radius: 16px"
+              >
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+              </div>
             </div>
             <div class="flex-1">
-              <div class="font-semibold text-gray-900">艺术</div>
-              <div class="text-sm text-gray-500">柔和渐变色彩，优雅字体</div>
+              <div class="font-medium text-sm text-gray-900">艺术</div>
+              <div class="text-xs text-gray-500">柔和渐变色彩，优雅字体</div>
             </div>
-            <div class="check-icon text-violet-600 hidden">
-              <i data-lucide="check-circle-2" class="w-6 h-6 fill-current"></i>
+            <div class="check-icon hidden">
+              <div
+                class="w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center"
+              >
+                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+              </div>
             </div>
           </div>
-          <div class="theme-option" data-theme="playful">
-            <div class="theme-icon bg-yellow-50 text-orange-400">
-              <i data-lucide="smile" class="w-6 h-6"></i>
+          <div class="theme-option" data-theme="cartoon">
+            <div class="theme-icon-wrapper">
+              <div
+                class="theme-icon bg-yellow-50 text-orange-400"
+                style="border-radius: 20px"
+              >
+                <i data-lucide="flower-2" class="w-5 h-5"></i>
+              </div>
             </div>
             <div class="flex-1">
-              <div class="font-semibold text-gray-900">童趣</div>
-              <div class="text-sm text-gray-500">明亮活泼色彩，圆润边角</div>
+              <div class="font-medium text-sm text-gray-900">童趣</div>
+              <div class="text-xs text-gray-500">明亮活泼色彩，圆润边角</div>
             </div>
-            <div class="check-icon text-violet-600 hidden">
-              <i data-lucide="check-circle-2" class="w-6 h-6 fill-current"></i>
+            <div class="check-icon hidden">
+              <div
+                class="w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center"
+              >
+                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+              </div>
             </div>
           </div>
           <div class="theme-option" data-theme="retro">
-            <div class="theme-icon bg-amber-50 text-amber-600">
-              <i data-lucide="scroll-text" class="w-6 h-6"></i>
+            <div class="theme-icon-wrapper">
+              <div
+                class="theme-icon bg-amber-50 text-amber-600"
+                style="border-radius: 4px"
+              >
+                <i data-lucide="scroll" class="w-5 h-5"></i>
+              </div>
             </div>
             <div class="flex-1">
-              <div class="font-semibold text-gray-900">复古</div>
-              <div class="text-sm text-gray-500">暖黄棕色系，老式排版</div>
+              <div class="font-medium text-sm text-gray-900">复古</div>
+              <div class="text-xs text-gray-500">暖黄棕色系，老式排版</div>
             </div>
-            <div class="check-icon text-violet-600 hidden">
-              <i data-lucide="check-circle-2" class="w-6 h-6 fill-current"></i>
+            <div class="check-icon hidden">
+              <div
+                class="w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center"
+              >
+                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+              </div>
             </div>
           </div>
         </div>

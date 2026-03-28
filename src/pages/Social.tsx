@@ -6,7 +6,8 @@ import {
   Send, Github, Edit3, Twitter, Play, MessageSquare, Zap, Award,
   X, Trash2, Edit2, Calendar, ChevronRight, ArrowLeft,
   IdCard, Download, Share, History, Palette, Sparkles, Loader2, Plus,
-  Crown, Check, CreditCard, Shield, Star, Settings, Info, FlaskConical
+  Crown, Check, CreditCard, Shield, Star, Settings, Info, FlaskConical,
+  Rocket, Brain, Eye, Smartphone, Database, Layers, Wifi, Beaker
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { ThemeSelectorPanel } from '../components/ui/ThemeSwitcher'
@@ -21,6 +22,7 @@ const tabs = [
   { id: 'danmaku', label: '留言墙', icon: MessageCircle },
   { id: 'timeline', label: '成长时间轴', icon: Clock },
   { id: 'social', label: '自媒体矩阵', icon: Share2 },
+  { id: 'laboratory', label: '实验室', icon: FlaskConical },
 ] as const
 
 type TabId = (typeof tabs)[number]['id']
@@ -35,6 +37,7 @@ const platformIcons: Record<string, typeof Github> = {
 }
 
 export default function Social() {
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabId>('friends')
   const [mobileView, setMobileView] = useState<'menu' | TabId | 'laboratory'>('menu')
   const [showDesktopCardModal, setShowDesktopCardModal] = useState(false)
@@ -42,7 +45,7 @@ export default function Social() {
   const [showDesktopHistoryModal, setShowDesktopHistoryModal] = useState(false)
   const [selectedVipPlan, setSelectedVipPlan] = useState('yearly')
   const [showSettingsModal, setShowSettingsModal] = useState(false)
-    const [showAboutModal, setShowAboutModal] = useState(false)
+  const [showAboutModal, setShowAboutModal] = useState(false)
   
   // 用户资料状态
   const [userProfile, setUserProfile] = useState<ProfileData>({
@@ -141,22 +144,6 @@ export default function Social() {
                   <Edit2 size={18} />
                   <span>编辑资料</span>
                 </button>
-                {/* 桌面端系统设置入口 */}
-                <button
-                  onClick={() => setShowSettingsModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 text-white font-medium hover:bg-white/30 transition-colors"
-                >
-                  <Settings size={18} />
-                  <span>系统设置</span>
-                </button>
-                {/* 桌面端关于我们入口 */}
-                <button
-                  onClick={() => setShowAboutModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 text-white font-medium hover:bg-white/30 transition-colors"
-                >
-                  <Info size={18} />
-                  <span>关于我们</span>
-                </button>
                 {/* 桌面端VIP会员入口 */}
                 <button
                   onClick={() => setShowDesktopVipModal(true)}
@@ -183,7 +170,7 @@ export default function Social() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex gap-2 mb-6 sm:mb-8 overflow-x-auto no-scrollbar pb-2"
+          className="flex gap-2 mb-6 sm:mb-8 overflow-x-auto no-scrollbar pb-2 items-center"
         >
           {tabs.map((tab) => (
             <button
@@ -206,6 +193,24 @@ export default function Social() {
               )}
             </button>
           ))}
+          {/* 分隔线 */}
+          <div className="w-px h-6 bg-border/50 mx-1" />
+          {/* 系统设置按钮 */}
+          <button
+            onClick={() => setShowSettingsModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text-secondary hover:bg-surface/60 transition-all"
+          >
+            <Settings size={16} />
+            <span>系统设置</span>
+          </button>
+          {/* 关于我们按钮 */}
+          <button
+            onClick={() => setShowAboutModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text-secondary hover:bg-surface/60 transition-all"
+          >
+            <Info size={16} />
+            <span>关于我们</span>
+          </button>
         </motion.div>
 
         <AnimatePresence mode="sync">
@@ -227,6 +232,11 @@ export default function Social() {
           {activeTab === 'social' && (
             <motion.div key="social" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
               <SocialMatrix />
+            </motion.div>
+          )}
+          {activeTab === 'laboratory' && (
+            <motion.div key="laboratory" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+              <LaboratoryContent />
             </motion.div>
           )}
         </AnimatePresence>
@@ -1714,6 +1724,360 @@ function SocialMatrix() {
     </div>
   )
 }
+
+// 实验室内容组件 - 桌面端标签页内嵌
+function LaboratoryContent() {
+  const { themeConfig } = useTheme()
+  const [activeTab, setActiveTab] = useState<'timeline' | 'plans'>('timeline')
+
+  return (
+    <div className="py-6">
+      {/* 标签切换 */}
+      <div className="flex gap-2 p-1 rounded-xl mb-6" style={{ background: themeConfig.colors.surface }}>
+        <button
+          onClick={() => setActiveTab('timeline')}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
+          style={{
+            background: activeTab === 'timeline' ? themeConfig.colors.bg : 'transparent',
+            color: activeTab === 'timeline' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
+          }}
+        >
+          <Clock size={16} />
+          历史时间轴
+        </button>
+        <button
+          onClick={() => setActiveTab('plans')}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
+          style={{
+            background: activeTab === 'plans' ? themeConfig.colors.bg : 'transparent',
+            color: activeTab === 'plans' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
+          }}
+        >
+          <Rocket size={16} />
+          未来计划
+        </button>
+      </div>
+
+      {/* 内容区域 */}
+      <AnimatePresence mode="wait">
+        {activeTab === 'timeline' ? (
+          <motion.div
+            key="timeline"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="relative">
+              {/* 中央时间轴线 */}
+              <div 
+                className="absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2"
+                style={{ background: `linear-gradient(to bottom, #8b5cf630, #ec489930)` }}
+              />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 relative">
+                {labTimelineData.map((item, index) => (
+                  <LabTimelineItem key={item.id} item={item} index={index} />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="plans"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {labPlansData.map((plan, index) => (
+                <LabPlanCard key={plan.id} plan={plan} index={index} />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+// 实验室时间轴项
+function LabTimelineItem({ item, index }: { item: typeof labTimelineData[0]; index: number }) {
+  const { themeConfig } = useTheme()
+  const Icon = item.icon
+  const isLeft = index % 2 === 0
+
+  // 计算上边距：左侧项目从0开始，右侧项目有较大偏移，形成交错效果
+  const topMargin = isLeft ? index * 20 : 60 + index * 20
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: isLeft ? -20 : 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className={`relative flex items-start ${isLeft ? 'lg:justify-end' : 'lg:justify-start'} lg:col-span-1`}
+      style={{ marginTop: `${topMargin}px` }}
+    >
+      {/* 内容卡片 */}
+      <div 
+        className={`p-4 rounded-xl w-full lg:w-[calc(100%-24px)] ${isLeft ? 'lg:mr-6' : 'lg:ml-6'}`}
+        style={{ 
+          background: themeConfig.colors.surface,
+          border: `1px solid ${themeConfig.colors.border}`
+        }}
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xs font-medium" style={{ color: item.color }}>{item.date}</span>
+          <span 
+            className="text-xs px-2 py-0.5 rounded-full"
+            style={{ background: `${item.color}20`, color: item.color }}
+          >
+            {item.status === 'completed' ? '已完成' : '进行中'}
+          </span>
+        </div>
+        <h3 className="font-semibold mb-1" style={{ color: themeConfig.colors.text }}>{item.title}</h3>
+        <p className="text-sm mb-3" style={{ color: themeConfig.colors.textMuted }}>{item.description}</p>
+        <div className="flex flex-wrap gap-1.5">
+          {item.tags.map(tag => (
+            <span 
+              key={tag}
+              className="text-xs px-2 py-1 rounded-md"
+              style={{ background: themeConfig.colors.bg, color: themeConfig.colors.textMuted }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+      
+      {/* 中央节点 - 只在 lg 屏幕显示 */}
+      <div 
+        className="hidden lg:flex absolute left-1/2 top-4 -translate-x-1/2 w-4 h-4 rounded-full items-center justify-center z-10"
+        style={{ background: item.color }}
+      >
+        <div className="w-2 h-2 rounded-full bg-white" />
+      </div>
+      
+      {/* 左侧图标 - 只在 lg 屏幕且右侧项目时显示 */}
+      {!isLeft && (
+        <div 
+          className="hidden lg:flex absolute left-0 top-4 w-8 h-8 rounded-lg items-center justify-center"
+          style={{ background: `${item.color}20` }}
+        >
+          <Icon size={16} style={{ color: item.color }} />
+        </div>
+      )}
+      
+      {/* 右侧图标 - 只在 lg 屏幕且左侧项目时显示 */}
+      {isLeft && (
+        <div 
+          className="hidden lg:flex absolute right-0 top-4 w-8 h-8 rounded-lg items-center justify-center"
+          style={{ background: `${item.color}20` }}
+        >
+          <Icon size={16} style={{ color: item.color }} />
+        </div>
+      )}
+    </motion.div>
+  )
+}
+
+// 实验室计划卡片
+function LabPlanCard({ plan, index }: { plan: typeof labPlansData[0]; index: number }) {
+  const { themeConfig } = useTheme()
+  const Icon = plan.icon
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className="p-4 rounded-xl"
+      style={{ 
+        background: themeConfig.colors.surface,
+        border: `1px solid ${themeConfig.colors.border}`
+      }}
+    >
+      <div className="flex items-start gap-3 mb-3">
+        <div 
+          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: `${plan.color}20` }}
+        >
+          <Icon size={20} style={{ color: plan.color }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-sm mb-1" style={{ color: themeConfig.colors.text }}>{plan.title}</h3>
+          <p className="text-xs" style={{ color: themeConfig.colors.textMuted }}>{plan.description}</p>
+        </div>
+      </div>
+      
+      {/* 进度条 */}
+      <div className="mb-3">
+        <div className="flex items-center justify-between text-xs mb-1">
+          <span style={{ color: themeConfig.colors.textMuted }}>进度</span>
+          <span style={{ color: plan.color }}>{plan.progress}%</span>
+        </div>
+        <div 
+          className="h-1.5 rounded-full overflow-hidden"
+          style={{ background: themeConfig.colors.bg }}
+        >
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${plan.progress}%` }}
+            transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
+            className="h-full rounded-full"
+            style={{ background: plan.color }}
+          />
+        </div>
+      </div>
+      
+      {/* 标签 */}
+      <div className="flex flex-wrap gap-1.5">
+        {plan.tags.map(tag => (
+          <span 
+            key={tag}
+            className="text-xs px-2 py-1 rounded-md"
+            style={{ background: `${plan.color}15`, color: plan.color }}
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
+// 实验室数据
+const labTimelineData = [
+  {
+    id: 1,
+    date: '2024-03',
+    title: 'AI 分身系统上线',
+    description: '集成多模态 AI 能力，实现个性化数字分身创建与交互',
+    icon: Brain,
+    color: '#8b5cf6',
+    status: 'completed',
+    tags: ['AI', 'React', 'TypeScript']
+  },
+  {
+    id: 2,
+    date: '2024-02',
+    title: '动态主题系统',
+    description: '实现极简/赛博/艺术/童趣/复古五种主题切换，支持自定义配色',
+    icon: Palette,
+    color: '#ec4899',
+    status: 'completed',
+    tags: ['CSS变量', '主题系统', 'Tailwind']
+  },
+  {
+    id: 3,
+    date: '2024-01',
+    title: '3D 轮播组件',
+    description: '开发兴趣爱好模块的 3D 卡片轮播，支持悬停展开和手势滑动',
+    icon: Eye,
+    color: '#f59e0b',
+    status: 'completed',
+    tags: ['Framer Motion', '3D变换', '手势交互']
+  },
+  {
+    id: 4,
+    date: '2023-12',
+    title: '数字名片生成器',
+    description: '实现个性化数字名片设计，支持多主题模板和一键分享',
+    icon: Smartphone,
+    color: '#10b981',
+    status: 'completed',
+    tags: ['Canvas', '图片生成', '分享']
+  },
+  {
+    id: 5,
+    date: '2023-11',
+    title: 'RAG 知识库系统',
+    description: '构建基于向量检索的 AI 知识库，支持文档导入和智能问答',
+    icon: Database,
+    color: '#3b82f6',
+    status: 'completed',
+    tags: ['RAG', '向量检索', 'AI助手']
+  },
+  {
+    id: 6,
+    date: '2023-10',
+    title: '项目架构重构',
+    description: '从单体应用重构为模块化架构，实现懒加载和性能优化',
+    icon: Layers,
+    color: '#06b6d4',
+    status: 'completed',
+    tags: ['Vite', '模块化', '性能优化']
+  }
+]
+
+const labPlansData = [
+  {
+    id: 1,
+    title: 'AI 简历优化器',
+    description: '基于大模型的智能简历分析和优化建议，支持多行业模板',
+    icon: Brain,
+    color: '#8b5cf6',
+    priority: 'high',
+    quarter: '2024 Q2',
+    progress: 25,
+    tags: ['LLM', 'NLP', '简历解析']
+  },
+  {
+    id: 2,
+    title: '实时协作编辑器',
+    description: '支持多人实时协作的富文本编辑器，用于文章和笔记创作',
+    icon: Palette,
+    color: '#ec4899',
+    priority: 'high',
+    quarter: '2024 Q2',
+    progress: 15,
+    tags: ['WebSocket', 'CRDT', '协同编辑']
+  },
+  {
+    id: 3,
+    title: '智能数据分析',
+    description: '自动分析用户行为数据，生成可视化报表和洞察建议',
+    icon: Database,
+    color: '#3b82f6',
+    priority: 'medium',
+    quarter: '2024 Q3',
+    progress: 10,
+    tags: ['数据分析', '可视化', 'AI洞察']
+  },
+  {
+    id: 4,
+    title: '多端同步系统',
+    description: '实现数据跨设备实时同步，支持离线编辑和冲突解决',
+    icon: Wifi,
+    color: '#10b981',
+    priority: 'high',
+    quarter: '2024 Q3',
+    progress: 5,
+    tags: ['同步', 'PWA', 'IndexedDB']
+  },
+  {
+    id: 5,
+    title: 'AI 代码助手',
+    description: '集成代码补全、错误检测、重构建议的智能编程助手',
+    icon: Beaker,
+    color: '#f59e0b',
+    priority: 'medium',
+    quarter: '2024 Q4',
+    progress: 0,
+    tags: ['CodeAI', 'IDE', '生产力']
+  },
+  {
+    id: 6,
+    title: '社区互动系统',
+    description: '构建用户社区，支持动态发布、评论互动和内容推荐',
+    icon: MessageCircle,
+    color: '#ec4899',
+    priority: 'low',
+    quarter: '2024 Q4',
+    progress: 0,
+    tags: ['社交', '推荐算法', 'UGC']
+  }
+]
 
 /* ===== Mobile Components ===== */
 
@@ -3364,11 +3728,21 @@ function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onO
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 relative z-10">
             <h2 className="text-lg font-semibold text-text">个人数字名片</h2>
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-surface/60">
-              <X size={20} className="text-text" />
-            </button>
+            <div 
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                console.log('Close button clicked')
+                onClose()
+              }} 
+              className="p-2 rounded-full hover:bg-surface/60 transition-colors cursor-pointer z-20 flex items-center justify-center"
+              role="button"
+              style={{ minWidth: '40px', minHeight: '40px' }}
+            >
+              <X size={20} className="text-text pointer-events-none" />
+            </div>
           </div>
 
           {/* Card Preview */}
@@ -4013,7 +4387,7 @@ function MembershipModal({
 // 关于我们弹窗
 function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { themeConfig } = useTheme()
-  const [showFeedback, setShowFeedback] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(true)
   const [feedback, setFeedback] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
@@ -4184,23 +4558,6 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                     )}
                   </motion.div>
                 ))}
-              </div>
-
-              {/* Version Info */}
-              <div 
-                className="flex items-center justify-between py-3 px-4 rounded-xl mb-6"
-                style={{
-                  background: themeConfig.colors.surface,
-                  border: `1px solid ${themeConfig.colors.border}`,
-                }}
-              >
-                <span style={{ color: themeConfig.colors.textMuted }}>版本</span>
-                <span 
-                  className="font-medium"
-                  style={{ color: themeConfig.colors.text }}
-                >
-                  v1.0.0
-                </span>
               </div>
 
               {/* Feedback Section */}

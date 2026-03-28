@@ -6,7 +6,7 @@ export const personalInfo = {
   tagline: '用代码编织梦想，用设计点亮生活',
   avatar: '/avatar.png',
   bio: '热衷于探索前沿技术与创意设计的交汇点。5年全栈开发经验，专注于构建优雅、高性能的Web应用。相信好的产品需要技术与美学的完美结合。',
-  location: '中国 · 深圳',
+  location: '中国 · 杭州',
   email: 'xiaoye@example.com',
 }
 
