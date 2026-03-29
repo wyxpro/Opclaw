@@ -1,12 +1,13 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
-  BookOpen, Heart, Music, GraduationCap, Camera, Film, 
+  BookOpen, Heart, GraduationCap, Camera, 
   GitBranch, FileText, MessageCircle, Dumbbell, Gamepad2, 
-  Bookmark
+  Briefcase, PenTool, ShoppingCart
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { useTheme } from '../hooks/useTheme'
+import WorkAssistant from '../components/work/WorkAssistant'
 
 // 学习类卡片数据 - 对应学习页面的子菜单
 const learningCards = [
@@ -96,47 +97,55 @@ const lifeCards = [
   },
 ]
 
-// 娱乐类卡片数据 - 对应娱乐页面的子菜单
-const entertainmentCards = [
+// 工作类卡片数据 - 对应工作助手页面的子菜单
+const workCards = [
   {
-    id: 'music',
-    title: '音乐盒',
-    subtitle: '收藏喜爱音乐',
-    path: '/life?tab=music',
-    color: 'bg-fuchsia-500',
-    colorLight: 'bg-fuchsia-500/20',
-    icon: Music,
-    tag: '音乐',
+    id: 'media',
+    title: '新媒体',
+    subtitle: '社交媒体内容创作',
+    path: '/assets?tab=work-media',
+    color: 'bg-gradient-to-br from-violet-500 to-purple-600',
+    colorLight: 'bg-violet-500/20',
+    icon: PenTool,
+    tag: '创作',
   },
   {
-    id: 'movies',
-    title: '收藏电影',
-    subtitle: '观影记录收藏',
-    path: '/life?tab=movies',
-    color: 'bg-red-500',
-    colorLight: 'bg-red-500/20',
-    icon: Film,
-    tag: '影视',
-  },
-  {
-    id: 'bookmarks',
-    title: '百宝箱',
-    subtitle: '实用工具收藏',
-    path: '/life?tab=bookmarks',
-    color: 'bg-cyan-500',
-    colorLight: 'bg-cyan-500/20',
-    icon: Bookmark,
-    tag: '工具',
+    id: 'ecommerce',
+    title: '电商运营',
+    subtitle: '电商平台管理分析',
+    path: '/assets?tab=work-ecommerce',
+    color: 'bg-gradient-to-br from-orange-500 to-amber-600',
+    colorLight: 'bg-orange-500/20',
+    icon: ShoppingCart,
+    tag: '运营',
   },
 ]
 
 // 合并所有卡片用于网格展示
-const allCards = [...learningCards, ...lifeCards, ...entertainmentCards]
+const allCards = [...learningCards, ...lifeCards, ...workCards]
 
 export default function Assets() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { themeConfig } = useTheme()
   const { colors } = themeConfig
+  
+  // 检查工作助手相关参数
+  const tab = searchParams.get('tab')
+  const isWorkMedia = tab === 'work-media'
+  const isWorkEcommerce = tab === 'work-ecommerce'
+  const isWorkTab = tab === 'work' || isWorkMedia || isWorkEcommerce
+  
+  // 如果访问工作助手子模块，直接渲染对应组件
+  if (isWorkMedia) {
+    return <WorkAssistant defaultModule="media" />
+  }
+  if (isWorkEcommerce) {
+    return <WorkAssistant defaultModule="ecommerce" />
+  }
+  if (isWorkTab) {
+    return <WorkAssistant />
+  }
 
   return (
     <PageTransition>
@@ -240,9 +249,9 @@ export default function Assets() {
               />
             </div>
 
-            {/* Entertainment Summary */}
+            {/* Work Summary */}
             <div 
-              onClick={() => navigate('/life')}
+              onClick={() => navigate('/assets?tab=work')}
               className="relative overflow-hidden rounded-xl md:rounded-2xl p-3 md:p-6 cursor-pointer group transition-all duration-300 hover:shadow-md"
               style={{ 
                 backgroundColor: colors.surface,
@@ -250,21 +259,21 @@ export default function Assets() {
               }}
             >
               <div className="flex items-center gap-2 md:gap-3">
-                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-violet-500 flex items-center justify-center shadow-md flex-shrink-0">
-                  <Music size={18} className="text-white md:size-6" />
+                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-md flex-shrink-0">
+                  <Briefcase size={18} className="text-white md:size-6" />
                 </div>
                 <div className="min-w-0">
                   <h3 
                     className="font-semibold text-sm md:text-base transition-colors duration-300 truncate"
                     style={{ color: colors.text }}
                   >
-                    娱乐中心
+                    工作助手
                   </h3>
                   <p 
                     className="text-[10px] md:text-sm transition-colors duration-300"
                     style={{ color: colors.textMuted }}
                   >
-                    {entertainmentCards.length} 个功能模块
+                    {workCards.length} 个功能模块
                   </p>
                 </div>
               </div>
