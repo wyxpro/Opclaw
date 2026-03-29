@@ -3,7 +3,9 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Home, Wallet, Users, Menu, X, Palette, Sparkles, Globe } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
+import { useAuth } from '../../contexts/AuthContext'
 import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
+import AuthModal from '../auth/AuthModal'
 
 const navItems = [
   { path: '/', label: '🏠 首页', icon: Home },
@@ -98,8 +100,10 @@ function ThemeToggle() {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const location = useLocation()
   const { themeConfig } = useTheme()
+  const { isAuthenticated } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -114,6 +118,14 @@ export default function Navbar() {
     })
     return () => cancelAnimationFrame(frame)
   }, [location.pathname])
+
+  // 处理"我的"导航点击
+  const handleSocialClick = (e: React.MouseEvent) => {
+    if (!isAuthenticated) {
+      e.preventDefault()
+      setShowAuthModal(true)
+    }
+  }
 
   return (
     <>
@@ -186,6 +198,7 @@ export default function Navbar() {
                     key={item.path}
                     to={item.path}
                     end={item.path === '/'}
+                    onClick={item.path === '/social' ? handleSocialClick : undefined}
                     className={({ isActive }) =>
                       `relative px-5 py-2.5 rounded-xl text-base font-semibold transition-all duration-200 ${
                         isActive
@@ -242,6 +255,7 @@ export default function Navbar() {
                     key={item.path}
                     to={item.path}
                     end={item.path === '/'}
+                    onClick={item.path === '/social' && !isAuthenticated ? (e) => { e.preventDefault(); setShowAuthModal(true); } : undefined}
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                         isActive
@@ -277,6 +291,7 @@ export default function Navbar() {
               key={item.path}
               to={item.path}
               end={item.path === '/'}
+              onClick={item.path === '/social' && !isAuthenticated ? (e) => { e.preventDefault(); setShowAuthModal(true); } : undefined}
               className={({ isActive }) =>
                 `relative flex flex-col items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
                   isActive
@@ -310,6 +325,13 @@ export default function Navbar() {
           ))}
         </div>
       </nav>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultMode="login"
+      />
     </>
   )
 }

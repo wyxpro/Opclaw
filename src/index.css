@@ -370,3 +370,12 @@ body {
 .pb-safe {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 20px);
 }
+
+/* 登录/注册表单输入框聚焦样式 - 浅蓝色 */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="password"]:focus {
+  border-color: #4facfe !important;
+  box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.15);
+}

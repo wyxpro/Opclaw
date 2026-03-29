@@ -1,9 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  X, MousePointer2, Shield, Bell, Volume2
+  X, MousePointer2, Shield, Bell, Volume2, LogOut
 } from 'lucide-react'
 import { useSettings } from '../../hooks/useSettings'
 import { useTheme } from '../../hooks/useTheme'
+import { useAuth } from '../../contexts/AuthContext'
 
 interface SettingsModalProps {
   isOpen: boolean
@@ -18,6 +19,13 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     soundEnabled, setSoundEnabled
   } = useSettings()
   const { themeConfig } = useTheme()
+  const { isAuthenticated, logout } = useAuth()
+  
+  // 处理退出登录
+  const handleLogout = () => {
+    logout()
+    onClose()
+  }
 
   const toggleSettings = [
     {
@@ -174,6 +182,54 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     ))}
                   </div>
                 </div>
+
+                {/* Account Section */}
+                {isAuthenticated && (
+                  <div className="mb-6">
+                    <h3 
+                      className="text-sm font-medium mb-3 px-1"
+                      style={{ color: themeConfig.colors.textMuted }}
+                    >
+                      账号管理
+                    </h3>
+                    <motion.button
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-between p-4 rounded-xl transition-all hover:opacity-80"
+                      style={{
+                        background: `${themeConfig.colors.rose}15`,
+                        border: `1px solid ${themeConfig.colors.rose}30`,
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-10 h-10 rounded-lg flex items-center justify-center"
+                          style={{
+                            background: `${themeConfig.colors.rose}20`,
+                            color: themeConfig.colors.rose,
+                          }}
+                        >
+                          <LogOut size={20} />
+                        </div>
+                        <div className="text-left">
+                          <h3 
+                            className="font-medium"
+                            style={{ color: themeConfig.colors.rose }}
+                          >
+                            退出登录
+                          </h3>
+                          <p 
+                            className="text-sm"
+                            style={{ color: themeConfig.colors.textMuted }}
+                          >
+                            退出当前账号
+                          </p>
+                        </div>
+                      </div>
+                    </motion.button>
+                  </div>
+                )}
 
                 {/* Footer */}
                 <div className="pt-4 border-t" style={{ borderColor: themeConfig.colors.border }}>

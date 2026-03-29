@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { SettingsProvider } from './contexts/SettingsContext'
+import { AuthProvider } from './contexts/AuthContext'
 import Navbar from './components/layout/Navbar'
 import StarCursor from './components/ui/StarCursor'
 import Home from './pages/Home'
@@ -43,9 +44,11 @@ function AppContent() {
 export default function App() {
   return (
     <ThemeProvider>
-      <SettingsProvider>
-        <AppContent />
-      </SettingsProvider>
+      <AuthProvider>
+        <SettingsProvider>
+          <AppContent />
+        </SettingsProvider>
+      </AuthProvider>
     </ThemeProvider>
   )
 }

@@ -14,7 +14,10 @@ import PageTransition from '../components/ui/PageTransition'
 import { ThemeSelectorPanel } from '../components/ui/ThemeSwitcher'
 import { SettingsModal } from '../components/ui/SettingsModal'
 import ProfileEditModal, { type ProfileData } from '../components/ProfileEditModal'
+import AuthModal from '../components/auth/AuthModal'
+
 import { useTheme } from '../hooks/useTheme'
+import { useAuth } from '../contexts/AuthContext'
 import { friendLinks, danmakuMessages, socialAccounts, generateDigitalCard, cardThemes, type DigitalCard, type CardTheme, presetAvatars } from '../data/mock'
 import { generateCardImage, downloadImage, saveToHistory, getHistoryList, deleteHistoryItem, wechatShare, formatRelativeTime } from '../lib/cardUtils'
 
@@ -45,20 +48,53 @@ export default function Social() {
   const [selectedVipPlan, setSelectedVipPlan] = useState('yearly')
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [showAboutModal, setShowAboutModal] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  // 认证状态
+  const { isAuthenticated, user } = useAuth()
   
-  // 用户资料状态
-  const [userProfile, setUserProfile] = useState<ProfileData>({
-    avatar: presetAvatars[0].url,
+  // 未登录时自动显示登录弹窗
+  useEffect(() => {
+    if (!isAuthenticated && !showAuthModal) {
+      const timer = setTimeout(() => {
+        setShowAuthModal(true)
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [isAuthenticated])
+  
+  // 用户资料状态 - 使用函数式初始化避免重复渲染
+  const [userProfile, setUserProfile] = useState<ProfileData>(() => ({
+    avatar: user?.avatar || presetAvatars[0].url,
     background: null,
-    name: '晓叶',
+    name: user?.username || '晓叶',
     gender: 'secret',
     age: '',
-    bio: '',
-    phone: '',
-    email: ''
-  })
+    bio: user?.bio || '',
+    phone: user?.phone || '',
+    email: user?.email || ''
+  }))
   const [showProfileEditModal, setShowProfileEditModal] = useState(false)
   const { currentTheme } = useTheme()
+
+  // 当认证状态变化时更新用户资料
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setUserProfile(prev => {
+        // 只在数据真正变化时才更新
+        if (prev.name === user.username && prev.email === user.email) {
+          return prev
+        }
+        return {
+          ...prev,
+          name: user.username,
+          email: user.email,
+          phone: user.phone || '',
+          avatar: user.avatar || presetAvatars[0].url,
+          bio: user.bio || '',
+        }
+      })
+    }
+  }, [isAuthenticated, user?.username, user?.email, user?.phone, user?.avatar, user?.bio])
 
   // 主题切换时自动更新背景
   useEffect(() => {
@@ -306,6 +342,13 @@ export default function Social() {
         onClose={() => setShowProfileEditModal(false)}
         initialData={userProfile}
         onSave={setUserProfile}
+      />
+      
+      {/* Auth Modal - 未登录时显示 */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultMode="login"
       />
     </PageTransition>
   )
