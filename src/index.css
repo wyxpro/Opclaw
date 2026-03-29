@@ -365,3 +365,8 @@ body {
   margin: 1rem 0;
   transition: all 0.3s ease;
 }
+
+/* 安全区适配 - 用于移动端底部菜单栏 */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 20px);
+}

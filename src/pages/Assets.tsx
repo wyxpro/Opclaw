@@ -103,7 +103,7 @@ const workCards = [
     id: 'media',
     title: '新媒体',
     subtitle: '社交媒体内容创作',
-    path: '/assets?tab=work-media',
+    path: '/work?tab=media',
     color: 'bg-gradient-to-br from-violet-500 to-purple-600',
     colorLight: 'bg-violet-500/20',
     icon: PenTool,
@@ -113,7 +113,7 @@ const workCards = [
     id: 'ecommerce',
     title: '电商运营',
     subtitle: '电商平台管理分析',
-    path: '/assets?tab=work-ecommerce',
+    path: '/work?tab=ecommerce',
     color: 'bg-gradient-to-br from-orange-500 to-amber-600',
     colorLight: 'bg-orange-500/20',
     icon: ShoppingCart,
@@ -251,7 +251,7 @@ export default function Assets() {
 
             {/* Work Summary */}
             <div 
-              onClick={() => navigate('/assets?tab=work')}
+              onClick={() => navigate('/work')}
               className="relative overflow-hidden rounded-xl md:rounded-2xl p-3 md:p-6 cursor-pointer group transition-all duration-300 hover:shadow-md"
               style={{ 
                 backgroundColor: colors.surface,

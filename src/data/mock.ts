@@ -12,18 +12,16 @@ export const personalInfo = {
 
 // 预设头像列表 - 使用卡通可爱风格（Notionists）
 export const presetAvatars = [
-  // 女孩头像
-  { id: 'avatar1', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Lily&backgroundColor=ffdfbf', name: '可爱女孩' },
-  { id: 'avatar2', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Coco&backgroundColor=ffd5dc', name: '粉色公主' },
-  { id: 'avatar3', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Momo&backgroundColor=b6e3f4', name: '蓝色精灵' },
-  { id: 'avatar4', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Kiki&backgroundColor=d1d4f9', name: '紫色魔女' },
-  { id: 'avatar5', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Sunny&backgroundColor=ffdfbf', name: '阳光少女' },
-  // 男孩头像
-  { id: 'avatar6', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Bob&backgroundColor=c0aede', name: '萌萌男孩' },
-  { id: 'avatar7', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Tom&backgroundColor=b6e3f4', name: '活力少年' },
-  { id: 'avatar8', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Jack&backgroundColor=c0aede', name: '酷酷小哥' },
-  { id: 'avatar9', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Leo&backgroundColor=ffd5dc', name: '温柔男孩' },
-  { id: 'avatar10', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Max&backgroundColor=d1d4f9', name: '聪明小子' },
+  { id: 'avatar1', url: 'https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3', name: '头像1' },
+  { id: 'avatar2', url: 'https://tse3.mm.bing.net/th/id/OIP.fwnj3VOYFymYAqGatqTYzAAAAA?rs=1&pid=ImgDetMain&o=7&rm=3', name: '头像2' },
+  { id: 'avatar3', url: 'https://tse2.mm.bing.net/th/id/OIP.m_wDQ2YRYZIN6TRaawDsgwHaHa?rs=1&pid=ImgDetMain&o=7&rm=3', name: '头像3' },
+  { id: 'avatar4', url: 'https://tse1.mm.bing.net/th/id/OIP.kmOlW7zruVymqGDSNnfS_wHaHY?rs=1&pid=ImgDetMain&o=7&rm=3', name: '头像4' },
+  { id: 'avatar5', url: 'https://tse3.mm.bing.net/th/id/OIP.NS9PihpGbADChVBXuGOvTgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3', name: '头像5' },
+  { id: 'avatar6', url: 'https://tse2.mm.bing.net/th/id/OIP.DbjMDUf18KAYmIkccbdulwHaHa?rs=1&pid=ImgDetMain&o=7&rm=3', name: '头像6' },
+  { id: 'avatar7', url: 'https://tse2.mm.bing.net/th/id/OIP.1hWWKPNgG1xZeIz4-7Fs-QHaHZ?rs=1&pid=ImgDetMain&o=7&rm=3', name: '头像7' },
+  { id: 'avatar8', url: 'https://tse2.mm.bing.net/th/id/OIP.yA-PvTRLFAJub1eIJxAKFwHaHa?rs=1&pid=ImgDetMain&o=7&rm=3', name: '头像8' },
+  { id: 'avatar9', url: 'https://wx2.sinaimg.cn/mw690/006CqIhwgy1hzfhlvsqpwj30sg0sg40s.jpg', name: '头像9' },
+  { id: 'avatar10', url: 'https://th.bing.com/th?id=OIF.yHiOhj2gVH0Pgt1%2bwK2DgA&rs=1&pid=ImgDetMain&o=7&rm=3', name: '头像10' },
 ]
 
 // 预设背景图列表

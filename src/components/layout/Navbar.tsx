@@ -7,8 +7,13 @@ import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
 
 const navItems = [
   { path: '/', label: '🏠 首页', icon: Home },
+  // PC 端专属菜单项
+  { path: '/learning', label: '📚 学习空间', icon: null, isPcOnly: true },
+  { path: '/work', label: '📺 工作助手', icon: null, isPcOnly: true },
+  { path: '/life', label: '🌈 生活记录', icon: null, isPcOnly: true },
   { path: '/ai-character', label: '🤖 AI 分身', icon: Sparkles },
-  { path: '/assets', label: '💎 资产', icon: Wallet },
+  // 资产菜单 - 移动端显示，PC 端隐藏
+  { path: '/assets', label: '💎 资产', icon: Wallet, isMobileOnly: true },
   { path: '/social', label: '👤 我的', icon: Users },
 ]
 
@@ -141,36 +146,71 @@ export default function Navbar() {
           </div>
 
           {/* Right: Desktop Nav Links + Theme Toggle */}
-          <div className="hidden md:flex items-center gap-2">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.path === '/'}
-                className={({ isActive }) =>
-                  `relative px-5 py-2.5 rounded-xl text-base font-semibold transition-all duration-200 ${
-                    isActive
-                      ? 'text-primary'
-                      : 'text-text-secondary hover:text-text hover:bg-surface/60'
-                  }`
+          <div className="hidden md:flex items-center gap-1">
+            {navItems
+              .filter(item => !item.isMobileOnly) // PC 端过滤掉移动端专属项
+              .map((item) => {
+                // PC 端专属菜单项 - 使用 NavLink 以支持选中状态
+                if (item.isPcOnly) {
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      className={({ isActive }) =>
+                        `relative px-4 py-2.5 rounded-xl text-base font-semibold transition-all duration-200 ${
+                          isActive
+                            ? 'text-primary'
+                            : 'text-text-secondary hover:text-text hover:bg-surface/60'
+                        }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          {item.label}
+                          {isActive && (
+                            <motion.div
+                              layoutId="activeTab"
+                              className="absolute inset-0 rounded-lg bg-primary/10 border border-primary/20"
+                              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                            />
+                          )}
+                        </>
+                      )}
+                    </NavLink>
+                  );
                 }
-              >
-                {({ isActive }) => (
-                  <>
-                    {item.label}
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute inset-0 rounded-lg bg-primary/10 border border-primary/20"
-                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                      />
+                
+                // 普通导航项
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end={item.path === '/'}
+                    className={({ isActive }) =>
+                      `relative px-5 py-2.5 rounded-xl text-base font-semibold transition-all duration-200 ${
+                        isActive
+                          ? 'text-primary'
+                          : 'text-text-secondary hover:text-text hover:bg-surface/60'
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {item.label}
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeTab"
+                            className="absolute inset-0 rounded-lg bg-primary/10 border border-primary/20"
+                            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                          />
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-              </NavLink>
-            ))}
-            {/* Theme Toggle - 紧靠在"我的"右边，间隔2个空格 */}
-            <div className="ml-4">
+                  </NavLink>
+                );
+              })}
+            {/* Theme Toggle - 紧靠在"我的"右边，间隔 2 个空格 */}
+            <div className="ml-2">
               <ThemeToggle />
             </div>
           </div>
@@ -195,7 +235,9 @@ export default function Navbar() {
               className="md:hidden glass border-t border-border overflow-hidden"
             >
               <div className="px-4 py-3 flex flex-col gap-1">
-                {navItems.map((item) => (
+                {navItems
+                  .filter(item => !item.isPcOnly) // 移动端过滤掉 PC 端专属项
+                  .map((item) => (
                   <NavLink
                     key={item.path}
                     to={item.path}
@@ -208,7 +250,7 @@ export default function Navbar() {
                       }`
                     }
                   >
-                    <item.icon size={18} />
+                    {item.icon && <item.icon size={18} />}
                     {item.label}
                   </NavLink>
                 ))}
@@ -228,7 +270,9 @@ export default function Navbar() {
         }}
       >
         <div className="flex items-center justify-around px-2 py-2">
-          {navItems.map((item) => (
+          {navItems
+            .filter(item => !item.isPcOnly) // 移动端过滤掉 PC 端专属项
+            .map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
@@ -243,13 +287,15 @@ export default function Navbar() {
             >
               {({ isActive }) => (
                 <>
-                  <item.icon 
-                    size={20} 
-                    strokeWidth={isActive ? 2.5 : 1.5}
-                    style={{
-                      color: isActive ? themeConfig.colors.primary : themeConfig.colors.textMuted
-                    }}
-                  />
+                  {item.icon && (
+                    <item.icon 
+                      size={20} 
+                      strokeWidth={isActive ? 2.5 : 1.5}
+                      style={{
+                        color: isActive ? themeConfig.colors.primary : themeConfig.colors.textMuted
+                      }}
+                    />
+                  )}
                   <span 
                     className={`text-[10px] ${isActive ? 'font-medium' : 'font-normal'}`}
                     style={{

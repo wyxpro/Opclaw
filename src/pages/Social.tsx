@@ -5,9 +5,10 @@ import {
   Link2, MessageCircle, Clock, Share2, ExternalLink,
   Send, Github, Edit3, Twitter, Play, MessageSquare, Zap, Award,
   X, Trash2, Edit2, Calendar, ChevronRight, ArrowLeft,
-  IdCard, Download, Share, History, Palette, Sparkles, Loader2, Plus,
-  Crown, Check, CreditCard, Shield, Star, Settings, Info, FlaskConical,
-  Rocket, Brain, Eye, Smartphone, Database, Layers, Wifi, Beaker
+  IdCard, Download, Share, History, Palette, Loader2, Plus,
+  Crown, Check, CreditCard, Shield, Settings, Info, FlaskConical,
+  Rocket, Brain, Eye, Smartphone, Database, Layers, Wifi, Beaker,
+  Sparkles
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { ThemeSelectorPanel } from '../components/ui/ThemeSwitcher'
@@ -18,10 +19,8 @@ import { friendLinks, danmakuMessages, socialAccounts, generateDigitalCard, card
 import { generateCardImage, downloadImage, saveToHistory, getHistoryList, deleteHistoryItem, wechatShare, formatRelativeTime } from '../lib/cardUtils'
 
 const tabs = [
-  { id: 'friends', label: '友链', icon: Link2 },
-  { id: 'danmaku', label: '留言墙', icon: MessageCircle },
-  { id: 'timeline', label: '成长时间轴', icon: Clock },
   { id: 'social', label: '自媒体矩阵', icon: Share2 },
+  { id: 'danmaku', label: '留言墙', icon: MessageCircle },
   { id: 'laboratory', label: '实验室', icon: FlaskConical },
 ] as const
 
@@ -38,7 +37,7 @@ const platformIcons: Record<string, typeof Github> = {
 
 export default function Social() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<TabId>('friends')
+  const [activeTab, setActiveTab] = useState<TabId>('social')
   const [mobileView, setMobileView] = useState<'menu' | TabId | 'laboratory'>('menu')
   const [showDesktopCardModal, setShowDesktopCardModal] = useState(false)
   const [showDesktopVipModal, setShowDesktopVipModal] = useState(false)
@@ -51,7 +50,7 @@ export default function Social() {
   const [userProfile, setUserProfile] = useState<ProfileData>({
     avatar: presetAvatars[0].url,
     background: null,
-    name: '灵愈用户',
+    name: '晓叶',
     gender: 'secret',
     age: '',
     bio: '',
@@ -214,19 +213,9 @@ export default function Social() {
         </motion.div>
 
         <AnimatePresence mode="sync">
-          {activeTab === 'friends' && (
-            <motion.div key="friends" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-              <FriendLinks />
-            </motion.div>
-          )}
           {activeTab === 'danmaku' && (
             <motion.div key="danmaku" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
               <DanmakuWall />
-            </motion.div>
-          )}
-          {activeTab === 'timeline' && (
-            <motion.div key="timeline" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-              <GrowthTimeline />
             </motion.div>
           )}
           {activeTab === 'social' && (
@@ -264,10 +253,14 @@ export default function Social() {
         {/* 桌面端VIP会员弹窗 */}
         <AnimatePresence>
           {showDesktopVipModal && (
-            <MembershipModal 
+            <MembershipModal
               onClose={() => setShowDesktopVipModal(false)}
               selectedPlan={selectedVipPlan}
               onSelectPlan={setSelectedVipPlan}
+              onPaymentSuccess={() => {
+                alert('支付成功！您已成为VIP会员！')
+                setShowDesktopVipModal(false)
+              }}
             />
           )}
         </AnimatePresence>
@@ -286,12 +279,8 @@ export default function Social() {
               onOpenSettings={() => setShowSettingsModal(true)}
               onOpenAbout={() => setShowAboutModal(true)}
             />
-          ) : mobileView === 'friends' ? (
-            <MobileFriendLinks key="friends" onBack={() => setMobileView('menu')} />
           ) : mobileView === 'danmaku' ? (
             <MobileDanmakuWall key="danmaku" onBack={() => setMobileView('menu')} />
-          ) : mobileView === 'timeline' ? (
-            <MobileGrowthTimeline key="timeline" onBack={() => setMobileView('menu')} />
           ) : mobileView === 'social' ? (
             <MobileSocialMatrix key="social" onBack={() => setMobileView('menu')} />
           ) : null}
@@ -1673,54 +1662,6 @@ function SocialMatrix() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Share Card Section */}
-      <div className="mt-12">
-        <h3 className="text-lg font-semibold text-text mb-4 flex items-center gap-2">
-          <Share2 size={18} className="text-primary" />
-          分享名片
-        </h3>
-        <div className="glass-card p-6 max-w-sm">
-          <div className="bg-gradient-to-br from-primary/20 via-surface to-rose/10 rounded-xl p-6 border border-primary/10">
-            <div className="flex items-center gap-4 mb-4">
-              <img
-                src="/avatar.png"
-                alt="头像"
-                className="w-14 h-14 rounded-xl object-cover ring-2 ring-primary/20"
-              />
-              <div>
-                <h4 className="font-bold text-text">晓叶</h4>
-                <p className="text-xs text-text-muted">全栈开发者 / 创意设计师</p>
-              </div>
-            </div>
-            <p className="text-xs text-text-secondary leading-relaxed mb-4">
-              用代码编织梦想，用设计点亮生活
-            </p>
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                {accounts.slice(0, 3).map((acc) => {
-                  const I = platformIcons[acc.icon] || ExternalLink
-                  return (
-                    <div
-                      key={acc.platform}
-                      className="w-7 h-7 rounded-md flex items-center justify-center"
-                      style={{ background: `${acc.color}22` }}
-                    >
-                      <I size={14} style={{ color: acc.color }} />
-                    </div>
-                  )
-                })}
-              </div>
-              <div className="w-16 h-16 rounded-lg bg-surface border border-border flex items-center justify-center text-text-dim text-xs">
-                QR
-              </div>
-            </div>
-          </div>
-          <button className="w-full mt-4 py-2.5 rounded-xl bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors border border-primary/20">
-            复制分享链接
-          </button>
-        </div>
-      </div>
     </div>
   )
 }
@@ -2083,18 +2024,16 @@ const labPlansData = [
 
 // 移动端菜单项配置
 const mobileMenuItems = [
-  { id: 'friends' as const, label: '友链', description: '连接志同道合的朋友', icon: Link2, color: '#3b82f6' },
-  { id: 'danmaku' as const, label: '留言墙', description: '留下你的足迹和祝福', icon: MessageCircle, color: '#ec4899' },
-  { id: 'timeline' as const, label: '成长时间轴', description: '记录学习与成长历程', icon: Clock, color: '#10b981' },
   { id: 'social' as const, label: '自媒体矩阵', description: '关注我的我的媒体', icon: Share2, color: '#f59e0b' },
+  { id: 'danmaku' as const, label: '留言墙', description: '留下你的足迹和祝福', icon: MessageCircle, color: '#ec4899' },
   { id: 'laboratory' as const, label: '实验室', description: '技术实验与开发计划', icon: FlaskConical, color: '#8b5cf6' },
 ]
 
 // 移动端顶部用户信息组件
-function MobileUserHeader({ userProfile, onEdit }: { userProfile: ProfileData; onEdit: () => void }) {
+function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { userProfile: ProfileData; onEdit: () => void; isVip?: boolean; onVipClick?: () => void }) {
   return (
     <div 
-      className="relative px-4 pt-12 pb-8 rounded-b-3xl overflow-hidden"
+      className="relative px-4 pt-12 pb-8 rounded-b-3xl overflow-hidden z-0"
       style={{
         background: userProfile.background 
           ? `url(${userProfile.background}) center/cover no-repeat`
@@ -2117,9 +2056,16 @@ function MobileUserHeader({ userProfile, onEdit }: { userProfile: ProfileData; o
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-white">{userProfile.name}</h2>
-            <span className="px-2 py-0.5 rounded-full bg-green-400/90 text-white text-xs font-medium">
-              已认证
-            </span>
+            <button
+              onClick={onVipClick}
+              className={`px-2 py-0.5 rounded-full text-white text-xs font-medium transition-all hover:scale-105 ${
+                isVip 
+                  ? 'bg-gradient-to-r from-amber-400 to-amber-600 shadow-lg shadow-amber-500/50' 
+                  : 'bg-white/30 hover:bg-white/40'
+              }`}
+            >
+              {isVip ? 'VIP会员' : '开通VIP'}
+            </button>
           </div>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-white/70 text-sm">ID 33a4****c533</span>
@@ -2145,9 +2091,9 @@ function DigitalCardEntry({ onOpen }: { onOpen: () => void }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mx-4 -mt-4"
+      className="mx-4 -mt-4 relative z-10"
     >
-      <div className="glass-card p-4 flex items-center justify-between">
+      <div className="glass-card p-4 flex items-center justify-between shadow-lg">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
             <IdCard size={20} className="text-white" />
@@ -2171,19 +2117,19 @@ function DigitalCardEntry({ onOpen }: { onOpen: () => void }) {
 // 会员权益配置
 const membershipPlans = [
   {
-    id: 'monthly',
-    name: '月度会员',
+    id: 'vip',
+    name: 'VIP会员',
     price: 19.9,
     period: '月',
     features: ['无广告体验', '专属主题皮肤', '高级数据统计', '优先客服支持'],
     popular: false,
   },
   {
-    id: 'yearly',
-    name: '年度会员',
+    id: 'svip',
+    name: 'SVIP会员',
     price: 168,
     period: '年',
-    features: ['无广告体验', '专属主题皮肤', '高级数据统计', '优先客服支持', '云同步备份', '专属徽章标识'],
+    features: ['所有VIP权益', '云同步备份', '专属徽章标识', '专属客服通道', '提前体验新功能'],
     popular: true,
   },
   {
@@ -2191,16 +2137,9 @@ const membershipPlans = [
     name: '永久会员',
     price: 368,
     period: '永久',
-    features: ['所有年度会员权益', '终身免费更新', '专属VIP群组', '一对一技术支持', ''],
+    features: ['所有SVIP权益', '终身免费更新', '专属VIP群组', '一对一技术支持', '终身专属标识'],
     popular: false,
   },
-]
-
-const memberBenefits = [
-  { icon: Shield, title: '无广告体验', desc: '享受纯净的使用环境' },
-  { icon: Sparkles, title: '专属主题', desc: '解锁限定主题皮肤' },
-  { icon: Star, title: '高级功能', desc: '使用全部高级功能' },
-  { icon: Zap, title: '优先服务', desc: '客服优先响应处理' },
 ]
 
 // 移动端菜单主界面
@@ -2209,9 +2148,16 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showThemePanel, setShowThemePanel] = useState(false)
   const [showVipModal, setShowVipModal] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState('yearly')
+  const [selectedPlan, setSelectedPlan] = useState('svip')
+  const [isVip, setIsVip] = useState(false)
   const { currentTheme, setTheme, themeConfig } = useTheme()
   const navigate = useNavigate()
+
+  // 处理支付成功
+  const handlePaymentSuccess = () => {
+    setIsVip(true)
+    setShowVipModal(false)
+  }
 
   return (
     <motion.div
@@ -2220,36 +2166,21 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
       exit={{ opacity: 0 }}
       className="min-h-screen bg-bg"
     >
-      <MobileUserHeader userProfile={userProfile} onEdit={onEditProfile} />
+      <MobileUserHeader 
+        userProfile={userProfile} 
+        onEdit={onEditProfile} 
+        isVip={isVip}
+        onVipClick={() => setShowVipModal(true)}
+      />
       <DigitalCardEntry onOpen={() => setShowCardModal(true)} />
       
       {/* 功能菜单列表 */}
-      <div className="px-4 mt-6 space-y-2">
-        {/* VIP会员入口 - 放在最上方 */}
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0 * 0.05 }}
-          onClick={() => setShowVipModal(true)}
-          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-200 via-orange-200 to-rose-200 border border-white/50 active:scale-[0.98] transition-transform shadow-lg shadow-orange-200/50"
-        >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/60 shadow-inner">
-            <Crown size={20} className="text-amber-600" />
-          </div>
-          <div className="flex-1 text-left">
-            <h3 className="font-medium text-amber-800">
-              VIP会员
-            </h3>
-            <p className="text-xs text-amber-600/70 mt-0.5">解锁专属特权，享受尊贵体验</p>
-          </div>
-          <ChevronRight size={18} className="text-amber-600/60" />
-        </motion.button>
-
+      <div className="px-4 mt-4 space-y-2">
         {/* 主题风格选择入口 */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 1 * 0.05 }}
+          transition={{ delay: 0 * 0.05 }}
           onClick={() => setShowThemePanel(true)}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
@@ -2268,7 +2199,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
             key={item.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: (index + 2) * 0.05 }}
+            transition={{ delay: (index + 1) * 0.05 }}
             onClick={() => item.id === 'laboratory' ? navigate('/laboratory') : onNavigate(item.id)}
             className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
           >
@@ -2290,7 +2221,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: (mobileMenuItems.length + 2) * 0.05 }}
+          transition={{ delay: (mobileMenuItems.length + 1) * 0.05 }}
           onClick={() => onOpenSettings()}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
@@ -2308,7 +2239,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: (mobileMenuItems.length + 3) * 0.05 }}
+          transition={{ delay: (mobileMenuItems.length + 2) * 0.05 }}
           onClick={() => onOpenAbout()}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
@@ -2355,10 +2286,11 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
       {/* VIP会员订阅弹窗 */}
       <AnimatePresence>
         {showVipModal && (
-          <MembershipModal 
+          <MembershipModal
             onClose={() => setShowVipModal(false)}
             selectedPlan={selectedPlan}
             onSelectPlan={setSelectedPlan}
+            onPaymentSuccess={handlePaymentSuccess}
           />
         )}
       </AnimatePresence>
@@ -3553,54 +3485,6 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* 分享名片 */}
-      <div className="px-4 mt-6">
-        <h3 className="text-sm font-semibold text-text mb-3 flex items-center gap-2">
-          <Share2 size={16} className="text-primary" />
-          分享名片
-        </h3>
-        <div className="glass-card p-4">
-          <div className="bg-gradient-to-br from-primary/20 via-surface to-rose/10 rounded-xl p-4 border border-primary/10">
-            <div className="flex items-center gap-3 mb-3">
-              <img
-                src="/avatar.png"
-                alt="头像"
-                className="w-12 h-12 rounded-xl object-cover ring-2 ring-primary/20"
-              />
-              <div>
-                <h4 className="font-bold text-text text-sm">晓叶</h4>
-                <p className="text-xs text-text-muted">全栈开发者 / 创意设计师</p>
-              </div>
-            </div>
-            <p className="text-xs text-text-secondary leading-relaxed mb-3">
-              用代码编织梦想，用设计点亮生活
-            </p>
-            <div className="flex items-center justify-between">
-              <div className="flex gap-1.5">
-                {accounts.slice(0, 3).map((acc) => {
-                  const I = platformIcons[acc.icon] || ExternalLink
-                  return (
-                    <div
-                      key={acc.platform}
-                      className="w-6 h-6 rounded-md flex items-center justify-center"
-                      style={{ background: `${acc.color}22` }}
-                    >
-                      <I size={12} style={{ color: acc.color }} />
-                    </div>
-                  )
-                })}
-              </div>
-              <div className="w-12 h-12 rounded-lg bg-surface border border-border flex items-center justify-center text-text-dim text-[10px]">
-                QR
-              </div>
-            </div>
-          </div>
-          <button className="w-full mt-3 py-2 rounded-xl bg-primary/10 text-primary text-sm font-medium border border-primary/20">
-            复制分享链接
-          </button>
-        </div>
-      </div>
     </motion.div>
   )
 }
@@ -4182,11 +4066,13 @@ function CardHistoryModal({ onClose }: { onClose: () => void }) {
 function MembershipModal({ 
   onClose, 
   selectedPlan, 
-  onSelectPlan 
+  onSelectPlan,
+  onPaymentSuccess
 }: { 
   onClose: () => void
   selectedPlan: string
   onSelectPlan: (plan: string) => void
+  onPaymentSuccess?: () => void
 }) {
   const [paymentMethod, setPaymentMethod] = useState<'wechat' | 'alipay'>('wechat')
   const [isProcessing, setIsProcessing] = useState(false)
@@ -4196,8 +4082,9 @@ function MembershipModal({
     // 模拟支付处理
     await new Promise(resolve => setTimeout(resolve, 1500))
     setIsProcessing(false)
-    alert('支付功能演示：支付流程已完成！')
-    onClose()
+    // 支付成功回调
+    onPaymentSuccess?.()
+    alert('支付成功！您已成为VIP会员！')
   }
 
   const currentPlan = membershipPlans.find(p => p.id === selectedPlan)
@@ -4215,7 +4102,7 @@ function MembershipModal({
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="w-full max-w-lg bg-bg rounded-t-3xl sm:rounded-2xl max-h-[90vh] overflow-hidden"
+        className="w-full max-w-lg bg-bg rounded-t-3xl sm:rounded-2xl max-h-[80vh] sm:max-h-[85vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header - 使用紫色到蓝色的梦幻渐变 */}
@@ -4231,7 +4118,7 @@ function MembershipModal({
             <X size={20} />
           </button>
           
-          <div className="relative flex items-center gap-4 mb-6">
+          <div className="relative flex items-center gap-4 mb-2">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/50 ring-4 ring-white/20">
               <Crown size={32} className="text-white" />
             </div>
@@ -4242,25 +4129,10 @@ function MembershipModal({
               <p className="text-white/80 text-sm">解锁专属特权，享受尊贵体验</p>
             </div>
           </div>
-          
-          {/* 会员权益预览 - 使用彩色图标 */}
-          <div className="relative grid grid-cols-4 gap-3 mt-4">
-            {memberBenefits.map((benefit, index) => {
-              const colors = ['bg-blue-400', 'bg-purple-400', 'bg-pink-400', 'bg-emerald-400']
-              return (
-                <div key={index} className="text-center">
-                  <div className={`w-11 h-11 mx-auto rounded-xl ${colors[index]} flex items-center justify-center mb-2 shadow-lg ring-2 ring-white/20`}>
-                    <benefit.icon size={20} className="text-white" />
-                  </div>
-                  <p className="text-[11px] text-white/95 font-medium">{benefit.title}</p>
-                </div>
-              )
-            })}
-          </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[50vh]">
+        {/* Content - 可滚动区域 */}
+        <div className="flex-1 overflow-y-auto p-6 pb-4">
           {/* 会员套餐选择 */}
           <h3 className="text-sm font-medium text-text mb-4">选择套餐</h3>
           <div className="space-y-3 mb-6">
@@ -4305,78 +4177,95 @@ function MembershipModal({
             ))}
           </div>
 
-          {/* 权益详情 */}
+          {/* 权益详情 - 三行显示 */}
           <h3 className="text-sm font-medium text-text mb-3">会员权益</h3>
           <div className="bg-surface rounded-2xl p-4 mb-6">
-            <ul className="space-y-2">
-              {currentPlan?.features.map((feature, index) => (
-                <li key={index} className="flex items-center gap-2 text-sm text-text-secondary">
+            <div className="grid grid-cols-3 gap-3">
+              {currentPlan?.features.slice(0, 6).map((feature, index) => (
+                <div key={index} className="flex items-center gap-1.5">
                   <Check size={14} className="text-primary flex-shrink-0" />
-                  {feature}
-                </li>
+                  <span className="text-xs text-text-secondary truncate">{feature}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
           {/* 支付方式 */}
           <h3 className="text-sm font-medium text-text mb-3">支付方式</h3>
-          <div className="flex gap-3 mb-6">
+          <div className="grid grid-cols-2 gap-3 mb-6">
             <button
               onClick={() => setPaymentMethod('wechat')}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-colors ${
+              className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border-2 transition-all ${
                 paymentMethod === 'wechat'
-                  ? 'border-green-500 bg-green-500/5'
-                  : 'border-border/50 hover:border-green-500/30'
+                  ? 'border-green-500 bg-green-50 shadow-sm'
+                  : 'border-gray-200 bg-white hover:border-green-300'
               }`}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-green-500">
-                <path d="M8.5 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm7 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.73.55-3.33 1.48-4.64.38.56.98.93 1.66.93.65 0 1.24-.34 1.62-.87.38.53.97.87 1.62.87s1.24-.34 1.62-.87c.38.53.97.87 1.62.87.68 0 1.28-.37 1.66-.93C19.45 10.67 20 12.27 20 14c0 4.41-3.59 8-8 8z"/>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-green-500">
+                <path d="M9.5 11.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm7 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" fill="currentColor"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.73.55-3.33 1.48-4.64.38.56.98.93 1.66.93.65 0 1.24-.34 1.62-.87.38.53.97.87 1.62.87s1.24-.34 1.62-.87c.38.53.97.87 1.62.87.68 0 1.28-.37 1.66-.93C19.45 10.67 20 12.27 20 14c0 4.41-3.59 8-8 8z" fill="currentColor"/>
               </svg>
-              <span className="text-sm font-medium">微信支付</span>
+              <span className={`text-sm font-medium ${paymentMethod === 'wechat' ? 'text-green-600' : 'text-gray-700'}`}>微信支付</span>
+              {paymentMethod === 'wechat' && (
+                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center ml-1">
+                  <Check size={10} className="text-white" />
+                </div>
+              )}
             </button>
             <button
               onClick={() => setPaymentMethod('alipay')}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-colors ${
+              className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border-2 transition-all ${
                 paymentMethod === 'alipay'
-                  ? 'border-blue-500 bg-blue-500/5'
-                  : 'border-border/50 hover:border-blue-500/30'
+                  ? 'border-blue-500 bg-blue-50 shadow-sm'
+                  : 'border-gray-200 bg-white hover:border-blue-300'
               }`}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-blue-500">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                <path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-blue-500">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
-              <span className="text-sm font-medium">支付宝</span>
+              <span className={`text-sm font-medium ${paymentMethod === 'alipay' ? 'text-blue-600' : 'text-gray-700'}`}>支付宝</span>
+              {paymentMethod === 'alipay' && (
+                <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center ml-1">
+                  <Check size={10} className="text-white" />
+                </div>
+              )}
             </button>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-border/50 bg-surface/50">
-          <div className="flex items-center justify-between mb-4">
+        {/* Footer - 支付区域（固定在底部） */}
+        <div className="p-3 sm:p-4 border-t border-border/50 bg-gradient-to-b from-surface/50 to-surface flex-shrink-0 pb-safe">
+          {/* 价格显示 */}
+          <div className="flex items-baseline justify-center gap-1 mb-4">
             <span className="text-text-muted text-sm">实付金额</span>
-            <span className="text-2xl font-bold text-primary">¥{currentPlan?.price}</span>
+            <span className="text-2xl sm:text-3xl font-bold text-primary">¥{currentPlan?.price}</span>
+            <span className="text-text-muted text-sm">/{currentPlan?.period}</span>
           </div>
+          
+          {/* 立即支付按钮 */}
           <button
             onClick={handlePayment}
             disabled={isProcessing}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-primary-dim text-white font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/25"
+            className="w-full py-3.5 sm:py-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-white font-semibold text-base sm:text-lg hover:shadow-xl hover:shadow-amber-500/30 disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 active:scale-[0.98]"
           >
             {isProcessing ? (
               <>
                 <Loader2 size={18} className="animate-spin" />
-                处理中...
+                <span>支付处理中...</span>
               </>
             ) : (
               <>
                 <CreditCard size={18} />
-                立即支付
+                <span>立即支付</span>
               </>
             )}
           </button>
-          <p className="text-center text-xs text-text-dim mt-3">
-            支付即表示同意《会员服务协议》
+          
+          {/* 协议说明 */}
+          <p className="text-center text-xs text-text-dim mt-3 sm:mt-4 flex items-center justify-center gap-1">
+            <Shield size={12} />
+            <span>支付即表示同意《会员服务协议》，安全加密保障</span>
           </p>
         </div>
       </motion.div>
