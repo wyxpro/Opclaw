@@ -221,7 +221,7 @@ function TimelineItem({ item, index }: { item: typeof timelineData[0]; index: nu
 function PlanCard({ plan, index }: { plan: typeof futurePlans[0]; index: number }) {
   const { themeConfig } = useTheme()
   const Icon = plan.icon
-  const priority = priorityConfig[plan.priority]
+  const priority = priorityConfig[plan.priority as keyof typeof priorityConfig]
 
   return (
     <motion.div

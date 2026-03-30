@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X, Mail, Lock, User, Eye, EyeOff,
@@ -45,6 +46,7 @@ function getPasswordStrengthInfo(strength: PasswordStrength): { color: string; t
 }
 
 export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: AuthModalProps) {
+  const navigate = useNavigate()
   const [mode, setMode] = useState<'login' | 'register'>(defaultMode)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -158,7 +160,9 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
       })
       
       if (success) {
+        // Toast 提示已在 AuthContext 中显示
         onClose()
+        navigate('/social')
         // 重置表单
         setFormData({
           username: '',
@@ -193,7 +197,9 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
       })
       
       if (success) {
+        // Toast 提示已在 AuthContext 中显示
         onClose()
+        navigate('/social')
         // 重置表单
         setFormData({
           username: '',

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
@@ -7,14 +7,22 @@
     <meta name="description" content="SuperUI - OPC超级个体-全能数字资产管家" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <title>SuperUI - 应用</title>
     <style>
       /* 初始加载遮罩 - 防止白屏/黑屏闪烁 */
       #initial-loader {
         position: fixed;
         inset: 0;
-        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 50%, #fafafa 100%);
+        background: linear-gradient(
+          135deg,
+          #fafafa 0%,
+          #f5f5f5 50%,
+          #fafafa 100%
+        );
         background-size: 200% 200%;
         display: flex;
         flex-direction: column;
@@ -22,7 +30,9 @@
         justify-content: center;
         z-index: 99999;
         opacity: 1;
-        transition: opacity 0.4s ease, transform 0.4s ease;
+        transition:
+          opacity 0.4s ease,
+          transform 0.4s ease;
         animation: gradientShift 3s ease infinite;
         perspective: 800px;
       }
@@ -31,13 +41,18 @@
         pointer-events: none;
         transform: scale(1.1);
       }
-      
+
       /* 渐变背景动画 */
       @keyframes gradientShift {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
       }
-      
+
       /* 3D魔方容器 */
       #initial-loader .cube-wrapper {
         position: relative;
@@ -46,13 +61,17 @@
         transform-style: preserve-3d;
         animation: cubeRotate 4s linear infinite;
       }
-      
+
       /* 魔方旋转动画 */
       @keyframes cubeRotate {
-        0% { transform: rotateX(-20deg) rotateY(0deg); }
-        100% { transform: rotateX(-20deg) rotateY(360deg); }
+        0% {
+          transform: rotateX(-20deg) rotateY(0deg);
+        }
+        100% {
+          transform: rotateX(-20deg) rotateY(360deg);
+        }
       }
-      
+
       /* 魔方六个面 */
       #initial-loader .cube-face {
         position: absolute;
@@ -60,46 +79,48 @@
         height: 60px;
         border-radius: 8px;
         border: 2px solid rgba(255, 255, 255, 0.3);
-        box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.2), 0 0 20px rgba(139, 92, 246, 0.3);
+        box-shadow:
+          inset 0 0 20px rgba(255, 255, 255, 0.2),
+          0 0 20px rgba(139, 92, 246, 0.3);
         backface-visibility: visible;
       }
-      
+
       /* 前面 - 紫色 */
       #initial-loader .cube-face.front {
         background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
         transform: translateZ(30px);
       }
-      
+
       /* 后面 - 深紫色 */
       #initial-loader .cube-face.back {
         background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
         transform: rotateY(180deg) translateZ(30px);
       }
-      
+
       /* 右面 - 粉色 */
       #initial-loader .cube-face.right {
         background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
         transform: rotateY(90deg) translateZ(30px);
       }
-      
+
       /* 左面 - 青色 */
       #initial-loader .cube-face.left {
         background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
         transform: rotateY(-90deg) translateZ(30px);
       }
-      
+
       /* 上面 - 蓝紫色 */
       #initial-loader .cube-face.top {
         background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
         transform: rotateX(90deg) translateZ(30px);
       }
-      
+
       /* 下面 - 靛蓝色 */
       #initial-loader .cube-face.bottom {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         transform: rotateX(-90deg) translateZ(30px);
       }
-      
+
       /* 品牌文字 */
       #initial-loader .brand-text {
         margin-top: 40px;
@@ -113,54 +134,93 @@
         background-clip: text;
         animation: textGradient 3s ease infinite;
       }
-      
+
       /* 文字渐变动画 */
       @keyframes textGradient {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
       }
-      
+
       /* 装饰性光晕 */
       #initial-loader .cube-glow {
         position: absolute;
         width: 120px;
         height: 120px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+        background: radial-gradient(
+          circle,
+          rgba(139, 92, 246, 0.2) 0%,
+          transparent 70%
+        );
         animation: glowPulse 2s ease-in-out infinite;
         pointer-events: none;
       }
-      
+
       @keyframes glowPulse {
-        0%, 100% { transform: scale(0.8); opacity: 0.5; }
-        50% { transform: scale(1.2); opacity: 0.8; }
+        0%,
+        100% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        50% {
+          transform: scale(1.2);
+          opacity: 0.8;
+        }
       }
-      
+
       /* 深色模式适配 */
       @media (prefers-color-scheme: dark) {
         #initial-loader {
-          background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+          background: linear-gradient(
+            135deg,
+            #0d1117 0%,
+            #161b22 50%,
+            #0d1117 100%
+          );
           background-size: 200% 200%;
         }
         #initial-loader .cube-face {
           border-color: rgba(255, 255, 255, 0.1);
-          box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1), 0 0 30px rgba(139, 92, 246, 0.4);
+          box-shadow:
+            inset 0 0 20px rgba(255, 255, 255, 0.1),
+            0 0 30px rgba(139, 92, 246, 0.4);
         }
-        #initial-loader .cube-face.front { background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); }
-        #initial-loader .cube-face.back { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
-        #initial-loader .cube-face.right { background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%); }
-        #initial-loader .cube-face.left { background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%); }
-        #initial-loader .cube-face.top { background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%); }
-        #initial-loader .cube-face.bottom { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); }
+        #initial-loader .cube-face.front {
+          background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+        }
+        #initial-loader .cube-face.back {
+          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        #initial-loader .cube-face.right {
+          background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+        }
+        #initial-loader .cube-face.left {
+          background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+        }
+        #initial-loader .cube-face.top {
+          background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+        }
+        #initial-loader .cube-face.bottom {
+          background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+        }
         #initial-loader .brand-text {
           background: linear-gradient(135deg, #a78bfa, #f472b6, #22d3ee);
           background-size: 200% 200%;
         }
         #initial-loader .cube-glow {
-          background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+          background: radial-gradient(
+            circle,
+            rgba(139, 92, 246, 0.3) 0%,
+            transparent 70%
+          );
         }
       }
-      
+
       /* 移动端适配 */
       @media (max-width: 768px) {
         #initial-loader .cube-wrapper,
@@ -168,12 +228,24 @@
           width: 50px;
           height: 50px;
         }
-        #initial-loader .cube-face.front { transform: translateZ(25px); }
-        #initial-loader .cube-face.back { transform: rotateY(180deg) translateZ(25px); }
-        #initial-loader .cube-face.right { transform: rotateY(90deg) translateZ(25px); }
-        #initial-loader .cube-face.left { transform: rotateY(-90deg) translateZ(25px); }
-        #initial-loader .cube-face.top { transform: rotateX(90deg) translateZ(25px); }
-        #initial-loader .cube-face.bottom { transform: rotateX(-90deg) translateZ(25px); }
+        #initial-loader .cube-face.front {
+          transform: translateZ(25px);
+        }
+        #initial-loader .cube-face.back {
+          transform: rotateY(180deg) translateZ(25px);
+        }
+        #initial-loader .cube-face.right {
+          transform: rotateY(90deg) translateZ(25px);
+        }
+        #initial-loader .cube-face.left {
+          transform: rotateY(-90deg) translateZ(25px);
+        }
+        #initial-loader .cube-face.top {
+          transform: rotateX(90deg) translateZ(25px);
+        }
+        #initial-loader .cube-face.bottom {
+          transform: rotateX(-90deg) translateZ(25px);
+        }
         #initial-loader .brand-text {
           font-size: 16px;
           letter-spacing: 3px;
@@ -184,7 +256,7 @@
           height: 100px;
         }
       }
-      
+
       /* 减少动画偏好适配 */
       @media (prefers-reduced-motion: reduce) {
         #initial-loader .cube-wrapper {
@@ -214,17 +286,23 @@
       </div>
       <div class="brand-text">SUPERUI</div>
     </div>
+    <script type="module">
+      window.__APP_CONFIG__ = {
+        VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+        VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
+      };
+    </script>
     <script type="module" src="/src/main.tsx"></script>
     <script>
       // 页面加载完成后隐藏遮罩
-      window.addEventListener('load', function() {
-        const loader = document.getElementById('initial-loader');
+      window.addEventListener("load", function () {
+        const loader = document.getElementById("initial-loader");
         if (loader) {
           // 给 React 一点时间来渲染初始内容
-          setTimeout(function() {
-            loader.classList.add('hidden');
+          setTimeout(function () {
+            loader.classList.add("hidden");
             // 动画完成后移除元素
-            setTimeout(function() {
+            setTimeout(function () {
               loader.remove();
             }, 300);
           }, 100);

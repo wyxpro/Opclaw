@@ -82,9 +82,7 @@ export function AIAssistant({ currentArticle, isOpen, onToggle }: AIAssistantPro
             setSize({ width: isMobile ? 320 : 384, height: 500 })
           }
         })
-      } catch {
-        
-      }
+      } catch (_e) { void 0 }
     }
   }, [])
 

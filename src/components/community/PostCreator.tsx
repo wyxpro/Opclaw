@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Image, X, Send, Sparkles, Loader2 } from 'lucide-react'
 import type { ThemeConfig } from '../../lib/themes'
 import type { PostFormData, PostAttachment, CommunityUser } from './types'
+import { uploadPublicFile } from '../../lib/storage'
 
 interface PostCreatorProps {
   currentUser: CommunityUser
@@ -18,24 +19,23 @@ export default function PostCreator({ currentUser, themeConfig, onSubmit }: Post
   const [isFocused, setIsFocused] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
-    Array.from(files).forEach(file => {
+    for (const file of Array.from(files)) {
       if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
+        const res = await uploadPublicFile(file, 'community')
+        if ('url' in res) {
           const newAttachment: PostAttachment = {
             type: 'image',
-            url: event.target?.result as string,
+            url: res.url,
             name: file.name,
           }
           setAttachments(prev => [...prev, newAttachment])
         }
-        reader.readAsDataURL(file)
       }
-    })
+    }
   }
 
   const removeAttachment = (index: number) => {

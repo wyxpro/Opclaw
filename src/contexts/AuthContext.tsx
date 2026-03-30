@@ -1,206 +1,269 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import type { User, LoginCredentials, RegisterCredentials, AuthContextType } from '../types/auth'
+import { getSupabaseClient } from '../lib/supabase'
 import { presetAvatars } from '../data/mock'
+import { showToast } from '../lib/toast'
+import { useNavigate } from 'react-router-dom'
 
 const AUTH_STORAGE_KEY = 'superui_auth_data'
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// 生成唯一ID
-function generateId(): string {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+function mapProfileToUser(profile: any, email: string): User {
+  return {
+    id: profile.user_id,
+    username: profile.username || email.split('@')[0],
+    email,
+    avatar: profile.avatar_url || presetAvatars[1]?.url || '',
+    backgroundUrl: profile.background_url || '',
+    bio: profile.bio || '',
+    createdAt: profile.created_at || new Date().toISOString(),
+    lastLoginAt: new Date().toISOString(),
+  }
 }
-
-// 模拟用户数据库（实际项目中应该连接后端API）
-const mockUserDatabase: Map<string, { user: User; password: string }> = new Map()
-
-// 初始化管理员账户
-const adminId = generateId()
-const adminUser: User = {
-  id: adminId,
-  username: '晓叶有点酷',
-  email: 'wyxcode@qq.com',
-  avatar: presetAvatars[1]?.url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
-  bio: '系统管理员',
-  createdAt: new Date().toISOString(),
-  lastLoginAt: new Date().toISOString(),
-}
-mockUserDatabase.set(adminId, { user: adminUser, password: '123456' })
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const navigate = useNavigate()
 
-  // 初始化：从 localStorage 恢复登录状态
-  useEffect(() => {
-    const initAuth = () => {
-      try {
-        const storedData = localStorage.getItem(AUTH_STORAGE_KEY)
-        if (storedData) {
-          const parsed = JSON.parse(storedData)
-          // 检查是否过期
-          if (parsed.expiresAt && parsed.expiresAt < Date.now()) {
-            localStorage.removeItem(AUTH_STORAGE_KEY)
-          } else {
-            setUser(parsed.user)
-            setIsAuthenticated(true)
-          }
-        }
-      } catch (error) {
-        console.error('Failed to parse auth data:', error)
+  async function fetchAndSetProfile() {
+    try {
+      const supabase = getSupabaseClient()
+      const { data: userRes } = await supabase.auth.getUser()
+      const authed = !!userRes?.user
+      if (!authed) {
+        setUser(null)
+        setIsAuthenticated(false)
+        setIsLoading(false)
         localStorage.removeItem(AUTH_STORAGE_KEY)
+        return
       }
+      const uid = userRes.user!.id
+      const email = userRes.user!.email || ''
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', uid)
+        .maybeSingle()
+      let mapped: User
+      if (!profile) {
+        const username = email ? email.split('@')[0] : 'user'
+        const avatar_url = presetAvatars[1]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
+        await supabase.from('profiles').insert({
+          user_id: uid,
+          username,
+          email,
+          avatar_url,
+          bio: '',
+        })
+        mapped = {
+          id: uid,
+          username,
+          email,
+          avatar: avatar_url,
+          backgroundUrl: '',
+          bio: '',
+          createdAt: new Date().toISOString(),
+          lastLoginAt: new Date().toISOString(),
+        }
+      } else {
+        mapped = mapProfileToUser(profile, email)
+      }
+      setUser(mapped)
+      setIsAuthenticated(true)
+      localStorage.setItem(
+        AUTH_STORAGE_KEY,
+        JSON.stringify({ user: mapped })
+      )
       setIsLoading(false)
+    } catch {
+      setUser(null)
+      setIsAuthenticated(false)
+      setIsLoading(false)
+      localStorage.removeItem(AUTH_STORAGE_KEY)
     }
+  }
 
-    initAuth()
+  useEffect(() => {
+    const supabase = getSupabaseClient()
+    // 先用本地快照做"乐观预置"，避免页面首次渲染误判未登录而弹框
+    let hasLocalCache = false
+    try {
+      const cached = localStorage.getItem(AUTH_STORAGE_KEY)
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (parsed?.user) {
+          setUser(parsed.user)
+          setIsAuthenticated(true)
+          hasLocalCache = true
+          // 保持 isLoading 为 true，待后续 fetchAndSetProfile 校验并最终定格状态
+        }
+      }
+    } catch {
+      // ignore parse error
+    }
+      
+    // 定义带缓存状态的 profile 获取函数
+    const fetchAndSetProfileWithCache = async () => {
+      try {
+        const supabase = getSupabaseClient()
+        const { data: userRes } = await supabase.auth.getUser()
+        const authed = !!userRes?.user
+        if (!authed) {
+          setUser(null)
+          setIsAuthenticated(false)
+          setIsLoading(false)
+          localStorage.removeItem(AUTH_STORAGE_KEY)
+          return
+        }
+        const uid = userRes.user!.id
+        const email = userRes.user!.email || ''
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', uid)
+          .maybeSingle()
+        let mapped: User
+        if (!profile) {
+          const username = email ? email.split('@')[0] : 'user'
+          const avatar_url = presetAvatars[1]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
+          await supabase.from('profiles').insert({
+            user_id: uid,
+            username,
+            email,
+            avatar_url,
+            bio: '',
+          })
+          mapped = {
+            id: uid,
+            username,
+            email,
+            avatar: avatar_url,
+            backgroundUrl: '',
+            bio: '',
+            createdAt: new Date().toISOString(),
+            lastLoginAt: new Date().toISOString(),
+          }
+        } else {
+          mapped = mapProfileToUser(profile, email)
+        }
+        setUser(mapped)
+        setIsAuthenticated(true)
+        localStorage.setItem(
+          AUTH_STORAGE_KEY,
+          JSON.stringify({ user: mapped })
+        )
+        setIsLoading(false)
+      } catch {
+        // 如果有本地缓存，保持登录状态，不退出
+        if (!hasLocalCache) {
+          setUser(null)
+          setIsAuthenticated(false)
+          localStorage.removeItem(AUTH_STORAGE_KEY)
+        }
+        setIsLoading(false)
+      }
+    }
+      
+    fetchAndSetProfileWithCache()
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, _session) => {
+      fetchAndSetProfile()
+    })
+    return () => {
+      listener.subscription.unsubscribe()
+    }
   }, [])
 
-  // 保存认证数据到 localStorage
-  const saveAuthData = useCallback((userData: User, rememberMe: boolean = false) => {
-    const data = {
-      user: userData,
-      token: generateId(),
-      expiresAt: rememberMe ? undefined : Date.now() + 7 * 24 * 60 * 60 * 1000, // 7天过期
-    }
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data))
+  const saveAuthData = useCallback((userData: User) => {
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user: userData }))
   }, [])
 
-  // 登录功能
   const login = useCallback(async (credentials: LoginCredentials): Promise<boolean> => {
     try {
-      // 模拟API调用延迟
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      const { emailOrPhone, password, rememberMe } = credentials
-
-      // 验证输入
-      if (!emailOrPhone || !password) {
-        return false
+      const { emailOrPhone, password } = credentials
+      if (!emailOrPhone || !password) return false
+      const supabase = getSupabaseClient()
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      let emailToUse = emailOrPhone
+      if (!emailRegex.test(emailOrPhone)) {
+        let emailRes: string | null = null
+        try {
+          const { data: rpcData } = await supabase.rpc('get_email_by_username', { p_username: emailOrPhone })
+          emailRes = (rpcData as any) || null
+        } catch {}
+        if (!emailRes) {
+          const { data: prof } = await supabase.from('profiles').select('email').eq('username', emailOrPhone).maybeSingle()
+          emailRes = (prof as any)?.email || null
+        }
+        emailToUse = emailRes || ''
+        if (!emailToUse) return false
       }
-
-      // 查找用户（模拟数据库查询）
-      let foundUser: { user: User; password: string } | undefined
-      
-      // 先尝试通过用户名查找
-      foundUser = Array.from(mockUserDatabase.values()).find(
-        u => u.user.username === emailOrPhone
-      )
-      
-      // 如果没找到，尝试通过邮箱查找
-      if (!foundUser) {
-        foundUser = Array.from(mockUserDatabase.values()).find(
-          u => u.user.email === emailOrPhone
-        )
-      }
-
-      // 验证密码
-      if (!foundUser || foundUser.password !== password) {
-        return false
-      }
-
-      // 更新最后登录时间
-      const updatedUser = {
-        ...foundUser.user,
-        lastLoginAt: new Date().toISOString(),
-      }
-
-      // 更新数据库
-      mockUserDatabase.set(foundUser.user.id, { user: updatedUser, password })
-
-      // 设置状态
-      setUser(updatedUser)
-      setIsAuthenticated(true)
-
-      // 保存到 localStorage
-      saveAuthData(updatedUser, rememberMe)
-
+      const { error } = await supabase.auth.signInWithPassword({
+        email: emailToUse,
+        password,
+      })
+      if (error) return false
+      await fetchAndSetProfile()
+      showToast('登录成功')
+      navigate('/social')
       return true
     } catch (error) {
-      console.error('Login error:', error)
       return false
     }
-  }, [saveAuthData])
+  }, [saveAuthData, user, navigate])
 
-  // 注册功能
   const register = useCallback(async (credentials: RegisterCredentials): Promise<boolean> => {
     try {
-      // 模拟API调用延迟
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      const { username, email, phone, password, confirmPassword } = credentials
-
-      // 验证密码匹配
-      if (password !== confirmPassword) {
-        return false
-      }
-
-      // 检查邮箱是否已注册
-      const emailExists = Array.from(mockUserDatabase.values()).some(
-        u => u.user.email === email
-      )
-      if (emailExists) {
-        return false
-      }
-
-      // 检查手机号是否已注册
-      if (phone) {
-        const phoneExists = Array.from(mockUserDatabase.values()).some(
-          u => u.user.phone === phone
-        )
-        if (phoneExists) {
-          return false
-        }
-      }
-
-      // 创建新用户
-      const newUser: User = {
-        id: generateId(),
-        username,
+      const { username, email, password, confirmPassword } = credentials
+      if (password !== confirmPassword) return false
+      const supabase = getSupabaseClient()
+      const { data: exists } = await supabase.from('profiles').select('username').eq('username', username).maybeSingle()
+      if (exists) return false
+      const { data, error } = await supabase.auth.signUp({
         email,
-        phone,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
-        bio: '',
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString(),
+        password,
+        options: { data: { username } },
+      })
+      if (error) return false
+      if (data.user) {
+        const uid = data.user.id
+        await supabase.from('profiles').upsert({
+          user_id: uid,
+          username,
+          email,
+          avatar_url: presetAvatars[1]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+          background_url: '',
+          bio: '',
+        })
       }
-
-      // 保存到模拟数据库
-      mockUserDatabase.set(newUser.id, { user: newUser, password })
-
-      // 自动登录
-      setUser(newUser)
-      setIsAuthenticated(true)
-      saveAuthData(newUser, true)
-
+      await fetchAndSetProfile()
+      showToast('注册成功，已登录')
+      navigate('/social')
       return true
     } catch (error) {
-      console.error('Register error:', error)
       return false
     }
-  }, [saveAuthData])
+  }, [saveAuthData, user, navigate])
 
-  // 登出功能
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    const supabase = getSupabaseClient()
+    await supabase.auth.signOut()
     setUser(null)
     setIsAuthenticated(false)
     localStorage.removeItem(AUTH_STORAGE_KEY)
   }, [])
 
-  // 检查认证状态
   const checkAuth = useCallback((): boolean => {
     return isAuthenticated && user !== null
   }, [isAuthenticated, user])
 
-  // 更新用户信息
-  const updateUser = useCallback((userData: Partial<User>) => {
+  const updateUser = useCallback(async (userData: Partial<User>) => {
     if (!user) return
 
     const updatedUser = { ...user, ...userData }
     setUser(updatedUser)
-
-    // 更新 localStorage
     const storedData = localStorage.getItem(AUTH_STORAGE_KEY)
     if (storedData) {
       const parsed = JSON.parse(storedData)
@@ -209,12 +272,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         JSON.stringify({ ...parsed, user: updatedUser })
       )
     }
-
-    // 更新模拟数据库
-    const dbEntry = mockUserDatabase.get(user.id)
-    if (dbEntry) {
-      mockUserDatabase.set(user.id, { ...dbEntry, user: updatedUser })
-    }
+    const supabase = getSupabaseClient()
+    await supabase.from('profiles').update({
+      username: updatedUser.username,
+      avatar_url: updatedUser.avatar,
+      background_url: updatedUser.backgroundUrl,
+      bio: updatedUser.bio,
+      updated_at: new Date().toISOString(),
+    }).eq('user_id', user.id)
   }, [user])
 
   const value: AuthContextType = {

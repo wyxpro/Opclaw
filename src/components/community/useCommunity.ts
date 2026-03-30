@@ -1,26 +1,16 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import type { Post, Comment, CommunityUser, PostFormData, AvatarChatMessage } from './types'
-import { mockPosts, mockComments, mockCurrentUser } from '../../data/mock'
 import { ragEngine } from '../../lib/ragEngine'
+import { getSupabaseClient } from '../../lib/supabase'
+import { useAuth } from '../../contexts/AuthContext'
 
 // 从localStorage获取当前用户的AI分身信息
-const getCurrentUserWithAvatar = (): CommunityUser => {
-  const savedAvatar = localStorage.getItem('ai_avatar')
-  
-  let avatarModel = undefined
-  if (savedAvatar) {
-    try {
-      avatarModel = JSON.parse(savedAvatar)
-    } catch {
-      // 解析失败使用默认
-    }
-  }
-  
-  return {
-    ...mockCurrentUser,
-    avatarModel,
-    avatar: avatarModel?.url || mockCurrentUser.avatar,
-    name: localStorage.getItem('user_name') || mockCurrentUser.name,
+const getSavedAvatarModel = () => {
+  const saved = localStorage.getItem('ai_avatar')
+  try {
+    return saved ? JSON.parse(saved) : undefined
+  } catch {
+    return undefined
   }
 }
 
@@ -33,9 +23,19 @@ const getInitialWelcomeMessage = (): AvatarChatMessage => ({
 })
 
 export function useCommunity() {
+  const { user: authUser } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [comments, setComments] = useState<Record<string, Comment[]>>({})
-  const [currentUser, setCurrentUser] = useState<CommunityUser>(() => getCurrentUserWithAvatar())
+  const [currentUser, setCurrentUser] = useState<CommunityUser>(() => {
+    const avatarModel = getSavedAvatarModel()
+    return {
+      id: authUser?.id || '',
+      name: authUser?.username || '用户',
+      avatar: avatarModel?.url || authUser?.avatar || '',
+      avatarModel,
+      bio: authUser?.bio,
+    }
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(1)
@@ -44,27 +44,64 @@ export function useCommunity() {
   const [avatarMessages, setAvatarMessages] = useState<AvatarChatMessage[]>([getInitialWelcomeMessage()])
   const [isAvatarTyping, setIsAvatarTyping] = useState(false)
 
+  useEffect(() => {
+    const avatarModel = getSavedAvatarModel()
+    setCurrentUser({
+      id: authUser?.id || '',
+      name: authUser?.username || '用户',
+      avatar: avatarModel?.url || authUser?.avatar || '',
+      avatarModel,
+      bio: authUser?.bio,
+    })
+  }, [authUser?.id, authUser?.username, authUser?.avatar, authUser?.bio])
+
   // 加载帖子列表
   const loadPosts = useCallback(async (reset = false, currentPageNum = page) => {
     setIsLoading(true)
-    
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 800))
-    
+    const supabase = getSupabaseClient()
     const pageToUse = reset ? 1 : currentPageNum
-    const start = (pageToUse - 1) * 10
-    const end = start + 10
-    const newPosts = mockPosts.slice(start, end)
-    
+    const from = (pageToUse - 1) * 10
+    const to = from + 9
+    const { data: rows } = await supabase
+      .from('posts')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(from, to)
+    let mapped: Post[] = []
+    if (rows && rows.length > 0) {
+      const authorIds = Array.from(new Set(rows.map(r => r.author_id)))
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username, avatar_url')
+        .in('user_id', authorIds)
+      const profileMap = new Map((profiles || []).map(p => [p.user_id, p]))
+      mapped = rows.map(r => {
+        const p = profileMap.get(r.author_id)
+        const author: CommunityUser = {
+          id: r.author_id,
+          name: p?.username || '用户',
+          avatar: p?.avatar_url || '',
+        }
+        return {
+          id: r.id,
+          author,
+          content: r.content,
+          attachments: r.attachments || [],
+          timestamp: new Date(r.created_at).getTime(),
+          likes: r.likes || 0,
+          comments: r.comments_count || 0,
+          shares: r.shares || 0,
+        }
+      })
+    }
     if (reset) {
-      setPosts(newPosts)
+      setPosts(mapped)
       setPage(2)
     } else {
-      setPosts(prev => [...prev, ...newPosts])
+      setPosts(prev => [...prev, ...mapped])
       setPage(prev => prev + 1)
     }
-    
-    setHasMore(end < mockPosts.length)
+    setHasMore((rows?.length || 0) === 10)
     setIsLoading(false)
   }, [page])
 
@@ -77,98 +114,123 @@ export function useCommunity() {
 
   // 发布新帖子
   const createPost = useCallback(async (data: PostFormData): Promise<void> => {
-    const newPost: Post = {
-      id: `post-${Date.now()}`,
-      author: {
-        ...currentUser,
-        avatar: data.useAIAvatar && currentUser.avatarModel 
-          ? currentUser.avatarModel.url 
-          : currentUser.avatar,
-      },
+    const supabase = getSupabaseClient()
+    const attachments = data.attachments || []
+    const authorAvatar = data.useAIAvatar && currentUser.avatarModel ? currentUser.avatarModel.url : currentUser.avatar
+    const insertRes = await supabase.from('posts').insert({
+      author_id: currentUser.id,
       content: data.content,
-      attachments: data.attachments,
-      timestamp: Date.now(),
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      isLiked: false,
+      attachments,
+    }).select('*').single()
+    if (insertRes.data) {
+      const newPost: Post = {
+        id: insertRes.data.id,
+        author: { ...currentUser, avatar: authorAvatar },
+        content: insertRes.data.content,
+        attachments,
+        timestamp: new Date(insertRes.data.created_at).getTime(),
+        likes: 0,
+        comments: 0,
+        shares: 0,
+      }
+      setPosts(prev => [newPost, ...prev])
     }
-    
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    setPosts(prev => [newPost, ...prev])
   }, [currentUser])
 
   // 点赞/取消点赞帖子
   const toggleLikePost = useCallback(async (postId: string) => {
-    setPosts(prev => prev.map(post => {
-      if (post.id === postId) {
-        return {
-          ...post,
-          likes: post.isLiked ? post.likes - 1 : post.likes + 1,
-          isLiked: !post.isLiked,
-        }
-      }
-      return post
-    }))
-  }, [])
+    const target = posts.find(p => p.id === postId)
+    if (!target) return
+    const nextLiked = !target.isLiked
+    const nextLikes = nextLiked ? target.likes + 1 : Math.max(0, target.likes - 1)
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, isLiked: nextLiked, likes: nextLikes } : p))
+    const supabase = getSupabaseClient()
+    await supabase.from('posts').update({ likes: nextLikes }).eq('id', postId)
+  }, [posts])
 
   // 分享帖子
   const sharePost = useCallback(async (postId: string) => {
-    setPosts(prev => prev.map(post => {
-      if (post.id === postId) {
-        return {
-          ...post,
-          shares: post.isShared ? post.shares - 1 : post.shares + 1,
-          isShared: !post.isShared,
-        }
-      }
-      return post
-    }))
-  }, [])
+    const target = posts.find(p => p.id === postId)
+    if (!target) return
+    const nextShared = !target.isShared
+    const nextShares = nextShared ? target.shares + 1 : Math.max(0, target.shares - 1)
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, isShared: nextShared, shares: nextShares } : p))
+    const supabase = getSupabaseClient()
+    await supabase.from('posts').update({ shares: nextShares }).eq('id', postId)
+  }, [posts])
 
   // 加载评论
   const loadComments = useCallback(async (postId: string) => {
-    if (comments[postId]) return // 已加载过
-    
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 600))
-    
-    const postComments = mockComments.filter((comment: Comment) => comment.postId === postId)
-    setComments(prev => ({ ...prev, [postId]: postComments }))
+    if (comments[postId]) return
+    const supabase = getSupabaseClient()
+    const { data: rows } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('post_id', postId)
+      .order('created_at', { ascending: true })
+    let mapped: Comment[] = []
+    if (rows && rows.length > 0) {
+      const authorIds = Array.from(new Set(rows.map(r => r.author_id)))
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username, avatar_url')
+        .in('user_id', authorIds)
+      const profileMap = new Map((profiles || []).map(p => [p.user_id, p]))
+      mapped = rows.map(r => {
+        const p = profileMap.get(r.author_id)
+        const author: CommunityUser = {
+          id: r.author_id,
+          name: p?.username || '用户',
+          avatar: p?.avatar_url || '',
+        }
+        return {
+          id: r.id,
+          postId: r.post_id,
+          author,
+          content: r.content,
+          timestamp: new Date(r.created_at).getTime(),
+          likes: r.likes || 0,
+          parentId: r.parent_id || undefined,
+        }
+      })
+    }
+    setComments(prev => ({ ...prev, [postId]: mapped }))
   }, [comments])
 
   // 添加评论
   const addComment = useCallback(async (postId: string, content: string, parentId?: string) => {
-    const newComment: Comment = {
-      id: `comment-${Date.now()}`,
-      postId,
-      author: currentUser,
+    const supabase = getSupabaseClient()
+    const insertRes = await supabase.from('comments').insert({
+      post_id: postId,
+      author_id: currentUser.id,
       content,
-      timestamp: Date.now(),
-      likes: 0,
-      parentId,
-    }
-    
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 400))
-    
-    setComments(prev => ({
-      ...prev,
-      [postId]: [...(prev[postId] || []), newComment],
-    }))
-    
-    // 更新帖子评论数
-    setPosts(prev => prev.map(post => {
-      if (post.id === postId) {
-        return { ...post, comments: post.comments + 1 }
+      parent_id: parentId || null,
+    }).select('*').single()
+    if (insertRes.data) {
+      const newComment: Comment = {
+        id: insertRes.data.id,
+        postId,
+        author: currentUser,
+        content: insertRes.data.content,
+        timestamp: new Date(insertRes.data.created_at).getTime(),
+        likes: 0,
+        parentId,
       }
-      return post
-    }))
-    
-    return newComment
-  }, [currentUser])
+      setComments(prev => ({
+        ...prev,
+        [postId]: [...(prev[postId] || []), newComment],
+      }))
+      setPosts(prev => prev.map(post => {
+        if (post.id === postId) {
+          const nextCount = (post.comments || 0) + 1
+          return { ...post, comments: nextCount }
+        }
+        return post
+      }))
+      await supabase.from('posts').update({ comments_count: (target => (target?.comments || 0) + 1)(posts.find(p => p.id === postId)) }).eq('id', postId)
+      return newComment
+    }
+  }, [currentUser, posts])
 
   // 点赞评论
   const toggleLikeComment = useCallback(async (commentId: string, postId: string) => {
@@ -176,16 +238,19 @@ export function useCommunity() {
       ...prev,
       [postId]: prev[postId]?.map(comment => {
         if (comment.id === commentId) {
-          return {
-            ...comment,
-            likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
-            isLiked: !comment.isLiked,
-          }
+          const nextLiked = !comment.isLiked
+          const nextLikes = nextLiked ? comment.likes + 1 : Math.max(0, comment.likes - 1)
+          return { ...comment, isLiked: nextLiked, likes: nextLikes }
         }
         return comment
       }) || [],
     }))
-  }, [])
+    const supabase = getSupabaseClient()
+    const target = comments[postId]?.find(c => c.id === commentId)
+    if (target) {
+      await supabase.from('comments').update({ likes: target.likes }).eq('id', commentId)
+    }
+  }, [comments])
 
   // 与AI分身对话
   const sendMessageToAvatar = useCallback(async (content: string) => {
@@ -229,8 +294,41 @@ export function useCommunity() {
 
   // 刷新当前用户信息（当AI分身更新时）
   const refreshCurrentUser = useCallback(() => {
-    setCurrentUser(getCurrentUserWithAvatar())
+    const avatarModel = getSavedAvatarModel()
+    setCurrentUser(prev => ({
+      ...prev,
+      avatar: avatarModel?.url || prev.avatar,
+      avatarModel,
+    }))
   }, [])
+
+  useEffect(() => {
+    const supabase = getSupabaseClient()
+    const channel = supabase
+      .channel('community-realtime')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'posts' },
+        payload => {
+          const r: any = payload.new
+          const p: Post = {
+            id: r.id,
+            author: currentUser,
+            content: r.content,
+            attachments: r.attachments || [],
+            timestamp: new Date(r.created_at).getTime(),
+            likes: r.likes || 0,
+            comments: r.comments_count || 0,
+            shares: r.shares || 0,
+          }
+          setPosts(prev => [p, ...prev])
+        }
+      )
+    channel.subscribe()
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [currentUser])
 
   return {
     posts,

@@ -645,6 +645,12 @@
     </style>
   </head>
   <body>
+    <script type="module">
+      (window).__APP_CONFIG__ = {
+        VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+        VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
+      };
+    </script>
     <nav
       class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       id="navbar"

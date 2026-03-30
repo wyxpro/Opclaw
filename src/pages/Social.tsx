@@ -50,29 +50,56 @@ export default function Social() {
   const [showAboutModal, setShowAboutModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   // 认证状态
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated, isLoading, user, updateUser } = useAuth()
   
-  // 未登录时自动显示登录弹窗
+  // 未登录时自动显示登录弹窗（等待 AuthContext 加载完成）
   useEffect(() => {
+    if (isLoading) return
     if (!isAuthenticated && !showAuthModal) {
       const timer = setTimeout(() => {
         setShowAuthModal(true)
       }, 100)
       return () => clearTimeout(timer)
     }
-  }, [isAuthenticated])
+    if (isAuthenticated && showAuthModal) {
+      setShowAuthModal(false)
+    }
+  }, [isLoading, isAuthenticated, showAuthModal])
   
-  // 用户资料状态 - 使用函数式初始化避免重复渲染
-  const [userProfile, setUserProfile] = useState<ProfileData>(() => ({
-    avatar: user?.avatar || presetAvatars[0].url,
-    background: null,
-    name: user?.username || '晓叶',
-    gender: 'secret',
-    age: '',
-    bio: user?.bio || '',
-    phone: user?.phone || '',
-    email: user?.email || ''
-  }))
+  // 用户资料状态 - 优先使用本地存储中的上次登录信息，避免刷新时先闪默认头像
+  const [userProfile, setUserProfile] = useState<ProfileData>(() => {
+    try {
+      const stored = localStorage.getItem('superui_auth_data')
+      if (stored) {
+        const parsed = JSON.parse(stored) as { user?: { username?: string; email?: string; avatar?: string; backgroundUrl?: string; bio?: string; phone?: string } }
+        const storedUser = parsed.user
+        if (storedUser) {
+          return {
+            avatar: storedUser.avatar || presetAvatars[1].url,
+            background: storedUser.backgroundUrl || null,
+            name: storedUser.username || '晓叶',
+            gender: 'secret',
+            age: '',
+            bio: storedUser.bio || '',
+            phone: storedUser.phone || '',
+            email: storedUser.email || '',
+          }
+        }
+      }
+    } catch {
+      // ignore parse error, fall back to defaults
+    }
+    return {
+      avatar: user?.avatar || presetAvatars[1].url,
+      background: null,
+      name: user?.username || '晓叶',
+      gender: 'secret',
+      age: '',
+      bio: user?.bio || '',
+      phone: user?.phone || '',
+      email: user?.email || '',
+    }
+  })
   const [showProfileEditModal, setShowProfileEditModal] = useState(false)
   const { currentTheme } = useTheme()
 
@@ -89,7 +116,7 @@ export default function Social() {
           name: user.username,
           email: user.email,
           phone: user.phone || '',
-          avatar: user.avatar || presetAvatars[0].url,
+          avatar: user.avatar || presetAvatars[1].url,
           bio: user.bio || '',
         }
       })
@@ -190,9 +217,11 @@ export default function Social() {
                 {/* 桌面端数字名片入口 */}
                 <button
                   onClick={() => setShowDesktopCardModal(true)}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-white text-primary font-medium hover:shadow-lg hover:scale-105 transition-all"
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-white/90 backdrop-blur-sm text-primary font-medium hover:shadow-lg hover:scale-105 transition-all border border-primary/20"
                 >
-                  <IdCard size={18} />
+                  <div className="w-5 h-5 rounded-md bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-600 flex items-center justify-center shadow-md shadow-pink-500/30">
+                    <Palette size={14} className="text-white" />
+                  </div>
                   <span>生成数字名片</span>
                 </button>
               </div>
@@ -341,7 +370,15 @@ export default function Social() {
         isOpen={showProfileEditModal}
         onClose={() => setShowProfileEditModal(false)}
         initialData={userProfile}
-        onSave={setUserProfile}
+        onSave={(data) => {
+          setUserProfile(data)
+          updateUser({
+            username: data.name,
+            avatar: data.avatar,
+            backgroundUrl: data.background || undefined,
+            bio: data.bio,
+          })
+        }}
       />
       
       {/* Auth Modal - 未登录时显示 */}
@@ -2134,12 +2171,12 @@ function DigitalCardEntry({ onOpen }: { onOpen: () => void }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mx-4 -mt-4 relative z-10"
+      className="mx-4 -mt-4 relative z-[100]"
     >
-      <div className="glass-card p-4 flex items-center justify-between shadow-lg">
+      <div className="glass-card p-4 flex items-center justify-between shadow-lg" style={{ zIndex: 100 }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <IdCard size={20} className="text-white" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-pink-500/40">
+            <Palette size={20} className="text-white" />
           </div>
           <div>
             <h3 className="font-semibold text-text">生成个人数字名片</h3>
@@ -2148,7 +2185,7 @@ function DigitalCardEntry({ onOpen }: { onOpen: () => void }) {
         </div>
         <button 
           onClick={onOpen}
-          className="px-4 py-1.5 rounded-full bg-primary text-white text-sm font-medium active:scale-95 transition-transform"
+          className="px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-white text-sm font-medium active:scale-95 transition-transform shadow-lg shadow-blue-500/40 hover:shadow-xl hover:shadow-blue-500/50"
         >
           生成
         </button>
@@ -3643,7 +3680,7 @@ function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onO
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-end sm:items-center justify-center"
         onClick={onClose}
       >
         <motion.div
