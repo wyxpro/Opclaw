@@ -21,13 +21,13 @@ const coupleInfo = {
 }
 
 const tabs = [
-  { id: 'moments', label: '朋友圈', icon: MessageCircle },
   { id: 'travel', label: '旅拍相册', icon: Camera },
   { id: 'love', label: '恋爱记录', icon: Heart },
-  { id: 'sports', label: '运动', icon: Dumbbell },
-  { id: 'games', label: '游戏', icon: Gamepad2 },
+  { id: 'moments', label: '朋友圈', icon: MessageCircle },
   { id: 'music', label: '音乐盒', icon: Music },
   { id: 'movies', label: '收藏电影', icon: Film },
+  { id: 'sports', label: '运动', icon: Dumbbell },
+  { id: 'games', label: '游戏', icon: Gamepad2 },
 ] as const
 
 type TabId = (typeof tabs)[number]['id']

@@ -5,7 +5,7 @@ import {
   Link2, MessageCircle, Clock, Share2, ExternalLink,
   Send, Github, Edit3, Twitter, Play, MessageSquare, Zap, Award,
   X, Trash2, Edit2, Calendar, ChevronRight, ArrowLeft,
-  IdCard, Download, Share, History, Palette, Loader2, Plus,
+  IdCard, Download, Share, History, Palette, Loader2, Plus, Star,
   Crown, Check, CreditCard, Shield, Settings, Info, FlaskConical,
   Rocket, Brain, Eye, Smartphone, Database, Layers, Wifi, Beaker,
   Sparkles
@@ -90,14 +90,14 @@ export default function Social() {
       // ignore parse error, fall back to defaults
     }
     return {
-      avatar: user?.avatar || presetAvatars[1].url,
+      avatar: presetAvatars[1].url,
       background: null,
-      name: user?.username || '晓叶',
+      name: '晓叶',
       gender: 'secret',
       age: '',
-      bio: user?.bio || '',
-      phone: user?.phone || '',
-      email: user?.email || '',
+      bio: '',
+      phone: '',
+      email: '',
     }
   })
   const [showProfileEditModal, setShowProfileEditModal] = useState(false)
@@ -217,9 +217,9 @@ export default function Social() {
                 {/* 桌面端数字名片入口 */}
                 <button
                   onClick={() => setShowDesktopCardModal(true)}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-white/90 backdrop-blur-sm text-primary font-medium hover:shadow-lg hover:scale-105 transition-all border border-primary/20"
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 transition-all border-0"
                 >
-                  <div className="w-5 h-5 rounded-md bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-600 flex items-center justify-center shadow-md shadow-pink-500/30">
+                  <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center">
                     <Palette size={14} className="text-white" />
                   </div>
                   <span>生成数字名片</span>
@@ -2171,9 +2171,9 @@ function DigitalCardEntry({ onOpen }: { onOpen: () => void }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mx-4 -mt-4 relative z-[100]"
+      className="mx-4 -mt-4 relative z-10"
     >
-      <div className="glass-card p-4 flex items-center justify-between shadow-lg" style={{ zIndex: 100 }}>
+      <div className="p-4 flex items-center justify-between shadow-lg bg-white rounded-2xl" style={{ zIndex: 10, position: 'relative' }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-pink-500/40">
             <Palette size={20} className="text-white" />
@@ -2264,8 +2264,8 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
           onClick={() => setShowThemePanel(true)}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/15">
-            <Palette size={20} className="text-purple-500" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+            <Star size={20} className="text-purple-500" />
           </div>
           <div className="flex-1 text-left">
             <h3 className="font-medium text-text">主题风格</h3>

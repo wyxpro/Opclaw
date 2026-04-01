@@ -12,15 +12,13 @@ import { SkillsSection } from '../components/profile/SkillsSection'
 import { PortfolioSection } from '../components/profile/PortfolioSection'
 import { SocialMediaSection } from '../components/profile/SocialMediaSection'
 import { HobbiesSection } from '../components/profile/HobbiesSection'
-import { ModulesSection } from '../components/profile/ModulesSection'
 import { ContactSection } from '../components/profile/ContactSection'
 
 // 导入数据
 import { 
   personalProfile, 
   skillCategories, 
-  portfolioItems,
-  moduleEntries
+  portfolioItems
 } from '../data/profile'
 
 // 主题配置（用于移动端选择器）
@@ -243,9 +241,6 @@ export default function Home() {
 
                 {/* Social Media Section - 自媒体矩阵 */}
                 <SocialMediaSection socials={personalProfile.socialLinks} />
-
-                {/* Modules Section - 功能模块入口 */}
-                <ModulesSection modules={moduleEntries} />
 
                 {/* Contact Section - 联系区域 */}
                 <ContactSection />

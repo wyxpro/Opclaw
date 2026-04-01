@@ -822,7 +822,7 @@ export function HobbiesSection() {
 
   return (
     <section 
-      className="py-20 px-4 sm:px-6 lg:px-8" 
+      className="py-12 px-4 sm:px-6 lg:px-8" 
       style={{ background: themeConfig.colors.bg }}
     >
       <div className="max-w-6xl mx-auto">
