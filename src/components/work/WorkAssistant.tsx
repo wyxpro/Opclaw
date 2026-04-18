@@ -87,7 +87,7 @@ function NewMediaModule() {
   ]
 
   const platforms = [
-    { id: 'wechat', name: '微信公众号', color: '#07c160', icon: '💬' },
+    { id: 'wechat', name: '微信号', color: '#07c160', icon: '💬' },
     { id: 'weibo', name: '微博', color: '#e6162d', icon: '🔴' },
     { id: 'xiaohongshu', name: '小红书', color: '#ff2442', icon: '📕' },
     { id: 'douyin', name: '抖音', color: '#00f0ff', icon: '🎵' }

@@ -54,21 +54,12 @@ export function ContactSection() {
                       border: `1px solid ${themeConfig.colors.border}`
                     }}
                   >
-                    {/* 微信二维码占位 */}
-                    <div className="text-center p-4">
-                      <div
-                        className="w-24 h-24 mx-auto rounded-lg flex items-center justify-center mb-2"
-                        style={{ background: themeConfig.colors.bg }}
-                      >
-                        <MessageCircle size={40} style={{ color: '#07C160' }} />
-                      </div>
-                      <span
-                        className="text-xs"
-                        style={{ color: themeConfig.colors.textMuted }}
-                      >
-                        微信二维码
-                      </span>
-                    </div>
+                    {/* 微信二维码 */}
+                    <img
+                      src="/vibe_images/wx.jpg"
+                      alt="微信二维码"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: '#07C160' }}>
@@ -78,7 +69,7 @@ export function ContactSection() {
                       className="text-sm font-medium"
                       style={{ color: themeConfig.colors.text }}
                     >
-                      微信公众号
+                      微信号
                     </span>
                   </div>
                   <span
@@ -98,21 +89,12 @@ export function ContactSection() {
                       border: `1px solid ${themeConfig.colors.border}`
                     }}
                   >
-                    {/* 抖音二维码占位 */}
-                    <div className="text-center p-4">
-                      <div
-                        className="w-24 h-24 mx-auto rounded-lg flex items-center justify-center mb-2"
-                        style={{ background: themeConfig.colors.bg }}
-                      >
-                        <Video size={40} style={{ color: '#000000' }} />
-                      </div>
-                      <span
-                        className="text-xs"
-                        style={{ color: themeConfig.colors.textMuted }}
-                      >
-                        抖音二维码
-                      </span>
-                    </div>
+                    {/* 抖音二维码 */}
+                    <img
+                      src="/vibe_images/dy.jpg"
+                      alt="抖音二维码"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: '#000000' }}>

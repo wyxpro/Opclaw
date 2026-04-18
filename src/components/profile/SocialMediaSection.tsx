@@ -4,6 +4,19 @@ import { useTheme } from '../../hooks/useTheme'
 import type { SocialLink } from '../../types/profile'
 import { AnimatedSection } from './AnimatedSection'
 
+// 哔哩哔哩图标组件 - 使用网络图片
+function BilibiliIcon({ size = 24 }: { size?: number }) {
+  return (
+    <img 
+      src="https://img2.baidu.com/it/u=550338762,2790109497&fm=253&fmt=auto&app=138&f=JPEG?w=380&h=380" 
+      alt="Bilibili" 
+      width={size} 
+      height={size}
+      style={{ objectFit: 'contain' }}
+    />
+  )
+}
+
 interface SocialMediaSectionProps {
   socials: SocialLink[]
 }
@@ -35,7 +48,7 @@ const platformConfig: Record<string, {
     bgGradient: 'from-red-500 to-red-700'
   },
   bilibili: {
-    icon: () => <span className="text-2xl font-bold">B站</span>,
+    icon: BilibiliIcon,
     color: '#00A1D6',
     bgGradient: 'from-cyan-400 to-blue-500'
   },

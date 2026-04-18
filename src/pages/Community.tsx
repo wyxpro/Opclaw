@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Rocket } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { useTheme } from '../hooks/useTheme'
 
@@ -91,7 +92,7 @@ function BackToTop() {
   return (
     <motion.button
       onClick={scrollToTop}
-      className="fixed bottom-8 right-8 w-12 h-12 rounded-full flex items-center justify-center shadow-lg z-40"
+      className="fixed bottom-24 right-8 w-12 h-12 rounded-full flex items-center justify-center shadow-lg z-40 md:bottom-10 md:w-[4.5rem] md:h-[4.5rem]"
       style={{
         background: themeConfig.colors.surface,
         border: `1px solid ${themeConfig.colors.border}`,
@@ -105,18 +106,7 @@ function BackToTop() {
       }}
       whileTap={{ scale: 0.9 }}
     >
-      <svg 
-        width="20" 
-        height="20" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-      >
-        <path d="M18 15l-6-6-6 6"/>
-      </svg>
+      <Rocket className="w-5 h-5 md:w-[1.875rem] md:h-[1.875rem]" />
     </motion.button>
   )
 }

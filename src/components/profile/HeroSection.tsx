@@ -201,13 +201,26 @@ interface HeroSectionProps {
   onToggleResume?: (show: boolean) => void
 }
 
+// 哔哩哔哩图标组件 - 使用网络图片
+function BilibiliIcon({ size = 18 }: { size?: number; className?: string }) {
+  return (
+    <img 
+      src="https://img2.baidu.com/it/u=550338762,2790109497&fm=253&fmt=auto&app=138&f=JPEG?w=380&h=380" 
+      alt="Bilibili" 
+      width={size} 
+      height={size}
+      style={{ objectFit: 'contain' }}
+    />
+  )
+}
+
 // 社交媒体图标映射
 const socialIcons: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   github: Github,
   twitter: Twitter,
   linkedin: Linkedin,
   weibo: () => <span className="text-lg">微博</span>,
-  bilibili: () => <span className="text-lg">B站</span>,
+  bilibili: BilibiliIcon,
   zhihu: () => <span className="text-lg">知</span>,
   douyin: () => <span className="text-lg">抖</span>,
   wechat: () => <span className="text-lg">微</span>,

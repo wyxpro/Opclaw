@@ -855,10 +855,10 @@ export const growthTimeline = [
 
 export const socialAccounts = [
   { platform: 'GitHub', username: '@xiaoye', url: '#', icon: 'github', followers: '2.5K', color: '#333' },
-  { platform: '掘金', username: '@晓叶同学', url: '#', icon: 'edit', followers: '5.2K', color: '#1e80ff' },
+  { platform: '掘金', username: '@晓叶win', url: '#', icon: 'edit', followers: '5.2K', color: '#1e80ff' },
   { platform: 'Twitter / X', username: '@xiaoye_dev', url: '#', icon: 'twitter', followers: '1.8K', color: '#1da1f2' },
   { platform: 'Bilibili', username: '@叶子的代码间', url: '#', icon: 'play', followers: '8.6K', color: '#fb7299' },
-  { platform: '微信公众号', username: '叶子技术周刊', url: '#', icon: 'message', followers: '3.2K', color: '#07c160' },
+  { platform: '微信号', username: '叶子技术周刊', url: '#', icon: 'message', followers: '3.2K', color: '#07c160' },
   { platform: '即刻', username: '@晓叶', url: '#', icon: 'zap', followers: '1.5K', color: '#ffe411' },
 ]
 

@@ -4374,17 +4374,17 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
   const socialLinks = [
     {
       name: '公众号',
-      value: '晓叶笔记',
+      value: '晓叶玩转网络',
       icon: '📱',
       desc: '扫码关注获取更多内容',
       hasQR: true
     },
     {
       name: '哔哩哔哩',
-      value: '@晓叶同学',
+      value: '@晓叶win',
       icon: '📺',
       desc: '视频教程与技术分享',
-      url: 'https://space.bilibili.com'
+      url: 'https://space.bilibili.com/346710742?spm_id_from=333.1007.0.0'
     }
   ]
 
@@ -4508,15 +4508,11 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                         className="mt-3 p-3 rounded-lg text-center"
                         style={{ background: themeConfig.colors.bg }}
                       >
-                        <div 
-                          className="w-24 h-24 mx-auto rounded-lg flex items-center justify-center text-xs"
-                          style={{ 
-                            background: themeConfig.colors.surface,
-                            border: `1px dashed ${themeConfig.colors.border}`
-                          }}
-                        >
-                          二维码区域
-                        </div>
+                        <img
+                          src="/vibe_images/gzh.jpg"
+                          alt="公众号二维码"
+                          className="w-24 h-24 mx-auto rounded-lg object-cover"
+                        />
                         <p 
                           className="text-xs mt-2"
                           style={{ color: themeConfig.colors.textMuted }}

@@ -10,8 +10,8 @@ import type {
 export const personalProfile: PersonalProfile = {
   name: '晓叶',
   title: '全栈开发工程师 & AI 研究员',
-  bio: '热爱技术与设计的全栈开发者，专注于人工智能、Web 开发和用户体验设计。5年开发经验，致力于创造优雅且实用的数字产品。相信技术应该服务于人，让复杂变简单。',
-  avatar: '/avatar.png',
+  bio: '热爱技术与设计的全栈开发者，专注于人工智能、Web 开发和用户体验设计。致力于创造优雅且实用的数字产品，一起加油💪',
+  avatar: '/vibe_images/avatar_1771416390.png',
   coverImage: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80',
   location: '中国 · 北京',
   email: 'zhangxiaoyu@example.com',
@@ -34,7 +34,7 @@ export const personalProfile: PersonalProfile = {
     },
     {
       platform: 'bilibili',
-      url: 'https://space.bilibili.com/zhangxiaoyu',
+      url: 'https://space.bilibili.com/346710742?spm_id_from=333.1007.0.0',
       username: '晓叶的代码世界',
       displayName: 'Bilibili',
       followerCount: 8900
