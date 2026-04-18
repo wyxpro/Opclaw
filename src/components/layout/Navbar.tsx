@@ -9,11 +9,11 @@ import AuthModal from '../auth/AuthModal'
 
 const navItems = [
   { path: '/', label: '🏠 首页', icon: Home },
+  { path: '/ai-character', label: '🤖 AI 分身', icon: Sparkles },
   // PC 端专属菜单项
   { path: '/learning', label: '📚 学习空间', icon: null, isPcOnly: true },
   { path: '/work', label: '📺 工作助手', icon: null, isPcOnly: true },
   { path: '/life', label: '🌈 生活记录', icon: null, isPcOnly: true },
-  { path: '/ai-character', label: '🤖 AI 分身', icon: Sparkles },
   // 资产菜单 - 移动端显示，PC 端隐藏
   { path: '/assets', label: '💎 资产', icon: Wallet, isMobileOnly: true },
   { path: '/social', label: '👤 我的', icon: Users },

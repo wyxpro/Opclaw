@@ -33,7 +33,7 @@ const tabs = [
 type TabId = (typeof tabs)[number]['id']
 
 export default function Life() {
-  const [activeTab, setActiveTab] = useState<TabId>('moments')
+  const [activeTab, setActiveTab] = useState<TabId>('travel')
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
   const [loveView, setLoveView] = useState<'main' | 'album' | 'wish' | 'blessing'>('main')
 
@@ -1722,7 +1722,7 @@ function TravelAlbum({ onSelect }: {
             <div className="p-1.5 rounded-lg bg-primary/10">
               <MapPin size={16} className="text-primary" />
             </div>
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-red-500 via-orange-400 via-yellow-400 via-green-400 via-blue-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent">
               中国旅行足迹
             </span>
           </h3>
