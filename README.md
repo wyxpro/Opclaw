@@ -2,7 +2,7 @@
 
 ## 📋 项目简介
 
-一款面向OPC超级个体，基于 React19 构建的现代化全栈Web项目(PC/移动端)，融合个人主页（简历）、AI分身、学习空间、工作助手、生活记录于一体，支持5种主题一键切换、流畅动画与高性能渲染，让每个人快速拥有高颜值、可扩展的数字宇宙，实现个人IP展示+数字资产管理+AI能力赋能。
+一款面向OPC超级个体，基于 React19 构建的现代化全栈Web项目(PC/移动端)，融合个人主页（简历）、学习空间（知识库）、工作助手、生活记录、AI分身于一体，支持5种主题一键切换、流畅动画与高性能渲染，让每个人快速拥有高颜值、可扩展的数字宇宙，实现个人IP展示+数字资产管理+AI能力赋能。
 
 ### ✨ 核心特性
 
@@ -191,28 +191,10 @@ SuperUI/
          → 用户点击"查看简历" → 切换为 OnlineResume 视图
          → 用户点击主题按钮 → 弹出 ThemeModal → setTheme() → 全局色调切换
 ```
-### 🤖 2. AI 分身模块
-
-**三步引导流程：**
-
-```
-Step 1: 声音克隆（VoiceClone）
-  └─ 录制/上传音频样本 → 生成声音模型（VoiceModel）
-
-Step 2: 形象复刻（AvatarClone）
-  └─ 选择/上传头像 → 配置角色风格（cartoon/realistic）
-  └─ 生成数字形象（AvatarModel）
-
-Step 3: AI 对话（CharacterChat）
-  └─ Three.js 3D 角色渲染 + 背景场景选择
-  └─ MultiModalInput 多模态输入（文字/图片/语音）
-  └─ RAG 引擎处理用户消息 → 生成智能回复
-  └─ 若已克隆声音 → Web Speech API 语音朗读回复
-```
 
 ---
 
-### 📚 3. 学习空间模块
+### 📚 2. 学习空间模块
 
 **功能列表：**
 - 📖 知识库视图：三列布局（分类导航 / 文章列表 / 文章详情）
@@ -232,7 +214,7 @@ Step 3: AI 对话（CharacterChat）
 
 ---
 
-### 💼 4. 工作助手模块
+### 💼 3. 工作助手模块
 
 包含 3 个子标签页：
 
@@ -244,7 +226,7 @@ Step 3: AI 对话（CharacterChat）
 
 ---
 
-### 🌸 5. 生活记录模块
+### 🌸 4. 生活记录模块
 
 包含 7 个子标签页：
 
@@ -266,6 +248,25 @@ Step 3: AI 对话（CharacterChat）
            → 点击事件 → LoveDetailModal 弹窗
            → 查看/编辑/删除事件
            → 新增帖子按钮 → 填写表单 + 上传图片 → 追加到时间轴
+```
+
+### 🤖 5. AI 分身模块
+
+**三步引导流程：**
+
+```
+Step 1: 声音克隆（VoiceClone）
+  └─ 录制/上传音频样本 → 生成声音模型（VoiceModel）
+
+Step 2: 形象复刻（AvatarClone）
+  └─ 选择/上传头像 → 配置角色风格（cartoon/realistic）
+  └─ 生成数字形象（AvatarModel）
+
+Step 3: AI 对话（CharacterChat）
+  └─ Three.js 3D 角色渲染 + 背景场景选择
+  └─ MultiModalInput 多模态输入（文字/图片/语音）
+  └─ RAG 引擎处理用户消息 → 生成智能回复
+  └─ 若已克隆声音 → Web Speech API 语音朗读回复
 ```
 
 ---
@@ -537,7 +538,7 @@ export const moduleEntries      // 模块导航卡片
 
 <div align="center">
 
-** 一个人的数字宇宙，从这里开始！**
+一个人的数字宇宙，从这里开始！
 
 Made with ❤️ by 晓叶
 
