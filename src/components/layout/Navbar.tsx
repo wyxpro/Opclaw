@@ -150,7 +150,7 @@ export default function Navbar() {
                 <Globe size={18} />
               </div>
               <span className="text-xl font-bold text-text hidden sm:block">
-                SuperUI
+                Opclaw
               </span>
             </a>
             {/* Time Widget */}

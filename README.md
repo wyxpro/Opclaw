@@ -1,19 +1,15 @@
-# 🌈SuperUI — 全能数字资产与AI分身助手
+# 🌈Opclaw - 全能数字资产与AI分身助手
 
 ## 📋 项目简介
-
 一款面向OPC超级个体（One Person Company），基于React 19构建的现代化全栈Web应用（适配PC/移动端），融合个人主页（简历）、学习空间（知识库/RAG问答）、工作助手（电商/新媒体/百宝箱）、生活记录（朋友圈/旅行/恋爱记录等7+功能）、AI数字人分身于一体，支持5种主题一键切换，打造高颜值、可扩展的个人数字宇宙，实现个人IP展示+数字资产管理+AI分身能力赋能的一站式解决方案。
-
-### ✨ 核心特性
-
+### ✨ 核心特点
 - 🎨 **5套主题系统** - 5种精心设计的主题风格（极简/赛博/艺术/童趣/复古）
 - 🤖 **AI分身系统** - 个性化数字分身创建，支持声音克隆和形象复刻
 - 📱 **响应式设计** - 完美适配桌面端和移动端，移动端底部导航栏
-- 🩸 **流畅动画** - 基于 Framer Motion 的页面切换和交互动画
+- ✨ **流畅动画** - 基于 Framer Motion 的页面切换和交互动画
 - 🔐 **Supabase 云端存储** - 用户数据安全存储
 - ⚡ **高性能构建** - Vite 7.3 提供极速的开发和构建体验
 - 🔧 **可定制化** - 丰富的配置选项和扩展能力
-
 ---
 
 ## 🛠️ 技术栈
@@ -26,7 +22,7 @@
 | React Router | 7.13.0 | 路由管理 |
 | TypeScript | 5.9.3 | 类型安全 |
 | Tailwind CSS | 4.1.18 | 样式框架 |
-| Framer Motion| 12.34.1 | 页面过渡 & 微动画 |
+| Framer Motion| 12.34.1 | 页面过渡 & 微动效 |
 | Lucide React | 0.574.0 | 图标库 |
 | Vite | 7.3.1 | 构建工具 |
 
@@ -44,16 +40,16 @@
 | 技术 | 版本 | 用途 |
 |---|---|---|
 | Three.js | 0.183.1 | 3D 角色渲染 |
-| react-three/fiber | 9.5.0 | React 的 Three.js 封装 |
+| react-three/fiber | 9.5.0 | React 与 Three.js 封装 |
 | react-three/drei | 10.7.7 | Three.js 工具集合 |
-| RAG Engine（自研） | — | 关键词检索 + 本地知识对话 |
+| RAG Engine（自研） | - | 关键词检索 + 本地知识对话 |
 
 ---
 
 ## 📁 目录结构
 
 ```
-SuperUI/
+Opclaw/
 ├── 📄 index.html               # 主入口 HTML（含内联配置）
 ├── 📄 app.html                 # 备用入口
 ├── 📄 vite.config.ts           # Vite 构建配置
@@ -66,7 +62,7 @@ SuperUI/
 │   ├── 📄 App.tsx              # 根组件 + 路由配置
 │   ├── 📄 index.css            # 全局样式 & CSS 变量
 │   │
-│   ├── 📁 pages/               # 页面组件（9个主模块）
+│   ├── 📁 pages/               # 页面组件（6个主模块）
 │   │   ├── 📄 Home.tsx         # 🏠 个人主页（技能/作品/联系）
 │   │   ├── 📄 Assets.tsx       # 💰 数字资产管理
 │   │   ├── 📄 Learning.tsx     # 📚 学习空间（知识库/技能树）
@@ -112,10 +108,10 @@ SuperUI/
 │   │   ├── 📁 love/            # 恋爱记录组件
 │   │   │   ├── TimeAlbum.tsx       # 时光相册
 │   │   │   ├── WishList.tsx        # 许愿清单
-│   │   │   └── BlessingBoard.tsx   # 祝福留言板
+│   │   │   └── BlessingBoard.tsx   # 祝福留言墙
 │   │   │
 │   │   ├── 📁 entertainment/   # 娱乐模块组件
-│   │   │   └── EntertainmentModules.tsx # 音乐盒/电影墙/百宝箱
+│   │   │   └── EntertainmentModules.tsx # 音乐/电影/百宝箱
 │   │   │
 │   │   ├── 📁 ui/              # 通用 UI 组件
 │   │   │   ├── StarCursor.tsx      # 星光鼠标特效
@@ -140,7 +136,7 @@ SuperUI/
 │   │   └── 📄 useSettings.ts   # 设置 Hook
 │   │
 │   ├── 📁 lib/                 # 工具函数 & 服务层
-│   │   ├── 📄 supabase.ts      # Supabase 客户端（含 Mock 回退）
+│   │   ├── 📄 supabase.ts      # Supabase 客户端（带Mock 回退）
 │   │   ├── 📄 ragEngine.ts     # RAG 知识检索引擎
 │   │   ├── 📄 themes.ts        # 5套主题配置定义
 │   │   ├── 📄 cardUtils.ts     # 数字名片生成工具
@@ -164,7 +160,8 @@ SuperUI/
 │   │   ├── 0002_profiles_background.sql  # 背景字段
 │   │   ├── 0003_profiles_email.sql       # 邮箱字段
 │   │   ├── 0004_rpc_get_email_by_username.sql # 用户名查邮箱 RPC
-│   │   └── 0005_profiles_policies.sql   # Row Level Security 策略
+│   │   └── 0005_profiles_policies.sql    # Row Level Security 策略
+│   │
 │   └── 📁 functions/           # Edge Functions（自定义函数）
 │
 └── 📁 public/                  # 静态公共资源
@@ -172,8 +169,7 @@ SuperUI/
 
 ---
 
-## ⚡ 核心功能模块和工作流程
-
+## 🎯 核心功能模块和工作流程
 ### 🏠 1. 首页模块
 
 **功能列表：**
@@ -206,8 +202,7 @@ SuperUI/
 
 **工作流程：**
 ```
-文章管理流程：
-新建/导入文章 → ArticleEditor/DocumentImport → 保存入 customArticles 列表
+文章管理流程：新建/导入文章 → ArticleEditor/DocumentImport → 保存到 customArticles 列表
              → 文章卡片列表展示 → 点击文章 → 三列详情视图
              → RAG 引擎 + AI 助手浮窗 → 智能问答回复
 ```
@@ -220,8 +215,8 @@ SuperUI/
 
 | 标签 | 核心功能 |
 |---|---|
-| **新媒体运营** | 内容库管理（文章/视频）· 发布管理（草稿/定时/已发布状态）· 平台数据统计（微信/微博/小红书/抖音） |
-| **电商运营** | 商品管理（上下架/定价/库存）· 订单管理 · 销售数据概览 |
+| **新媒体运营** | 内容库管理（文章/视频）、发布管理（草稿/定时/已发布状态）、平台数据统计（微信/微博/小红书/抖音） |
+| **电商运营** | 商品管理（上下架/定价/库存）、订单管理、销售数据概览 |
 | **百宝箱** | 常用工具/资源收藏管理 |
 
 ---
@@ -237,8 +232,8 @@ SuperUI/
 | **恋爱记录** | 恋爱倒计时、时间轴事件管理 |
 | **时光相册** | 按时间轴整理的恋爱相册 |
 | **许愿清单** | 双人心愿列表，支持完成标记 |
-| **祝福板** | 好友祝福留言展示 |
-| **音乐盒** | 音乐收藏墙 |
+| **祝福墙** | 好友祝福留言展示 |
+| **音乐墙** | 音乐收藏墙 |
 | **收藏电影** | 电影收藏墙（豆瓣风格） |
 
 **恋爱记录工作流程：**
@@ -288,23 +283,18 @@ Step 3: AI 对话（CharacterChat）
 - ✏️ 个人资料编辑（头像/背景/简介同步 Supabase）
 - 🔐 登录/注册弹窗（首次访问自动触发）
 - 🎨 主题选择面板（桌面端完整切换面板）
-
 ---
 
 
 ### 🎨 7. 主题系统（全局）
-
-5 套主题风格，通过 `ThemeContext` + CSS 变量实现全局切换：
-
+5 套主题风格，通过 `ThemeContext` + CSS 变量实现全局切换。
 | 主题 | 描述 | 配色特点 |
 |---|---|---|
 | **极简（minimal）** | `☀️` 清爽白色系 | 蓝色主色，简洁线条 |
 | **赛博（cyber）** | `🌙` 暗黑霓虹 | 青蓝+紫色，赛博朋克 |
-| **艺术（artistic）** | `🎨` 暖橙艺术系 | 珊瑚红+橙色，手工艺感 |
+| **艺术（artistic）** | `🎨` 暖橙艺术感 | 珊瑚粉+橙色，手工艺感 |
 | **童趣（cartoon）** | `🌈` 明亮卡通系 | 粉色+明黄，圆润边角 |
-| **复古（retro）** | `📜` 暖棕复古系 | 深金+棕红，老式排版 |
-
-每套主题包含完整的颜色、字体、圆角、阴影、玻璃拟态效果配置。
+| **复古（retro）** | `📜` 暖棕复古感 | 深金+棕红，老式排版 |
 
 ---
 
@@ -312,15 +302,12 @@ Step 3: AI 对话（CharacterChat）
 
 ```
 用户访问 Social 页面
-    │
-    ▼
-AuthContext 初始化
+    →     → AuthContext 初始化
     ├─ 读取 LocalStorage 快照 → 乐观预渲染（避免登录闪烁）
     ├─ 调用 supabase.auth.getUser() 验证令牌
-    │       ├─ 已登录 → 拉取 profiles 表同步用户资料
-    │       └─ 未登录 → 100ms 后自动弹出 AuthModal
-    │
-用户登录（email 或 username）
+    →      ├─ 已登录 → 拉取 profiles 表同步用户资料
+    →      └─ 未登录 → 100ms 后自动弹出 AuthModal
+    → 用户登录（email / username）
     ├─ username 模式 → RPC get_email_by_username 查询邮箱
     ├─ supabase.auth.signInWithPassword
     ├─ 成功 → fetchAndSetProfile → setUser → navigate('/social')
@@ -338,7 +325,6 @@ AuthContext 初始化
 ## ⚙️ 部署指南
 
 ### 🚀 本地开发
-
 **环境要求：**
 - Node.js >= 18
 - npm >= 9
@@ -348,15 +334,14 @@ AuthContext 初始化
 ```bash
 # 1. 克隆仓库
 git clone <repo-url>
-cd Superui
+cd Opclaw
 
 # 2. 安装依赖
 npm install
 
 # 3. 配置环境变量
 cp .env.example .env
-# 编辑 .env，填入 Supabase 配置（见下方说明）
-
+# 编辑 .env，填写 Supabase 配置（见下方说明）
 # 4. 启动开发服务器
 npm run dev
 
@@ -413,11 +398,6 @@ vercel
 # VITE_SUPABASE_ANON_KEY
 ```
 
-或直接通过 Vercel 控制台连接 GitHub 仓库实现自动部署。
-
-`vercel.json` 已配置 SPA 重定向规则，无需额外配置路由。
-
----
 
 ### 🔨 生产构建
 
@@ -429,15 +409,12 @@ npm run build
 npm run preview
 ```
 
-构建产物输出至 `dist/` 目录，包含 `index.html` 和 `app.html` 两个入口。
-
 ---
 
 
 ## 📦 API 接口
 
 ### 🔐 认证接口（Supabase Auth）
-
 | 接口 | 方法 | 描述 |
 |---|---|---|
 | `supabase.auth.signInWithPassword` | POST | 邮箱 + 密码登录 |
@@ -488,39 +465,23 @@ wechatShare(title: string, imageUrl: string)
 
 ###  Q1：启动后界面正常但登录报错？
 
-**A：** 检查 `.env` 文件中 Supabase 配置是否正确：
+**A：** 检查 `.env` 文件中 Supabase 配置是否正确。
 ```bash
 # 验证方式：在浏览器控制台执行
 console.log(import.meta.env.VITE_SUPABASE_URL)
 ```
-若为空字符串，说明环境变量未正确加载。确保 `.env` 文件在项目根目录且重启开发服务器。
-
----
 
 ### Q2：如何添加新的学习文章？
 
 **A：** 进入 `/learning`（学习空间）页面：
 1. 点击 **"新建文章"** 按钮 → 打开富文本编辑器
 2. 填写标题、正文、摘要、标签 → 点击保存
-3. 或点击 **"导入文档"** 按钮，支持批量导入本地文档
+3. 或点击 **"导入文档"** 按钮，支持批量导入本地文件
 
-
----
-
-### Q3：如何自定义个人资料数据？
-
-**A：** 编辑 `src/data/profile.ts` 文件，修改以下导出对象：
-```typescript
-export const personalProfile    // 基本信息（姓名/头像/简介/社交链接）
-export const skillCategories    // 技能分类列表
-export const portfolioItems     // 项目作品集
-export const moduleEntries      // 模块导航卡片
-```
 
 ---
 
 ## 🗺️ 版本路线图
-
 | 版本 | 状态 | 功能 |
 |---|---|---|
 | v1.0 | ✅ 已完成 | 基础框架 + 个人主页 + 5套主题 |
@@ -529,7 +490,7 @@ export const moduleEntries      // 模块导航卡片
 | v1.3 | ✅ 已完成 | AI 分身 + 3D 角色 + RAG 引擎 |
 | v1.4 | ✅ 已完成 | 个人中心 + 数字名片 + 留言墙 |
 | v1.5 | ✅ 已完成 | Supabase 认证 + 用户资料同步 |
-| v2.0 | 🚧 规划中 | AI 简历优化器 + 实时协作编辑器 |
+| v2.0 | 🚧 规划中 | AI 简历优化器 + 实时协作编辑 |
 | v2.1 | 📋 规划中 | 数据可视化大屏 + 语音交互系统 |
 | v3.0 | 🔬 研究中 | PWA 离线支持 + WebGL 3D 空间 |
 

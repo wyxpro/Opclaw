@@ -9,7 +9,7 @@ import {
 import { useTheme } from '../hooks/useTheme'
 import PageTransition from '../components/ui/PageTransition'
 
-// 历史实验记录数据 - SuperUI 项目开发历程
+// 历史实验记录数据 - Opclaw 项目开发历程
 const timelineData = [
   {
     id: 1,
@@ -73,7 +73,7 @@ const timelineData = [
   }
 ]
 
-// 未来开发计划数据 - SuperUI 发展规划
+// 未来开发计划数据 - Opclaw 发展规划
 const futurePlans = [
   {
     id: 1,

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import type { ResumeData } from './types'
 import { defaultResumeData } from './types'
 
-const STORAGE_KEY = 'superui-resume-data'
+const STORAGE_KEY = 'opclaw-resume-data'
 
 interface HistoryState {
   data: ResumeData

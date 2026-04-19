@@ -5,7 +5,7 @@ import { presetAvatars } from '../data/mock'
 import { showToast } from '../lib/toast'
 import { useNavigate } from 'react-router-dom'
 
-const AUTH_STORAGE_KEY = 'superui_auth_data'
+const AUTH_STORAGE_KEY = 'opclaw_auth_data'
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -14,7 +14,7 @@ function mapProfileToUser(profile: any, email: string): User {
     id: profile.user_id,
     username: profile.username || email.split('@')[0],
     email,
-    avatar: profile.avatar_url || presetAvatars[1]?.url || '',
+    avatar: profile.avatar_url || presetAvatars[0]?.url || '',
     backgroundUrl: profile.background_url || '',
     bio: profile.bio || '',
     createdAt: profile.created_at || new Date().toISOString(),
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       let mapped: User
       if (!profile) {
         const username = email ? email.split('@')[0] : 'user'
-        const avatar_url = presetAvatars[1]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
+        const avatar_url = presetAvatars[0]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
         await supabase.from('profiles').insert({
           user_id: uid,
           username,
@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         let mapped: User
         if (!profile) {
           const username = email ? email.split('@')[0] : 'user'
-          const avatar_url = presetAvatars[1]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
+          const avatar_url = presetAvatars[0]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
           await supabase.from('profiles').insert({
             user_id: uid,
             username,
@@ -233,7 +233,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           user_id: uid,
           username,
           email,
-          avatar_url: presetAvatars[1]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+          avatar_url: presetAvatars[0]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
           background_url: '',
           bio: '',
         })
@@ -282,6 +282,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }).eq('user_id', user.id)
   }, [user])
 
+  // 游客一键登录 - 自动创建临时账号
+  const guestLogin = useCallback(async (): Promise<boolean> => {
+    try {
+      const supabase = getSupabaseClient()
+      const randomId = Math.floor(Math.random() * 100000)
+      const guestEmail = `guest${randomId}@temp.local`
+      const guestPassword = `Guest${randomId}!@#`
+      const guestUsername = `游客${randomId}`
+      
+      // 1. 先尝试注册新账号
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: guestEmail,
+        password: guestPassword,
+        options: { data: { username: guestUsername } },
+      })
+      
+      if (signUpError) {
+        console.error('游客注册错误:', signUpError.message)
+        showToast(`游客登录失败: ${signUpError.message}`)
+        return false
+      }
+      
+      if (signUpData.user) {
+        // 2. 创建用户 profile
+        const avatar_url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${guestUsername}`
+        await supabase.from('profiles').upsert({
+          user_id: signUpData.user.id,
+          username: guestUsername,
+          email: guestEmail,
+          avatar_url,
+          background_url: '',
+          bio: '我是游客用户',
+        })
+        
+        // 3. 自动登录
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: guestEmail,
+          password: guestPassword,
+        })
+        
+        if (signInError) {
+          console.error('游客自动登录错误:', signInError.message)
+          showToast(`游客登录失败: ${signInError.message}`)
+          return false
+        }
+        
+        await fetchAndSetProfile()
+        showToast('游客登录成功')
+        navigate('/social')
+        return true
+      }
+      
+      return false
+    } catch (err: any) {
+      console.error('游客登录异常:', err)
+      showToast(`游客登录失败: ${err?.message || '未知错误'}`)
+      return false
+    }
+  }, [navigate])
+
   const value: AuthContextType = {
     user,
     isAuthenticated,
@@ -291,6 +351,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     checkAuth,
     updateUser,
+    guestLogin,
   }
 
   return (

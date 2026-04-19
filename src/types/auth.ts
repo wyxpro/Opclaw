@@ -57,6 +57,7 @@ export interface AuthContextType extends AuthState {
   logout: () => void
   checkAuth: () => boolean
   updateUser: (userData: Partial<User>) => void
+  guestLogin: () => Promise<boolean>
 }
 
 // 本地存储的认证数据

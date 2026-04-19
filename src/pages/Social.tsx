@@ -69,13 +69,13 @@ export default function Social() {
   // 用户资料状态 - 优先使用本地存储中的上次登录信息，避免刷新时先闪默认头像
   const [userProfile, setUserProfile] = useState<ProfileData>(() => {
     try {
-      const stored = localStorage.getItem('superui_auth_data')
+      const stored = localStorage.getItem('opclaw_auth_data')
       if (stored) {
         const parsed = JSON.parse(stored) as { user?: { username?: string; email?: string; avatar?: string; backgroundUrl?: string; bio?: string; phone?: string } }
         const storedUser = parsed.user
         if (storedUser) {
           return {
-            avatar: storedUser.avatar || presetAvatars[1].url,
+            avatar: storedUser.avatar || presetAvatars[0].url,
             background: storedUser.backgroundUrl || null,
             name: storedUser.username || '晓叶',
             gender: 'secret',
@@ -90,7 +90,7 @@ export default function Social() {
       // ignore parse error, fall back to defaults
     }
     return {
-      avatar: presetAvatars[1].url,
+      avatar: presetAvatars[0].url,
       background: null,
       name: '晓叶',
       gender: 'secret',
@@ -116,7 +116,7 @@ export default function Social() {
           name: user.username,
           email: user.email,
           phone: user.phone || '',
-          avatar: user.avatar || presetAvatars[1].url,
+          avatar: user.avatar || presetAvatars[0].url,
           bio: user.bio || '',
         }
       })

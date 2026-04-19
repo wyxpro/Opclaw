@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X, Mail, Lock, User, Eye, EyeOff,
-  ArrowRight, ShieldCheck, Loader2
+  ArrowRight, ShieldCheck, Loader2, Zap
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../hooks/useTheme'
@@ -65,7 +65,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
     agreeTerms: false,
   })
   
-  const { login, register } = useAuth()
+  const { login, register, guestLogin } = useAuth()
   const { themeConfig } = useTheme()
   
   // 密码强度
@@ -219,6 +219,30 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
     }
   }
   
+  // 处理游客一键登录
+  const handleGuestLogin = async () => {
+    setIsLoading(true)
+    try {
+      const success = await guestLogin()
+      if (success) {
+        onClose()
+        // 重置表单
+        setFormData({
+          username: '',
+          email: '',
+          phone: '',
+          emailOrPhone: '',
+          password: '',
+          confirmPassword: '',
+          rememberMe: false,
+          agreeTerms: false,
+        })
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
   // 切换模式时重置错误
   const switchMode = (newMode: 'login' | 'register') => {
     setMode(newMode)
@@ -317,8 +341,8 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                   </h2>
                   <p className="text-sm sm:text-base" style={{ color: themeConfig.colors.textMuted }}>
                     {mode === 'login'
-                      ? '登录您的 SuperUI 账号'
-                      : '加入 SuperUI，开启您的数字之旅'}
+                      ? '登录您的 Opclaw 账号'
+                      : '加入 Opclaw，开启您的数字之旅'}
                   </p>
                 </div>
                 
@@ -524,6 +548,27 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                         <>
                           登录
                           <ArrowRight size={18} />
+                        </>
+                      )}
+                    </button>
+                    
+                    {/* 游客一键登录按钮 */}
+                    <button
+                      onClick={handleGuestLogin}
+                      disabled={isLoading}
+                      className="w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-md hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+                      style={{
+                        background: themeConfig.colors.surface,
+                        border: `1px solid ${themeConfig.colors.border}`,
+                        color: themeConfig.colors.textSecondary,
+                      }}
+                    >
+                      {isLoading ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <>
+                          <Zap size={18} style={{ color: '#f59e0b' }} />
+                          <span>游客一键登录</span>
                         </>
                       )}
                     </button>

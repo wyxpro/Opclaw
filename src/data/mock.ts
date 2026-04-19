@@ -865,10 +865,10 @@ export const socialAccounts = [
 // ===== Product Data =====
 
 export const productInfo = {
-  name: 'SuperUI',
-  tagline: 'OPC超级个体-全能数字资产管家',
-  description: '一个集学习管理、生活记录、娱乐休闲、我的互动于一体的综合个人管理平台，让数字生活更有序、更有趣、更有意义。',
-  targetUsers: ['终身学习者', '生活记录者', '效率追求者', '创意工作者'],
+  name: 'Opclaw',
+  tagline: 'OPC超级个体-全能数字资产与AI分身助手',
+  description: '',
+  targetUsers: ['一人公司', 'AI创业者', '自媒体博主', '职场达人'],
   valueProposition: '用一套系统，管理你的全部数字生活',
 }
 
@@ -943,7 +943,7 @@ export const competitorData: CompetitorData[] = [
     color: '#10b981',
   },
   {
-    name: 'SuperUI',
+    name: 'Opclaw',
     scores: { functionality: 95, usability: 92, aesthetics: 96, performance: 94, extensibility: 90 },
     color: '#8b5cf6',
   },
