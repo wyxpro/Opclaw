@@ -45,6 +45,8 @@ export default function Social() {
   const [showDesktopCardModal, setShowDesktopCardModal] = useState(false)
   const [showDesktopVipModal, setShowDesktopVipModal] = useState(false)
   const [showDesktopHistoryModal, setShowDesktopHistoryModal] = useState(false)
+  const [showDesktopCardEditModal, setShowDesktopCardEditModal] = useState(false)
+  const [editingCard, setEditingCard] = useState<DigitalCard | null>(null)
   const [selectedVipPlan, setSelectedVipPlan] = useState('yearly')
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [showAboutModal, setShowAboutModal] = useState(false)
@@ -304,6 +306,24 @@ export default function Social() {
                 setShowDesktopCardModal(false)
                 setShowDesktopHistoryModal(true)
               }}
+              onOpenEdit={(card) => {
+                setEditingCard(card)
+                setShowDesktopCardEditModal(true)
+              }}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* 桌面端数字名片编辑弹窗 */}
+        <AnimatePresence>
+          {showDesktopCardEditModal && editingCard && (
+            <DigitalCardEditModal
+              card={editingCard}
+              onSave={(newCard) => {
+                setEditingCard(newCard)
+                setShowDesktopCardEditModal(false)
+              }}
+              onClose={() => setShowDesktopCardEditModal(false)}
             />
           )}
         </AnimatePresence>
@@ -2226,6 +2246,8 @@ const membershipPlans = [
 function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, onOpenAbout }: { onNavigate: (view: TabId | 'menu' | 'laboratory') => void; userProfile: ProfileData; onEditProfile: () => void; onOpenSettings: () => void; onOpenAbout: () => void }) {
   const [showCardModal, setShowCardModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [showCardEditModal, setShowCardEditModal] = useState(false)
+  const [editingCard, setEditingCard] = useState<DigitalCard | null>(null)
   const [showThemePanel, setShowThemePanel] = useState(false)
   const [showVipModal, setShowVipModal] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState('svip')
@@ -2343,6 +2365,10 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
               setShowCardModal(false)
               setShowHistoryModal(true)
             }}
+            onOpenEdit={(card) => {
+              setEditingCard(card)
+              setShowCardEditModal(true)
+            }}
           />
         )}
       </AnimatePresence>
@@ -2351,6 +2377,20 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
       <AnimatePresence>
         {showHistoryModal && (
           <CardHistoryModal onClose={() => setShowHistoryModal(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* 数字名片编辑弹窗 */}
+      <AnimatePresence>
+        {showCardEditModal && editingCard && (
+          <DigitalCardEditModal
+            card={editingCard}
+            onSave={(newCard) => {
+              setEditingCard(newCard)
+              setShowCardEditModal(false)
+            }}
+            onClose={() => setShowCardEditModal(false)}
+          />
         )}
       </AnimatePresence>
 
@@ -3641,7 +3681,15 @@ function SimpleRadarChart({ skills, theme }: { skills: { name: string; level: nu
 }
 
 // 数字名片弹窗
-function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onOpenHistory?: () => void }) {
+function DigitalCardModal({ 
+  onClose, 
+  onOpenHistory,
+  onOpenEdit
+}: { 
+  onClose: () => void; 
+  onOpenHistory?: () => void;
+  onOpenEdit?: (card: DigitalCard) => void;
+}) {
   const { user } = useAuth()
   const [card, setCard] = useState<DigitalCard>(() => {
     const defaultCard = generateDigitalCard('blue')
@@ -3656,7 +3704,6 @@ function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onO
     return defaultCard
   })
   const [isGenerating, setIsGenerating] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
 
   const handleDownload = async () => {
@@ -3819,7 +3866,7 @@ function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onO
           </div>
 
           {/* Actions - 下载、分享、编辑、历史记录 */}
-          <div className="p-4 border-t border-border/50">
+          <div className="p-4 border-t border-border/50 pb-20 md:pb-4">
             <div className="grid grid-cols-4 gap-3">
               <button
                 onClick={handleDownload}
@@ -3837,7 +3884,10 @@ function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onO
                 <span className="text-sm font-medium">分享</span>
               </button>
               <button
-                onClick={() => setShowEditModal(true)}
+                onClick={() => {
+                  onOpenEdit?.(card)
+                  onClose()
+                }}
                 className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-amber-500/10 text-amber-500 active:scale-95 transition-transform"
               >
                 <Palette size={20} />
@@ -3855,19 +3905,6 @@ function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onO
         </motion.div>
       </motion.div>
 
-      {/* Edit Modal */}
-      <AnimatePresence>
-        {showEditModal && (
-          <DigitalCardEditModal
-            card={card}
-            onSave={(newCard) => {
-              setCard(newCard)
-              setShowEditModal(false)
-            }}
-            onClose={() => setShowEditModal(false)}
-          />
-        )}
-      </AnimatePresence>
     </>
   )
 }
@@ -4188,7 +4225,7 @@ function MembershipModal({
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="w-full max-w-lg bg-bg rounded-t-3xl sm:rounded-2xl max-h-[80vh] sm:max-h-[85vh] overflow-hidden flex flex-col"
+        className="w-full max-w-lg bg-bg rounded-t-3xl sm:rounded-2xl max-h-[90vh] sm:max-h-[85vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header - 使用紫色到蓝色的梦幻渐变 */}
@@ -4321,7 +4358,7 @@ function MembershipModal({
         </div>
 
         {/* Footer - 支付区域（固定在底部） */}
-        <div className="p-3 sm:p-4 border-t border-border/50 bg-gradient-to-b from-surface/50 to-surface flex-shrink-0 pb-safe">
+        <div className="p-3 sm:p-4 border-t border-border/50 bg-gradient-to-b from-surface/50 to-surface flex-shrink-0 pb-20 sm:pb-safe">
           {/* 价格显示 */}
           <div className="flex items-baseline justify-center gap-1 mb-4">
             <span className="text-text-muted text-sm">实付金额</span>
