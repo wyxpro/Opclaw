@@ -3642,7 +3642,19 @@ function SimpleRadarChart({ skills, theme }: { skills: { name: string; level: nu
 
 // 数字名片弹窗
 function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onOpenHistory?: () => void }) {
-  const [card, setCard] = useState<DigitalCard>(() => generateDigitalCard('blue'))
+  const { user } = useAuth()
+  const [card, setCard] = useState<DigitalCard>(() => {
+    const defaultCard = generateDigitalCard('blue')
+    // 如果有登录用户，使用用户的头像和名称
+    if (user) {
+      return {
+        ...defaultCard,
+        name: user.username,
+        avatar: user.avatar || presetAvatars[0]?.url || '/avatar.png',
+      }
+    }
+    return defaultCard
+  })
   const [isGenerating, setIsGenerating] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -3694,19 +3706,13 @@ function DigitalCardModal({ onClose, onOpenHistory }: { onClose: () => void; onO
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 relative z-10">
             <h2 className="text-lg font-semibold text-text">个人数字名片</h2>
-            <div 
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                console.log('Close button clicked')
-                onClose()
-              }} 
-              className="p-2 rounded-full hover:bg-surface/60 transition-colors cursor-pointer z-20 flex items-center justify-center"
-              role="button"
-              style={{ minWidth: '40px', minHeight: '40px' }}
+            <button 
+              onClick={onClose}
+              className="p-2 rounded-full hover:bg-surface/60 transition-colors cursor-pointer flex items-center justify-center"
+              aria-label="关闭"
             >
-              <X size={20} className="text-text pointer-events-none" />
-            </div>
+              <X size={20} className="text-text" />
+            </button>
           </div>
 
           {/* Card Preview */}

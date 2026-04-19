@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, Camera, User, Check, RefreshCw, Sparkles, Image, Video, Box, Trash2, Palette } from 'lucide-react'
+import { Upload, Camera, User, Check, RefreshCw, Sparkles, Image, Video, Box, Trash2 } from 'lucide-react'
 import type { ThemeConfig } from '../../lib/themes'
 import type { CharacterStyle } from './types'
 
@@ -25,7 +25,7 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
   const [uploadedMedia, setUploadedMedia] = useState<{ type: 'image' | 'video', url: string, file: File } | null>(null)
   const [isCloning, setIsCloning] = useState(false)
   const [clonedAvatar, setClonedAvatar] = useState<AvatarModel | null>(existingAvatar || null)
-  const [activeTab, setActiveTab] = useState<'upload' | 'style'>('upload')
+
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
@@ -110,310 +110,314 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
             </p>
           </div>
 
-          {/* 标签切换 - 合并到左侧卡片 */}
-          <div 
-            className="flex p-1 rounded-xl mb-4"
-            style={{ background: themeConfig.colors.bgAlt }}
-          >
-            <button
-              onClick={() => setActiveTab('upload')}
-              className="flex-1 px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition-all flex items-center justify-center gap-1 md:gap-2"
-              style={{
-                background: activeTab === 'upload' ? themeConfig.colors.surface : 'transparent',
-                color: activeTab === 'upload' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
-                boxShadow: activeTab === 'upload' ? themeConfig.shadows.card : 'none'
-              }}
-            >
-              <Upload size={14} />
-              <span className="hidden sm:inline">上传素材</span>
-              <span className="sm:hidden">上传</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('style')}
-              className="flex-1 px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition-all flex items-center justify-center gap-1 md:gap-2"
-              style={{
-                background: activeTab === 'style' ? themeConfig.colors.surface : 'transparent',
-                color: activeTab === 'style' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
-                boxShadow: activeTab === 'style' ? themeConfig.shadows.card : 'none'
-              }}
-            >
-              <Palette size={14} />
-              <span className="hidden sm:inline">风格选择</span>
-              <span className="sm:hidden">风格</span>
-            </button>
-          </div>
-
-          {/* 上传/风格内容区域 */}
+          {/* 上传和风格选择统一界面 */}
           <AnimatePresence mode="sync">
-            {activeTab === 'upload' ? (
-              <motion.div
-                key="upload"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="space-y-4"
-              >
-                {/* 隐藏的文件输入 */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*,video/*"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                />
-                <input
-                  ref={cameraInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="user"
-                  className="hidden"
-                  onChange={handleCameraCapture}
-                />
-              {!uploadedMedia ? (
-                <div className="space-y-4">
-                  {/* 上传按钮组 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <motion.button
-                      onClick={() => fileInputRef.current?.click()}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="p-6 rounded-xl border-2 border-dashed flex flex-col items-center gap-3 transition-all"
-                      style={{
-                        borderColor: themeConfig.colors.border,
-                        background: themeConfig.colors.bg
-                      }}
-                    >
-                      <div 
-                        className="w-12 h-12 rounded-full flex items-center justify-center"
-                        style={{ background: themeConfig.colors.primaryMuted }}
-                      >
-                        <Upload size={24} style={{ color: themeConfig.colors.primary }} />
-                      </div>
-                      <div className="text-center">
-                        <p className="font-medium text-sm" style={{ color: themeConfig.colors.text }}>
-                          选择文件
-                        </p>
-                        <p className="text-xs" style={{ color: themeConfig.colors.textMuted }}>
-                          支持图片/视频
-                        </p>
-                      </div>
-                    </motion.button>
-
-                    <motion.button
-                      onClick={() => cameraInputRef.current?.click()}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="p-6 rounded-xl border-2 border-dashed flex flex-col items-center gap-3 transition-all"
-                      style={{
-                        borderColor: themeConfig.colors.border,
-                        background: themeConfig.colors.bg
-                      }}
-                    >
-                      <div 
-                        className="w-12 h-12 rounded-full flex items-center justify-center"
-                        style={{ background: themeConfig.colors.primaryMuted }}
-                      >
-                        <Camera size={24} style={{ color: themeConfig.colors.primary }} />
-                      </div>
-                      <div className="text-center">
-                        <p className="font-medium text-sm" style={{ color: themeConfig.colors.text }}>
-                          拍照
-                        </p>
-                        <p className="text-xs" style={{ color: themeConfig.colors.textMuted }}>
-                          使用相机
-                        </p>
-                      </div>
-                    </motion.button>
-                  </div>
-
-                  {/* 提示信息 */}
-                  <div 
-                    className="p-4 rounded-xl text-sm"
-                    style={{ 
-                      background: themeConfig.colors.bgAlt,
-                      color: themeConfig.colors.textMuted
-                    }}
-                  >
-                    <p className="font-medium mb-2" style={{ color: themeConfig.colors.text }}>
-                      上传建议：
-                    </p>
-                    <ul className="space-y-1 text-xs">
-                      <li>• 正面清晰的照片效果最佳</li>
-                      <li>• 光线充足，避免阴影遮挡面部</li>
-                      <li>• 支持 JPG、PNG、MP4 格式</li>
-                      <li>• 文件大小建议不超过 50MB</li>
-                    </ul>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* 预览区域 */}
-                  <div 
-                    className="relative rounded-xl overflow-hidden"
-                    style={{ aspectRatio: '4/3', background: themeConfig.colors.bgAlt }}
-                  >
-                    {uploadedMedia.type === 'video' ? (
-                      <video
-                        src={uploadedMedia.url}
-                        controls
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <img
-                        src={uploadedMedia.url}
-                        alt="预览"
-                        className="w-full h-full object-contain"
-                      />
-                    )}
-
-                    {/* 清除按钮 */}
-                    <motion.button
-                      onClick={clearMedia}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
-                      style={{
-                        background: 'rgba(244, 63, 94, 0.9)',
-                        color: 'white'
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </motion.button>
-
-                    {/* 类型标签 */}
-                    <div 
-                      className="absolute bottom-2 left-2 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1"
-                      style={{
-                        background: themeConfig.colors.primary,
-                        color: 'white'
-                      }}
-                    >
-                      {uploadedMedia.type === 'video' ? <Video size={12} /> : <Image size={12} />}
-                      {uploadedMedia.type === 'video' ? '视频' : '图片'}
-                    </div>
-                  </div>
-
-                  {/* 操作按钮 */}
+            <motion.div
+              key="upload-style"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="space-y-4"
+            >
+              {/* 隐藏的文件输入 */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,video/*"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="user"
+                className="hidden"
+                onChange={handleCameraCapture}
+              />
+            {!uploadedMedia ? (
+              <div className="space-y-4">
+                {/* 上传按钮组 */}
+                <div className="grid grid-cols-2 gap-4">
                   <motion.button
-                    onClick={cloneAvatar}
-                    disabled={isCloning}
+                    onClick={() => fileInputRef.current?.click()}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-medium disabled:opacity-50"
+                    className="p-6 rounded-xl border-2 border-dashed flex flex-col items-center gap-3 transition-all"
                     style={{
-                      background: `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`,
+                      borderColor: themeConfig.colors.border,
+                      background: themeConfig.colors.bg
+                    }}
+                  >
+                    <div 
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ background: themeConfig.colors.primaryMuted }}
+                    >
+                      <Upload size={24} style={{ color: themeConfig.colors.primary }} />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium text-sm" style={{ color: themeConfig.colors.text }}>
+                        选择文件
+                      </p>
+                      <p className="text-xs" style={{ color: themeConfig.colors.textMuted }}>
+                        支持图片/视频
+                      </p>
+                    </div>
+                  </motion.button>
+
+                  <motion.button
+                    onClick={() => cameraInputRef.current?.click()}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="p-6 rounded-xl border-2 border-dashed flex flex-col items-center gap-3 transition-all"
+                    style={{
+                      borderColor: themeConfig.colors.border,
+                      background: themeConfig.colors.bg
+                    }}
+                  >
+                    <div 
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ background: themeConfig.colors.primaryMuted }}
+                    >
+                      <Camera size={24} style={{ color: themeConfig.colors.primary }} />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium text-sm" style={{ color: themeConfig.colors.text }}>
+                        拍照
+                      </p>
+                      <p className="text-xs" style={{ color: themeConfig.colors.textMuted }}>
+                        使用相机
+                      </p>
+                    </div>
+                  </motion.button>
+                </div>
+
+                {/* 风格选择 */}
+                <div className="pt-2">
+                  <p 
+                    className="text-sm font-medium mb-3"
+                    style={{ color: themeConfig.colors.text }}
+                  >
+                    选择风格
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {styleOptions.map((style) => (
+                      <motion.button
+                        key={style.id}
+                        onClick={() => setSelectedStyle(style.id)}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="p-3 rounded-xl border-2 flex items-center gap-3 transition-all"
+                        style={{
+                          borderColor: selectedStyle === style.id 
+                            ? themeConfig.colors.primary 
+                            : themeConfig.colors.border,
+                          background: selectedStyle === style.id 
+                            ? themeConfig.colors.primaryMuted 
+                            : themeConfig.colors.bg
+                        }}
+                      >
+                        <div 
+                          className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
+                          style={{ 
+                            background: selectedStyle === style.id 
+                              ? themeConfig.colors.primary 
+                              : themeConfig.colors.bgAlt 
+                          }}
+                        >
+                          <span style={{ color: selectedStyle === style.id ? 'white' : themeConfig.colors.text }}>
+                            {style.icon}
+                          </span>
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p 
+                            className="font-medium text-sm"
+                            style={{ 
+                              color: selectedStyle === style.id 
+                                ? themeConfig.colors.primary 
+                                : themeConfig.colors.text 
+                            }}
+                          >
+                            {style.name}
+                          </p>
+                        </div>
+                        {selectedStyle === style.id && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="w-5 h-5 rounded-full flex items-center justify-center"
+                            style={{ background: themeConfig.colors.primary }}
+                          >
+                            <Check size={12} className="text-white" />
+                          </motion.div>
+                        )}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 提示信息 */}
+                <div 
+                  className="p-4 rounded-xl text-sm"
+                  style={{ 
+                    background: themeConfig.colors.bgAlt,
+                    color: themeConfig.colors.textMuted
+                  }}
+                >
+                  <p className="font-medium mb-2" style={{ color: themeConfig.colors.text }}>
+                    上传建议：
+                  </p>
+                  <ul className="space-y-1 text-xs">
+                    <li>• 正面清晰的照片效果最佳</li>
+                    <li>• 光线充足，避免阴影遮挡面部</li>
+                    <li>• 支持 JPG、PNG、MP4 格式</li>
+                    <li>• 文件大小建议不超过 50MB</li>
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* 预览区域 */}
+                <div 
+                  className="relative rounded-xl overflow-hidden"
+                  style={{ aspectRatio: '4/3', background: themeConfig.colors.bgAlt }}
+                >
+                  {uploadedMedia.type === 'video' ? (
+                    <video
+                      src={uploadedMedia.url}
+                      controls
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <img
+                      src={uploadedMedia.url}
+                      alt="预览"
+                      className="w-full h-full object-contain"
+                    />
+                  )}
+
+                  {/* 清除按钮 */}
+                  <motion.button
+                    onClick={clearMedia}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{
+                      background: 'rgba(244, 63, 94, 0.9)',
                       color: 'white'
                     }}
                   >
-                    {isCloning ? (
-                      <>
-                        <RefreshCw size={18} className="animate-spin" />
-                        生成中...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles size={18} />
-                        生成数字形象
-                      </>
-                    )}
+                    <Trash2 size={16} />
                   </motion.button>
-                </div>
-              )}
-              </motion.div>
-            ) : (
-              <motion.div
-                key="style"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="space-y-4"
-              >
-                {styleOptions.map((style) => (
-                  <motion.button
-                    key={style.id}
-                    onClick={() => setSelectedStyle(style.id)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all"
-                    style={{
-                      borderColor: selectedStyle === style.id 
-                        ? themeConfig.colors.primary 
-                        : themeConfig.colors.border,
-                      background: selectedStyle === style.id 
-                        ? themeConfig.colors.primaryMuted 
-                        : themeConfig.colors.bg
-                    }}
-                  >
-                    <div 
-                      className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl"
-                      style={{ 
-                        background: selectedStyle === style.id 
-                          ? themeConfig.colors.primary 
-                          : themeConfig.colors.bgAlt 
-                      }}
-                    >
-                      {style.icon}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p 
-                        className="font-semibold"
-                        style={{ 
-                          color: selectedStyle === style.id 
-                            ? themeConfig.colors.primary 
-                            : themeConfig.colors.text 
-                        }}
-                      >
-                        {style.name}
-                      </p>
-                      <p className="text-sm" style={{ color: themeConfig.colors.textMuted }}>
-                        {style.description}
-                      </p>
-                    </div>
-                    {selectedStyle === style.id && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="w-6 h-6 rounded-full flex items-center justify-center"
-                        style={{ background: themeConfig.colors.primary }}
-                      >
-                        <Check size={14} className="text-white" />
-                      </motion.div>
-                    )}
-                  </motion.button>
-                ))}
 
-                {/* 风格预览 */}
-                <div 
-                  className="mt-6 p-4 rounded-xl"
-                  style={{ background: themeConfig.colors.bgAlt }}
-                >
-                <p 
-                  className="text-sm font-medium mb-3"
-                  style={{ color: themeConfig.colors.text }}
-                >
-                  风格预览
-                </p>
-                <div className="flex items-center justify-center">
+                  {/* 类型标签 */}
                   <div 
-                    className="w-32 h-40 rounded-2xl flex items-center justify-center text-6xl"
+                    className="absolute bottom-2 left-2 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1"
                     style={{
-                      background: selectedStyle === 'cartoon'
-                        ? 'linear-gradient(135deg, #ffeaa7, #fdcb6e)'
-                        : 'linear-gradient(135deg, #dfe6e9, #b2bec3)',
-                      border: `4px solid ${selectedStyle === 'cartoon' ? '#fd79a8' : '#2d3436'}`,
-                      boxShadow: themeConfig.shadows.card
+                      background: themeConfig.colors.primary,
+                      color: 'white'
                     }}
                   >
-                    {selectedStyle === 'cartoon' ? '🎨' : '👤'}
+                    {uploadedMedia.type === 'video' ? <Video size={12} /> : <Image size={12} />}
+                    {uploadedMedia.type === 'video' ? '视频' : '图片'}
                   </div>
                 </div>
+
+                {/* 风格选择（已上传素材时显示） */}
+                <div className="pt-2">
+                  <p 
+                    className="text-sm font-medium mb-3"
+                    style={{ color: themeConfig.colors.text }}
+                  >
+                    选择风格
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {styleOptions.map((style) => (
+                      <motion.button
+                        key={style.id}
+                        onClick={() => setSelectedStyle(style.id)}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="p-3 rounded-xl border-2 flex items-center gap-3 transition-all"
+                        style={{
+                          borderColor: selectedStyle === style.id 
+                            ? themeConfig.colors.primary 
+                            : themeConfig.colors.border,
+                          background: selectedStyle === style.id 
+                            ? themeConfig.colors.primaryMuted 
+                            : themeConfig.colors.bg
+                        }}
+                      >
+                        <div 
+                          className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
+                          style={{ 
+                            background: selectedStyle === style.id 
+                              ? themeConfig.colors.primary 
+                              : themeConfig.colors.bgAlt 
+                          }}
+                        >
+                          <span style={{ color: selectedStyle === style.id ? 'white' : themeConfig.colors.text }}>
+                            {style.icon}
+                          </span>
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p 
+                            className="font-medium text-sm"
+                            style={{ 
+                              color: selectedStyle === style.id 
+                                ? themeConfig.colors.primary 
+                                : themeConfig.colors.text 
+                            }}
+                          >
+                            {style.name}
+                          </p>
+                        </div>
+                        {selectedStyle === style.id && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="w-5 h-5 rounded-full flex items-center justify-center"
+                            style={{ background: themeConfig.colors.primary }}
+                          >
+                            <Check size={12} className="text-white" />
+                          </motion.div>
+                        )}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 操作按钮 */}
+                <motion.button
+                  onClick={cloneAvatar}
+                  disabled={isCloning}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-medium disabled:opacity-50"
+                  style={{
+                    background: `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`,
+                    color: 'white'
+                  }}
+                >
+                  {isCloning ? (
+                    <>
+                      <RefreshCw size={18} className="animate-spin" />
+                      生成中...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={18} />
+                      生成数字形象
+                    </>
+                  )}
+                </motion.button>
               </div>
-              </motion.div>
             )}
+            </motion.div>
           </AnimatePresence>
         </div>
+
 
         {/* 右侧：预览区域 */}
         <div 

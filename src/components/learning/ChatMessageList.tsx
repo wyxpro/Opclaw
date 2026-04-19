@@ -6,7 +6,7 @@ import type { Message } from './AIAssistant'
 interface ChatMessageListProps {
   messages: Message[]
   themeConfig: ThemeConfig
-  parentRef?: React.RefObject<HTMLDivElement>
+  parentRef?: React.RefObject<HTMLDivElement | null>
 }
 
 export function ChatMessageList({ messages, themeConfig, parentRef }: ChatMessageListProps) {

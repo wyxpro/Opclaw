@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Wallet, Users, Menu, X, Palette, Sparkles, Globe, Sparkles as SparklesIcon } from 'lucide-react'
+import { Home, Wallet, Users, Menu, X, Palette, Sparkles } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { useAuth } from '../../contexts/AuthContext'
 import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
@@ -15,7 +15,7 @@ const navItems = [
   { path: '/life', label: '🌈 生活记录', icon: null, isPcOnly: true },
   // 资产菜单 - 移动端显示，PC 端隐藏
   { path: '/assets', label: '💎 资产', icon: Wallet, isMobileOnly: true },
-  { path: '/ai-character', label: '✨ AI 分身', icon: SparklesIcon },
+  { path: '/ai-character', label: '🤖 AI 分身', icon: Sparkles },
   { path: '/social', label: '👤 我的', icon: Users },
 ]
 
@@ -146,8 +146,12 @@ export default function Navbar() {
               className="flex items-center gap-3 group"
               title="返回官网"
             >
-              <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 text-primary transition-all group-hover:bg-primary/30 group-hover:shadow-glow">
-                <Globe size={18} />
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-full overflow-hidden transition-all group-hover:shadow-glow">
+                <img 
+                  src="/vibe_images/logo.png" 
+                  alt="Opclaw Logo" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <span className="text-xl font-bold text-text hidden sm:block">
                 Opclaw

@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Calendar, Clock, ChevronDown, ChevronRight, ArrowLeft, Hash, Menu, X, BookOpen, GitBranch, Plus, Upload, Edit2, Trash2 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
@@ -6,6 +7,8 @@ import SkillTreeView from '../components/ui/SkillTreeView'
 import ArticleEditor from '../components/learning/ArticleEditor'
 import DocumentImport from '../components/learning/DocumentImport'
 import { AIAssistant } from '../components/learning/AIAssistant'
+import { AIChatSidebar } from '../components/learning/AIChatSidebar'
+import { ResizableDivider } from '../components/learning/ResizableDivider'
 import { OnlineResume } from '../components/learning/resume'
 import { learningCategories } from '../data/mock'
 import type { Article } from '../data/mock'
@@ -41,7 +44,35 @@ export default function Learning() {
   const [editingArticle, setEditingArticle] = useState<ArticleWithMeta | null>(null)
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false)
   const [showResume, setShowResume] = useState(false)
+  const [aiSidebarOpen, setAiSidebarOpen] = useState(true)
+  const [aiSidebarWidth, setAiSidebarWidth] = useState(380)
   const contentRef = useRef<HTMLDivElement>(null)
+  const location = useLocation()
+
+  // Scroll to top when entering the page - useLayoutEffect to prevent flash
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [location.pathname])
+
+  // Additional scroll to top on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Minimum and maximum width for AI sidebar
+  const MIN_SIDEBAR_WIDTH = 320
+  const MAX_SIDEBAR_WIDTH = 600
+
+  // Handle sidebar resize
+  const handleSidebarResize = useCallback((delta: number) => {
+    setAiSidebarWidth(prev => {
+      const newWidth = prev + delta
+      return Math.max(MIN_SIDEBAR_WIDTH, Math.min(MAX_SIDEBAR_WIDTH, newWidth))
+    })
+  }, [])
 
   const toggleCategory = (name: string) => {
     setExpandedCategories((prev) =>
@@ -432,11 +463,11 @@ export default function Learning() {
     </AnimatePresence>
   )
 
-  // Article Detail View (Three Column Layout)
+  // Article Detail View (Three Column Layout with TOC + AI Sidebar)
   if (selectedArticle) {
     return (
       <PageTransition>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 py-8">
           {/* Mobile Header with Menu */}
           <div className="lg:hidden flex items-center justify-between mb-6">
             <button
@@ -478,23 +509,17 @@ export default function Learning() {
             )}
           </AnimatePresence>
 
-          {/* Three Column Layout */}
+          {/* Three Column Layout: TOC | Article | AI Sidebar */}
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* Left Sidebar - Category Navigation */}
-            <motion.aside
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-              className="hidden lg:block w-56 flex-shrink-0"
-            >
-              {categorySidebarJSX(true)}
-            </motion.aside>
+            {/* Left Sidebar - Table of Contents (Desktop Only) */}
+            {headings.length > 0 && (
+              <aside className="hidden lg:block w-56 flex-shrink-0">
+                {tocSidebarJSX(true)}
+              </aside>
+            )}
 
             {/* Main Content */}
-            <motion.article
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
+            <article
               className="flex-1 min-w-0"
               ref={contentRef}
             >
@@ -555,30 +580,34 @@ export default function Learning() {
                   return <p key={i}>{para}</p>
                 })}
               </div>
-            </motion.article>
+            </article>
 
-            {/* Right Sidebar - Table of Contents */}
-            {headings.length > 0 && (
-              <motion.aside
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="hidden lg:block w-56 flex-shrink-0"
-              >
-                {tocSidebarJSX(true)}
-              </motion.aside>
-            )}
+            {/* Right Sidebar - AI Chat (Desktop Only, Default Open) */}
+            <aside className="hidden xl:flex flex-shrink-0 h-[calc(100vh-200px)] sticky top-24">
+              <>
+                <ResizableDivider 
+                  onResize={handleSidebarResize}
+                />
+                <AIChatSidebar
+                  currentArticle={selectedArticle}
+                  isOpen={true}
+                  onToggle={() => {}}
+                  width={aiSidebarWidth}
+                />
+              </>
+            </aside>
           </div>
         </div>
         {editorModal}
         
-        {/* AI Assistant */}
-        <AIAssistant 
-          currentArticle={selectedArticle}
-          isOpen={aiAssistantOpen}
-          onToggle={() => setAiAssistantOpen(prev => !prev)}
-        />
-        
+        {/* Mobile AI Assistant */}
+        <div className="xl:hidden">
+          <AIAssistant 
+            currentArticle={selectedArticle}
+            isOpen={aiAssistantOpen}
+            onToggle={() => setAiAssistantOpen(prev => !prev)}
+          />
+        </div>
 
       </PageTransition>
     )
@@ -590,11 +619,7 @@ export default function Learning() {
       <PageTransition>
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
           {/* Header with View Switcher */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
+          <div className="mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-text mb-2">学习空间</h1>
@@ -619,7 +644,7 @@ export default function Learning() {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Skill Tree Content */}
           <SkillTreeView />
@@ -635,16 +660,12 @@ export default function Learning() {
     )
   }
 
-  // Article List View (Two Column Layout)
+  // Article List View (Three Column Layout for Desktop)
   return (
     <PageTransition>
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 py-8">
         {/* Header with View Switcher */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-text mb-2">学习空间</h1>
@@ -678,15 +699,10 @@ export default function Learning() {
   
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-6 flex flex-wrap items-center gap-3"
-        >
+        <div className="mb-6 flex flex-wrap items-center gap-3">
           <button
             onClick={() => setEditorMode('create')}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dim transition-all shadow-lg shadow-primary/20"
@@ -701,15 +717,10 @@ export default function Learning() {
             <Upload size={18} />
             导入文档
           </button>
-        </motion.div>
+        </div>
 
         {/* Search */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mb-8"
-        >
+        <div className="mb-8">
           <div className="relative">
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
             <input
@@ -720,20 +731,16 @@ export default function Learning() {
               className="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-border text-text placeholder:text-text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
             />
           </div>
-        </motion.div>
+        </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar - Category Tree */}
-          <motion.aside
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15 }}
-            className="w-full lg:w-64 flex-shrink-0"
-          >
+        {/* Three Column Layout Container */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left Sidebar - Category Tree */}
+          <aside className="w-full lg:w-56 flex-shrink-0">
             {categorySidebarJSX(true)}
-          </motion.aside>
+          </aside>
 
-          {/* Main Content - Article List */}
+          {/* Middle - Article List */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-text-muted">
@@ -743,22 +750,13 @@ export default function Learning() {
               </p>
             </div>
 
-            <motion.div
-              layout
-              className="grid grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              <AnimatePresence mode="popLayout">
-                {filteredArticles.map((article, index) => (
-                  <motion.div
-                    key={article.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    onClick={() => handleSelectArticle(article)}
-                    className="glass-card overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
-                  >
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredArticles.map((article) => (
+                <div
+                  key={article.id}
+                  onClick={() => handleSelectArticle(article)}
+                  className="glass-card overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+                >
                     {/* Card Header - Cover Image or Gradient Background */}
                     <div className="h-28 sm:h-36 relative overflow-hidden bg-surface">
                       {article.coverImage ? (
@@ -817,27 +815,65 @@ export default function Learning() {
                         </span>
                       </div>
                     </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+                </div>
+              ))}
 
               {filteredArticles.length === 0 && (
-                <div className="text-center py-16">
+                <div className="text-center py-16 col-span-full">
                   <p className="text-text-muted">没有找到匹配的文章</p>
                 </div>
               )}
-            </motion.div>
+            </div>
           </div>
+
+          {/* Right Sidebar - AI Chat (Desktop Only) */}
+          <aside className="hidden xl:flex flex-shrink-0 h-[calc(100vh-200px)] sticky top-24">
+            {aiSidebarOpen && (
+              <>
+                <ResizableDivider 
+                  onResize={handleSidebarResize}
+                />
+                <AIChatSidebar
+                  currentArticle={selectedArticle}
+                  isOpen={aiSidebarOpen}
+                  onToggle={() => setAiSidebarOpen(false)}
+                  width={aiSidebarWidth}
+                />
+              </>
+            )}
+          </aside>
         </div>
 
         {editorModal}
         
-        {/* AI Assistant */}
-        <AIAssistant 
-          currentArticle={selectedArticle}
-          isOpen={aiAssistantOpen}
-          onToggle={() => setAiAssistantOpen(prev => !prev)}
-        />
+        {/* AI Assistant - Floating Button (Mobile & Tablet) */}
+        <div className="xl:hidden">
+          <AIAssistant 
+            currentArticle={selectedArticle}
+            isOpen={aiAssistantOpen}
+            onToggle={() => setAiAssistantOpen(prev => !prev)}
+          />
+        </div>
+
+        {/* AI Sidebar Toggle Button (Desktop - when sidebar is closed) */}
+        {(!aiSidebarOpen) && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setAiSidebarOpen(true)}
+            className="hidden xl:flex fixed bottom-6 right-6 z-[100] w-14 h-14 rounded-full items-center justify-center shadow-lg"
+            style={{
+              background: `linear-gradient(135deg, var(--color-primary), var(--color-primary-glow))`,
+              boxShadow: `0 4px 20px var(--color-primary-muted)`,
+            }}
+          >
+            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+          </motion.button>
+        )}
         
         {/* Online Resume */}
         <OnlineResume 
