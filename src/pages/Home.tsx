@@ -44,9 +44,27 @@ export default function Home() {
   return (
     <PageTransition>
       <div
-        className="min-h-screen pb-24 transition-colors duration-300"
+        className="relative min-h-screen transition-colors duration-300"
         style={{ backgroundColor: themeConfig.colors.bg }}
       >
+        {/* 背景图片 - 从导航栏下方开始显示 */}
+        <div 
+          className="fixed pointer-events-none"
+          style={{
+            top: '120px',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: "url('/vibe_images/bg.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center top',
+            backgroundRepeat: 'no-repeat',
+            zIndex: 0
+          }}
+        />
+        
+        {/* 内容层 */}
+        <div className="relative z-10">
         {/* 移动端分享按钮 - 仅在移动端显示，位于主题切换按钮左边 */}
         {!showResume && (
           <motion.button
@@ -283,7 +301,7 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
-
+        </div>
       </div>
     </PageTransition>
   )

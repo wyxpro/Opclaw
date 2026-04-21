@@ -103,6 +103,12 @@
       .bg-gradient-card-emerald {
         background: linear-gradient(135deg, #059669, #10b981);
       }
+      .bg-gradient-card-blue {
+        background: linear-gradient(135deg, #0369a1, #0ea5e9);
+      }
+      .bg-gradient-card-purple {
+        background: linear-gradient(135deg, #7c3aed, #a855f7);
+      }
       @keyframes fadeInUp {
         from {
           opacity: 0;
@@ -275,10 +281,195 @@
         z-index: 10;
         opacity: 1 !important;
       }
+      /* Hero背景样式 */
+      .hero-background {
+        position: absolute;
+        top: 72px; /* 导航栏高度 */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("/vibe_images/bg.png");
+        background-size: cover;
+        background-position: center top;
+        background-repeat: no-repeat;
+        transition: transform 0.3s ease-out;
+        will-change: transform;
+      }
+
+      /* 点击波纹效果 - 优化版 */
+      .click-ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(139, 92, 246, 0.4) 0%,
+          rgba(236, 72, 153, 0.2) 30%,
+          rgba(6, 182, 212, 0.1) 60%,
+          transparent 100%
+        );
+        transform: scale(0);
+        animation: ripple-animation 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)
+          forwards;
+        pointer-events: none;
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+      }
+
+      @keyframes ripple-animation {
+        0% {
+          transform: scale(0);
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.6;
+        }
+        100% {
+          transform: scale(5);
+          opacity: 0;
+        }
+      }
+
+      /* 鼠标光晕效果 - 主题适配 */
+      .mouse-glow {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(139, 92, 246, 0.2) 0%,
+          rgba(236, 72, 153, 0.1) 35%,
+          rgba(6, 182, 212, 0.05) 60%,
+          transparent 80%
+        );
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        transition: opacity 0.3s ease;
+        will-change: left, top;
+        mix-blend-mode: screen;
+      }
+
+      /* 赛博主题适配 */
+      [data-theme="cyber"] .mouse-glow {
+        background: radial-gradient(
+          circle,
+          rgba(0, 212, 255, 0.25) 0%,
+          rgba(139, 92, 246, 0.15) 35%,
+          rgba(236, 72, 153, 0.08) 60%,
+          transparent 80%
+        );
+        mix-blend-mode: screen;
+      }
+
+      [data-theme="cyber"] .click-ripple {
+        background: radial-gradient(
+          circle,
+          rgba(0, 212, 255, 0.5) 0%,
+          rgba(139, 92, 246, 0.3) 30%,
+          rgba(236, 72, 153, 0.15) 60%,
+          transparent 100%
+        );
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+      }
+
+      /* 艺术主题适配 */
+      [data-theme="artistic"] .mouse-glow {
+        background: radial-gradient(
+          circle,
+          rgba(232, 93, 117, 0.2) 0%,
+          rgba(245, 158, 11, 0.12) 35%,
+          rgba(139, 92, 246, 0.06) 60%,
+          transparent 80%
+        );
+      }
+
+      [data-theme="artistic"] .click-ripple {
+        background: radial-gradient(
+          circle,
+          rgba(232, 93, 117, 0.45) 0%,
+          rgba(245, 158, 11, 0.25) 30%,
+          rgba(236, 72, 153, 0.12) 60%,
+          transparent 100%
+        );
+        box-shadow: 0 0 25px rgba(232, 93, 117, 0.35);
+      }
+
+      /* 童趣主题适配 */
+      [data-theme="cartoon"] .mouse-glow {
+        background: radial-gradient(
+          circle,
+          rgba(244, 114, 182, 0.25) 0%,
+          rgba(251, 191, 36, 0.15) 35%,
+          rgba(52, 211, 153, 0.08) 60%,
+          transparent 80%
+        );
+      }
+
+      [data-theme="cartoon"] .click-ripple {
+        background: radial-gradient(
+          circle,
+          rgba(244, 114, 182, 0.5) 0%,
+          rgba(251, 191, 36, 0.3) 30%,
+          rgba(52, 211, 153, 0.15) 60%,
+          transparent 100%
+        );
+        box-shadow: 0 0 25px rgba(244, 114, 182, 0.4);
+      }
+
+      /* 复古主题适配 */
+      [data-theme="retro"] .mouse-glow {
+        background: radial-gradient(
+          circle,
+          rgba(139, 105, 20, 0.2) 0%,
+          rgba(180, 83, 9, 0.12) 35%,
+          rgba(120, 53, 15, 0.06) 60%,
+          transparent 80%
+        );
+      }
+
+      [data-theme="retro"] .click-ripple {
+        background: radial-gradient(
+          circle,
+          rgba(139, 105, 20, 0.45) 0%,
+          rgba(180, 83, 9, 0.25) 30%,
+          rgba(120, 53, 15, 0.12) 60%,
+          transparent 100%
+        );
+        box-shadow: 0 0 25px rgba(139, 105, 20, 0.35);
+      }
+
+      /* 移动端优化 */
+      @media (max-width: 768px) {
+        .hero-background {
+          top: 64px; /* 移动端导航栏高度 */
+          background-position: center center;
+        }
+
+        .mouse-glow {
+          width: 300px;
+          height: 300px;
+        }
+
+        .click-ripple {
+          animation-duration: 0.8s;
+        }
+      }
+
+      /* 小屏幕设备优化 */
+      @media (max-width: 480px) {
+        .hero-background {
+          top: 60px;
+        }
+
+        .mouse-glow {
+          width: 250px;
+          height: 250px;
+        }
+      }
+
       #hero-canvas {
         position: absolute;
         inset: 0;
-        pointer-events: auto;
+        pointer-events: none;
       }
       .floating-icon {
         position: absolute;
@@ -652,8 +843,14 @@
       };
     </script>
     <nav
-      class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      class="fixed top-0 left-0 right-0 z-50 glass"
       id="navbar"
+      style="
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      "
     >
       <div class="flex items-center justify-between px-6 py-4">
         <div class="flex items-center gap-4">
@@ -789,8 +986,15 @@
 
     <section
       class="relative min-h-screen flex items-center justify-center overflow-hidden"
+      id="hero-section"
     >
-      <canvas id="hero-canvas"></canvas>
+      <!-- 底层背景图片 -->
+      <div class="hero-background" id="hero-bg"></div>
+
+      <!-- 鼠标光晕效果 -->
+      <div class="mouse-glow" id="mouse-glow"></div>
+
+      <!-- 网格覆盖层 -->
       <div
         class="absolute inset-0 opacity-[0.03] pointer-events-none"
         style="
@@ -802,6 +1006,9 @@
           background-size: 80px 80px;
         "
       ></div>
+
+      <!-- 粒子效果画布 -->
+      <canvas id="hero-canvas"></canvas>
 
       <div class="relative z-10 mx-auto max-w-6xl px-6 text-center">
         <div class="animate-fade-in-up" style="opacity: 0">
@@ -998,10 +1205,10 @@
           </div>
           <div class="glass-card overflow-hidden animate-on-scroll">
             <div
-              class="bg-gradient-card-cyan h-32 flex items-center justify-center relative overflow-hidden"
+              class="bg-gradient-card-blue h-32 flex items-center justify-center relative overflow-hidden"
             >
               <i
-                data-lucide="gamepad-2"
+                data-lucide="briefcase"
                 class="w-12 h-12 text-white relative z-10"
               ></i>
               <div
@@ -1013,27 +1220,27 @@
             </div>
             <div class="p-6">
               <div class="flex items-center justify-between mb-3">
-                <h3 class="text-xl font-bold text-gray-900">娱乐中心</h3>
+                <h3 class="text-xl font-bold text-gray-900">工作助手</h3>
                 <span
                   class="text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >Entertainment Hub</span
+                  >Work Assistant</span
                 >
               </div>
               <p class="text-gray-600 text-sm leading-relaxed mb-4">
-                汇聚音乐、电影、游戏，打造属于你的私人娱乐空间，放松身心的绝佳去处
+                集成电商运营、新媒体管理、百宝箱工具，提升工作效率的智能助手
               </p>
               <div class="flex flex-wrap gap-2 mb-4">
                 <span
                   class="px-3 py-1 text-xs rounded-full bg-gray-100 border border-gray-200 text-gray-600"
-                  >音乐播放器</span
+                  >电商运营</span
                 >
                 <span
                   class="px-3 py-1 text-xs rounded-full bg-gray-100 border border-gray-200 text-gray-600"
-                  >电影收藏夹</span
+                  >新媒体管理</span
                 >
                 <span
                   class="px-3 py-1 text-xs rounded-full bg-gray-100 border border-gray-200 text-gray-600"
-                  >书签管理</span
+                  >百宝箱工具</span
                 >
               </div>
               <div
@@ -1055,10 +1262,10 @@
           </div>
           <div class="glass-card overflow-hidden animate-on-scroll">
             <div
-              class="bg-gradient-card-emerald h-32 flex items-center justify-center relative overflow-hidden"
+              class="bg-gradient-card-purple h-32 flex items-center justify-center relative overflow-hidden"
             >
               <i
-                data-lucide="users"
+                data-lucide="bot"
                 class="w-12 h-12 text-white relative z-10"
               ></i>
               <div
@@ -1070,27 +1277,27 @@
             </div>
             <div class="p-6">
               <div class="flex items-center justify-between mb-3">
-                <h3 class="text-xl font-bold text-gray-900">我的互动</h3>
+                <h3 class="text-xl font-bold text-gray-900">AI数字人分身</h3>
                 <span
                   class="text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >Social Connect</span
+                  >AI Avatar</span
                 >
               </div>
               <p class="text-gray-600 text-sm leading-relaxed mb-4">
-                分享生活动态，连接志同道合的朋友，在互动中发现更多精彩
+                创建专属AI数字人，声音克隆、形象复刻，打造你的智能数字分身
               </p>
               <div class="flex flex-wrap gap-2 mb-4">
                 <span
                   class="px-3 py-1 text-xs rounded-full bg-gray-100 border border-gray-200 text-gray-600"
-                  >朋友圈动态</span
+                  >声音克隆</span
                 >
                 <span
                   class="px-3 py-1 text-xs rounded-full bg-gray-100 border border-gray-200 text-gray-600"
-                  >好友链接</span
+                  >形象复刻</span
                 >
                 <span
                   class="px-3 py-1 text-xs rounded-full bg-gray-100 border border-gray-200 text-gray-600"
-                  >弹幕互动</span
+                  >智能对话</span
                 >
               </div>
               <div
@@ -3366,6 +3573,9 @@
         if (!theme) return;
         currentTheme = themeKey;
 
+        // 设置data-theme属性用于CSS选择器
+        document.documentElement.setAttribute("data-theme", themeKey);
+
         document.documentElement.style.setProperty("--color-bg", theme.bg);
         document.documentElement.style.setProperty("--color-text", theme.text);
         document.body.style.background = theme.bg;
@@ -3420,6 +3630,14 @@
             el.style.color = textColor;
           }
         });
+
+        // 极简主题下，hero-tagline 使用白色（在文字颜色更新后设置，避免被覆盖）
+        if (themeKey === "minimal") {
+          const heroTagline = document.querySelector(".hero-tagline");
+          if (heroTagline) {
+            heroTagline.style.setProperty("color", "#ffffff", "important");
+          }
+        }
 
         // 处理标签（一人公司等）
         document.querySelectorAll(".rounded-full").forEach((el) => {
@@ -3894,10 +4112,19 @@
       });
       const navbar = document.getElementById("navbar");
       window.addEventListener("scroll", () => {
+        // 导航栏始终固定，不再根据滚动切换样式
         if (window.scrollY > 20) {
-          navbar?.classList.add("glass", "shadow-md");
+          navbar?.style.setProperty(
+            "background",
+            "rgba(255, 255, 255, 0.15)",
+            "important"
+          );
         } else {
-          navbar?.classList.remove("glass", "shadow-md");
+          navbar?.style.setProperty(
+            "background",
+            "rgba(255, 255, 255, 0.1)",
+            "important"
+          );
         }
       });
       const observer = new IntersectionObserver(
@@ -4076,6 +4303,173 @@
         }deg); transition-delay: ${index * 0.05}s;`;
         wordCloudContainer.appendChild(span);
       });
+
+      // Hero区域鼠标交互效果 - 优化版
+      const heroSection = document.getElementById("hero-section");
+      const heroBg = document.getElementById("hero-bg");
+      const mouseGlow = document.getElementById("mouse-glow");
+
+      if (heroSection && heroBg && mouseGlow) {
+        let mouseX = 0,
+          mouseY = 0;
+        let targetX = 0,
+          targetY = 0;
+        let isTouchDevice = false;
+        const parallaxStrength = window.innerWidth < 768 ? 10 : 20; // 移动端减小视差强度
+
+        // 检测设备类型
+        function detectDevice() {
+          isTouchDevice =
+            "ontouchstart" in window || navigator.maxTouchPoints > 0;
+          if (isTouchDevice) {
+            mouseGlow.style.display = "none"; // 触摸设备隐藏光晕
+          }
+        }
+        detectDevice();
+
+        // 鼠标移动事件 - 视差效果和光晕跟随
+        heroSection.addEventListener("mousemove", (e) => {
+          if (isTouchDevice) return; // 触摸设备不处理鼠标事件
+
+          const rect = heroSection.getBoundingClientRect();
+          mouseX = e.clientX - rect.left;
+          mouseY = e.clientY - rect.top;
+
+          // 计算相对于中心点的偏移
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const offsetX = (mouseX - centerX) / centerX;
+          const offsetY = (mouseY - centerY) / centerY;
+
+          // 更新光晕位置
+          mouseGlow.style.left = mouseX + "px";
+          mouseGlow.style.top = mouseY + "px";
+          mouseGlow.style.opacity = "1";
+
+          // 计算视差偏移
+          targetX = offsetX * parallaxStrength;
+          targetY = offsetY * parallaxStrength;
+        });
+
+        // 离开时隐藏光晕
+        heroSection.addEventListener("mouseleave", () => {
+          if (!isTouchDevice) {
+            mouseGlow.style.opacity = "0";
+          }
+        });
+
+        // 触摸事件支持
+        heroSection.addEventListener(
+          "touchmove",
+          (e) => {
+            if (!isTouchDevice) return;
+
+            const touch = e.touches[0];
+            const rect = heroSection.getBoundingClientRect();
+            mouseX = touch.clientX - rect.left;
+            mouseY = touch.clientY - rect.top;
+
+            // 计算相对于中心点的偏移
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const offsetX = (mouseX - centerX) / centerX;
+            const offsetY = (mouseY - centerY) / centerY;
+
+            // 计算视差偏移
+            targetX = offsetX * parallaxStrength;
+            targetY = offsetY * parallaxStrength;
+          },
+          { passive: true }
+        );
+
+        // 平滑动画循环 - 使用requestAnimationFrame优化性能
+        let animationFrameId;
+        function animateParallax() {
+          const currentTransform = heroBg.style.transform;
+          const match = currentTransform.match(
+            /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/
+          );
+          const currentX = match ? parseFloat(match[1]) : 0;
+          const currentY = match ? parseFloat(match[2]) : 0;
+
+          // 平滑插值
+          const newX = currentX + (targetX - currentX) * 0.08; // 降低插值系数，更平滑
+          const newY = currentY + (targetY - currentY) * 0.08;
+
+          heroBg.style.transform = `translate(${newX}px, ${newY}px) scale(1.1)`;
+
+          animationFrameId = requestAnimationFrame(animateParallax);
+        }
+
+        // 初始化背景缩放以保证视差移动时不会露边
+        heroBg.style.transform = "scale(1.1)";
+        animateParallax();
+
+        // 点击/触摸波纹效果 - 优化版
+        function createRipple(x, y) {
+          const rect = heroSection.getBoundingClientRect();
+          const rippleX = x - rect.left;
+          const rippleY = y - rect.top;
+
+          // 创建波纹元素
+          const ripple = document.createElement("div");
+          ripple.className = "click-ripple";
+          ripple.style.left = rippleX + "px";
+          ripple.style.top = rippleY + "px";
+          ripple.style.width = "120px"; // 增大波纹
+          ripple.style.height = "120px";
+          ripple.style.marginLeft = "-60px";
+          ripple.style.marginTop = "-60px";
+
+          heroSection.appendChild(ripple);
+
+          // 动画结束后移除元素
+          setTimeout(() => {
+            if (ripple.parentNode) {
+              ripple.remove();
+            }
+          }, 1000);
+        }
+
+        // 鼠标点击
+        heroSection.addEventListener("click", (e) => {
+          createRipple(e.clientX, e.clientY);
+        });
+
+        // 触摸点击
+        heroSection.addEventListener(
+          "touchstart",
+          (e) => {
+            if (e.touches.length === 1) {
+              const touch = e.touches[0];
+              createRipple(touch.clientX, touch.clientY);
+            }
+          },
+          { passive: true }
+        );
+
+        // 窗口大小改变时重新检测设备和调整参数
+        let resizeTimer;
+        window.addEventListener("resize", () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => {
+            detectDevice();
+            const newParallaxStrength = window.innerWidth < 768 ? 10 : 20;
+            if (newParallaxStrength !== parallaxStrength) {
+              // 更新视差强度
+            }
+          }, 250);
+        });
+
+        // 性能优化: 页面不可见时暂停动画
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            cancelAnimationFrame(animationFrameId);
+          } else {
+            animateParallax();
+          }
+        });
+      }
     </script>
 
     <!-- 主题选择弹窗 -->
