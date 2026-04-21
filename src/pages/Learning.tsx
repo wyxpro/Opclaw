@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Calendar, Clock, ChevronDown, ChevronRight, ArrowLeft, Hash, Menu, X, BookOpen, GitBranch, Plus, Upload, Edit2, Trash2 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
@@ -28,7 +28,16 @@ type ViewMode = 'knowledge' | 'skilltree'
 type EditorMode = 'none' | 'create' | 'edit' | 'import'
 
 export default function Learning() {
-  const [viewMode, setViewMode] = useState<ViewMode>('knowledge')
+  const [searchParams] = useSearchParams()
+  const viewParam = searchParams.get('view')
+  const showResumeParam = searchParams.get('showResume')
+
+  const getInitialViewMode = (): ViewMode => {
+    if (viewParam === 'skilltree') return 'skilltree'
+    return 'knowledge'
+  }
+
+  const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null)
   const [selectedArticle, setSelectedArticle] = useState<ArticleWithMeta | null>(null)
@@ -43,7 +52,7 @@ export default function Learning() {
   const [customArticles, setCustomArticles] = useState<ArticleWithMeta[]>([])
   const [editingArticle, setEditingArticle] = useState<ArticleWithMeta | null>(null)
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false)
-  const [showResume, setShowResume] = useState(false)
+  const [showResume, setShowResume] = useState(showResumeParam === 'true')
   const [aiSidebarOpen, setAiSidebarOpen] = useState(true)
   const [aiSidebarWidth, setAiSidebarWidth] = useState(380)
   const contentRef = useRef<HTMLDivElement>(null)

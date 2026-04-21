@@ -113,7 +113,7 @@ export function OnlineResume({ isOpen, onClose }: OnlineResumeProps) {
                 </button>
               </div>
 
-              <div>
+              <div className="hidden sm:block">
                 <h2 className="text-lg font-bold" style={{ color: themeConfig.colors.text }}>
                   在线简历
                 </h2>

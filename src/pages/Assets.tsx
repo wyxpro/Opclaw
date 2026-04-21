@@ -2,8 +2,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { 
   BookOpen, Heart, GraduationCap, Camera, 
-  GitBranch, FileText, MessageCircle, Dumbbell, Gamepad2, 
-  Briefcase, PenTool, ShoppingCart
+  GitBranch, MessageCircle, Dumbbell, Gamepad2, 
+  Briefcase, PenTool, Music, Film
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { useTheme } from '../hooks/useTheme'
@@ -14,8 +14,8 @@ const learningCards = [
   {
     id: 'knowledge',
     title: '知识库',
-    subtitle: '文章管理',
-    path: '/learning',
+    subtitle: '系统化知识管理',
+    path: '/learning?view=knowledge',
     color: 'bg-blue-500',
     colorLight: 'bg-blue-500/20',
     icon: BookOpen,
@@ -24,22 +24,12 @@ const learningCards = [
   {
     id: 'skilltree',
     title: '技能树',
-    subtitle: '技能成长路径',
-    path: '/learning',
+    subtitle: '技能全景展示',
+    path: '/learning?view=skilltree',
     color: 'bg-violet-500',
     colorLight: 'bg-violet-500/20',
     icon: GitBranch,
     tag: '成长',
-  },
-  {
-    id: 'resume',
-    title: '在线简历',
-    subtitle: '个人履历展示',
-    path: '/learning',
-    color: 'bg-emerald-500',
-    colorLight: 'bg-emerald-500/20',
-    icon: FileText,
-    tag: '职业',
   },
 ]
 
@@ -49,7 +39,7 @@ const lifeCards = [
     id: 'moments',
     title: '朋友圈',
     subtitle: '分享生活点滴',
-    path: '/life',
+    path: '/life?tab=moments',
     color: 'bg-rose-500',
     colorLight: 'bg-rose-500/20',
     icon: MessageCircle,
@@ -59,7 +49,7 @@ const lifeCards = [
     id: 'travel',
     title: '旅拍相册',
     subtitle: '记录美好旅程',
-    path: '/life',
+    path: '/life?tab=travel',
     color: 'bg-amber-500',
     colorLight: 'bg-amber-500/20',
     icon: Camera,
@@ -69,17 +59,37 @@ const lifeCards = [
     id: 'love',
     title: '恋爱记录',
     subtitle: '甜蜜时光珍藏',
-    path: '/life',
+    path: '/life?tab=love',
     color: 'bg-pink-500',
     colorLight: 'bg-pink-500/20',
     icon: Heart,
     tag: '恋爱',
   },
   {
+    id: 'music',
+    title: '音乐盒',
+    subtitle: '聆听美妙音乐',
+    path: '/life?tab=music',
+    color: 'bg-cyan-500',
+    colorLight: 'bg-cyan-500/20',
+    icon: Music,
+    tag: '音乐',
+  },
+  {
+    id: 'movies',
+    title: '收藏电影',
+    subtitle: '精彩影片收藏',
+    path: '/life?tab=movies',
+    color: 'bg-red-500',
+    colorLight: 'bg-red-500/20',
+    icon: Film,
+    tag: '影视',
+  },
+  {
     id: 'sports',
     title: '运动',
     subtitle: '健康生活记录',
-    path: '/life',
+    path: '/life?tab=sports',
     color: 'bg-lime-500',
     colorLight: 'bg-lime-500/20',
     icon: Dumbbell,
@@ -89,7 +99,7 @@ const lifeCards = [
     id: 'games',
     title: '游戏',
     subtitle: '娱乐休闲时光',
-    path: '/life',
+    path: '/life?tab=games',
     color: 'bg-indigo-500',
     colorLight: 'bg-indigo-500/20',
     icon: Gamepad2,
@@ -108,16 +118,6 @@ const workCards = [
     colorLight: 'bg-violet-500/20',
     icon: PenTool,
     tag: '创作',
-  },
-  {
-    id: 'ecommerce',
-    title: '电商运营',
-    subtitle: '电商平台管理分析',
-    path: '/work?tab=ecommerce',
-    color: 'bg-gradient-to-br from-orange-500 to-amber-600',
-    colorLight: 'bg-orange-500/20',
-    icon: ShoppingCart,
-    tag: '运营',
   },
 ]
 
@@ -205,7 +205,7 @@ export default function Assets() {
                     className="text-[10px] md:text-sm transition-colors duration-300"
                     style={{ color: colors.textMuted }}
                   >
-                    {learningCards.length} 个功能模块
+                    {learningCards.length} 个功能
                   </p>
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default function Assets() {
                     className="text-[10px] md:text-sm transition-colors duration-300"
                     style={{ color: colors.textMuted }}
                   >
-                    {lifeCards.length} 个功能模块
+                    {lifeCards.length} 个功能
                   </p>
                 </div>
               </div>
@@ -273,7 +273,7 @@ export default function Assets() {
                     className="text-[10px] md:text-sm transition-colors duration-300"
                     style={{ color: colors.textMuted }}
                   >
-                    {workCards.length} 个功能模块
+                    {workCards.length} 个功能
                   </p>
                 </div>
               </div>

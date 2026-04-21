@@ -310,6 +310,7 @@ export default function Social() {
                 setEditingCard(card)
                 setShowDesktopCardEditModal(true)
               }}
+              initialCard={editingCard || undefined}
             />
           )}
         </AnimatePresence>
@@ -322,6 +323,8 @@ export default function Social() {
               onSave={(newCard) => {
                 setEditingCard(newCard)
                 setShowDesktopCardEditModal(false)
+                // 保存后重新打开名片弹窗显示更新后的数据
+                setShowDesktopCardModal(true)
               }}
               onClose={() => setShowDesktopCardEditModal(false)}
             />
@@ -2369,6 +2372,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
               setEditingCard(card)
               setShowCardEditModal(true)
             }}
+            initialCard={editingCard || undefined}
           />
         )}
       </AnimatePresence>
@@ -2388,6 +2392,8 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
             onSave={(newCard) => {
               setEditingCard(newCard)
               setShowCardEditModal(false)
+              // 保存后重新打开名片弹窗显示更新后的数据
+              setShowCardModal(true)
             }}
             onClose={() => setShowCardEditModal(false)}
           />
@@ -3684,14 +3690,20 @@ function SimpleRadarChart({ skills, theme }: { skills: { name: string; level: nu
 function DigitalCardModal({ 
   onClose, 
   onOpenHistory,
-  onOpenEdit
+  onOpenEdit,
+  initialCard
 }: { 
   onClose: () => void; 
   onOpenHistory?: () => void;
   onOpenEdit?: (card: DigitalCard) => void;
+  initialCard?: DigitalCard;
 }) {
   const { user } = useAuth()
   const [card, setCard] = useState<DigitalCard>(() => {
+    // 如果有传入初始卡片数据，使用它
+    if (initialCard) {
+      return initialCard
+    }
     const defaultCard = generateDigitalCard('blue')
     // 如果有登录用户，使用用户的头像和名称
     if (user) {
@@ -3955,11 +3967,11 @@ function DigitalCardEditModal({
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="bg-bg w-full max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden"
+        className="bg-bg w-full max-w-md max-h-[90vh] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 flex-shrink-0">
           <h2 className="text-lg font-semibold text-text">编辑名片</h2>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-surface/60">
             <X size={20} className="text-text" />
@@ -3967,7 +3979,7 @@ function DigitalCardEditModal({
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+        <div className="p-4 space-y-4 flex-1 overflow-y-auto">
           {/* Avatar Upload */}
           <div>
             <h3 className="text-sm font-medium text-text mb-3">头像</h3>
@@ -4055,7 +4067,7 @@ function DigitalCardEditModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border/50 flex gap-2">
+        <div className="p-4 border-t border-border/50 flex gap-2 flex-shrink-0 pb-20 sm:pb-4">
           <button
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl bg-surface border border-border text-text text-sm font-medium"
@@ -4422,13 +4434,6 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
       desc: '扫码关注获取更多内容',
       hasQR: true
     },
-    {
-      name: '哔哩哔哩',
-      value: '@晓叶win',
-      icon: '📺',
-      desc: '视频教程与技术分享',
-      url: 'https://space.bilibili.com/346710742?spm_id_from=333.1007.0.0'
-    }
   ]
 
   return (

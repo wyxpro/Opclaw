@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, Star, Zap, Medal, Music } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
@@ -33,7 +34,16 @@ const tabs = [
 type TabId = (typeof tabs)[number]['id']
 
 export default function Life() {
-  const [activeTab, setActiveTab] = useState<TabId>('travel')
+  const [searchParams] = useSearchParams()
+  const tabParam = searchParams.get('tab')
+
+  const getInitialTab = (): TabId => {
+    const validTabs: TabId[] = ['travel', 'love', 'moments', 'music', 'movies', 'sports', 'games']
+    if (tabParam && validTabs.includes(tabParam as TabId)) return tabParam as TabId
+    return 'travel'
+  }
+
+  const [activeTab, setActiveTab] = useState<TabId>(getInitialTab)
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
   const [loveView, setLoveView] = useState<'main' | 'album' | 'wish' | 'blessing'>('main')
 
