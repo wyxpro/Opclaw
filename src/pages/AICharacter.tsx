@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import PageTransition from '../components/ui/PageTransition'
 import { Character3D } from '../components/ai/Character3D'
@@ -8,12 +8,16 @@ import { CharacterChat } from '../components/ai/CharacterChat'
 import { StepNavigator } from '../components/ai/StepNavigator'
 import { VoiceClone } from '../components/ai/VoiceClone'
 import { AvatarClone } from '../components/ai/AvatarClone'
+import { CharacterVoiceUI } from '../components/ai/CharacterVoiceUI'
+import { HistoryDialog, type ChatSession } from '../components/ai/HistoryDialog'
 import { useTheme } from '../hooks/useTheme'
 import { ragEngine } from '../lib/ragEngine'
+import { Upload, History, MoreHorizontal } from 'lucide-react'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
 
 export default function AICharacter() {
   const { themeConfig } = useTheme()
+  const [isMobile, setIsMobile] = useState(false)
   
   // 步骤导航状态
   const [currentStep, setCurrentStep] = useState<StepType>('chat')
@@ -24,10 +28,43 @@ export default function AICharacter() {
   const [avatarModel, setAvatarModel] = useState<AvatarModel | null>(null)
   
   // 对话界面状态
-  const [characterStyle, setCharacterStyle] = useState<CharacterStyle>('cartoon')
+  const [characterStyle, setCharacterStyle] = useState<CharacterStyle>('realistic')
   const [background, setBackground] = useState<string>('office')
   const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
+  
+  // 历史对话状态
+  const [sessions, setSessions] = useState<ChatSession[]>([])
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const [currentSessionId, setCurrentSessionId] = useState<string>(`session-${Date.now()}`)
+
+  // 检测窗口大小及加载历史记录
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    // 加载历史记录
+    const savedSessions = localStorage.getItem('ai_chat_sessions')
+    if (savedSessions) {
+      try {
+        setSessions(JSON.parse(savedSessions))
+      } catch (e) {
+        console.error('Failed to parse sessions', e)
+      }
+    }
+
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // 持久化保存历史
+  useEffect(() => {
+    if (sessions.length > 0) {
+      localStorage.setItem('ai_chat_sessions', JSON.stringify(sessions))
+    }
+  }, [sessions])
 
   // 初始化欢迎消息
   const [messages, setMessages] = useState<Message[]>([
@@ -35,14 +72,7 @@ export default function AICharacter() {
       id: 'welcome-1',
       role: 'assistant',
       content: voiceModel && avatarModel 
-        ? `你好！我是你的专属AI分身🌟
-
-我已经学会了你的声音和形象，现在可以：
-• 用你克隆的声音与你对话
-• 展示你创建的数字形象
-• 回答你的各种问题
-
-有什么可以帮助你的吗？`
+        ? `你好！我是你的专属AI分身🌟\n\n我已经学会了你的声音和形象，现在可以：\n• 用你克隆的声音与你对话\n• 展示你创建的数字形象\n• 回答你的各种问题\n\n有什么可以帮助你的吗？`
         : '你好！我是你的AI分身助手🌟\n\n我可以帮助你：\n• 检索学习、生活、娱乐相关的内容\n• 回答你的各种问题\n• 和你进行有趣的对话\n\n提示：你可以先完成"声音克隆"和"形象复刻"，创建专属的数字人！',
       timestamp: 1700000000000
     }
@@ -102,8 +132,8 @@ export default function AICharacter() {
       setMessages(prev => [...prev, responseMessage])
       setIsLoading(false)
       
-      // 如果有克隆的声音，自动播放语音
-      if (voiceModel && 'speechSynthesis' in window) {
+      // 自动播放语音回复
+      if ('speechSynthesis' in window) {
         setTimeout(() => {
           const utterance = new SpeechSynthesisUtterance(ragResponse)
           utterance.lang = 'zh-CN'
@@ -115,8 +145,45 @@ export default function AICharacter() {
     }, 1500)
   }
 
-  const handleCustomBackgroundUpload = (imageUrl: string) => {
-    setCustomBackgroundUrl(imageUrl)
+  // 保存当前对话到历史
+  const saveCurrentSession = () => {
+    if (messages.length <= 1) return // 只有欢迎语不保存
+
+    const newSession: ChatSession = {
+      id: currentSessionId,
+      title: messages[1]?.content.substring(0, 20) || '新对话',
+      timestamp: Date.now(),
+      messages: messages,
+      characterName: '小梦'
+    }
+
+    setSessions(prev => {
+      const filtered = prev.filter(s => s.id !== currentSessionId)
+      return [newSession, ...filtered]
+    })
+  }
+
+  // 处理挂断 (结束通话)
+  const handleEndCall = () => {
+    saveCurrentSession()
+    // 重置对话
+    setMessages([messages[0]])
+    setCurrentSessionId(`session-${Date.now()}`)
+  }
+
+  // 选中历史会话
+  const handleSelectSession = (session: ChatSession) => {
+    setMessages(session.messages)
+    setCurrentSessionId(session.id)
+    setIsHistoryOpen(false)
+  }
+
+  // 删除历史会话
+  const handleDeleteSession = (id: string) => {
+    setSessions(prev => prev.filter(s => s.id !== id))
+    if (id === currentSessionId) {
+      handleEndCall()
+    }
   }
 
   // 渲染当前步骤的内容
@@ -144,6 +211,24 @@ export default function AICharacter() {
         )
       case 'chat':
       default:
+        if (isMobile) {
+          return (
+            <div className="flex-1 relative">
+              <CharacterVoiceUI 
+                style={avatarModel?.style || characterStyle}
+                messages={messages}
+                isLoading={isLoading}
+                onSendMessage={handleSendMessage}
+                background={background === 'custom' && customBackgroundUrl ? customBackgroundUrl : background}
+                onStyleChange={(newStyle) => setCharacterStyle(newStyle)}
+                onBackgroundChange={(newBackground) => setBackground(newBackground)}
+                onEndCall={handleEndCall}
+                onOpenHistory={() => setIsHistoryOpen(true)}
+              />
+            </div>
+          )
+        }
+
         return (
           <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative min-h-0">
             {/* 3D Character Area */}
@@ -163,7 +248,6 @@ export default function AICharacter() {
                    borderColor: themeConfig.colors.border,
                    background: themeConfig.colors.bg
                  }}>
-              {/* 聊天记录区域 */}
               <div className="flex-1 overflow-y-auto min-h-0">
                 <CharacterChat 
                   messages={messages}
@@ -172,7 +256,6 @@ export default function AICharacter() {
                 />
               </div>
               
-              {/* 输入框区域 */}
               <div className="flex-shrink-0 p-2.5 md:p-4 border-t" 
                    style={{ 
                      borderColor: themeConfig.colors.border,
@@ -192,68 +275,57 @@ export default function AICharacter() {
 
   return (
     <PageTransition>
-      <div className="fixed inset-0 top-0 md:top-[64px] bottom-[60px] md:bottom-0 flex flex-col bg-bg text-text overflow-hidden">
-        {/* Header - 桌面端：标题和导航在一行，导航在标题右侧 */}
+      <div className="fixed inset-0 top-0 md:top-[64px] bottom-0 md:bottom-0 flex flex-col bg-bg text-text overflow-hidden">
+        {/* Header */}
         <div 
-          className="flex items-center justify-between px-3 md:px-6 py-1.5 md:py-2 border-b flex-shrink-0"
+          className={`flex items-center justify-between px-3 md:px-6 py-1.5 md:py-2 border-b flex-shrink-0 z-50 ${
+            isMobile && currentStep === 'chat' ? 'absolute top-0 left-0 right-0 border-none bg-transparent' : ''
+          }`}
           style={{ 
-            borderColor: themeConfig.colors.border,
-            background: themeConfig.glassEffect.background,
-            backdropFilter: themeConfig.glassEffect.backdropBlur
+            borderColor: isMobile && currentStep === 'chat' ? 'transparent' : themeConfig.colors.border,
+            background: isMobile && currentStep === 'chat' ? 'transparent' : themeConfig.glassEffect.background,
+            backdropFilter: isMobile && currentStep === 'chat' ? 'none' : themeConfig.glassEffect.backdropBlur
           }}
         >
-          {/* 全部内容在同一行 */}
           <div className="flex items-center gap-2 min-w-max">
-            {/* 电脑端标题 - 移动端隐藏 */}
             <div className="hidden md:block flex-shrink-0">
               <h1 className="text-base md:text-lg font-bold truncate whitespace-nowrap" style={{ color: themeConfig.colors.text }}>
                 AI 分身助手
               </h1>
             </div>
 
-            {/* Step Navigator - 移动端和电脑端都显示 */}
-            <div className="flex items-center">
-              <StepNavigator 
-                currentStep={currentStep}
-                completedSteps={completedSteps}
-                onStepChange={handleStepChange}
-                themeConfig={themeConfig}
-              />
-            </div>
+            <StepNavigator 
+              currentStep={currentStep}
+              completedSteps={completedSteps}
+              onStepChange={handleStepChange}
+              themeConfig={themeConfig}
+            />
           </div>
-                  
-          {/* 右侧：操作按钮 */}
-          {currentStep === 'chat' && (
-            <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
-              {/* 移动端：场景切换按钮 */}
-              <div className="md:hidden">
-                <BackgroundCustomizer 
-                  currentBackground={background === 'custom' && customBackgroundUrl ? customBackgroundUrl : background}
-                  onBackgroundChange={(newBackground) => setBackground(newBackground)}
-                />
-              </div>
-              {/* 移动端：卡通切换按钮 */}
-              <div className="md:hidden">
-                <motion.button
-                  onClick={() => setCharacterStyle(style => style === 'cartoon' ? 'realistic' : 'cartoon')}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-1 px-1.5 py-1 rounded-md text-xs font-medium transition-all"
-                  style={{
-                    background: `linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 50%, #fab1a0 100%)`,
-                    border: `2px solid ${characterStyle === 'cartoon' ? '#fd79a8' : '#2d3436'}`,
-                    color: characterStyle === 'cartoon' ? '#fd79a8' : '#2d3436'
-                  }}
+
+            <div className="flex items-center gap-3 pr-12 md:pr-20">
+              {isMobile && currentStep === 'chat' && (
+                <button 
+                  onClick={() => setIsHistoryOpen(true)}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[11px] font-semibold text-white transition-all active:scale-95 shadow-lg"
                 >
-                  <span className="text-sm">{characterStyle === 'cartoon' ? '🎨' : '👤'}</span>
-                </motion.button>
-              </div>
+                  <History size={14} />
+                  <span>历史</span>
+                </button>
+              )}
             </div>
-          )}
         </div>
 
         {/* Main Content */}
         {renderStepContent()}
+
+        {/* History Dialog */}
+        <HistoryDialog 
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          sessions={sessions}
+          onSelectSession={handleSelectSession}
+          onDeleteSession={handleDeleteSession}
+        />
       </div>
     </PageTransition>
   )

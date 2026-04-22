@@ -9,37 +9,37 @@ const backgroundOptions: BackgroundOption[] = [
   {
     id: 'office',
     name: '办公室',
-    thumbnail: '🏢',
+    thumbnail: 'https://img2.baidu.com/it/u=2810055108,4136944177&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667',
     description: '专业办公环境'
   },
   {
     id: 'living-room',
     name: '客厅',
-    thumbnail: '🛋️',
+    thumbnail: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&q=80&w=400',
     description: '温馨居家环境'
   },
   {
     id: 'outdoor',
     name: '户外',
-    thumbnail: '🌅',
+    thumbnail: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400',
     description: '自然风景背景'
   },
   {
     id: 'studio',
     name: '演播室',
-    thumbnail: '🎬',
+    thumbnail: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=400',
     description: '专业录制环境'
   },
   {
     id: 'library',
     name: '图书馆',
-    thumbnail: '📚',
+    thumbnail: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=400',
     description: '安静学习氛围'
   },
   {
     id: 'cafe',
     name: '咖啡厅',
-    thumbnail: '☕',
+    thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=400',
     description: '休闲放松环境'
   }
 ]
@@ -145,7 +145,13 @@ export function BackgroundCustomizer({
           boxShadow: themeConfig.shadows.card
         }}
       >
-        <span className="text-sm md:text-base">{getCurrentBackgroundIcon()}</span>
+        <div className="w-6 h-6 rounded-md overflow-hidden bg-white/20 flex-shrink-0">
+           {currentBackground === 'custom' && customImage ? (
+             <img src={customImage} alt="custom" className="w-full h-full object-cover" />
+           ) : (
+             <img src={backgroundOptions.find(opt => opt.id === currentBackground)?.thumbnail || ''} alt="bg" className="w-full h-full object-cover" />
+           )}
+        </div>
         <span className="hidden md:inline">{getCurrentBackgroundName()}</span>
         <motion.span
           className="text-xs hidden sm:inline"
@@ -250,7 +256,10 @@ export function BackgroundCustomizer({
                             style={{ background: themeConfig.colors.primary }}
                           />
                         )}
-                        <span className="text-3xl relative z-10">{option.thumbnail}</span>
+                        <div className="w-full h-20 rounded-lg overflow-hidden mb-1 relative z-10">
+                          <img src={option.thumbnail} alt={option.name} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/10 hover:bg-transparent transition-colors" />
+                        </div>
                         <div className="relative z-10">
                           <div className="font-semibold text-sm">{option.name}</div>
                           <div 
