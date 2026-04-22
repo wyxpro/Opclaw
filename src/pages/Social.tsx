@@ -4490,32 +4490,6 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   <X size={20} />
                 </button>
               </div>
-
-              {/* Logo & Title */}
-              <div className="text-center mb-6">
-                <div 
-                  className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-3xl font-bold"
-                  style={{ 
-                    background: themeConfig.colors.primaryMuted,
-                    color: themeConfig.colors.primary,
-                  }}
-                >
-                  叶
-                </div>
-                <h3 
-                  className="text-lg font-bold mb-1"
-                  style={{ color: themeConfig.colors.text }}
-                >
-                  晓叶的个人空间
-                </h3>
-                <p 
-                  className="text-sm"
-                  style={{ color: themeConfig.colors.textMuted }}
-                >
-                  记录生活，分享成长
-                </p>
-              </div>
-
               {/* Social Links */}
               <div className="space-y-3 mb-6">
                 <h4 

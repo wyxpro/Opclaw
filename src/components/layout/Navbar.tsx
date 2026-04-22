@@ -14,16 +14,16 @@ const navItems = [
   { path: '/life', label: '🌈 生活记录', icon: null, isPcOnly: true },
   { path: '/work', label: '📺 工作助手', icon: null, isPcOnly: true },
   // 资产菜单 - 移动端显示，PC 端隐藏
-  { path: '/assets', label: '💎 资产', icon: Wallet, isMobileOnly: true },
   { path: '/ai-character', label: '🤖 AI 分身', icon: Sparkles },
+  { path: '/assets', label: '💎 资产', icon: Wallet, isMobileOnly: true },
   { path: '/social', label: '👤 我的', icon: Users },
 ]
 
 // 移动端导航项（不含表情）
 const mobileNavLabels = {
   '/': '首页',
-  '/assets': '资产',
   '/ai-character': 'AI 分身',
+  '/assets': '资产',
   '/social': '我的',
 }
 

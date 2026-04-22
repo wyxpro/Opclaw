@@ -16,20 +16,20 @@ const learningCards = [
     title: '知识库',
     subtitle: '系统化知识管理',
     path: '/learning?view=knowledge',
-    color: 'bg-blue-500',
-    colorLight: 'bg-blue-500/20',
+    color: 'from-blue-600/70 to-blue-800/70',
     icon: BookOpen,
     tag: '学习',
+    bgImage: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=600&q=80',
   },
   {
     id: 'skilltree',
     title: '技能树',
     subtitle: '技能全景展示',
     path: '/learning?view=skilltree',
-    color: 'bg-violet-500',
-    colorLight: 'bg-violet-500/20',
+    color: 'from-violet-600/70 to-purple-800/70',
     icon: GitBranch,
     tag: '成长',
+    bgImage: 'https://images.unsplash.com/photo-1510070112810-d4e9a46d9e91?w=600&q=80',
   },
 ]
 
@@ -40,70 +40,70 @@ const lifeCards = [
     title: '朋友圈',
     subtitle: '分享生活点滴',
     path: '/life?tab=moments',
-    color: 'bg-rose-500',
-    colorLight: 'bg-rose-500/20',
+    color: 'from-rose-600/70 to-pink-800/70',
     icon: MessageCircle,
     tag: '社交',
+    bgImage: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80',
   },
   {
     id: 'travel',
     title: '旅拍相册',
     subtitle: '记录美好旅程',
     path: '/life?tab=travel',
-    color: 'bg-amber-500',
-    colorLight: 'bg-amber-500/20',
+    color: 'from-amber-500/70 to-orange-700/70',
     icon: Camera,
     tag: '旅行',
+    bgImage: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&q=80',
   },
   {
     id: 'love',
     title: '恋爱记录',
     subtitle: '甜蜜时光珍藏',
     path: '/life?tab=love',
-    color: 'bg-pink-500',
-    colorLight: 'bg-pink-500/20',
+    color: 'from-pink-500/70 to-rose-700/70',
     icon: Heart,
     tag: '恋爱',
+    bgImage: 'https://images.unsplash.com/photo-1494774157365-9e04c6720e47?w=600&q=80',
   },
   {
     id: 'music',
     title: '音乐盒',
     subtitle: '聆听美妙音乐',
     path: '/life?tab=music',
-    color: 'bg-cyan-500',
-    colorLight: 'bg-cyan-500/20',
+    color: 'from-cyan-500/70 to-blue-700/70',
     icon: Music,
     tag: '音乐',
+    bgImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80',
   },
   {
     id: 'movies',
     title: '收藏电影',
     subtitle: '精彩影片收藏',
     path: '/life?tab=movies',
-    color: 'bg-red-500',
-    colorLight: 'bg-red-500/20',
+    color: 'from-red-600/70 to-red-900/70',
     icon: Film,
     tag: '影视',
+    bgImage: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&q=80',
   },
   {
     id: 'sports',
     title: '运动',
     subtitle: '健康生活记录',
     path: '/life?tab=sports',
-    color: 'bg-lime-500',
-    colorLight: 'bg-lime-500/20',
+    color: 'from-slate-900/40 to-slate-900/60',
     icon: Dumbbell,
     tag: '健康',
+    bgImage: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800&q=80',
   },
   {
     id: 'games',
     title: '游戏',
     subtitle: '娱乐休闲时光',
     path: '/life?tab=games',
-    color: 'bg-indigo-500',
-    colorLight: 'bg-indigo-500/20',
+    color: 'from-indigo-600/70 to-blue-800/70',
     icon: Gamepad2,
     tag: '娱乐',
+    bgImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=80',
   },
 ]
 
@@ -114,10 +114,10 @@ const workCards = [
     title: '新媒体',
     subtitle: '社交媒体内容创作',
     path: '/work?tab=media',
-    color: 'bg-gradient-to-br from-violet-500 to-purple-600',
-    colorLight: 'bg-violet-500/20',
+    color: 'from-violet-600/70 to-indigo-800/70',
     icon: PenTool,
     tag: '创作',
+    bgImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80',
   },
 ]
 
@@ -299,32 +299,30 @@ export default function Assets() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + index * 0.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => navigate(card.path)}
-                className="relative overflow-hidden rounded-xl md:rounded-2xl cursor-pointer group transition-all duration-300"
+                className="relative overflow-hidden rounded-xl md:rounded-2xl cursor-pointer group transition-all duration-500 shadow-sm hover:shadow-xl"
                 style={{ 
                   aspectRatio: '1.8/1',
                   backgroundColor: colors.surface,
                   border: `1px solid ${colors.border}`
                 }}
               >
-                {/* Color Accent Bar */}
+                {/* Background Image with Gradient Overlay */}
                 <div 
-                  className={`absolute top-0 left-0 right-0 h-0.5 md:h-1 ${card.color} opacity-80`}
+                  className="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                  style={{ backgroundImage: `url(${card.bgImage})` }}
+                />
+                <div 
+                  className={`absolute inset-0 z-1 bg-gradient-to-br ${card.color} transition-opacity duration-300 group-hover:opacity-90`}
                 />
                 
-                {/* Hover Overlay */}
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ backgroundColor: colors.cardHover }}
-                />
-                
-                {/* Content */}
-                <div className="relative h-full p-2.5 md:p-3 flex flex-col justify-between">
-                  {/* Top Row - Tag and Icon */}
+                {/* Content Overlay */}
+                <div className="relative z-10 h-full p-3 md:p-4 flex flex-col justify-between">
+                  {/* Top Row - Tag Only */}
                   <div className="flex items-start justify-between">
-                    {/* Tag */}
                     <span 
-                      className="px-1.5 py-0.5 md:px-2 md:py-0.5 rounded-full text-[9px] md:text-[10px] font-medium backdrop-blur-sm transition-colors duration-300"
+                      className="px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold transition-colors duration-300"
                       style={{ 
                         backgroundColor: colors.primaryMuted,
                         color: colors.primary
@@ -332,37 +330,23 @@ export default function Assets() {
                     >
                       {card.tag}
                     </span>
-                    
-                    {/* Icon */}
-                    <div 
-                      className={`w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl ${card.color} flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-md`}
-                    >
-                      <card.icon size={14} className="text-white md:size-4" />
-                    </div>
                   </div>
                   
                   {/* Bottom Row - Title and Subtitle */}
-                  <div>
-                    <h3 
-                      className="font-semibold text-xs md:text-sm mb-0.5 transition-colors duration-300"
-                      style={{ color: colors.text }}
-                    >
+                  <div className="transform transition-transform duration-300 group-hover:translate-y-[-2px]">
+                    <h3 className="font-bold text-sm md:text-base text-white mb-0.5 drop-shadow-md">
                       {card.title}
                     </h3>
-                    <p 
-                      className="text-[9px] md:text-[10px] line-clamp-1 transition-colors duration-300"
-                      style={{ color: colors.textMuted }}
-                    >
+                    <p className="text-[10px] md:text-xs text-white/90 line-clamp-1 font-medium drop-shadow-sm">
                       {card.subtitle}
                     </p>
                   </div>
                 </div>
-                
-                {/* Decorative Elements */}
-                <div 
-                  className="absolute -bottom-3 -right-3 w-12 h-12 md:w-14 md:h-14 rounded-full blur-lg transition-colors duration-300"
-                  style={{ backgroundColor: colors.primaryMuted }}
-                />
+
+                {/* Shine effect on hover */}
+                <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                </div>
               </motion.div>
             ))}
           </div>
