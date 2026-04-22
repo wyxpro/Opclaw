@@ -10,7 +10,6 @@ import { type ThemeType } from '../lib/themes'
 import { HeroSection } from '../components/profile/HeroSection'
 import { SkillsSection } from '../components/profile/SkillsSection'
 import { PortfolioSection } from '../components/profile/PortfolioSection'
-import { SocialMediaSection } from '../components/profile/SocialMediaSection'
 import { HobbiesSection } from '../components/profile/HobbiesSection'
 import { ContactSection } from '../components/profile/ContactSection'
 
@@ -260,9 +259,6 @@ export default function Home() {
 
                 {/* Hobbies Section - 兴趣爱好 */}
                 <HobbiesSection />
-
-                {/* Social Media Section - 自媒体矩阵 */}
-                <SocialMediaSection socials={personalProfile.socialLinks} />
 
                 {/* Contact Section - 联系区域 */}
                 <ContactSection />

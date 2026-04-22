@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import { useSearchParams, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, Star, Zap, Medal, Music, Calendar, ChevronRight } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
@@ -36,6 +36,7 @@ type TabId = (typeof tabs)[number]['id']
 export default function Life() {
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
+  const location = useLocation()
 
   const getInitialTab = (): TabId => {
     const validTabs: TabId[] = ['travel', 'love', 'moments', 'music', 'movies', 'sports', 'games']
@@ -46,6 +47,22 @@ export default function Life() {
   const [activeTab, setActiveTab] = useState<TabId>(getInitialTab)
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
   const [loveView, setLoveView] = useState<'main' | 'album' | 'wish' | 'blessing'>('main')
+
+  // 监听导航变化，重置详情页状态并跳转到顶部
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+    if (document.documentElement) {
+      document.documentElement.scrollTo(0, 0)
+    }
+  }, [location])
+
+  // 当路径直接点击 /life 时（或无特定参数时），重置为首屏
+  useEffect(() => {
+    if (location.pathname === '/life' && !tabParam) {
+      setActiveTab('love')
+      setLoveView('main')
+    }
+  }, [location, tabParam])
 
   // 如果处于子页面，显示子页面
   if (loveView !== 'main' && activeTab === 'love') {
@@ -63,35 +80,35 @@ export default function Life() {
   return (
     <PageTransition>
       <div className="mx-auto max-w-6xl px-6 py-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-text mb-2">生活</h1>
-          <div className="flex items-center justify-between">
-            <p className="text-text-muted">记录生活中的美好时刻</p>
-            {/* Mobile slide hint */}
-            <motion.div 
-              className="flex sm:hidden items-center gap-1 text-[10px] text-primary/60 font-medium"
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              <span>左滑查看更多</span>
-              <ChevronRight size={10} strokeWidth={3} />
-            </motion.div>
-          </div>
-        </motion.div>
+        {/* 顶部页眉与标签导航 */}
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-start gap-12">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <h1 className="text-3xl font-bold text-text mb-1">生活</h1>
+            <div className="flex items-center gap-3">
+              <p className="text-sm text-text-muted">记录生活中的美好时刻</p>
+              {/* 仅在移动端显示的滑动提示 */}
+              <motion.div 
+                className="flex md:hidden items-center gap-1 text-[10px] text-primary/60 font-medium"
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <span>左滑查看更多</span>
+                <ChevronRight size={10} strokeWidth={3} />
+              </motion.div>
+            </div>
+          </motion.div>
 
-        {/* Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex gap-2 mb-8 overflow-x-auto no-scrollbar"
-        >
-          {tabs.map((tab) => (
+          {/* 标签栏 - 在右侧 */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex gap-2 overflow-x-auto no-scrollbar pb-1"
+          >
+            {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -111,8 +128,9 @@ export default function Life() {
                 />
               )}
             </button>
-          ))}
-        </motion.div>
+            ))}
+          </motion.div>
+        </div>
 
         {/* Tab Content */}
         <AnimatePresence mode="sync">

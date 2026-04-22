@@ -729,45 +729,46 @@ export default function Work() {
   return (
     <PageTransition>
       <div className="mx-auto max-w-6xl px-6 py-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-text mb-2">工作助手</h1>
-          <p className="text-text-muted">提升工作效率的得力助手</p>
-        </motion.div>
+        {/* 顶部页眉与标签导航 */}
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-start gap-12">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <h1 className="text-3xl font-bold text-text mb-1">工作助手</h1>
+            <p className="text-sm text-text-muted">提升工作效率的得力助手</p>
+          </motion.div>
 
-        {/* Tabs - 类似生活记录的导航样式 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex gap-2 mb-8 overflow-x-auto no-scrollbar"
-        >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                activeTab === tab.id
-                  ? 'text-primary'
-                  : 'text-text-muted hover:text-text-secondary'
-              }`}
-            >
-              <tab.icon size={16} />
-              {tab.label}
-              {activeTab === tab.id && (
-                <motion.div
-                  layoutId="workPageTab"
-                  className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-xl -z-10"
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                />
-              )}
-            </button>
-          ))}
-        </motion.div>
+          {/* 选项卡导航 - 在右侧 */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex gap-2 overflow-x-auto no-scrollbar pb-1"
+          >
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+                  activeTab === tab.id
+                    ? 'text-primary'
+                    : 'text-text-muted hover:text-text-secondary'
+                }`}
+              >
+                <tab.icon size={16} />
+                {tab.label}
+                {activeTab === tab.id && (
+                  <motion.div
+                    layoutId="workPageTab"
+                    className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-xl -z-10"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </button>
+            ))}
+          </motion.div>
+        </div>
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">

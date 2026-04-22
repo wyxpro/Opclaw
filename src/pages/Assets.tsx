@@ -313,25 +313,8 @@ export default function Assets() {
                   className="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                   style={{ backgroundImage: `url(${card.bgImage})` }}
                 />
-                <div 
-                  className={`absolute inset-0 z-1 bg-gradient-to-br ${card.color} transition-opacity duration-300 group-hover:opacity-90`}
-                />
-                
                 {/* Content Overlay */}
-                <div className="relative z-10 h-full p-3 md:p-4 flex flex-col justify-between">
-                  {/* Top Row - Tag Only */}
-                  <div className="flex items-start justify-between">
-                    <span 
-                      className="px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold transition-colors duration-300"
-                      style={{ 
-                        backgroundColor: colors.primaryMuted,
-                        color: colors.primary
-                      }}
-                    >
-                      {card.tag}
-                    </span>
-                  </div>
-                  
+                <div className="relative z-10 h-full p-3 md:p-4 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent">
                   {/* Bottom Row - Title and Subtitle */}
                   <div className="transform transition-transform duration-300 group-hover:translate-y-[-2px]">
                     <h3 className="font-bold text-sm md:text-base text-white mb-0.5 drop-shadow-md">

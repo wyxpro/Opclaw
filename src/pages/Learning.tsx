@@ -58,18 +58,22 @@ export default function Learning() {
   const contentRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
 
-  // Scroll to top when entering the page - useLayoutEffect to prevent flash
+  // 监听导航变化，重置详情页状态并跳转到顶部
   useLayoutEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' })
-  }, [location.pathname])
+    window.scrollTo(0, 0)
+    if (document.documentElement) {
+      document.documentElement.scrollTo(0, 0)
+    }
+  }, [location])
 
-  // Additional scroll to top on mount
+  // 当路径直接点击 /learning 时（或无特定参数时），重置为列表首屏
   useEffect(() => {
-    const timer = setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'instant' })
-    }, 0)
-    return () => clearTimeout(timer)
-  }, [])
+    if (location.pathname === '/learning' && !viewParam && !showResumeParam) {
+      setSelectedArticle(null)
+      setViewMode('knowledge')
+      setEditorMode('none')
+    }
+  }, [location, viewParam, showResumeParam])
 
   // Minimum and maximum width for AI sidebar
   const MIN_SIDEBAR_WIDTH = 320
@@ -627,31 +631,29 @@ export default function Learning() {
     return (
       <PageTransition>
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-          {/* Header with View Switcher */}
-          <div className="mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-bold text-text mb-2">学习空间</h1>
-                <p className="text-text-muted">记录学习、分享知识、持续成长</p>
-              </div>
-              
-              {/* View Mode Switcher */}
-              <div className="flex items-center gap-1 p-1 rounded-xl bg-surface border border-border">
-                <button
-                  onClick={() => setViewMode('knowledge')}
-                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all text-text-muted hover:text-text"
-                >
-                  <BookOpen size={16} />
-                  <span>知识库</span>
-                </button>
-                <button
-                  onClick={() => setViewMode('skilltree')}
-                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all bg-primary/10 text-primary"
-                >
-                  <GitBranch size={16} />
-                  <span>技能树</span>
-                </button>
-              </div>
+          {/* 顶部标题与操作栏 */}
+          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <h1 className="text-3xl font-bold text-text mb-1">学习空间</h1>
+              <p className="text-sm text-text-muted">记录学习、分享知识、持续成长</p>
+            </div>
+            
+            {/* 视图切换器 - 在最右侧 */}
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-surface border border-border h-fit w-fit">
+              <button
+                onClick={() => setViewMode('knowledge')}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all text-text-muted hover:text-text"
+              >
+                <BookOpen size={16} />
+                <span>知识库</span>
+              </button>
+              <button
+                onClick={() => setViewMode('skilltree')}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all bg-primary/10 text-primary"
+              >
+                <GitBranch size={16} />
+                <span>技能树</span>
+              </button>
             </div>
           </div>
 
@@ -673,59 +675,58 @@ export default function Learning() {
   return (
     <PageTransition>
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 py-8">
-        {/* Header with View Switcher */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* 顶部标题与操作栏 */}
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex flex-col md:flex-row md:items-center gap-8">
             <div>
-              <h1 className="text-3xl font-bold text-text mb-2">学习空间</h1>
-              <p className="text-text-muted">记录学习、分享知识、持续成长</p>
+              <h1 className="text-3xl font-bold text-text mb-1">学习空间</h1>
+              <p className="text-sm text-text-muted">记录学习、分享知识、持续成长</p>
             </div>
-            
-            {/* View Mode Switcher */}
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-surface border border-border">
+
+            {/* 操作按钮栏 - 紧靠标题右侧 */}
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setViewMode('knowledge')}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  viewMode === 'knowledge'
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-text-muted hover:text-text'
-                }`}
+                onClick={() => setEditorMode('create')}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dim transition-all shadow-lg shadow-primary/20"
               >
-                <BookOpen size={16} />
-                <span>知识库</span>
+                <Plus size={18} />
+                新建文章
               </button>
               <button
-                onClick={() => setViewMode('skilltree' as ViewMode)}
-                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  (viewMode as string) === 'skilltree'
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-text-muted hover:text-text'
-                }`}
+                onClick={() => setEditorMode('import')}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border border-border text-text text-sm font-medium hover:bg-surface/80 transition-all"
               >
-                <GitBranch size={16} />
-                <span>技能树</span>
+                <Upload size={18} />
+                导入文档
               </button>
-  
             </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="mb-6 flex flex-wrap items-center gap-3">
-          <button
-            onClick={() => setEditorMode('create')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dim transition-all shadow-lg shadow-primary/20"
-          >
-            <Plus size={18} />
-            新建文章
-          </button>
-          <button
-            onClick={() => setEditorMode('import')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border border-border text-text text-sm font-medium hover:bg-surface/80 transition-all"
-          >
-            <Upload size={18} />
-            导入文档
-          </button>
+          {/* 视图切换器 - 依然在最右侧 */}
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-surface border border-border h-fit w-fit">
+            <button
+              onClick={() => setViewMode('knowledge')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                viewMode === 'knowledge'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-text-muted hover:text-text'
+              }`}
+            >
+              <BookOpen size={16} />
+              <span>知识库</span>
+            </button>
+            <button
+              onClick={() => setViewMode('skilltree' as ViewMode)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                (viewMode as string) === 'skilltree'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-text-muted hover:text-text'
+              }`}
+            >
+              <GitBranch size={16} />
+              <span>技能树</span>
+            </button>
+          </div>
         </div>
 
         {/* Search */}

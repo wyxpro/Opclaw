@@ -217,37 +217,54 @@ function HobbyDetailModal({
                 border: `1px solid ${themeConfig.colors.border}`
               }}
             >
-              {/* 顶部渐变背景 */}
-              <div className={`h-24 bg-gradient-to-r ${hobby.gradient} relative flex-shrink-0`}>
+              {/* 顶部图片背景 */}
+              <div className="h-32 relative flex-shrink-0 overflow-hidden rounded-t-2xl">
+                <img 
+                  src={hobbyImages[hobby.id]} 
+                  alt={hobby.title}
+                  className="w-full h-full object-cover"
+                />
+                {/* 叠加遮罩，增强层次感并确保关闭按钮清晰 */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: `linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 60%, ${themeConfig.colors.surface} 100%)`
+                  }}
+                />
+                
                 <motion.button
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={onClose}
-                  className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                  className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors z-10"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    backdropFilter: 'blur(10px)'
+                    background: 'rgba(0, 0, 0, 0.2)',
+                    backdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
                   }}
                 >
                   <X size={20} className="text-white" />
                 </motion.button>
                 
-                {/* 图标 */}
+                {/* 图标容器 */}
                 <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
+                  initial={{ scale: 0, y: 20 }}
+                  animate={{ scale: 1, y: 0 }}
                   transition={{ delay: 0.2, type: 'spring' }}
-                  className="absolute -bottom-8 left-6 w-16 h-16 rounded-xl flex items-center justify-center shadow-xl"
-                  style={{ background: themeConfig.colors.surface }}
+                  className="absolute -bottom-6 left-6 w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl z-20"
+                  style={{ 
+                    background: themeConfig.colors.surface,
+                    border: `1px solid ${themeConfig.colors.border}`
+                  }}
                 >
                   <div 
-                    className="w-12 h-12 rounded-lg flex items-center justify-center"
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
                     style={{ 
                       background: `linear-gradient(135deg, ${hobby.color}20, ${hobby.color}10)`,
                       color: hobby.color
                     }}
                   >
-                    <Icon size={24} />
+                    <Icon size={28} />
                   </div>
                 </motion.div>
               </div>

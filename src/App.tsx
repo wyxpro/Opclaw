@@ -1,3 +1,4 @@
+import { useEffect, useLayoutEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { ThemeProvider } from './contexts/ThemeContext'
@@ -17,6 +18,15 @@ import Work from './pages/Work'
 
 function AppContent() {
   const location = useLocation()
+
+  // 监听路径变化，自动滚动到顶部
+  // 使用 useLayoutEffect 确保在浏览器重绘前执行，避免视觉跳动
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+    if (document.documentElement) {
+      document.documentElement.scrollTo(0, 0)
+    }
+  }, [location])
 
   return (
     <div className="min-h-screen bg-bg text-text">
