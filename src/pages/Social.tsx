@@ -178,11 +178,21 @@ export default function Social() {
             <div className="relative px-6 py-6 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-white/20 flex items-center justify-center text-white text-2xl font-bold border-2 border-white/30">
-                  {userProfile.avatar ? (
-                    <img src={userProfile.avatar} alt="avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    '叶'
-                  )}
+                  <img 
+                    src={userProfile.avatar} 
+                    alt="" 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                      const parent = (e.target as HTMLImageElement).parentElement;
+                      if (parent && !parent.querySelector('.fallback-initial')) {
+                        const span = document.createElement('span');
+                        span.className = 'fallback-initial';
+                        span.innerText = userProfile.name.charAt(0);
+                        parent.appendChild(span);
+                      }
+                    }}
+                  />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -3710,7 +3720,7 @@ function DigitalCardModal({
       return {
         ...defaultCard,
         name: user.username,
-        avatar: user.avatar || presetAvatars[0]?.url || '/avatar.png',
+        avatar: user.avatar || presetAvatars[0]?.url,
       }
     }
     return defaultCard

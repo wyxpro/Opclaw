@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, Star, Zap, Medal, Music } from 'lucide-react'
+import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, Star, Zap, Medal, Music, Calendar, ChevronRight } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { loveTimeline as initialLoveTimeline, socialPosts as initialSocialPosts, travelLocations as initialTravelLocations } from '../data/mock'
 import type { SocialPost, PostComment, TravelLocation } from '../data/mock'
@@ -16,14 +16,14 @@ import { MusicBox, MovieWall } from '../components/entertainment/EntertainmentMo
 
 // Couple info configuration
 const coupleInfo = {
-  person1: { name: '晓叶', avatar: '/avatar.png' },
-  person2: { name: '小安', avatar: '/avatar.png' },
-  startDate: '2024-02-14T00:00:00',
+  person1: { name: '晓叶', avatar: 'https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3' },
+  person2: { name: '小梦', avatar: 'https://img0.baidu.com/it/u=3501403847,440746391&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500' },
+  startDate: '2026-01-01T00:00:00',
 }
 
 const tabs = [
-  { id: 'travel', label: '旅拍相册', icon: Camera },
   { id: 'love', label: '恋爱记录', icon: Heart },
+  { id: 'travel', label: '旅拍相册', icon: Camera },
   { id: 'moments', label: '朋友圈', icon: MessageCircle },
   { id: 'music', label: '音乐盒', icon: Music },
   { id: 'movies', label: '收藏电影', icon: Film },
@@ -40,7 +40,7 @@ export default function Life() {
   const getInitialTab = (): TabId => {
     const validTabs: TabId[] = ['travel', 'love', 'moments', 'music', 'movies', 'sports', 'games']
     if (tabParam && validTabs.includes(tabParam as TabId)) return tabParam as TabId
-    return 'travel'
+    return 'love'
   }
 
   const [activeTab, setActiveTab] = useState<TabId>(getInitialTab)
@@ -70,7 +70,18 @@ export default function Life() {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold text-text mb-2">生活</h1>
-          <p className="text-text-muted">记录生活中的美好时刻</p>
+          <div className="flex items-center justify-between">
+            <p className="text-text-muted">记录生活中的美好时刻</p>
+            {/* Mobile slide hint */}
+            <motion.div 
+              className="flex sm:hidden items-center gap-1 text-[10px] text-primary/60 font-medium"
+              animate={{ x: [0, 5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <span>左滑查看更多</span>
+              <ChevronRight size={10} strokeWidth={3} />
+            </motion.div>
+          </div>
         </motion.div>
 
         {/* Tabs */}
@@ -261,25 +272,72 @@ function CoupleAvatar({ src, name, delay = 0 }: { src: string; name: string; del
       transition={{ delay, duration: 0.5, type: 'spring' }}
       className="relative group"
     >
+      {/* Romantic Pulsing Rings */}
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={i}
+          className="absolute inset-0 rounded-full border-2 border-rose-300/30"
+          initial={{ scale: 1, opacity: 0.5 }}
+          animate={{ 
+            scale: [1, 1.4, 1.8],
+            opacity: [0.5, 0.2, 0],
+          }}
+          transition={{ 
+            duration: 3, 
+            repeat: Infinity, 
+            delay: i * 1,
+            ease: "easeOut" 
+          }}
+        />
+      ))}
+
+      {/* Floating Hearts Animation */}
+      <div className="absolute inset-0 z-0 overflow-visible">
+        {[0, 1, 2, 3].map((i) => (
+          <motion.div
+            key={i}
+            className="absolute text-rose-400/60"
+            initial={{ 
+              x: Math.cos(i * Math.PI / 2) * 50, 
+              y: Math.sin(i * Math.PI / 2) * 50,
+              scale: 0.5,
+              opacity: 0 
+            }}
+            animate={{ 
+              y: [Math.sin(i * Math.PI / 2) * 50, Math.sin(i * Math.PI / 2) * 50 - 40],
+              scale: [0.5, 1, 0.8],
+              opacity: [0, 1, 0],
+              rotate: [0, 15, -15, 0]
+            }}
+            transition={{ 
+              duration: 4, 
+              repeat: Infinity, 
+              delay: i * 1.5,
+              ease: "easeInOut" 
+            }}
+          >
+            <Heart size={16} fill="currentColor" />
+          </motion.div>
+        ))}
+      </div>
+      
       {/* Glow effect */}
-      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-rose/30 via-primary/30 to-rose/30 blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-rose-400/40 via-pink-300/40 to-rose-400/40 blur-xl opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
       
-      {/* Outer ring */}
-      <motion.div
-        className="absolute -inset-1 rounded-full bg-gradient-to-r from-rose via-primary to-rose opacity-70"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-        style={{ padding: '2px' }}
-      >
-        <div className="w-full h-full rounded-full bg-bg" />
-      </motion.div>
-      
-      {/* Avatar image */}
-      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-bg shadow-lg">
+      {/* Avatar image container */}
+      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-white dark:border-slate-800 shadow-xl bg-surface flex items-center justify-center z-10 transition-transform duration-500 group-hover:scale-105">
         <img 
           src={src} 
-          alt={name}
+          alt="" 
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = 'none';
+            (e.target as HTMLImageElement).parentElement!.classList.add('bg-primary/10');
+            const span = document.createElement('span');
+            span.className = 'text-primary font-bold text-xl';
+            span.innerText = name.charAt(0);
+            (e.target as HTMLImageElement).parentElement!.appendChild(span);
+          }}
         />
       </div>
       
@@ -305,7 +363,7 @@ function CountdownNumber({ value, label }: { value: number; label: string }) {
           key={value}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-br from-rose via-primary to-rose bg-clip-text text-transparent tabular-nums"
+          className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-br from-rose-400 via-fuchsia-500 to-purple-600 bg-clip-text text-transparent tabular-nums"
           style={{ fontFamily: '"Dancing Script", cursive, serif' }}
         >
           {String(value).padStart(2, '0')}
@@ -365,7 +423,8 @@ function FeatureButton({
 }
 
 function LoveTimeline({ onNavigate }: { onNavigate: (view: 'album' | 'wish' | 'blessing') => void }) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(coupleInfo.startDate))
+  const [currentStartDate, setCurrentStartDate] = useState(coupleInfo.startDate)
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(currentStartDate))
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<LoveTimelineEvent | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -386,10 +445,17 @@ function LoveTimeline({ onNavigate }: { onNavigate: (view: 'album' | 'wish' | 'b
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft(coupleInfo.startDate))
+      setTimeLeft(calculateTimeLeft(currentStartDate))
     }, 1000)
     return () => clearInterval(timer)
-  }, [])
+  }, [currentStartDate])
+
+  const handleChangeDate = () => {
+    const newDate = prompt('请输入新的起始时间 (格式: YYYY-MM-DD)', currentStartDate.split('T')[0])
+    if (newDate && !isNaN(new Date(newDate).getTime())) {
+      setCurrentStartDate(`${newDate}T00:00:00`)
+    }
+  }
 
   const handleEventClick = (event: LoveTimelineEvent) => {
     setSelectedEvent(event)
@@ -497,20 +563,12 @@ function LoveTimeline({ onNavigate }: { onNavigate: (view: 'album' | 'wish' | 'b
       >
         <FloatingHearts />
         
-        {/* Title */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <div className="inline-flex items-center gap-2 mb-2">
-            <Sparkles size={20} className="text-rose" />
-            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-rose via-primary to-rose bg-clip-text text-transparent">
-              恋爱记录
-            </h2>
-            <Sparkles size={20} className="text-rose" />
-          </div>
           <p className="text-text-muted text-sm">那些一起走过的日子</p>
         </motion.div>
 
@@ -547,7 +605,7 @@ function LoveTimeline({ onNavigate }: { onNavigate: (view: 'album' | 'wish' | 'b
           className="mb-12"
         >
           <p className="text-text-muted text-sm mb-4">这是我们在一起的时间</p>
-          <div className="flex items-center justify-center gap-3 sm:gap-6 flex-wrap">
+          <div className="flex items-center justify-center gap-3 sm:gap-6 flex-wrap mb-6">
             <CountdownNumber value={timeLeft.days} label="天" />
             <span className="text-2xl sm:text-3xl text-rose/60 font-light">·</span>
             <CountdownNumber value={timeLeft.hours} label="时" />
@@ -555,6 +613,23 @@ function LoveTimeline({ onNavigate }: { onNavigate: (view: 'album' | 'wish' | 'b
             <CountdownNumber value={timeLeft.minutes} label="分" />
             <span className="text-2xl sm:text-3xl text-rose/60 font-light">·</span>
             <CountdownNumber value={timeLeft.seconds} label="秒" />
+          </div>
+
+          <div className="flex items-center justify-center gap-4">
+            <p className="text-text-muted italic text-xs flex items-center gap-2">
+              <Timer size={12} />
+              始于 {new Date(currentStartDate).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleChangeDate}
+              className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/20 text-rose text-[10px] font-medium border border-rose-200 dark:border-rose-900/50 hover:bg-rose-100 transition-colors"
+            >
+              <Calendar size={12} />
+              更改起始时间
+            </motion.button>
           </div>
         </motion.div>
       </motion.div>
@@ -1186,8 +1261,8 @@ function PostInputContent({
     >
       <div className="flex gap-3">
         {/* 头像 */}
-        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-gray-100">
-          <img src="/avatar.png" alt="头像" className="w-full h-full object-cover" />
+        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-gray-100 bg-surface">
+          <img src="https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="头像" className="w-full h-full object-cover" />
         </div>
         
         <div className="flex-1">
@@ -1398,8 +1473,18 @@ function PostCard({
         {/* 头部：头像、名字、时间、菜单 */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold flex-shrink-0 overflow-hidden">
-              <img src={post.avatar} alt={post.author} className="w-full h-full object-cover" />
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold flex-shrink-0 overflow-hidden border border-border">
+              <img 
+                src={post.avatar} 
+                alt="" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                  const span = document.createElement('span');
+                  span.innerText = post.author.charAt(0);
+                  (e.target as HTMLImageElement).parentElement!.appendChild(span);
+                }}
+              />
             </div>
             <div>
               <p className="text-sm font-semibold text-text">{post.author}</p>
@@ -1573,7 +1658,7 @@ function Moments() {
       const newPost: SocialPost = {
         id: `post-${Date.now()}`,
         author: '晓叶',
-        avatar: '/avatar.png',
+        avatar: 'https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
         date: new Date().toLocaleString('zh-CN', {
           year: 'numeric',
           month: '2-digit',

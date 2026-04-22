@@ -4,7 +4,7 @@ export const personalInfo = {
   nameEn: 'XiaoYe',
   title: '全栈开发者 / 创意设计师',
   tagline: '用代码编织梦想，用设计点亮生活',
-  avatar: '/avatar.png',
+  avatar: 'https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
   bio: '热衷于探索前沿技术与创意设计的交汇点。5年全栈开发经验，专注于构建优雅、高性能的Web应用。相信好的产品需要技术与美学的完美结合。',
   location: '中国 · 杭州',
   email: 'xiaoye@example.com',
@@ -403,7 +403,7 @@ export const socialPosts: SocialPost[] = [
   {
     id: 'post-1',
     author: '晓叶',
-    avatar: '/avatar.png',
+    avatar: 'https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
     date: '2025-12-10 18:30',
     content: '今天终于把新项目的架构设计完成了！用了 React Server Components + Edge Runtime，性能提升了 3 倍 🚀 这段时间的辛苦没有白费，看着代码一点点成型，真的很有成就感！',
     images: [unsplashImages.code, unsplashImages.workspace],
@@ -418,7 +418,7 @@ export const socialPosts: SocialPost[] = [
   {
     id: 'post-2',
     author: '晓叶',
-    avatar: '/avatar.png',
+    avatar: 'https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
     date: '2025-12-08 12:15',
     content: '周末和朋友们去了趟莫干山，冬天的竹海别有一番风味。泡了温泉、吃了农家菜，满满的幸福感 ❤️ 有时候真的需要放慢脚步，享受一下生活的美好。',
     images: [unsplashImages.mountain, unsplashImages.forest, unsplashImages.lake, unsplashImages.sunset],
@@ -434,7 +434,7 @@ export const socialPosts: SocialPost[] = [
   {
     id: 'post-3',
     author: '晓叶',
-    avatar: '/avatar.png',
+    avatar: 'https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
     date: '2025-11-25 11:20',
     content: '九宫格测试 🎨 生活就是要多姿多彩，记录每一个美好瞬间',
     images: [
@@ -452,7 +452,7 @@ export const socialPosts: SocialPost[] = [
   {
     id: 'post-4',
     author: '晓叶',
-    avatar: '/avatar.png',
+    avatar: 'https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
     date: '2025-11-20 19:00',
     content: '今天是个特别的日子，和朋友们一起庆祝 🎉 感谢有你们陪伴的每一天',
     video: {
