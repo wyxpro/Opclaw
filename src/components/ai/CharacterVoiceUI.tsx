@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, Phone, Music2, Gift, Send, MoreHorizontal, Volume2, X, Upload } from 'lucide-react'
+import { Mic, Phone, Music2, Gift, Send, MoreHorizontal, Volume2, X, Upload, Sparkles, Bot } from 'lucide-react'
 import { Character3D } from './Character3D'
 import { VoiceWaveAnimation } from './VoiceWaveAnimation'
 import { StreamingText } from './StreamingText'
 import { BackgroundCustomizer } from './BackgroundCustomizer'
+import { AvatarSelectionDialog } from './AvatarSelectionDialog'
 import type { Message, CharacterStyle } from './types'
 import { useTheme } from '../../hooks/useTheme'
 
@@ -19,6 +20,8 @@ interface CharacterVoiceUIProps {
   onBackgroundChange?: (background: string) => void
   onEndCall?: () => void
   onOpenHistory?: () => void
+  customAvatar?: { type: 'image' | 'video' | 'custom', url: string, style?: string } | null
+  onAvatarChange?: (avatar: { type: 'image' | 'video' | 'custom', url: string, style?: string }) => void
 }
 
 export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
@@ -31,13 +34,16 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
   onStyleChange,
   onBackgroundChange,
   onEndCall,
-  onOpenHistory
+  onOpenHistory,
+  customAvatar,
+  onAvatarChange
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { themeConfig } = useTheme()
   const [isListening, setIsListening] = useState(false)
   const [userInput, setUserInput] = useState('')
   const [showStreamingContent, setShowStreamingContent] = useState(false)
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
   const lastMessage = messages[messages.length - 1]
   
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -104,16 +110,16 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
         }}
       />
 
-      {/* 2. 顶部工具栏 */}
-      <div className="relative z-20 px-6 pt-24 pb-4">
+      {/* 2. 顶部工具栏 - 移动到步骤文字下方 */}
+      <div className="relative z-20 px-6 pt-20 pb-4">
         <div className="flex items-center justify-start gap-3">
           <motion.button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => setIsAvatarDialogOpen(true)}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg shadow-black/10"
           >
-            <Upload size={13} />
-            <span>上传分身</span>
+            <Bot size={13} className="text-indigo-400" />
+            <span>数字分身</span>
           </motion.button>
 
           {onBackgroundChange && (
@@ -161,7 +167,12 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
               >
                 {msg.role === 'assistant' && (
                   <div className="w-10 h-10 rounded-full border-2 border-indigo-400/30 bg-white/10 flex-shrink-0 flex items-center justify-center shadow-lg overflow-hidden">
-                    <img src="https://ww4.sinaimg.cn/mw690/008x1n0Dly1ibb8e3gmcqj30j60j60uh.jpg" alt="AI" className="w-full h-full object-cover" />
+                    <img 
+                      src={customAvatar?.url || "https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"} 
+                      alt="AI" 
+                      className="w-full h-full object-cover" 
+                      referrerPolicy="no-referrer"
+                    />
                   </div>
                 )}
                 
@@ -255,6 +266,12 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
           </div>
         </div>
       </div>
+      {/* Avatar Selection Dialog */}
+      <AvatarSelectionDialog 
+        isOpen={isAvatarDialogOpen} 
+        onClose={() => setIsAvatarDialogOpen(false)}
+        onSelectAvatar={(avatar) => onAvatarChange && onAvatarChange(avatar)}
+      />
     </div>
   )
 }

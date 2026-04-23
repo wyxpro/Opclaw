@@ -8,9 +8,10 @@ interface CharacterChatProps {
   messages: Message[]
   isLoading: boolean
   themeConfig: ThemeConfig
+  customAvatar?: { type: 'image' | 'video' | 'custom', url: string, style?: string } | null
 }
 
-export function CharacterChat({ messages, isLoading, themeConfig }: CharacterChatProps) {
+export function CharacterChat({ messages, isLoading, themeConfig, customAvatar }: CharacterChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -72,20 +73,21 @@ export function CharacterChat({ messages, isLoading, themeConfig }: CharacterCha
             <div 
               className={`flex gap-2 md:gap-3 max-w-[85%] md:max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
-              {/* 头像 */}
+              {/* 头像 - 与移动端保持一致 */}
               <div 
-                className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center"
-                style={{ 
-                  background: message.role === 'user' 
-                    ? themeConfig.colors.primaryMuted 
-                    : themeConfig.colors.surface,
-                  border: `2px solid ${themeConfig.colors.border}`
-                }}
+                className={`flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full border-2 overflow-hidden shadow-md ${
+                  message.role === 'user' ? 'border-white/20' : 'border-indigo-400/30'
+                }`}
               >
                 {message.role === 'user' ? (
-                  <User size={16} className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: themeConfig.colors.primary }} />
+                  <img src="https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="User" className="w-full h-full object-cover" />
                 ) : (
-                  <Bot size={16} className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: themeConfig.colors.accent }} />
+                  <img 
+                    src={customAvatar?.url || "https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"} 
+                    alt="AI" 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
                 )}
               </div>
 

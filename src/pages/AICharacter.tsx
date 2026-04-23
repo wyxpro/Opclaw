@@ -12,7 +12,8 @@ import { CharacterVoiceUI } from '../components/ai/CharacterVoiceUI'
 import { HistoryDialog, type ChatSession } from '../components/ai/HistoryDialog'
 import { useTheme } from '../hooks/useTheme'
 import { ragEngine } from '../lib/ragEngine'
-import { Upload, History, MoreHorizontal } from 'lucide-react'
+import { Upload, History, MoreHorizontal, Sparkles, Bot } from 'lucide-react'
+import { AvatarSelectionDialog } from '../components/ai/AvatarSelectionDialog'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
 
 export default function AICharacter() {
@@ -32,11 +33,13 @@ export default function AICharacter() {
   const [background, setBackground] = useState<string>('office')
   const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
+  const [customAvatar, setCustomAvatar] = useState<{ type: 'image' | 'video' | 'custom', url: string, style?: string } | null>(null)
   
   // 历史对话状态
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string>(`session-${Date.now()}`)
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
 
   // 检测窗口大小及加载历史记录
   useEffect(() => {
@@ -71,9 +74,7 @@ export default function AICharacter() {
     {
       id: 'welcome-1',
       role: 'assistant',
-      content: voiceModel && avatarModel 
-        ? `你好！我是你的专属AI分身🌟\n\n我已经学会了你的声音和形象，现在可以：\n• 用你克隆的声音与你对话\n• 展示你创建的数字形象\n• 回答你的各种问题\n\n有什么可以帮助你的吗？`
-        : '你好！我是你的AI分身助手🌟\n\n我可以帮助你：\n• 检索学习、生活、娱乐相关的内容\n• 回答你的各种问题\n• 和你进行有趣的对话\n\n提示：你可以先完成"声音克隆"和"形象复刻"，创建专属的数字人！',
+      content: '👋Hi, 我是你的专属AI分身助手，我可以帮助检索学习、生活、工作相关的内容，和你进行有趣的对话，Tips：您可以先完成"声音克隆"和"形象复刻"，创建您的数字人！',
       timestamp: 1700000000000
     }
   ])
@@ -96,9 +97,11 @@ export default function AICharacter() {
   }
 
   // 处理形象复刻完成
-  const handleAvatarCloned = (avatar: AvatarModel) => {
-    setAvatarModel(avatar)
-    setCharacterStyle(avatar.style)
+  const handleAvatarCloned = (avatar: any) => {
+    setAvatarModel({ ...avatar, id: 'custom', name: '我的分身' })
+    setCustomAvatar(avatar)
+    if (avatar.style) setCharacterStyle(avatar.style as any)
+    
     if (!completedSteps.includes('avatar-clone')) {
       setCompletedSteps(prev => [...prev, 'avatar-clone'])
     }
@@ -224,6 +227,8 @@ export default function AICharacter() {
                 onBackgroundChange={(newBackground) => setBackground(newBackground)}
                 onEndCall={handleEndCall}
                 onOpenHistory={() => setIsHistoryOpen(true)}
+                customAvatar={customAvatar}
+                onAvatarChange={handleAvatarCloned}
               />
             </div>
           )
@@ -239,7 +244,39 @@ export default function AICharacter() {
                 background={background === 'custom' && customBackgroundUrl ? customBackgroundUrl : background}
                 onStyleChange={(newStyle) => setCharacterStyle(newStyle)}
                 onBackgroundChange={(newBackground) => setBackground(newBackground)}
+                customAvatar={customAvatar}
               />
+              
+              {/* Desktop Controls Overlay */}
+              <div className="absolute top-6 left-6 z-20 hidden md:flex items-center gap-3">
+                <motion.button
+                  onClick={() => setIsAvatarDialogOpen(true)}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
+                >
+                  <Bot size={13} className="text-indigo-400" />
+                  <span>数字分身</span>
+                </motion.button>
+
+                <div className="flex items-center bg-white/10 rounded-full border border-white/20 backdrop-blur-md shadow-lg">
+                  <BackgroundCustomizer 
+                    currentBackground={background}
+                    onBackgroundChange={(newBg) => setBackground(newBg)}
+                  />
+                </div>
+
+                <motion.button
+                  onClick={() => setCharacterStyle(characterStyle === 'cartoon' ? 'realistic' : 'cartoon')}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all backdrop-blur-md border border-white/20 shadow-lg"
+                  style={{
+                    background: `linear-gradient(135deg, rgba(255, 234, 167, 0.2) 0%, rgba(253, 203, 110, 0.2) 50%)`,
+                    color: 'white'
+                  }}
+                >
+                  <span>{characterStyle === 'cartoon' ? '🎨 卡通' : '👤 真实'}</span>
+                </motion.button>
+              </div>
             </div>
 
             {/* Chat Area */}
@@ -253,6 +290,7 @@ export default function AICharacter() {
                   messages={messages}
                   isLoading={isLoading}
                   themeConfig={themeConfig}
+                  customAvatar={customAvatar}
                 />
               </div>
               
@@ -325,6 +363,12 @@ export default function AICharacter() {
           sessions={sessions}
           onSelectSession={handleSelectSession}
           onDeleteSession={handleDeleteSession}
+        />
+        {/* Avatar Selection Dialog */}
+        <AvatarSelectionDialog 
+          isOpen={isAvatarDialogOpen} 
+          onClose={() => setIsAvatarDialogOpen(false)}
+          onSelectAvatar={handleAvatarCloned}
         />
       </div>
     </PageTransition>

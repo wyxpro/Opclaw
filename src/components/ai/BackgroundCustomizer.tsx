@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Image, Check } from 'lucide-react'
@@ -59,17 +59,24 @@ export function BackgroundCustomizer({
   const [isOpen, setIsOpen] = useState(false)
   const [customImage, setCustomImage] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [isMobileUI, setIsMobileUI] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileUI(window.innerWidth < 768)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      // 验证文件类型
       if (!file.type.startsWith('image/')) {
         alert('请上传图片文件')
         return
       }
-      
-      // 验证文件大小 (最大5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('图片大小不能超过5MB')
         return
@@ -77,13 +84,11 @@ export function BackgroundCustomizer({
       
       setUploadProgress(0)
       const reader = new FileReader()
-      
       reader.onprogress = (e) => {
         if (e.lengthComputable) {
           setUploadProgress((e.loaded / e.total) * 100)
         }
       }
-      
       reader.onload = (e) => {
         const result = e.target?.result as string
         setCustomImage(result)
@@ -97,19 +102,12 @@ export function BackgroundCustomizer({
           setUploadProgress(0)
         }, 500)
       }
-      
-      reader.onerror = () => {
-        alert('图片上传失败，请重试')
-        setUploadProgress(0)
-      }
-      
       reader.readAsDataURL(file)
     }
   }
 
   const handleBackgroundSelect = (background: BackgroundType) => {
     if (background === 'custom' && !customImage) {
-      // 触发文件上传
       const fileInput = document.getElementById('background-upload') as HTMLInputElement
       fileInput?.click()
     } else {
@@ -118,25 +116,13 @@ export function BackgroundCustomizer({
     }
   }
 
-  const getCurrentBackgroundName = () => {
-    if (currentBackground === 'custom') return '自定义背景'
-    const option = backgroundOptions.find(opt => opt.id === currentBackground)
-    return option?.name || '办公室'
-  }
-
-  const getCurrentBackgroundIcon = () => {
-    if (currentBackground === 'custom') return '🖼️'
-    const option = backgroundOptions.find(opt => opt.id === currentBackground)
-    return option?.thumbnail || '🏢'
-  }
-
   return (
     <div className="relative">
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-xs md:text-sm font-medium transition-all"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
         style={{
           background: themeConfig.glassEffect.background,
           backdropFilter: themeConfig.glassEffect.backdropBlur,
@@ -145,18 +131,17 @@ export function BackgroundCustomizer({
           boxShadow: themeConfig.shadows.card
         }}
       >
-        <div className="w-6 h-6 rounded-md overflow-hidden bg-white/20 flex-shrink-0">
+        <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 bg-white/20">
            {currentBackground === 'custom' && customImage ? (
              <img src={customImage} alt="custom" className="w-full h-full object-cover" />
            ) : (
              <img src={backgroundOptions.find(opt => opt.id === currentBackground)?.thumbnail || ''} alt="bg" className="w-full h-full object-cover" />
            )}
         </div>
-        <span className="hidden md:inline">{getCurrentBackgroundName()}</span>
+        <span className="hidden sm:inline">背景</span>
         <motion.span
-          className="text-xs hidden sm:inline"
+          className="text-[10px]"
           animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
         >
           ▼
         </motion.span>
@@ -164,177 +149,113 @@ export function BackgroundCustomizer({
 
       {isOpen && createPortal(
         <AnimatePresence>
-          <>
-            {/* Backdrop - 使用更高的 z-index 确保在最顶层 */}
+          <div className="fixed inset-0 z-[99998] flex items-end sm:items-center justify-center p-0 sm:p-4">
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/20"
-              style={{ zIndex: 99998 }}
               onClick={() => setIsOpen(false)}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm"
             />
             
-            {/* Panel - 使用更高的 z-index 确保在最顶层，定位在按钮组下方 */}
+            {/* Panel */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ type: 'spring', damping: 25 }}
-              className="fixed rounded-2xl overflow-hidden max-h-[70vh] overflow-y-auto"
-              style={{
-                zIndex: 99999,
-                top: '220px',
-                left: '20px',
-                width: '320px',
-                background: themeConfig.glassEffect.background,
-                backdropFilter: themeConfig.glassEffect.backdropBlur,
-                border: themeConfig.glassEffect.border,
-                boxShadow: themeConfig.shadows.float
-              }}
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className={`relative w-full max-w-lg bg-white rounded-t-[32px] sm:rounded-3xl overflow-hidden flex flex-col max-h-[75vh] shadow-[0_-10px_50px_rgba(0,0,0,0.1)]`}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 
-                    className="text-base font-bold flex items-center gap-2"
-                    style={{ color: themeConfig.colors.text }}
-                  >
-                    <Image size={18} />
-                    选择背景
-                  </h3>
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="text-xl opacity-60 hover:opacity-100 transition-opacity"
-                    style={{ color: themeConfig.colors.text }}
-                  >
-                    ×
-                  </button>
+              {/* Handle for mobile */}
+              <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mt-2 mb-1 sm:hidden" />
+              
+              <div className="px-5 py-3 flex items-center justify-between border-b border-gray-100 bg-gray-50/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                    <Image size={16} />
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900">选择背景</h3>
                 </div>
-                
-                {/* 上传进度条 */}
+                <button 
+                  onClick={() => setIsOpen(false)}
+                  className="w-7 h-7 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-400 shadow-sm border border-gray-100 transition-colors"
+                >
+                  <span className="text-lg leading-none mb-0.5">×</span>
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-5 pb-5 pt-3 space-y-3">
                 {uploadProgress > 0 && uploadProgress < 100 && (
-                  <div className="mb-4">
-                    <div className="h-2 rounded-full overflow-hidden" style={{ background: themeConfig.colors.border }}>
+                  <div className="px-2">
+                    <div className="h-2 rounded-full overflow-hidden bg-gray-100">
                       <motion.div
-                        className="h-full rounded-full"
-                        style={{ background: themeConfig.colors.primary }}
+                        className="h-full bg-indigo-500"
                         initial={{ width: 0 }}
                         animate={{ width: `${uploadProgress}%` }}
                       />
                     </div>
-                    <p className="text-xs mt-1 text-center" style={{ color: themeConfig.colors.textMuted }}>
-                      上传中... {Math.round(uploadProgress)}%
-                    </p>
                   </div>
                 )}
                 
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="grid grid-cols-3 gap-2">
                   {backgroundOptions.map((option) => {
                     const isSelected = currentBackground === option.id
                     return (
-                      <motion.button
+                      <button
                         key={option.id}
                         onClick={() => handleBackgroundSelect(option.id)}
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        className="w-full flex flex-col items-center gap-2 p-4 rounded-xl text-center transition-all relative overflow-hidden"
-                        style={{
-                          background: isSelected 
-                            ? `linear-gradient(135deg, ${themeConfig.colors.primaryMuted}, ${themeConfig.colors.primaryDim})` 
-                            : themeConfig.colors.surface,
-                          border: `2px solid ${isSelected ? themeConfig.colors.primary : themeConfig.colors.border}`,
-                          color: isSelected 
-                            ? themeConfig.colors.primary 
-                            : themeConfig.colors.text
-                        }}
+                        className={`group relative flex flex-col p-1.5 rounded-xl border-2 transition-all ${
+                          isSelected ? 'border-indigo-500 bg-indigo-50/30' : 'border-gray-100 hover:border-indigo-200'
+                        }`}
                       >
-                        {isSelected && (
-                          <motion.div
-                            layoutId="selected-bg"
-                            className="absolute inset-0 opacity-10"
-                            style={{ background: themeConfig.colors.primary }}
-                          />
-                        )}
-                        <div className="w-full h-20 rounded-lg overflow-hidden mb-1 relative z-10">
-                          <img src={option.thumbnail} alt={option.name} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-black/10 hover:bg-transparent transition-colors" />
+                        <div className="w-full aspect-[4/3] rounded-lg overflow-hidden mb-1.5">
+                          <img src={option.thumbnail} alt={option.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                         </div>
-                        <div className="relative z-10">
-                          <div className="font-semibold text-sm">{option.name}</div>
-                          <div 
-                            className="text-xs mt-0.5"
-                            style={{ color: themeConfig.colors.textMuted }}
-                          >
-                            {option.description}
+                        <div className="px-1 text-left w-full">
+                          <div className={`font-bold text-[11px] truncate ${isSelected ? 'text-indigo-600' : 'text-gray-800'}`}>{option.name}</div>
+                        </div>
+                        {isSelected && (
+                          <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center text-white shadow-md">
+                            <Check size={10} />
                           </div>
-                        </div>
-                        {isSelected && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="absolute top-2 right-2"
-                          >
-                            <Check size={16} style={{ color: themeConfig.colors.primary }} />
-                          </motion.div>
                         )}
-                      </motion.button>
+                      </button>
                     )
                   })}
                 </div>
                 
-                {/* Custom Upload */}
-                <motion.button
+                <button
                   onClick={() => handleBackgroundSelect('custom')}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center justify-center gap-3 p-4 rounded-xl text-center transition-all border-2 border-dashed"
-                  style={{
-                    background: currentBackground === 'custom' 
-                      ? `linear-gradient(135deg, ${themeConfig.colors.primaryMuted}, ${themeConfig.colors.primaryDim})` 
-                      : themeConfig.colors.surface,
-                    borderColor: currentBackground === 'custom' ? themeConfig.colors.primary : themeConfig.colors.border,
-                    color: currentBackground === 'custom' 
-                      ? themeConfig.colors.primary 
-                      : themeConfig.colors.text
-                  }}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 border-dashed transition-all ${
+                    currentBackground === 'custom' ? 'border-indigo-500 bg-indigo-50/30' : 'border-gray-200 hover:border-indigo-300'
+                  }`}
                 >
-                  <Image size={24} />
-                  <div className="flex-1 text-left">
-                    <div className="font-semibold text-sm">上传自定义图片</div>
-                    <div 
-                      className="text-xs mt-0.5"
-                      style={{ color: themeConfig.colors.textMuted }}
-                    >
-                      支持 JPG, PNG (最大5MB)
-                    </div>
+                  <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-indigo-500">
+                    <Image size={20} />
                   </div>
-                  {currentBackground === 'custom' && <Check size={18} />}
-                </motion.button>
-                
-                {/* 自定义背景预览 */}
+                  <div className="text-left flex-1">
+                    <div className="font-bold text-sm text-gray-800">上传自定义图片</div>
+                    <p className="text-[10px] text-gray-400 mt-0.5">支持 JPG, PNG (最大5MB)</p>
+                  </div>
+                  {currentBackground === 'custom' && <Check size={16} className="text-indigo-500" />}
+                </button>
+
                 {customImage && currentBackground === 'custom' && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-3 rounded-xl overflow-hidden border"
-                    style={{ borderColor: themeConfig.colors.border }}
-                  >
-                    <img 
-                      src={customImage} 
-                      alt="自定义背景预览" 
-                      className="w-full h-32 object-cover"
-                    />
-                  </motion.div>
+                  <div className="rounded-2xl overflow-hidden border border-gray-100">
+                    <img src={customImage} alt="Preview" className="w-full h-32 object-cover" />
+                  </div>
                 )}
+                
+                <div className="h-10 shrink-0" />
               </div>
             </motion.div>
-          </>
+          </div>
         </AnimatePresence>,
         document.body
       )}
 
-      {/* Hidden file input */}
       <input
         id="background-upload"
         type="file"

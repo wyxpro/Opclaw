@@ -12,6 +12,7 @@ interface Character3DProps {
   onStyleChange?: (style: CharacterStyle) => void
   onBackgroundChange?: (background: string) => void
   isMobileVoiceUI?: boolean
+  customAvatar?: { type: 'image' | 'video' | 'custom', url: string, style?: string } | null
 }
 
 export function Character3D({ 
@@ -20,7 +21,8 @@ export function Character3D({
   background, 
   onStyleChange, 
   onBackgroundChange,
-  isMobileVoiceUI = false
+  isMobileVoiceUI = false,
+  customAvatar
 }: Character3DProps) {
   const [customMedia, setCustomMedia] = useState<{ type: 'video' | 'model', url: string, name: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -199,11 +201,22 @@ export function Character3D({
               }}
               transition={{ y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
             >
-              <img 
-                src="/vibe_images/person/g1.jpg" 
-                alt="AI Character" 
-                className="w-full h-full object-cover select-none"
-              />
+              {customAvatar?.type === 'video' ? (
+                <video 
+                  src={customAvatar.url} 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline 
+                  className="w-full h-full object-cover select-none" 
+                />
+              ) : (
+                <img 
+                  src={customAvatar?.url || "/vibe_images/person/g1.jpg"} 
+                  alt="AI Character" 
+                  className="w-full h-full object-cover select-none"
+                />
+              )}
               {isSpeaking && (
                 <motion.div 
                   className="absolute top-[35%] left-1/2 -translate-x-1/2 w-8 bg-white/20 blur-md rounded-full pointer-events-none"
@@ -225,7 +238,6 @@ export function Character3D({
               }}
               transition={{ y: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
             >
-              {/* 卡通风格组装 */}
               <div className="absolute top-8 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-white border-4 border-white shadow-xl" />
               <div className="absolute top-40 left-1/2 -translate-x-1/2 w-28 h-36 rounded-3xl bg-blue-500" />
             </motion.div>
@@ -233,9 +245,9 @@ export function Character3D({
         </div>
       )}
 
-      {/* 状态指示器 */}
+      {/* 状态指示器 - 移动到历史记录按钮下面 */}
       <AnimatePresence>
-        <div className="absolute top-4 right-4 flex flex-col gap-2 items-end z-20">
+        <div className="absolute top-16 right-4 flex flex-col gap-2 items-end z-20">
           {expression !== 'neutral' && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8, x: 20 }}
