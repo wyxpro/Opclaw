@@ -13,8 +13,8 @@ export const personalProfile: PersonalProfile = {
   bio: '热爱技术与设计的全栈开发者，专注于人工智能、Web 开发和用户体验设计。致力于创造优雅且实用的数字产品，一起加油💪',
   avatar: '/vibe_images/avatar_1771416390.png',
   coverImage: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80',
-  location: '中国 · 北京',
-  email: 'zhangxiaoyu@example.com',
+  location: '中国 · 杭州',
+  email: 'wyxcode@qq.com',
   phone: '+86 138 **** 8888',
   website: 'https://xiaoyu.dev',
   socialLinks: [

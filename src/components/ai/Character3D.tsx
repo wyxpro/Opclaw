@@ -194,7 +194,7 @@ export function Character3D({
         <div className={`absolute inset-0 flex items-center justify-center p-4 ${isMobileVoiceUI ? '-top-32 h-full' : ''}`}>
           {style === 'realistic' ? (
             <motion.div
-              className="relative w-56 h-84 md:w-64 md:h-96 rounded-[40px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] border-4 border-white/10"
+              className="relative w-48 h-72 md:w-64 md:h-96 rounded-[40px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] border-4 border-white/10"
               animate={{
                 y: bodyAnimation.breathing ? [0, -10, 0] : 0,
                 ...getExpressionAnimation()
@@ -228,7 +228,7 @@ export function Character3D({
             </motion.div>
           ) : (
             <motion.div
-              className="relative w-48 h-72 md:w-56 md:h-80 lg:w-64 lg:h-96 rounded-3xl"
+              className="relative w-40 h-60 md:w-56 md:h-80 lg:w-64 lg:h-96 rounded-3xl"
               style={getCharacterStyle()}
               animate={{
                 y: bodyAnimation.breathing ? [0, -8, 0] : 0,

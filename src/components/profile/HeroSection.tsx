@@ -308,7 +308,7 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
               }}
             >
               <HomeIcon size={16} />
-              <span className="hidden sm:inline">个人主页</span>
+              <span>主页</span>
             </motion.button>
             
             {/* 在线简历按钮 */}
@@ -327,7 +327,7 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
               }}
             >
               <FileText size={16} />
-              <span className="hidden sm:inline">在线简历</span>
+              <span>简历</span>
             </motion.button>
             
             {/* 分享按钮 - 仅在桌面端显示 */}

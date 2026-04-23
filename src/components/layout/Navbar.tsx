@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Wallet, Users, Menu, X, Palette, Sparkles } from 'lucide-react'
+import { Home, Wallet, Users, Menu, X, Palette, Sparkles, Bot } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { useAuth } from '../../contexts/AuthContext'
 import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
@@ -14,7 +14,7 @@ const navItems = [
   { path: '/life', label: '🌈 生活记录', icon: null, isPcOnly: true },
   { path: '/work', label: '📺 工作助手', icon: null, isPcOnly: true },
   // 资产菜单 - 移动端显示，PC 端隐藏
-  { path: '/ai-character', label: '🤖 AI 分身', icon: Sparkles },
+  { path: '/ai-character', label: '🤖 AI 分身', icon: Bot },
   { path: '/assets', label: '💎 资产', icon: Wallet, isMobileOnly: true },
   { path: '/social', label: '👤 我的', icon: Users },
 ]

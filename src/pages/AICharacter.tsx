@@ -74,7 +74,7 @@ export default function AICharacter() {
     {
       id: 'welcome-1',
       role: 'assistant',
-      content: '👋Hi, 我是你的专属AI分身助手，我可以帮助检索学习、生活、工作相关的内容，和你进行有趣的对话，Tips：您可以先完成"声音克隆"和"形象复刻"，创建您的数字人！',
+      content: 'Hi, 我是你的专属AI分身助手，帮助检索学习、生活、工作相关的内容，进行有趣的对话。Tips：您可以先完成"声音克隆"和"形象复刻"，创建您的数字人！',
       timestamp: 1700000000000
     }
   ])
@@ -340,11 +340,20 @@ export default function AICharacter() {
             />
           </div>
 
-            <div className="flex items-center gap-3 pr-12 md:pr-20">
-              {isMobile && currentStep === 'chat' && (
+            <div className="flex items-center gap-3 pr-4 md:pr-6">
+              {currentStep === 'chat' && (
                 <button 
                   onClick={() => setIsHistoryOpen(true)}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[11px] font-semibold text-white transition-all active:scale-95 shadow-lg"
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
+                    isMobile && currentStep === 'chat' 
+                      ? 'bg-white/10 border-white/20 text-white shadow-lg' 
+                      : 'hover:opacity-80'
+                  }`}
+                  style={!(isMobile && currentStep === 'chat') ? {
+                    background: themeConfig.colors.surface,
+                    borderColor: themeConfig.colors.border,
+                    color: themeConfig.colors.text
+                  } : {}}
                 >
                   <History size={14} />
                   <span>历史</span>

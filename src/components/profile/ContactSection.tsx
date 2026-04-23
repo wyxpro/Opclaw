@@ -116,21 +116,7 @@ export function ContactSection() {
                 </div>
               </div>
 
-              {/* 补充说明 */}
-              <div
-                className="mt-6 p-4 rounded-xl"
-                style={{
-                  background: themeConfig.colors.surface,
-                  border: `1px solid ${themeConfig.colors.border}`
-                }}
-              >
-                <p
-                  className="text-sm text-center"
-                  style={{ color: themeConfig.colors.textMuted }}
-                >
-                  扫描二维码关注公众号或抖音号，获取更多技术分享和项目更新
-                </p>
-              </div>
+
             </div>
           </AnimatedSection>
 
