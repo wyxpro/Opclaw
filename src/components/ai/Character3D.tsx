@@ -117,37 +117,37 @@ export function Character3D({
     switch (background) {
       case 'office':
         return { 
-          backgroundImage: `url('https://img2.baidu.com/it/u=2810055108,4136944177&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667')`,
+          backgroundImage: `url('${isMobileVoiceUI ? 'https://img2.baidu.com/it/u=2810055108,4136944177&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667' : 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1600'}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }
       case 'living-room':
         return { 
-          backgroundImage: `url('https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&q=80&w=1200')`,
+          backgroundImage: `url('${isMobileVoiceUI ? 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&q=80&w=400' : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1600'}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }
       case 'outdoor':
         return { 
-          backgroundImage: `url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=1200')`,
+          backgroundImage: `url('${isMobileVoiceUI ? 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400' : 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=1600'}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }
       case 'studio':
         return { 
-          backgroundImage: `url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=1200')`,
+          backgroundImage: `url('${isMobileVoiceUI ? 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=400' : 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=1600'}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }
       case 'library':
         return { 
-          backgroundImage: `url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=1200')`,
+          backgroundImage: `url('${isMobileVoiceUI ? 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=400' : 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=1600'}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }
       case 'cafe':
         return { 
-          backgroundImage: `url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1200')`,
+          backgroundImage: `url('${isMobileVoiceUI ? 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=400' : 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1600'}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }
@@ -194,7 +194,7 @@ export function Character3D({
         <div className={`absolute inset-0 flex items-center justify-center p-4 ${isMobileVoiceUI ? '-top-32 h-full' : ''}`}>
           {style === 'realistic' ? (
             <motion.div
-              className="relative w-48 h-72 md:w-64 md:h-96 rounded-[40px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] border-4 border-white/10"
+              className="relative w-48 h-72 md:w-72 md:h-[28rem] lg:w-80 lg:h-[32rem] rounded-[40px] md:rounded-[48px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] border-4 border-white/10 md:-mt-24 lg:-mt-28"
               animate={{
                 y: bodyAnimation.breathing ? [0, -10, 0] : 0,
                 ...getExpressionAnimation()

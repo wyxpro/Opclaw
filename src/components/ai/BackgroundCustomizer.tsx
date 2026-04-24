@@ -5,7 +5,7 @@ import { Image, Check } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import type { BackgroundType, BackgroundOption } from './types'
 
-const backgroundOptions: BackgroundOption[] = [
+const mobileBackgroundOptions: BackgroundOption[] = [
   {
     id: 'office',
     name: '办公室',
@@ -44,6 +44,45 @@ const backgroundOptions: BackgroundOption[] = [
   }
 ]
 
+const desktopBackgroundOptions: BackgroundOption[] = [
+  {
+    id: 'office',
+    name: '办公室',
+    thumbnail: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800',
+    description: '专业办公环境'
+  },
+  {
+    id: 'living-room',
+    name: '客厅',
+    thumbnail: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=800',
+    description: '温馨居家环境'
+  },
+  {
+    id: 'outdoor',
+    name: '户外',
+    thumbnail: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=800',
+    description: '自然风景背景'
+  },
+  {
+    id: 'studio',
+    name: '演播室',
+    thumbnail: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
+    description: '专业录制环境'
+  },
+  {
+    id: 'library',
+    name: '图书馆',
+    thumbnail: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=800',
+    description: '安静学习氛围'
+  },
+  {
+    id: 'cafe',
+    name: '咖啡厅',
+    thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800',
+    description: '休闲放松环境'
+  }
+]
+
 interface BackgroundCustomizerProps {
   currentBackground: BackgroundType
   onBackgroundChange: (background: BackgroundType) => void
@@ -60,6 +99,7 @@ export function BackgroundCustomizer({
   const [customImage, setCustomImage] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isMobileUI, setIsMobileUI] = useState(false)
+  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop')
 
   useEffect(() => {
     const handleResize = () => {
@@ -122,25 +162,22 @@ export function BackgroundCustomizer({
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+        className="flex items-center justify-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap"
         style={{
-          background: themeConfig.glassEffect.background,
-          backdropFilter: themeConfig.glassEffect.backdropBlur,
-          color: themeConfig.colors.text,
-          border: themeConfig.glassEffect.border,
-          boxShadow: themeConfig.shadows.card
+          background: 'transparent',
+          color: 'white',
         }}
       >
-        <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 bg-white/20">
+        <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 bg-white/20 border border-white/40">
            {currentBackground === 'custom' && customImage ? (
              <img src={customImage} alt="custom" className="w-full h-full object-cover" />
            ) : (
-             <img src={backgroundOptions.find(opt => opt.id === currentBackground)?.thumbnail || ''} alt="bg" className="w-full h-full object-cover" />
+             <img src={(viewMode === 'mobile' ? mobileBackgroundOptions : desktopBackgroundOptions).find(opt => opt.id === currentBackground)?.thumbnail || ''} alt="bg" className="w-full h-full object-cover" />
            )}
         </div>
         <span className="hidden sm:inline">背景</span>
         <motion.span
-          className="text-[10px]"
+          className="text-[10px] ml-0.5"
           animate={{ rotate: isOpen ? 180 : 0 }}
         >
           ▼
@@ -186,6 +223,32 @@ export function BackgroundCustomizer({
                 </button>
               </div>
 
+              {/* 电脑端/移动端切换按钮 */}
+              <div className="px-5 py-3 border-b border-gray-100 bg-gray-50/30">
+                <div className="flex items-center gap-2 p-1 rounded-xl bg-gray-100">
+                  <button
+                    onClick={() => setViewMode('desktop')}
+                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                      viewMode === 'desktop'
+                        ? 'bg-white text-indigo-600 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    🖥️ 电脑端
+                  </button>
+                  <button
+                    onClick={() => setViewMode('mobile')}
+                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                      viewMode === 'mobile'
+                        ? 'bg-white text-indigo-600 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    📱 移动端
+                  </button>
+                </div>
+              </div>
+
               <div className="flex-1 overflow-y-auto px-5 pb-5 pt-3 space-y-3">
                 {uploadProgress > 0 && uploadProgress < 100 && (
                   <div className="px-2">
@@ -200,7 +263,7 @@ export function BackgroundCustomizer({
                 )}
                 
                 <div className="grid grid-cols-3 gap-2">
-                  {backgroundOptions.map((option) => {
+                  {(viewMode === 'mobile' ? mobileBackgroundOptions : desktopBackgroundOptions).map((option) => {
                     const isSelected = currentBackground === option.id
                     return (
                       <button
@@ -210,7 +273,7 @@ export function BackgroundCustomizer({
                           isSelected ? 'border-indigo-500 bg-indigo-50/30' : 'border-gray-100 hover:border-indigo-200'
                         }`}
                       >
-                        <div className="w-full aspect-[4/3] rounded-lg overflow-hidden mb-1.5">
+                        <div className={`w-full ${isMobileUI ? 'aspect-[3/4]' : 'aspect-video'} rounded-lg overflow-hidden mb-1.5`}>
                           <img src={option.thumbnail} alt={option.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                         </div>
                         <div className="px-1 text-left w-full">

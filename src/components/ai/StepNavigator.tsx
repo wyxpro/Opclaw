@@ -60,7 +60,7 @@ export function StepNavigator({
   }
 
   return (
-    <div className="w-full">
+    <div className="flex-shrink-0">
       {/* 桌面端 - 根据 compact 属性选择不同样式 */}
       <div className="hidden md:flex items-center justify-center">
         {compact ? (
@@ -77,12 +77,12 @@ export function StepNavigator({
                   disabled={!isClickable}
                   whileHover={isClickable ? { scale: 1.05 } : {}}
                   whileTap={isClickable ? { scale: 0.95 } : {}}
-                  className={`flex items-center gap-1 px-1.5 py-1 rounded transition-all ${
+                  className={`flex items-center gap-1 px-2 py-1.5 rounded transition-all ${
                     !isClickable ? 'cursor-not-allowed' : 'cursor-pointer'
                   }`}
                 >
                   <div
-                    className="flex items-center justify-center w-5 h-5 rounded-full transition-all"
+                    className="flex items-center justify-center w-6 h-6 rounded-full transition-all"
                     style={{
                       background: status === 'active' 
                         ? themeConfig.colors.primary
@@ -102,13 +102,13 @@ export function StepNavigator({
                     }}
                   >
                     {status === 'completed' ? (
-                      <Check size={10} />
+                      <Check size={12} />
                     ) : (
-                      <span style={{ fontSize: '10px' }}>{step.icon}</span>
+                      <span style={{ fontSize: '12px' }}>{step.icon}</span>
                     )}
                   </div>
                   <span 
-                    className="text-xs font-medium whitespace-nowrap"
+                    className="text-sm font-medium whitespace-nowrap"
                     style={{
                       color: status === 'active' 
                         ? themeConfig.colors.primary 

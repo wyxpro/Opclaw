@@ -3,8 +3,8 @@ import { motion } from 'framer-motion'
 import PageTransition from '../components/ui/PageTransition'
 import { Character3D } from '../components/ai/Character3D'
 import { BackgroundCustomizer } from '../components/ai/BackgroundCustomizer'
-import { MultiModalInput } from '../components/ai/MultiModalInput'
 import { CharacterChat } from '../components/ai/CharacterChat'
+
 import { StepNavigator } from '../components/ai/StepNavigator'
 import { VoiceClone } from '../components/ai/VoiceClone'
 import { AvatarClone } from '../components/ai/AvatarClone'
@@ -235,9 +235,9 @@ export default function AICharacter() {
         }
 
         return (
-          <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative min-h-0">
-            {/* 3D Character Area */}
-            <div className="relative w-full md:w-1/2 lg:w-2/3 h-[38vh] md:h-full flex-shrink-0 z-0 md:z-auto">
+          <div className="flex-1 flex flex-col overflow-hidden relative min-h-0 bg-black">
+            {/* 3D Character Area (Now Full Screen) */}
+            <div className="absolute inset-0 z-0">
               <Character3D 
                 style={avatarModel?.style || characterStyle}
                 currentMessage={messages[messages.length - 1]}
@@ -247,65 +247,18 @@ export default function AICharacter() {
                 customAvatar={customAvatar}
               />
               
-              {/* Desktop Controls Overlay */}
-              <div className="absolute top-6 left-6 z-20 hidden md:flex items-center gap-3">
-                <motion.button
-                  onClick={() => setIsAvatarDialogOpen(true)}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
-                >
-                  <Bot size={13} className="text-indigo-400" />
-                  <span>数字分身</span>
-                </motion.button>
 
-                <div className="flex items-center bg-white/10 rounded-full border border-white/20 backdrop-blur-md shadow-lg">
-                  <BackgroundCustomizer 
-                    currentBackground={background}
-                    onBackgroundChange={(newBg) => setBackground(newBg)}
-                  />
-                </div>
-
-                <motion.button
-                  onClick={() => setCharacterStyle(characterStyle === 'cartoon' ? 'realistic' : 'cartoon')}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all backdrop-blur-md border border-white/20 shadow-lg"
-                  style={{
-                    background: `linear-gradient(135deg, rgba(255, 234, 167, 0.2) 0%, rgba(253, 203, 110, 0.2) 50%)`,
-                    color: 'white'
-                  }}
-                >
-                  <span>{characterStyle === 'cartoon' ? '🎨 卡通' : '👤 真实'}</span>
-                </motion.button>
-              </div>
             </div>
 
-            {/* Chat Area */}
-            <div className="relative z-10 w-full md:w-1/2 lg:w-1/3 flex-1 md:h-full flex flex-col border-t md:border-t-0 md:border-l"
-                 style={{ 
-                   borderColor: themeConfig.colors.border,
-                   background: themeConfig.colors.bg
-                 }}>
-              <div className="flex-1 overflow-y-auto min-h-0">
-                <CharacterChat 
-                  messages={messages}
-                  isLoading={isLoading}
-                  themeConfig={themeConfig}
-                  customAvatar={customAvatar}
-                />
-              </div>
-              
-              <div className="flex-shrink-0 p-2.5 md:p-4 border-t" 
-                   style={{ 
-                     borderColor: themeConfig.colors.border,
-                     background: themeConfig.colors.surface
-                   }}>
-                <MultiModalInput 
-                  onSend={handleSendMessage}
-                  themeConfig={themeConfig}
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
+            {/* Floating Voice Call Overlay at Bottom */}
+            <CharacterChat 
+              messages={messages}
+              isLoading={isLoading}
+              themeConfig={themeConfig}
+              customAvatar={customAvatar}
+              onSendMessage={handleSendMessage}
+              onEndCall={handleEndCall}
+            />
           </div>
         )
     }
@@ -316,35 +269,88 @@ export default function AICharacter() {
       <div className="fixed inset-0 top-0 md:top-[64px] bottom-0 md:bottom-0 flex flex-col bg-bg text-text overflow-hidden">
         {/* Header */}
         <div 
-          className={`flex items-center justify-between px-3 md:px-6 py-1.5 md:py-2 border-b flex-shrink-0 z-50 ${
-            isMobile && currentStep === 'chat' ? 'absolute top-0 left-0 right-0 border-none bg-transparent' : ''
+          className={`flex items-center justify-between px-3 md:px-6 py-1.5 md:py-2 flex-shrink-0 z-50 ${
+            currentStep === 'chat' ? 'absolute top-0 left-0 right-0 border-none bg-transparent' : 'border-b'
           }`}
           style={{ 
-            borderColor: isMobile && currentStep === 'chat' ? 'transparent' : themeConfig.colors.border,
-            background: isMobile && currentStep === 'chat' ? 'transparent' : themeConfig.glassEffect.background,
-            backdropFilter: isMobile && currentStep === 'chat' ? 'none' : themeConfig.glassEffect.backdropBlur
+            borderColor: currentStep === 'chat' ? 'transparent' : themeConfig.colors.border,
+            background: currentStep === 'chat' ? 'transparent' : themeConfig.glassEffect.background,
+            backdropFilter: currentStep === 'chat' ? 'none' : themeConfig.glassEffect.backdropBlur
           }}
         >
-          <div className="flex items-center gap-2 min-w-max">
+          <div className="flex items-center gap-2 min-w-max flex-1">
             <div className="hidden md:block flex-shrink-0">
-              <h1 className="text-base md:text-lg font-bold truncate whitespace-nowrap" style={{ color: themeConfig.colors.text }}>
+              <h1 className="text-base md:text-lg font-bold truncate whitespace-nowrap lg:mr-4" style={{ color: currentStep === 'chat' ? 'white' : themeConfig.colors.text }}>
                 AI 分身助手
               </h1>
             </div>
 
-            <StepNavigator 
-              currentStep={currentStep}
-              completedSteps={completedSteps}
-              onStepChange={handleStepChange}
-              themeConfig={themeConfig}
-            />
-          </div>
+            {/* Desktop: StepNavigator + Controls */}
+            <div className="hidden md:flex items-center gap-2">
+              <StepNavigator 
+                currentStep={currentStep}
+                completedSteps={completedSteps}
+                onStepChange={handleStepChange}
+                themeConfig={themeConfig}
+              />
 
-            <div className="flex items-center gap-3 pr-4 md:pr-6">
+              {/* Desktop Controls Area - 紧靠步骤导航器右边 */}
+              {currentStep === 'chat' && (
+                <div className="flex items-center gap-3 flex-shrink-0 whitespace-nowrap ml-4">
+                  <motion.button
+                    onClick={() => setIsAvatarDialogOpen(true)}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
+                  >
+                    <Bot size={16} className="text-indigo-400" />
+                    <span>数字分身</span>
+                  </motion.button>
+
+                  <div className="flex items-center bg-white/10 rounded-full border border-white/20 backdrop-blur-md shadow-lg">
+                    <BackgroundCustomizer 
+                      currentBackground={background}
+                      onBackgroundChange={(newBg) => setBackground(newBg)}
+                    />
+                  </div>
+
+                  <motion.button
+                    onClick={() => setCharacterStyle(characterStyle === 'cartoon' ? 'realistic' : 'cartoon')}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold transition-all backdrop-blur-md border border-white/20 shadow-lg"
+                    style={{
+                      background: `linear-gradient(135deg, rgba(255, 234, 167, 0.2) 0%, rgba(253, 203, 110, 0.2) 50%)`,
+                      color: 'white'
+                    }}
+                  >
+                    <span>{characterStyle === 'cartoon' ? '🎨 卡通' : '👤 真实'}</span>
+                  </motion.button>
+
+                  <motion.button
+                    onClick={() => setIsHistoryOpen(true)}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
+                  >
+                    <History size={16} className="text-indigo-400" />
+                    <span>历史</span>
+                  </motion.button>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile: StepNavigator + History Button */}
+            <div className="md:hidden flex items-center gap-2">
+              <StepNavigator 
+                currentStep={currentStep}
+                completedSteps={completedSteps}
+                onStepChange={handleStepChange}
+                themeConfig={themeConfig}
+              />
+              
+              {/* Mobile History Button - 紧靠数字人对话右边 */}
               {currentStep === 'chat' && (
                 <button 
                   onClick={() => setIsHistoryOpen(true)}
-                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ml-2 ${
                     isMobile && currentStep === 'chat' 
                       ? 'bg-white/10 border-white/20 text-white shadow-lg' 
                       : 'hover:opacity-80'
@@ -355,11 +361,12 @@ export default function AICharacter() {
                     color: themeConfig.colors.text
                   } : {}}
                 >
-                  <History size={14} />
-                  <span>历史</span>
+                  <History size={12} />
+                  <span>历史对话</span>
                 </button>
               )}
             </div>
+          </div>
         </div>
 
         {/* Main Content */}

@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bot, User, Volume2 } from 'lucide-react'
+import { Mic, Phone } from 'lucide-react'
+import { StreamingText } from './StreamingText'
 import type { Message } from './types'
 import type { ThemeConfig } from '../../lib/themes'
 
@@ -9,211 +10,166 @@ interface CharacterChatProps {
   isLoading: boolean
   themeConfig: ThemeConfig
   customAvatar?: { type: 'image' | 'video' | 'custom', url: string, style?: string } | null
+  onSendMessage: (content: string) => void
+  onEndCall: () => void
 }
 
-export function CharacterChat({ messages, isLoading, themeConfig, customAvatar }: CharacterChatProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+export function CharacterChat({ messages, isLoading, themeConfig, customAvatar, onSendMessage, onEndCall }: CharacterChatProps) {
+  const [isListening, setIsListening] = useState(false)
+  const [userInput, setUserInput] = useState('')
+  const [showStreamingContent, setShowStreamingContent] = useState(false)
+  const lastMessage = messages[messages.length - 1]
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  // 滚动到底部
   useEffect(() => {
-    if (messagesEndRef.current && scrollContainerRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    if (lastMessage?.role === 'assistant') {
+      setShowStreamingContent(true)
+    } else {
+      setShowStreamingContent(false)
+    }
+  }, [lastMessage])
+
+  // 自动滚动到最新消息
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth'
+      })
     }
   }, [messages, isLoading])
 
-  // 文字转语音功能
-  const speakMessage = (text: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = 'zh-CN'
-      utterance.rate = 1.0
-      utterance.pitch = 1.0
-      speechSynthesis.speak(utterance)
+  const handleMicToggle = () => {
+    if (isListening) {
+      if (userInput.trim()) {
+        onSendMessage(userInput)
+        setUserInput('')
+      } else {
+        onSendMessage("你觉得今天开心吗？有没有什么开心的事情分享一下？")
+      }
+      setIsListening(false)
+    } else {
+      setIsListening(true)
+      setTimeout(() => setUserInput("今天开心啊，和新认识的朋友喝咖啡聊了很久。"), 1000)
     }
   }
 
-  // 格式化时间
-  const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString('zh-CN', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  // 解析消息中的表情符号和换行
-  const formatMessageContent = (content: string) => {
-    return content.split('\n').map((line, index) => (
-      <span key={index}>
-        {line}
-        {index < content.split('\n').length - 1 && <br />}
-      </span>
-    ))
-  }
-
   return (
-    <div 
-      ref={scrollContainerRef}
-      className="h-full overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 scrollbar-thin"
-      style={{ 
-        scrollBehavior: 'smooth',
-        overscrollBehavior: 'contain'
-      }}
-    >
-      <AnimatePresence>
-        {messages.map((message) => (
-          <motion.div
-            key={message.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div 
-              className={`flex gap-2 md:gap-3 max-w-[85%] md:max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
-            >
-              {/* 头像 - 与移动端保持一致 */}
-              <div 
-                className={`flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full border-2 overflow-hidden shadow-md ${
-                  message.role === 'user' ? 'border-white/20' : 'border-indigo-400/30'
-                }`}
+    <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-end pb-12">
+      {/* 4. 对话区域 - 严限 2 条消息 */}
+      <div 
+        ref={scrollRef}
+        className="pointer-events-auto max-h-[45vh] overflow-y-auto no-scrollbar flex flex-col gap-5 py-4 transition-all px-12 lg:px-24 mb-6"
+      >
+        <AnimatePresence initial={false}>
+          {messages.slice(-2).map((msg, idx, arr) => {
+            // 计算渐影透明度：上一条 50%，最新一条 100%
+            const opacity = idx === 0 && arr.length === 2 ? 0.5 : 1;
+            
+            return (
+              <motion.div 
+                key={msg.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: opacity, y: 0 }}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-3 px-1 transition-opacity duration-500`}
               >
-                {message.role === 'user' ? (
-                  <img src="https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="User" className="w-full h-full object-cover" />
-                ) : (
-                  <img 
-                    src={customAvatar?.url || "https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"} 
-                    alt="AI" 
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                )}
-              </div>
-
-              {/* 消息内容 */}
-              <div className="flex flex-col">
-                <div
-                  className={`px-3 md:px-4 py-2 md:py-3 rounded-2xl ${
-                    message.role === 'user' 
-                      ? 'rounded-br-md' 
-                      : 'rounded-bl-md'
-                  }`}
-                  style={{
-                    background: message.role === 'user'
-                      ? `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`
-                      : themeConfig.colors.surface,
-                    color: message.role === 'user' ? 'white' : themeConfig.colors.text,
-                    border: message.role === 'assistant' 
-                      ? `1px solid ${themeConfig.colors.border}`
-                      : 'none',
-                    boxShadow: themeConfig.shadows.card
-                  }}
-                >
-                  <div className="text-xs md:text-sm leading-relaxed">
-                    {formatMessageContent(message.content)}
+                {msg.role === 'assistant' && (
+                  <div className="w-10 h-10 rounded-full border-2 border-indigo-400/30 bg-white/10 flex-shrink-0 flex items-center justify-center shadow-lg overflow-hidden">
+                    <img 
+                      src={customAvatar?.url || "https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"} 
+                      alt="AI" 
+                      className="w-full h-full object-cover" 
+                      referrerPolicy="no-referrer"
+                    />
                   </div>
-
-                  {/* 附件显示 */}
-                  {message.attachments && message.attachments.length > 0 && (
-                    <div className="mt-2 md:mt-3 flex flex-wrap gap-2">
-                      {message.attachments.map((attachment, index) => (
-                        <div key={index} className="relative group">
-                          {attachment.type === 'image' && (
-                            <img
-                              src={attachment.url}
-                              alt={attachment.name}
-                              className="max-w-24 max-h-24 md:max-w-32 md:max-h-32 rounded-lg object-cover border cursor-pointer hover:scale-105 transition-transform"
-                              style={{ borderColor: themeConfig.colors.border }}
-                              onClick={() => window.open(attachment.url, '_blank')}
-                            />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* 语音播放按钮 - 仅助手消息 */}
-                  {message.role === 'assistant' && (
-                    <button
-                      onClick={() => speakMessage(message.content)}
-                      className="mt-2 flex items-center gap-1 text-xs opacity-70 hover:opacity-100 transition-opacity"
-                      style={{ color: themeConfig.colors.textMuted }}
-                    >
-                      <Volume2 size={12} className="w-3 h-3 md:w-3 md:h-3" />
-                      <span>播放语音</span>
-                    </button>
-                  )}
+                )}
+                
+                <div className={`max-w-[85%] backdrop-blur-md rounded-2xl px-4 py-2.5 shadow-lg border ${
+                  msg.role === 'user' 
+                    ? 'bg-white/5 border-white/10 rounded-tr-none' 
+                    : 'bg-white/5 border-cyan-400/10 rounded-tl-none'
+                }`}>
+                  <div className="text-[14px] text-white/90 leading-relaxed font-medium">
+                    {msg.role === 'assistant' && idx === arr.length - 1 && showStreamingContent ? (
+                      <StreamingText 
+                        text={msg.content} 
+                        onComplete={() => setShowStreamingContent(false)}
+                      />
+                    ) : (
+                      msg.content
+                    )}
+                    {msg.role === 'assistant' && isLoading && idx === arr.length - 1 && (
+                      <motion.span 
+                        animate={{ opacity: [0.1, 1, 0.1] }} 
+                        transition={{ duration: 1, repeat: Infinity }}
+                        className="inline-block w-1 h-3 bg-cyan-400 ml-1 rounded-full align-middle"
+                      />
+                    )}
+                  </div>
                 </div>
 
-                {/* 时间戳 */}
-                <div 
-                  className={`text-xs mt-1 ${message.role === 'user' ? 'text-right' : 'text-left'}`}
-                  style={{ color: themeConfig.colors.textMuted }}
-                >
-                  {formatTime(message.timestamp)}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+                {msg.role === 'user' && (
+                  <div className="w-10 h-10 rounded-full border-2 border-white/20 overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-white/5">
+                    <img src="https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="User" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </motion.div>
+            )
+          })}
+        </AnimatePresence>
+      </div>
 
-        {/* 加载指示器 */}
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-start"
-          >
-            <div className="flex gap-2 md:gap-3">
-              <div 
-                className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center"
-                style={{ 
-                  background: themeConfig.colors.surface,
-                  border: `2px solid ${themeConfig.colors.border}`
-                }}
-              >
-                <Bot size={16} className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: themeConfig.colors.accent }} />
-              </div>
-              <div
-                className="px-3 md:px-4 py-2 md:py-3 rounded-2xl rounded-bl-md"
-                style={{
-                  background: themeConfig.colors.surface,
-                  border: `1px solid ${themeConfig.colors.border}`,
-                  boxShadow: themeConfig.shadows.card
-                }}
-              >
-                <div className="flex gap-1">
-                  <motion.span
-                    animate={{ opacity: [0.4, 1, 0.4] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
-                    style={{ color: themeConfig.colors.textMuted }}
-                  >
-                    .
-                  </motion.span>
-                  <motion.span
-                    animate={{ opacity: [0.4, 1, 0.4] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                    style={{ color: themeConfig.colors.textMuted }}
-                  >
-                    .
-                  </motion.span>
-                  <motion.span
-                    animate={{ opacity: [0.4, 1, 0.4] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
-                    style={{ color: themeConfig.colors.textMuted }}
-                  >
-                    .
-                  </motion.span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* 5. 底部控制区 */}
+      <div className="pointer-events-auto flex items-center justify-center gap-24 w-full px-8 pb-6">
+        {/* 麦克风按钮 */}
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={handleMicToggle}
+          className={`w-20 h-20 rounded-full flex items-center justify-center transition-all relative ${
+            isListening 
+              ? 'bg-gradient-to-br from-cyan-400 to-blue-600 shadow-[0_0_50px_rgba(34,211,238,0.8)] border-2 border-white/60' 
+              : 'bg-emerald-500 shadow-[0_10px_30px_rgba(16,185,129,0.3)] border-2 border-white/20'
+          }`}
+        >
+          {isListening && (
+            <>
+              {/* 彩色层级波纹脉冲 */}
+              {[
+                { color: 'rgba(34, 211, 238, 0.4)', delay: 0 },
+                { color: 'rgba(99, 102, 241, 0.3)', delay: 0.5 },
+                { color: 'rgba(139, 92, 246, 0.2)', delay: 1.0 }
+              ].map((config, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 1, opacity: 0.8 }}
+                  animate={{ scale: 2.2, opacity: 0 }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity, 
+                    delay: config.delay,
+                    ease: "easeOut"
+                  }}
+                  style={{ border: `2px solid ${config.color}` }}
+                  className="absolute inset-0 rounded-full pointer-events-none"
+                />
+              ))}
+            </>
+          )}
+          
+          <div className="relative z-10 pointer-events-none">
+            <Mic className="text-white" size={32} />
+          </div>
+        </motion.button>
 
-      {/* 滚动锚点 */}
-      <div ref={messagesEndRef} />
+        {/* 挂断按钮 */}
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={onEndCall}
+          className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.4)] border-2 border-white/20"
+        >
+          <Phone className="text-white rotate-[135deg]" size={32} pointer-events-none />
+        </motion.button>
+      </div>
     </div>
   )
 }
