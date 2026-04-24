@@ -7,6 +7,8 @@ import { AnimatedSection } from './AnimatedSection'
 
 interface PortfolioSectionProps {
   projects: PortfolioItem[]
+  isEditMode?: boolean
+  onUpdatePortfolio?: (itemId: string, field: keyof PortfolioItem, value: any) => void
 }
 
 const categoryLabels: Record<PortfolioCategory, string> = {
@@ -354,7 +356,7 @@ function ProjectModal({
   )
 }
 
-export function PortfolioSection({ projects }: PortfolioSectionProps) {
+export function PortfolioSection({ projects, isEditMode = false, onUpdatePortfolio }: PortfolioSectionProps) {
   const { themeConfig } = useTheme()
   const [selectedCategory, setSelectedCategory] = useState<PortfolioCategory | 'all'>('all')
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null)

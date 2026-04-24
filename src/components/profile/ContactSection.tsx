@@ -3,7 +3,11 @@ import { Send, MessageCircle, Video } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { AnimatedSection } from './AnimatedSection'
 
-export function ContactSection() {
+interface ContactSectionProps {
+  isEditMode?: boolean
+}
+
+export function ContactSection({ isEditMode = false }: ContactSectionProps) {
   const { themeConfig } = useTheme()
 
   return (
@@ -76,7 +80,7 @@ export function ContactSection() {
                     className="text-xs mt-1"
                     style={{ color: themeConfig.colors.textMuted }}
                   >
-                    获取最新动态
+                    交个朋友呀
                   </span>
                 </div>
 
@@ -111,7 +115,7 @@ export function ContactSection() {
                     className="text-xs mt-1"
                     style={{ color: themeConfig.colors.textMuted }}
                   >
-                    观看视频内容
+                    我的日常生活
                   </span>
                 </div>
               </div>

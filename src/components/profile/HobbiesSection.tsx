@@ -820,7 +820,11 @@ function HobbyCard({
   )
 }
 
-export function HobbiesSection() {
+interface HobbiesSectionProps {
+  isEditMode?: boolean
+}
+
+export function HobbiesSection({ isEditMode = false }: HobbiesSectionProps) {
   const { themeConfig } = useTheme()
   const [selectedHobby, setSelectedHobby] = useState<HobbyItem | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)

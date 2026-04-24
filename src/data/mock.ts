@@ -876,7 +876,7 @@ export const coreFeatures = [
   {
     id: 'learning',
     title: '学习空间',
-    subtitle: 'Learning Space',
+    subtitle: 'LEARNING',
     description: '构建个人知识管理体系，追踪技能成长轨迹，让学习可视化、可量化',
     icon: 'BookOpen',
     gradient: 'bg-gradient-card-violet',

@@ -7,6 +7,8 @@ import { AnimatedSection } from './AnimatedSection'
 
 interface SkillsSectionProps {
   skillCategories: SkillCategory[]
+  isEditMode?: boolean
+  onUpdateSkill?: (categoryId: string, skillId: string, field: string, value: any) => void
 }
 
 // 统计卡片组件
@@ -301,7 +303,7 @@ function RadarChart() {
   )
 }
 
-export function SkillsSection({ skillCategories }: SkillsSectionProps) {
+export function SkillsSection({ skillCategories, isEditMode = false, onUpdateSkill }: SkillsSectionProps) {
   const { themeConfig } = useTheme()
   const [activeCategory, setActiveCategory] = useState(skillCategories[0]?.id)
 

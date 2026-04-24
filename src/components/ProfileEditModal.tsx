@@ -2,6 +2,8 @@ import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Upload, ImageIcon, Trash2, User, Check, UserCircle, FileText, Phone, Mail, Calendar } from 'lucide-react'
 import { presetAvatars, presetBackgrounds } from '../data/mock'
+import { uploadPublicFile } from '../lib/storage'
+import { showToast } from '../lib/toast'
 
 export interface ProfileData {
   avatar: string
@@ -30,7 +32,7 @@ export default function ProfileEditModal({ isOpen, onClose, initialData, onSave 
   const [uploadType, setUploadType] = useState<'avatar' | 'background'>('avatar')
 
   // 处理文件上传
-  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
@@ -45,16 +47,22 @@ export default function ProfileEditModal({ isOpen, onClose, initialData, onSave 
     }
 
     setUploadError(null)
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const result = e.target?.result as string
-      if (uploadType === 'avatar') {
-        setProfileData(prev => ({ ...prev, avatar: result }))
-      } else {
-        setProfileData(prev => ({ ...prev, background: result }))
+    try {
+      showToast('正在上传图片...')
+      const result = await uploadPublicFile(file, uploadType === 'avatar' ? 'avatars' : 'backgrounds')
+      if ('error' in result) {
+        throw new Error(result.error)
       }
+      if (uploadType === 'avatar') {
+        setProfileData(prev => ({ ...prev, avatar: result.url }))
+      } else {
+        setProfileData(prev => ({ ...prev, background: result.url }))
+      }
+      showToast('图片上传成功')
+    } catch (error: any) {
+      setUploadError(`上传失败: ${error.message || '未知错误'}`)
+      showToast('图片上传失败', 'error')
     }
-    reader.readAsDataURL(file)
     event.target.value = ''
   }, [uploadType])
 

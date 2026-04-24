@@ -407,9 +407,13 @@ export default function Social() {
           setUserProfile(data)
           updateUser({
             username: data.name,
+            gender: data.gender,
+            age: data.age === '' ? undefined : data.age,
+            bio: data.bio,
+            phone: data.phone,
+            email: data.email,
             avatar: data.avatar,
             backgroundUrl: data.background || undefined,
-            bio: data.bio,
           })
         }}
       />

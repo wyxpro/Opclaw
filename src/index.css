@@ -379,3 +379,54 @@ input[type="password"]:focus {
   border-color: #4facfe !important;
   box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.15);
 }
+
+/* 编辑模式样式 */
+.editable-input,
+.editable-textarea {
+  transition: all 0.2s ease;
+}
+
+.editable-input:hover,
+.editable-textarea:hover {
+  border-color: rgba(37, 99, 235, 0.5) !important;
+}
+
+.editable-input:focus,
+.editable-textarea:focus {
+  outline: none;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* 打印样式 - 用于PDF导出 */
+@media print {
+  /* 隐藏不必要的元素 */
+  nav,
+  button,
+  .no-print,
+  .fixed,
+  [class*="fixed"] {
+    display: none !important;
+  }
+
+  /* 优化打印布局 */
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  section {
+    page-break-inside: avoid;
+  }
+
+  /* 确保背景色和边框打印 */
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* 移除阴影以提升打印效果 */
+  * {
+    box-shadow: none !important;
+  }
+}

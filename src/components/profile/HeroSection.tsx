@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
-import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon, Share2 } from 'lucide-react'
+import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon, Share2, Upload, Eye, Edit3, Download, Undo2, Redo2, RotateCcw } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import type { PersonalProfile } from '../../types/profile'
 import { AnimatedSection, Floating } from './AnimatedSection'
@@ -199,6 +199,17 @@ interface HeroSectionProps {
   profile: PersonalProfile
   showResume?: boolean
   onToggleResume?: (show: boolean) => void
+  onOpenCardModal?: () => void
+  isEditMode?: boolean
+  onUpdateProfile?: (field: keyof PersonalProfile, value: any) => void
+  mode?: 'preview' | 'edit'
+  onModeChange?: (mode: 'preview' | 'edit') => void
+  onDownloadPDF?: () => void
+  canUndo?: boolean
+  canRedo?: boolean
+  onUndo?: () => void
+  onRedo?: () => void
+  onResetToDefault?: () => void
 }
 
 // 哔哩哔哩图标组件 - 使用官方SVG图标
@@ -230,15 +241,28 @@ const socialIcons: Record<string, React.ComponentType<{ size?: number; className
   website: LinkIcon
 }
 
-export function HeroSection({ profile, showResume = false, onToggleResume }: HeroSectionProps) {
+export function HeroSection({ profile, showResume = false, onToggleResume, onOpenCardModal, isEditMode = false, onUpdateProfile, mode = 'preview', onModeChange, onDownloadPDF, canUndo, canRedo, onUndo, onRedo, onResetToDefault }: HeroSectionProps) {
   const { themeConfig, currentTheme } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
   const isMobile = useIsMobile()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   // 为极简主题设置专门的头像边框颜色（科技感配色）
   const avatarBorderColor = currentTheme === 'minimal' ? '#0ea5e9' : themeConfig.colors.primary // 极致科幻蓝
   const avatarAccentColor = currentTheme === 'minimal' ? '#3b82f6' : themeConfig.colors.accent // 科技蓝
   const avatarGlowColor = currentTheme === 'minimal' ? '#8b5cf6' : themeConfig.colors.primaryGlow // 霓虹紫
+  
+  // 处理头像上传
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && onUpdateProfile) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        onUpdateProfile('avatar', reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
   
   // 视差滚动效果 - 仅在桌面端启用
   const { scrollYProgress } = useScroll({
@@ -277,7 +301,7 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
         }}
       />
 
-      {/* 模式切换按钮组 - 放置在背景图上方区域 */}
+      {/* 模式切换按钮组 - 放置在左上角 */}
       {onToggleResume && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -329,17 +353,77 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
               <FileText size={16} />
               <span>简历</span>
             </motion.button>
-            
-            {/* 分享按钮 - 仅在桌面端显示 */}
+          </div>
+
+          {/* 移动端编辑模式工具栏 - 仅在编辑模式下显示，位于主页/简历按钮下方 */}
+          {mode === 'edit' && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="md:hidden mt-2 flex items-center gap-1 px-2 py-1.5 rounded-xl backdrop-blur-md"
+              style={{
+                backgroundColor: `${themeConfig.colors.surface}80`,
+                border: `1px solid ${themeConfig.colors.border}`
+              }}
+            >
+              <button
+                onClick={onUndo}
+                disabled={!canUndo}
+                className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors"
+                title="撤销"
+                style={{ color: themeConfig.colors.text }}
+              >
+                <Undo2 size={16} />
+              </button>
+              <button
+                onClick={onRedo}
+                disabled={!canRedo}
+                className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors"
+                title="重做"
+                style={{ color: themeConfig.colors.text }}
+              >
+                <Redo2 size={16} />
+              </button>
+              <div className="w-px h-5" style={{ background: themeConfig.colors.border }} />
+              <button
+                onClick={onResetToDefault}
+                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                title="重置"
+                style={{ color: themeConfig.colors.primary }}
+              >
+                <RotateCcw size={16} />
+              </button>
+              <div className="w-px h-5" style={{ background: themeConfig.colors.border }} />
+              <div className="text-xs font-medium" style={{ color: themeConfig.colors.text }}>
+                点击内容编辑
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
+      )}
+
+      {/* 桌面端操作按钮组 - 放置在右上角，与主页/简历在同一行 */}
+      {onToggleResume && !showResume && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="absolute top-6 right-6 z-20 hidden md:flex items-center gap-2"
+        >
+          {/* 分享、PDF、预览/编辑按钮组合 */}
+          <div 
+            className="flex items-center p-1 rounded-xl backdrop-blur-md"
+            style={{ 
+              backgroundColor: `${themeConfig.colors.surface}80`,
+              border: `1px solid ${themeConfig.colors.border}`
+            }}
+          >
+            {/* 分享按钮 */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                const url = window.location.href
-                navigator.clipboard.writeText(url)
-                alert('链接已复制到剪贴板')
-              }}
-              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all opacity-60 hover:opacity-80"
+              onClick={onOpenCardModal}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all opacity-60 hover:opacity-80"
               style={{
                 backgroundColor: 'transparent',
                 color: themeConfig.colors.text
@@ -347,9 +431,110 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
               title="分享当前页面"
             >
               <Share2 size={16} />
-              <span className="hidden sm:inline">分享</span>
+              <span>分享</span>
+            </motion.button>
+
+            {/* PDF下载按钮 - 仅在预览模式下显示 */}
+            {mode === 'preview' && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={onDownloadPDF}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all opacity-60 hover:opacity-80"
+                style={{
+                  backgroundColor: 'transparent',
+                  color: themeConfig.colors.text
+                }}
+                title="下载PDF"
+              >
+                <Download size={16} />
+                <span>PDF</span>
+              </motion.button>
+            )}
+
+            {/* 预览按钮 */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onModeChange?.('preview')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                mode === 'preview' 
+                  ? 'shadow-sm' 
+                  : 'opacity-60 hover:opacity-80'
+              }`}
+              style={{
+                backgroundColor: mode === 'preview' ? `${themeConfig.colors.bg}90` : 'transparent',
+                color: themeConfig.colors.text
+              }}
+            >
+              <Eye size={16} />
+              <span>预览</span>
+            </motion.button>
+
+            {/* 编辑按钮 */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onModeChange?.('edit')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                mode === 'edit' 
+                  ? 'shadow-sm' 
+                  : 'opacity-60 hover:opacity-80'
+              }`}
+              style={{
+                backgroundColor: mode === 'edit' ? `${themeConfig.colors.bg}90` : 'transparent',
+                color: themeConfig.colors.text
+              }}
+            >
+              <Edit3 size={16} />
+              <span>编辑</span>
             </motion.button>
           </div>
+
+          {/* 编辑模式工具栏 - 仅在编辑模式下显示 */}
+          {mode === 'edit' && (
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl backdrop-blur-md"
+              style={{
+                backgroundColor: `${themeConfig.colors.surface}80`,
+                border: `1px solid ${themeConfig.colors.border}`
+              }}
+            >
+              <button
+                onClick={onUndo}
+                disabled={!canUndo}
+                className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors"
+                title="撤销"
+                style={{ color: themeConfig.colors.text }}
+              >
+                <Undo2 size={18} />
+              </button>
+              <button
+                onClick={onRedo}
+                disabled={!canRedo}
+                className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors"
+                title="重做"
+                style={{ color: themeConfig.colors.text }}
+              >
+                <Redo2 size={18} />
+              </button>
+              <div className="w-px h-6" style={{ background: themeConfig.colors.border }} />
+              <button
+                onClick={onResetToDefault}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                title="重置"
+                style={{ color: themeConfig.colors.primary }}
+              >
+                <RotateCcw size={18} />
+              </button>
+              <div className="w-px h-6" style={{ background: themeConfig.colors.border }} />
+              <div className="text-sm font-medium whitespace-nowrap" style={{ color: themeConfig.colors.text }}>
+                点击内容编辑
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       )}
 
@@ -452,6 +637,23 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
                       whileHover={{ scale: 1.08 }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
                     />
+                    {/* 编辑模式下的上传按钮 */}
+                    {isEditMode && (
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="absolute inset-0 z-40 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
+                        title="更换头像"
+                      >
+                        <Upload size={24} className="text-white" />
+                      </button>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                    />
                   </div>
                   
                   {/* 悬浮能量核心（动态光点） */}
@@ -493,40 +695,87 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
 
             {/* 姓名 */}
             <AnimatedSection delay={0.1} className="mt-8">
-              <h1
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold gradient-text-dynamic"
-                style={{
-                  backgroundImage: currentTheme === 'minimal'
-                    ? `linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #8b5cf6 100%)`
-                    : `linear-gradient(135deg, ${themeConfig.colors.text} 0%, ${themeConfig.colors.primary} 100%)`,
-                  backgroundSize: '100% 100%'
-                }}
-              >
-                {profile.name}
-              </h1>
+              {isEditMode && onUpdateProfile ? (
+                <input
+                  type="text"
+                  value={profile.name}
+                  onChange={(e) => onUpdateProfile('name', e.target.value)}
+                  className="text-3xl sm:text-4xl lg:text-5xl font-bold w-full text-center lg:text-left px-2 py-1 rounded border-2 border-primary/30 bg-primary/5"
+                  style={{ color: themeConfig.colors.text }}
+                />
+              ) : (
+                <h1
+                  className="text-3xl sm:text-4xl lg:text-5xl font-bold gradient-text-dynamic"
+                  style={{
+                    backgroundImage: currentTheme === 'minimal'
+                      ? `linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #8b5cf6 100%)`
+                      : `linear-gradient(135deg, ${themeConfig.colors.text} 0%, ${themeConfig.colors.primary} 100%)`,
+                    backgroundSize: '100% 100%'
+                  }}
+                >
+                  {profile.name}
+                </h1>
+              )}
             </AnimatedSection>
 
             {/* 职业标签 */}
             <AnimatedSection delay={0.2}>
-              <p
-                className="mt-3 text-lg sm:text-xl"
-                style={{ color: themeConfig.colors.textSecondary }}
-              >
-                {profile.title}
-              </p>
+              {isEditMode && onUpdateProfile ? (
+                <input
+                  type="text"
+                  value={profile.title}
+                  onChange={(e) => onUpdateProfile('title', e.target.value)}
+                  className="mt-3 text-lg sm:text-xl w-full text-center lg:text-left px-2 py-1 rounded border border-primary/30 bg-primary/5"
+                  style={{ color: themeConfig.colors.textSecondary }}
+                />
+              ) : (
+                <p
+                  className="mt-3 text-lg sm:text-xl"
+                  style={{ color: themeConfig.colors.textSecondary }}
+                >
+                  {profile.title}
+                </p>
+              )}
             </AnimatedSection>
 
             {/* 位置和邮箱 */}
             <AnimatedSection delay={0.3}>
               <div className="mt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 text-sm" style={{ color: themeConfig.colors.textMuted }}>
-                <span className="flex items-center gap-1.5">
-                  <MapPin size={16} />
-                  {profile.location}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Mail size={16} />
-                  {profile.email}
-                </span>
+                {isEditMode && onUpdateProfile ? (
+                  <>
+                    <span className="flex items-center gap-1.5">
+                      <MapPin size={16} />
+                      <input
+                        type="text"
+                        value={profile.location}
+                        onChange={(e) => onUpdateProfile('location', e.target.value)}
+                        className="px-2 py-1 rounded border border-primary/30 bg-primary/5 min-w-[150px]"
+                        style={{ color: themeConfig.colors.textMuted }}
+                      />
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Mail size={16} />
+                      <input
+                        type="email"
+                        value={profile.email}
+                        onChange={(e) => onUpdateProfile('email', e.target.value)}
+                        className="px-2 py-1 rounded border border-primary/30 bg-primary/5 min-w-[180px]"
+                        style={{ color: themeConfig.colors.textMuted }}
+                      />
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex items-center gap-1.5">
+                      <MapPin size={16} />
+                      {profile.location}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Mail size={16} />
+                      {profile.email}
+                    </span>
+                  </>
+                )}
               </div>
             </AnimatedSection>
 
@@ -587,12 +836,22 @@ export function HeroSection({ profile, showResume = false, onToggleResume }: Her
                   backdropFilter: themeConfig.glassEffect.backdropBlur
                 }}
               >
-                <p
-                  className="text-base sm:text-lg leading-relaxed"
-                  style={{ color: themeConfig.colors.textSecondary }}
-                >
-                  {profile.bio}
-                </p>
+                {isEditMode && onUpdateProfile ? (
+                  <textarea
+                    value={profile.bio}
+                    onChange={(e) => onUpdateProfile('bio', e.target.value)}
+                    rows={4}
+                    className="w-full text-base sm:text-lg leading-relaxed px-2 py-1 rounded border border-primary/30 bg-primary/5 resize-none"
+                    style={{ color: themeConfig.colors.textSecondary }}
+                  />
+                ) : (
+                  <p
+                    className="text-base sm:text-lg leading-relaxed"
+                    style={{ color: themeConfig.colors.textSecondary }}
+                  >
+                    {profile.bio}
+                  </p>
+                )}
               </div>
             </AnimatedSection>
 

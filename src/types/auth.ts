@@ -6,6 +6,8 @@ export interface User {
   username: string
   email: string
   phone?: string
+  gender?: 'male' | 'female' | 'secret'
+  age?: number
   avatar?: string
   backgroundUrl?: string
   bio?: string
