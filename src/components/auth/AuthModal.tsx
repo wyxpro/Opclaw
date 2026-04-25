@@ -50,7 +50,12 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
   const [mode, setMode] = useState<'login' | 'register'>(defaultMode)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoginLoading, setIsLoginLoading] = useState(false)
+  const [isRegisterLoading, setIsRegisterLoading] = useState(false)
+  const [isGuestLoading, setIsGuestLoading] = useState(false)
+  
+  // 综合加载状态控制按钮禁用
+  const isAnyLoading = isLoginLoading || isRegisterLoading || isGuestLoading;
   const [errors, setErrors] = useState<AuthFormErrors>({})
   
   // 表单数据
@@ -96,7 +101,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
     const newErrors: AuthFormErrors = {}
     
     if (!formData.emailOrPhone.trim()) {
-      newErrors.emailOrPhone = '请输入用户名或邮箱'
+      newErrors.emailOrPhone = '请输入注册邮箱'
     }
     
     if (!formData.password) {
@@ -135,10 +140,6 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
       newErrors.password = '密码长度不能少于6位'
     }
     
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = '两次输入的密码不一致'
-    }
-    
     if (!formData.agreeTerms) {
       newErrors.general = '请同意服务条款和隐私政策'
     }
@@ -151,7 +152,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
   const handleLogin = async () => {
     if (!validateLoginForm()) return
     
-    setIsLoading(true)
+    setIsLoginLoading(true)
     try {
       const success = await login({
         emailOrPhone: formData.emailOrPhone,
@@ -174,11 +175,9 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
           rememberMe: false,
           agreeTerms: false,
         })
-      } else {
-        setErrors({ general: '用户名/邮箱或密码错误' })
       }
     } finally {
-      setIsLoading(false)
+      setIsLoginLoading(false)
     }
   }
   
@@ -186,14 +185,13 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
   const handleRegister = async () => {
     if (!validateRegisterForm()) return
     
-    setIsLoading(true)
+    setIsRegisterLoading(true)
     try {
       const success = await register({
         username: formData.username,
         email: formData.email,
         phone: formData.phone || undefined,
         password: formData.password,
-        confirmPassword: formData.confirmPassword,
       })
       
       if (success) {
@@ -211,17 +209,15 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
           rememberMe: false,
           agreeTerms: false,
         })
-      } else {
-        setErrors({ general: '注册失败，邮箱或手机号可能已被注册' })
       }
     } finally {
-      setIsLoading(false)
+      setIsRegisterLoading(false)
     }
   }
   
   // 处理游客一键登录
   const handleGuestLogin = async () => {
-    setIsLoading(true)
+    setIsGuestLoading(true)
     try {
       const success = await guestLogin()
       if (success) {
@@ -239,7 +235,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
         })
       }
     } finally {
-      setIsLoading(false)
+      setIsGuestLoading(false)
     }
   }
   
@@ -303,43 +299,37 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                   <X size={20} />
                 </button>
                 
-                <div className="text-center mb-4 sm:mb-6">
-                  {/* 动态图标 - 注册显示盾牌，登录显示星星 */}
+                <div className="text-center mb-4 sm:mb-6 pt-2">
                   <motion.div
-                    key={mode}
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl mx-auto mb-3 sm:mb-4 flex items-center justify-center shadow-lg"
-                    style={{
-                      background: mode === 'register'
-                        ? 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%)'
-                        : 'linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%)',
-                      boxShadow: mode === 'register'
-                        ? '0 10px 40px -10px rgba(6, 182, 212, 0.5)'
-                        : '0 10px 40px -10px rgba(16, 185, 129, 0.5)',
-                    }}
+                    transition={{ duration: 0.5, type: 'spring' }}
+                    className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white/50 shadow-2xl"
                   >
-                    {mode === 'register' ? (
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white sm:w-9 sm:h-9">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                        <path d="m9 12 2 2 4-4" />
-                      </svg>
-                    ) : (
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white sm:w-9 sm:h-9">
-                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-                        <path d="M12 8v4" />
-                        <path d="M12 16h.01" />
-                      </svg>
-                    )}
+                    <img 
+                      src="/vibe_images/logo.png" 
+                      alt="Opclaw Logo" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback in case logo is missing
+                        (e.target as HTMLImageElement).style.display = 'none';
+                        const parent = (e.target as HTMLImageElement).parentElement;
+                        if (parent) {
+                          const iconContent = document.createElement('div');
+                          iconContent.className = 'w-full h-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center';
+                          iconContent.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>';
+                          parent.appendChild(iconContent);
+                        }
+                      }}
+                    />
                   </motion.div>
                   <h2
-                    className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2"
+                    className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2 tracking-tight"
                     style={{ color: themeConfig.colors.text }}
                   >
                     {mode === 'login' ? '欢迎回来' : '创建账号'}
                   </h2>
-                  <p className="text-sm sm:text-base" style={{ color: themeConfig.colors.textMuted }}>
+                  <p className="text-sm sm:text-base opacity-80" style={{ color: themeConfig.colors.textMuted }}>
                     {mode === 'login'
                       ? '登录您的 Opclaw 账号'
                       : '加入 Opclaw，开启您的数字之旅'}
@@ -363,7 +353,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                     }`}
                     style={{
                       background: mode === 'login' 
-                        ? 'linear-gradient(135deg, #10b981 0%, #14b8a6 100%)' 
+                        ? 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)' 
                         : 'transparent',
                       color: mode === 'login' ? '#fff' : themeConfig.colors.textMuted,
                     }}
@@ -384,7 +374,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                     }`}
                     style={{
                       background: mode === 'register' 
-                        ? 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)' 
+                        ? 'linear-gradient(135deg, #ef4444 0%, #e11d48 100%)' 
                         : 'transparent',
                       color: mode === 'register' ? '#fff' : themeConfig.colors.textMuted,
                     }}
@@ -439,7 +429,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                           type="text"
                           value={formData.emailOrPhone}
                           onChange={(e) => updateField('emailOrPhone', e.target.value)}
-                          placeholder="请输入用户名或邮箱"
+                          placeholder="请输入注册邮箱"
                           className="w-full pl-10 pr-4 py-3 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2"
                           style={{
                             background: themeConfig.colors.surface,
@@ -524,7 +514,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                       </label>
                       <button
                         type="button"
-                        className="text-sm font-semibold hover:underline transition-colors"
+                        className="text-sm font-semibold hover:opacity-80 transition-opacity"
                         style={{ color: '#10b981' }}
                         onClick={() => alert('请联系管理员重置密码')}
                       >
@@ -535,14 +525,16 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                     {/* 登录按钮 - 绿青渐变 */}
                     <button
                       onClick={handleLogin}
-                      disabled={isLoading}
-                      className="w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+                      disabled={isAnyLoading}
+                      className="w-full py-3.5 rounded-full font-semibold text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
                       style={{
-                        background: 'linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%)',
-                        boxShadow: '0 4px 20px -5px rgba(16, 185, 129, 0.4)',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #0891b2 100%)',
+                        boxShadow: '0 4px 20px -5px rgba(59, 130, 246, 0.4)',
+                        border: 'none',
+                        backgroundColor: 'transparent',
                       }}
                     >
-                      {isLoading ? (
+                      {isLoginLoading ? (
                         <Loader2 size={20} className="animate-spin" />
                       ) : (
                         <>
@@ -552,24 +544,61 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                       )}
                     </button>
                     
-                    {/* 游客一键登录按钮 */}
+                    {/* 游客一键登录按钮 - 深度优化透明版 */}
                     <button
                       onClick={handleGuestLogin}
-                      disabled={isLoading}
-                      className="w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-md hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+                      disabled={isAnyLoading}
+                      className="group w-full h-[52px] rounded-full font-black text-white flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50 disabled:hover:scale-100 overflow-hidden relative shadow-xl"
                       style={{
-                        background: themeConfig.colors.surface,
-                        border: `1px solid ${themeConfig.colors.border}`,
-                        color: themeConfig.colors.textSecondary,
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        outline: 'none',
+                        padding: 0,
                       }}
                     >
-                      {isLoading ? (
-                        <Loader2 size={18} className="animate-spin" />
+                      {/* 核心动态彩虹背景层 */}
+                      <motion.div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(115deg, #ff2400, #e81d1d, #e8b71d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3)',
+                          backgroundSize: '300% 300%',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                          duration: 8,
+                          repeat: Infinity,
+                          ease: "linear"
+                        }}
+                      />
+                      
+                      {/* 增强质感的覆盖层 */}
+                      <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+                      
+                      {/* 流动扫光 */}
+                      <motion.div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-40 pointer-events-none"
+                        style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)' }}
+                        animate={{
+                          left: ['-100%', '200%'],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
+                      
+                      {isGuestLoading ? (
+                        <Loader2 size={20} className="animate-spin text-white z-10" />
                       ) : (
-                        <>
-                          <Zap size={18} style={{ color: '#f59e0b' }} />
-                          <span>游客一键登录</span>
-                        </>
+                        <div className="flex items-center gap-2 z-10">
+                          <Zap size={20} className="text-white fill-white animate-pulse" />
+                          <span className="tracking-[0.2em] text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
+                            游客一键登录
+                          </span>
+                        </div>
                       )}
                     </button>
                   </div>
@@ -724,49 +753,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                       )}
                     </div>
                     
-                    {/* 确认密码 */}
-                    <div>
-                      <label
-                        className="block text-xs sm:text-sm font-medium mb-1 sm:mb-1.5"
-                        style={{ color: themeConfig.colors.textSecondary }}
-                      >
-                        确认密码
-                      </label>
-                      <div className="relative">
-                        <Lock
-                          size={16}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 sm:w-[18px] sm:h-[18px]"
-                          style={{ color: themeConfig.colors.textMuted }}
-                        />
-                        <input
-                          type={showConfirmPassword ? 'text' : 'password'}
-                          value={formData.confirmPassword}
-                          onChange={(e) => updateField('confirmPassword', e.target.value)}
-                          placeholder="请再次输入密码"
-                          className="w-full pl-9 sm:pl-10 pr-12 py-2.5 sm:py-3 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2"
-                          style={{
-                            background: themeConfig.colors.surface,
-                            borderColor: errors.confirmPassword
-                              ? themeConfig.colors.rose
-                              : themeConfig.colors.border,
-                            color: themeConfig.colors.text,
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded transition-colors hover:opacity-70"
-                          style={{ color: themeConfig.colors.textMuted }}
-                        >
-                          {showConfirmPassword ? <EyeOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />}
-                        </button>
-                      </div>
-                      {errors.confirmPassword && (
-                        <p className="mt-1 text-xs" style={{ color: themeConfig.colors.rose }}>
-                          {errors.confirmPassword}
-                        </p>
-                      )}
-                    </div>
+
                     
                     {/* 同意条款 */}
                     <label className="flex items-start gap-1.5 sm:gap-2 cursor-pointer">
@@ -805,14 +792,16 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                     {/* 注册按钮 - 蓝青紫渐变 */}
                     <button
                       onClick={handleRegister}
-                      disabled={isLoading}
-                      className="w-full py-3 sm:py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+                      disabled={isAnyLoading}
+                      className="w-full py-3 sm:py-3.5 rounded-full font-semibold text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
                       style={{
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%)',
-                        boxShadow: '0 4px 20px -5px rgba(59, 130, 246, 0.4)',
+                        background: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #9f1239 100%)',
+                        boxShadow: '0 4px 20px -5px rgba(225, 29, 72, 0.4)',
+                        border: 'none',
+                        backgroundColor: 'transparent',
                       }}
                     >
-                      {isLoading ? (
+                      {isRegisterLoading ? (
                         <Loader2 size={18} className="animate-spin sm:w-5 sm:h-5" />
                       ) : (
                         <>

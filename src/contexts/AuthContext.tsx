@@ -9,10 +9,13 @@ const AUTH_STORAGE_KEY = 'opclaw_auth_data'
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-function mapProfileToUser(profile: any, email: string): User {
+function mapProfileToUser(profile: any, email: string, authUser?: any): User {
+  // 优先从 profiles 表获取，其次从 auth 元数据获取，最后才是邮箱前缀
+  const metadataUsername = authUser?.user_metadata?.display_name || authUser?.user_metadata?.username
+  
   return {
     id: profile.user_id,
-    username: profile.username || email.split('@')[0],
+    username: profile.username || metadataUsername || (email ? email.split('@')[0] : 'user'),
     email,
     phone: profile.phone || '',
     gender: profile.gender || 'secret',
@@ -45,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       const uid = userRes.user!.id
       const email = userRes.user!.email || ''
+      const authUser = userRes.user
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -52,7 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle()
       let mapped: User
       if (!profile) {
-        const username = email ? email.split('@')[0] : 'user'
+        const metadataUsername = authUser?.user_metadata?.display_name || authUser?.user_metadata?.username
+        const username = metadataUsername || (email ? email.split('@')[0] : 'user')
         const avatar_url = presetAvatars[0]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
         await supabase.from('profiles').insert({
           user_id: uid,
@@ -72,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           lastLoginAt: new Date().toISOString(),
         }
       } else {
-        mapped = mapProfileToUser(profile, email)
+        mapped = mapProfileToUser(profile, email, authUser)
       }
       setUser(mapped)
       setIsAuthenticated(true)
@@ -123,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         const uid = userRes.user!.id
         const email = userRes.user!.email || ''
+        const authUser = userRes.user
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -130,7 +136,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .maybeSingle()
         let mapped: User
         if (!profile) {
-          const username = email ? email.split('@')[0] : 'user'
+          const metadataUsername = authUser?.user_metadata?.display_name || authUser?.user_metadata?.username
+          const username = metadataUsername || (email ? email.split('@')[0] : 'user')
           const avatar_url = presetAvatars[0]?.url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
           await supabase.from('profiles').insert({
             user_id: uid,
@@ -150,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             lastLoginAt: new Date().toISOString(),
           }
         } else {
-          mapped = mapProfileToUser(profile, email)
+          mapped = mapProfileToUser(profile, email, authUser)
         }
         setUser(mapped)
         setIsAuthenticated(true)
@@ -219,8 +226,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(async (credentials: RegisterCredentials): Promise<boolean> => {
     try {
-      const { username, email, password, confirmPassword } = credentials
-      if (password !== confirmPassword) return false
+      const { username, email, password } = credentials
       const supabase = getSupabaseClient()
       const { data: exists } = await supabase.from('profiles').select('username').eq('username', username).maybeSingle()
       if (exists) return false

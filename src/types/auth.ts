@@ -28,7 +28,7 @@ export interface RegisterCredentials {
   email: string
   phone?: string
   password: string
-  confirmPassword: string
+  confirmPassword?: string
 }
 
 // 认证状态
