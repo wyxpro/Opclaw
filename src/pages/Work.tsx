@@ -4,12 +4,13 @@ import {
   PenTool, ShoppingCart, Plus, Bookmark,
   Video, FileText, Calendar, Users, TrendingUp, Package,
   DollarSign, Eye, ThumbsUp, MessageSquare, Share2, Edit3,
-  Trash2, Link as LinkIcon, BarChart3
+  Trash2, Link as LinkIcon, BarChart3, Search, Filter, X, Check, XCircle
 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import PageTransition from '../components/ui/PageTransition'
 import { useTheme } from '../hooks/useTheme'
 import { TreasureBox } from '../components/entertainment/EntertainmentModules'
+import ReactECharts from 'echarts-for-react'
 
 // 标签配置
 const tabs = [
@@ -44,6 +45,7 @@ interface MediaContent {
   url?: string
   thumbnail?: string
   tags: string[]
+  platform: string
   createdAt: string
 }
 
@@ -52,42 +54,43 @@ function NewMediaModule() {
   const { colors } = themeConfig
   const [activeTab, setActiveTab] = useState<'content' | 'posts' | 'analytics'>('content')
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalType, setModalType] = useState<'create' | 'edit'>('create')
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [chartType, setChartType] = useState<'line' | 'bar' | 'pie' | 'radar'>('radar')
+  const [modalPlatforms, setModalPlatforms] = useState<string[]>(['wechat'])
+  const [modalContentType, setModalContentType] = useState('图文')
 
   // 模拟数据
   const contents: MediaContent[] = [
-    {
-      id: '1',
-      title: 'AI 工具使用指南',
-      type: 'article',
-      description: '详细介绍常用 AI 工具的使用方法和技巧',
-      tags: ['AI', '工具', '教程'],
-      createdAt: '2024-01-15'
-    },
-    {
-      id: '2',
-      title: '产品设计思维分享',
-      type: 'video',
-      description: '从用户需求出发的产品设计方法论',
-      tags: ['设计', '产品', '思维'],
-      createdAt: '2024-01-14'
-    }
+    { id: '1', title: 'AI 工具深度使用指南', type: 'article', description: '详细介绍常用 AI 工具的使用方法和技巧分享，适合小白入门', tags: ['AI', '工具', '教程'], platform: 'wechat', createdAt: '2024-01-15' },
+    { id: '2', title: '独立开发者如何变现', type: 'article', description: '关于个人开发产品如何找到第一批用户并实现盈利的思考', tags: ['变现', '开发', '成长'], platform: 'wechat', createdAt: '2024-01-12' },
+    { id: '3', title: '互联网早报速读', type: 'article', description: '一分钟带你了解今天互联网圈发生的大小事', tags: ['早报', '资讯', '互联网'], platform: 'weibo', createdAt: '2024-01-16' },
+    { id: '4', title: '抽奖福利大放送！', type: 'image', description: '关注并转发，揪一位小伙伴送出最新款耳机', tags: ['抽奖', '福利', '粉丝'], platform: 'weibo', createdAt: '2024-01-14' },
+    { id: '5', title: '超好用的效率App清单推荐', type: 'image', description: '吐血整理的10款让你工作效率翻倍的神仙App，一定要看！', tags: ['职场', '效率', 'App推荐'], platform: 'xiaohongshu', createdAt: '2024-01-11' },
+    { id: '6', title: '周末探店：发现宝藏咖啡馆', type: 'image', description: '氛围感拉满，拍照超出片的一家小众咖啡馆☕️', tags: ['探店', '周末去哪儿', '咖啡'], platform: 'xiaohongshu', createdAt: '2024-01-08' },
+    { id: '7', title: '产品设计思路大解密', type: 'video', description: '从用户需求出发，3步教你如何打造爆款产品逻辑', tags: ['设计', '产品', '思维'], platform: 'douyin', createdAt: '2024-01-10' },
+    { id: '8', title: '搞笑日常：当程序员遇到断网', type: 'video', description: '太真实了哈哈哈哈，程序员的崩溃瞬间', tags: ['搞笑', '日常', '程序员'], platform: 'douyin', createdAt: '2024-01-05' },
   ]
 
   const posts: SocialMediaPost[] = [
-    {
-      id: '1',
-      title: '新年工作计划',
-      content: '新的一年，新的开始...',
-      platform: 'wechat',
-      status: 'published',
-      images: [],
-      likes: 128,
-      comments: 23,
-      shares: 15,
-      views: 2340,
-      createdAt: '2024-01-10'
-    }
+    { id: '1', title: '新年工作计划与展望', content: '新的一年，新的开始，分享一下我们团队在2024年的具体规划...', platform: 'wechat', status: 'published', images: [], likes: 1280, comments: 236, shares: 154, views: 23400, createdAt: '2024-01-10 10:00' },
+    { id: '2', title: '公众号粉丝突破10万纪念', content: '感谢大家一路走来的支持，这是送给你们的一封信！', platform: 'wechat', status: 'scheduled', images: [], likes: 0, comments: 0, shares: 0, views: 0, createdAt: '2024-01-15 09:30', scheduledAt: '2024-01-20 18:00' },
+    { id: '3', title: '行业趋势分析报告', content: '根据最新数据，下半年行业将迎来这些新变化。完整报告请看长图👇', platform: 'weibo', status: 'published', images: [], likes: 450, comments: 89, shares: 320, views: 15600, createdAt: '2024-01-16 09:00' },
+    { id: '4', title: '讨论：AI会不会取代设计师？', content: '今天和几位大牛聊了聊，欢迎在评论区说说你的看法。#AI科技热议#', platform: 'weibo', status: 'draft', images: [], likes: 0, comments: 0, shares: 0, views: 0, createdAt: '2024-01-17 11:20' },
+    { id: '5', title: '教你快速上手AI绘画', content: '#AI绘画 #Midjourney 想要画出好看的图？这5个秘籍赶紧码住👇', platform: 'xiaohongshu', status: 'published', images: [], likes: 3500, comments: 890, shares: 1200, views: 89000, createdAt: '2024-01-12 18:30' },
+    { id: '6', title: '桌面好物大公开！', content: '很多姐妹问我的桌面布置，今天给大家盘点一下那些提升幸福感的平价好物~', platform: 'xiaohongshu', status: 'published', images: [], likes: 1200, comments: 340, shares: 450, views: 45000, createdAt: '2024-01-09 20:00' },
+    { id: '7', title: '办公室日常vlog', content: '今天也是活力满满的一天！来看看我们平时都在忙些什么吧～', platform: 'douyin', status: 'draft', images: [], likes: 0, comments: 0, shares: 0, views: 0, createdAt: '2024-01-15 14:20' },
+    { id: '8', title: '3分钟带你了解什么是元宇宙', content: '通俗易懂的硬核科普局！看懂这些概念不再被忽悠。', platform: 'douyin', status: 'published', images: [], likes: 18900, comments: 2300, shares: 8900, views: 250000, createdAt: '2024-01-14 19:30' }
   ]
+
+  const platformStatsData: Record<string, any> = {
+    wechat: { followers: '12.5w', interactRate: '8.2%', postsCount: 156, monthlyGrowth: '+1200' },
+    weibo: { followers: '34.2w', interactRate: '4.5%', postsCount: 892, monthlyGrowth: '+3500' },
+    xiaohongshu: { followers: '8.9w', interactRate: '12.4%', postsCount: 234, monthlyGrowth: '+4200' },
+    douyin: { followers: '56.8w', interactRate: '15.6%', postsCount: 128, monthlyGrowth: '+1.2w' }
+  }
 
   const platforms = [
     { id: 'wechat', name: '微信号', color: '#07c160', icon: '💬' },
@@ -96,16 +99,148 @@ function NewMediaModule() {
     { id: 'douyin', name: '抖音', color: '#00f0ff', icon: '🎵' }
   ]
 
+  const filteredContents = selectedPlatform === 'all' ? contents : contents.filter(c => c.platform === selectedPlatform)
+  const filteredPosts = selectedPlatform === 'all' ? posts : posts.filter(p => p.platform === selectedPlatform)
+
+  const getChartOption = (type: 'line' | 'bar' | 'pie' | 'radar', colors: any, platform: string) => {
+    const baseOption = {
+      backgroundColor: 'transparent',
+      tooltip: { trigger: type === 'pie' ? 'item' : 'axis' },
+      textStyle: { color: colors.textMuted },
+    };
+    
+    if (type === 'pie') {
+      return {
+        ...baseOption,
+        series: [
+          {
+            name: '平台分布',
+            type: 'pie',
+            radius: ['40%', '70%'],
+            data: [
+              { value: 1048, name: '微信' },
+              { value: 735, name: '微博' },
+              { value: 580, name: '小红书' },
+              { value: 300, name: '抖音' }
+            ],
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      };
+    }
+
+    if (type === 'radar') {
+      const isDouyin = platform === 'douyin';
+      const isXHS = platform === 'xiaohongshu';
+      const isWeibo = platform === 'weibo';
+      const values = isDouyin ? [95, 88, 75, 98, 85] : 
+                     isXHS ? [85, 95, 80, 90, 92] : 
+                     isWeibo ? [90, 60, 50, 70, 75] : 
+                     [80, 75, 65, 80, 85];
+
+      return {
+        ...baseOption,
+        radar: {
+          indicator: [
+            { name: '曝光量(Impressions)', max: 100 },
+            { name: '互动率(Engagement)', max: 100 },
+            { name: '转化率(Conversion)', max: 100 },
+            { name: '粉丝增长(Growth)', max: 100 },
+            { name: '内容质量(Quality)', max: 100 }
+          ],
+          axisName: { color: colors.textMuted },
+          splitArea: {
+            areaStyle: {
+              color: ['rgba(250,250,250,0.02)', 'rgba(200,200,200,0.02)']
+            }
+          },
+          splitLine: { lineStyle: { color: colors.border } },
+          axisLine: { lineStyle: { color: colors.border } }
+        },
+        series: [
+          {
+            name: '平台综合能力展现',
+            type: 'radar',
+            data: [
+              {
+                value: values,
+                name: platforms.find(p => p.id === platform)?.name || '全平台综合',
+                itemStyle: { color: colors.primary },
+                areaStyle: { color: colors.primary + '50' }
+              }
+            ]
+          }
+        ]
+      };
+    }
+
+    return {
+      ...baseOption,
+      xAxis: {
+        type: 'category',
+        data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+        axisLine: { lineStyle: { color: colors.border } }
+      },
+      yAxis: {
+        type: 'value',
+        splitLine: { lineStyle: { color: colors.border, type: 'dashed' } }
+      },
+      series: [
+        {
+          data: [820, 932, 901, 934, 1290, 1330, 1320],
+          type: type,
+          smooth: true,
+          itemStyle: { color: colors.primary },
+          areaStyle: type === 'line' ? {
+            color: {
+              type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [{ offset: 0, color: colors.primary }, { offset: 1, color: 'transparent' }]
+            }
+          } : undefined
+        }
+      ]
+    };
+  };
+
   return (
-    <div className="space-y-6">
-      {/* 顶部操作栏 */}
+    <div className="space-y-6 relative">
+      {/* 平级平台筛选与操作 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold" style={{ color: colors.text }}>新媒体运营</h2>
-          <p className="text-sm" style={{ color: colors.textMuted }}>社交媒体内容创作和管理</p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedPlatform('all')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              selectedPlatform === 'all'
+                ? 'bg-primary/10 text-primary border border-primary/20'
+                : 'bg-surface border border-border text-text-muted hover:text-text'
+            }`}
+          >
+            全部平台
+          </button>
+          {platforms.map(platform => (
+            <button
+              key={platform.id}
+              onClick={() => setSelectedPlatform(platform.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+                selectedPlatform === platform.id
+                  ? 'bg-primary/10 text-primary border border-primary/20'
+                  : 'bg-surface border border-border text-text-muted hover:text-text'
+              }`}
+            >
+              <span>{platform.icon}</span>
+              <span className="hidden sm:inline">{platform.name}</span>
+            </button>
+          ))}
         </div>
 
         <motion.button
+          onClick={() => { setModalType('create'); setIsModalOpen(true); }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="px-4 py-2 rounded-lg text-white font-medium flex items-center gap-2"
@@ -116,33 +251,6 @@ function NewMediaModule() {
         </motion.button>
       </div>
 
-      {/* 平台筛选 */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setSelectedPlatform('all')}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-            selectedPlatform === 'all'
-              ? 'bg-primary/10 text-primary border border-primary/20'
-              : 'bg-surface border border-border text-text-muted hover:text-text'
-          }`}
-        >
-          全部平台
-        </button>
-        {platforms.map(platform => (
-          <button
-            key={platform.id}
-            onClick={() => setSelectedPlatform(platform.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
-              selectedPlatform === platform.id
-                ? 'bg-primary/10 text-primary border border-primary/20'
-                : 'bg-surface border border-border text-text-muted hover:text-text'
-            }`}
-          >
-            <span>{platform.icon}</span>
-            <span className="hidden sm:inline">{platform.name}</span>
-          </button>
-        ))}
-      </div>
 
       {/* 标签页切换 */}
       <div className="flex gap-2 border-b" style={{ borderColor: colors.border }}>
@@ -181,9 +289,36 @@ function NewMediaModule() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            className="space-y-4"
           >
-            {contents.map(content => (
+            {/* 搜索与筛选 */}
+            <div className="flex gap-4">
+              <div className="relative flex-1">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.textMuted }} />
+                <input
+                  type="text"
+                  placeholder="搜索内容标题、标签..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary"
+                  style={{ 
+                    backgroundColor: colors.surface,
+                    border: `1px solid ${colors.border}`,
+                    color: colors.text
+                  }}
+                />
+              </div>
+              <button 
+                className="px-4 py-2 rounded-lg flex items-center gap-2 text-sm hover:brightness-95 transition-all"
+                style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}`, color: colors.text }}
+              >
+                <Filter size={16} />
+                <span>筛选</span>
+              </button>
+            </div>
+
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {filteredContents.map(content => (
               <motion.div
                 key={content.id}
                 whileHover={{ y: -4 }}
@@ -204,10 +339,16 @@ function NewMediaModule() {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <button className="p-1.5 rounded-lg hover:bg-surface/60">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setModalType('edit'); setIsModalOpen(true); }}
+                      className="p-1.5 rounded-lg hover:bg-surface/60 transition-colors"
+                    >
                       <Edit3 size={14} style={{ color: colors.textMuted }} />
                     </button>
-                    <button className="p-1.5 rounded-lg hover:bg-rose-500/10">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setDeleteId(content.id); }}
+                      className="p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors"
+                    >
                       <Trash2 size={14} className="text-rose-500" />
                     </button>
                   </div>
@@ -244,6 +385,7 @@ function NewMediaModule() {
 
             {/* 添加新内容卡片 */}
             <motion.button
+              onClick={() => { setModalType('create'); setIsModalOpen(true); }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="glass-card p-4 border-2 border-dashed flex flex-col items-center justify-center min-h-[200px]"
@@ -257,6 +399,7 @@ function NewMediaModule() {
                 添加新内容
               </span>
             </motion.button>
+            </div>
           </motion.div>
         )}
 
@@ -268,7 +411,7 @@ function NewMediaModule() {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-3"
           >
-            {posts.map(post => (
+            {filteredPosts.map(post => (
               <motion.div
                 key={post.id}
                 whileHover={{ x: 4 }}
@@ -296,15 +439,17 @@ function NewMediaModule() {
                           {post.status === 'published' ? '已发布' :
                            post.status === 'draft' ? '草稿' : '定时发布'}
                         </span>
-                        <span style={{ color: colors.textMuted }}>{post.createdAt}</span>
+                        <span style={{ color: colors.textMuted }}>
+                          {post.status === 'scheduled' && post.scheduledAt ? `预定: ${post.scheduledAt}` : post.createdAt}
+                        </span>
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button className="p-2 rounded-lg hover:bg-surface/60">
+                    <button onClick={() => { setModalType('edit'); setIsModalOpen(true); }} className="p-2 rounded-lg hover:bg-surface/60 transition-colors">
                       <Edit3 size={16} style={{ color: colors.textMuted }} />
                     </button>
-                    <button className="p-2 rounded-lg hover:bg-rose-500/10">
+                    <button onClick={() => setDeleteId(post.id)} className="p-2 rounded-lg hover:bg-rose-500/10 transition-colors">
                       <Trash2 size={16} className="text-rose-500" />
                     </button>
                   </div>
@@ -343,43 +488,188 @@ function NewMediaModule() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="grid gap-4 grid-cols-2 md:grid-cols-4"
+            className="space-y-6"
           >
-            {[
-              { label: '总阅读量', value: '12,345', icon: Eye, change: '+12.5%', color: '#3b82f6' },
-              { label: '总点赞数', value: '2,456', icon: ThumbsUp, change: '+8.3%', color: '#ef4444' },
-              { label: '总评论数', value: '567', icon: MessageSquare, change: '+15.2%', color: '#10b981' },
-              { label: '总分享数', value: '234', icon: Share2, change: '+6.7%', color: '#8b5cf6' }
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="glass-card p-4"
-                style={{ 
-                  backgroundColor: colors.surface,
-                  border: `1px solid ${colors.border}`
-                }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div 
-                    className="p-2 rounded-lg"
-                    style={{ backgroundColor: `${stat.color}20` }}
-                  >
-                    <stat.icon size={18} style={{ color: stat.color }} />
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+              {[
+                { label: '总阅读量', value: selectedPlatform !== 'all' && platformStatsData[selectedPlatform] ? platformStatsData[selectedPlatform].followers : '12,345', icon: Eye, change: '+12.5%', color: '#3b82f6' },
+                { label: '总点赞数', value: selectedPlatform !== 'all' && platformStatsData[selectedPlatform] ? platformStatsData[selectedPlatform].interactRate : '2,456', icon: ThumbsUp, change: '+8.3%', color: '#ef4444' },
+                { label: '总评论数', value: selectedPlatform !== 'all' && platformStatsData[selectedPlatform] ? platformStatsData[selectedPlatform].postsCount : '567', icon: MessageSquare, change: '+15.2%', color: '#10b981' },
+                { label: '总分享数', value: selectedPlatform !== 'all' && platformStatsData[selectedPlatform] ? platformStatsData[selectedPlatform].monthlyGrowth : '234', icon: Share2, change: '+6.7%', color: '#8b5cf6' }
+              ].map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="glass-card p-4"
+                  style={{ 
+                    backgroundColor: colors.surface,
+                    border: `1px solid ${colors.border}`
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div 
+                      className="p-2 rounded-lg"
+                      style={{ backgroundColor: `${stat.color}20` }}
+                    >
+                      <stat.icon size={18} style={{ color: stat.color }} />
+                    </div>
+                    <span className="text-xs font-medium text-emerald-500">{stat.change}</span>
                   </div>
-                  <span className="text-xs font-medium text-emerald-500">{stat.change}</span>
+                  <div className="text-2xl font-bold mb-1" style={{ color: colors.text }}>
+                    {stat.value}
+                  </div>
+                  <div className="text-xs" style={{ color: colors.textMuted }}>
+                    {stat.label}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* 图表展示区 */}
+            <div className="glass-card p-6" style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}` }}>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-semibold" style={{ color: colors.text }}>数据展现分析</h3>
+                <div className="flex gap-2">
+                  {(['line', 'bar', 'pie', 'radar'] as const).map(t => (
+                    <button
+                      key={t}
+                      onClick={() => setChartType(t)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        chartType === t
+                          ? 'bg-primary/10 text-primary border border-primary/20'
+                          : 'bg-surface border border-border text-text-muted hover:text-text'
+                      }`}
+                    >
+                      {t === 'line' ? '折线图' : t === 'bar' ? '柱状图' : t === 'pie' ? '饼图' : '雷达图'}
+                    </button>
+                  ))}
                 </div>
-                <div className="text-2xl font-bold mb-1" style={{ color: colors.text }}>
-                  {stat.value}
-                </div>
-                <div className="text-xs" style={{ color: colors.textMuted }}>
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
+              </div>
+              <div className="h-[300px] w-full">
+                <ReactECharts 
+                  notMerge={true}
+                  option={getChartOption(chartType, colors, selectedPlatform)} 
+                  style={{ height: '100%', width: '100%' }}
+                />
+              </div>
+            </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 创建/编辑 内容弹窗 */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-xl rounded-2xl shadow-xl overflow-hidden glass-card"
+              style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}` }}
+            >
+              <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: colors.border }}>
+                <h3 className="font-semibold text-lg" style={{ color: colors.text }}>
+                  {modalType === 'create' ? '创建内容' : '编辑内容'}
+                </h3>
+                <button onClick={() => setIsModalOpen(false)} className="p-2 rounded-lg hover:bg-surface/60 transition-colors">
+                  <X size={20} style={{ color: colors.textMuted }} />
+                </button>
+              </div>
+              <div className="p-6 space-y-5">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>标题</label>
+                  <input type="text" placeholder="输入内容标题" className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary" style={{ backgroundColor: colors.bgAlt, border: `1px solid ${colors.border}`, color: colors.text }} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>内容类型</label>
+                  <div className="flex gap-2">
+                    {['图文', '视频', '动态'].map(t => {
+                      const isSelected = modalContentType === t;
+                      return (
+                        <button 
+                          key={t} 
+                          onClick={() => setModalContentType(t)}
+                          className={`px-4 py-1.5 rounded-lg text-sm transition-colors border ${isSelected ? 'bg-primary/10 text-primary border-primary/20' : ''}`} 
+                          style={{ borderColor: isSelected ? 'transparent' : colors.border, color: isSelected ? colors.primary : colors.text }}
+                        >
+                          {t}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>分发平台</label>
+                  <div className="flex flex-wrap gap-2">
+                    {platforms.map(p => {
+                      const isSelected = modalPlatforms.includes(p.id)
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => setModalPlatforms(prev => 
+                            prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id]
+                          )}
+                          className={`px-3 py-1.5 border rounded-lg text-xs flex items-center gap-1 transition-colors`}
+                          style={{ 
+                            backgroundColor: isSelected ? `${p.color}15` : 'transparent',
+                            borderColor: isSelected ? `${p.color}40` : colors.border,
+                            color: isSelected ? p.color : colors.textMuted
+                          }}
+                        >
+                          {isSelected ? <Check size={12} /> : <Plus size={12} />}
+                          {p.name}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>正文/描述</label>
+                  <textarea rows={4} placeholder="在此处编写新媒体文案..." className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary resize-none" style={{ backgroundColor: colors.bgAlt, border: `1px solid ${colors.border}`, color: colors.text }} />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 p-4 border-t" style={{ borderColor: colors.border }}>
+                <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:brightness-95" style={{ color: colors.text, backgroundColor: colors.surface, border: `1px solid ${colors.border}` }}>
+                  取消
+                </button>
+                <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:brightness-110" style={{ backgroundColor: colors.primary }}>
+                  保存内容
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 删除确认弹窗 */}
+      <AnimatePresence>
+        {deleteId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-sm rounded-2xl shadow-xl overflow-hidden glass-card p-6 text-center"
+              style={{ backgroundColor: colors.surface, border: `1px solid ${colors.border}` }}
+            >
+              <div className="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center mx-auto mb-4">
+                <Trash2 size={24} className="text-rose-500" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2" style={{ color: colors.text }}>确认删除</h3>
+              <p className="text-sm mb-6" style={{ color: colors.textMuted }}>此操作不可恢复，确定要删除这条内容吗？</p>
+              <div className="flex gap-3">
+                <button onClick={() => setDeleteId(null)} className="flex-1 py-2 rounded-lg text-sm font-medium transition-colors hover:brightness-95" style={{ color: colors.text, backgroundColor: colors.surface, border: `1px solid ${colors.border}` }}>
+                  取消
+                </button>
+                <button onClick={() => setDeleteId(null)} className="flex-1 py-2 rounded-lg text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 transition-colors">
+                  确定删除
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
@@ -443,53 +733,48 @@ function EcommerceModule() {
 
   return (
     <div className="space-y-6">
-      {/* 顶部导航 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold" style={{ color: colors.text }}>电商运营</h2>
-          <p className="text-sm" style={{ color: colors.textMuted }}>电商平台管理和数据分析</p>
+      {/* 顶部导航与操作区域 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b" style={{ borderColor: colors.border }}>
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {[
+            { id: 'overview', label: '数据概览', icon: BarChart3 },
+            { id: 'products', label: '商品管理', icon: Package },
+            { id: 'orders', label: '订单管理', icon: ShoppingCart },
+            { id: 'analysis', label: '经营分析', icon: TrendingUp }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as 'overview' | 'products' | 'orders' | 'analysis')}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap relative ${
+                activeTab === tab.id
+                  ? 'text-primary'
+                  : 'text-text-muted hover:text-text'
+              }`}
+            >
+              <tab.icon size={16} />
+              {tab.label}
+              {activeTab === tab.id && (
+                <motion.div
+                  layoutId="ecommerceTab"
+                  className="absolute bottom-0 left-0 right-0 h-0.5"
+                  style={{ backgroundColor: colors.primary }}
+                />
+              )}
+            </button>
+          ))}
         </div>
 
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="px-4 py-2 rounded-lg text-white font-medium flex items-center gap-2"
+          className="px-4 py-2 mb-2 rounded-lg text-white font-medium flex items-center gap-2"
           style={{ background: colors.primary }}
         >
           <Plus size={18} />
-          <span>上架商品</span>
+          <span>上传商品</span>
         </motion.button>
       </div>
 
-      {/* 标签页切换 */}
-      <div className="flex gap-2 border-b overflow-x-auto" style={{ borderColor: colors.border }}>
-        {[
-          { id: 'overview', label: '数据概览', icon: BarChart3 },
-          { id: 'products', label: '商品管理', icon: Package },
-          { id: 'orders', label: '订单管理', icon: ShoppingCart },
-          { id: 'analysis', label: '经营分析', icon: TrendingUp }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as 'overview' | 'products' | 'orders' | 'analysis')}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap relative ${
-              activeTab === tab.id
-                ? 'text-primary'
-                : 'text-text-muted hover:text-text'
-            }`}
-          >
-            <tab.icon size={16} />
-            {tab.label}
-            {activeTab === tab.id && (
-              <motion.div
-                layoutId="ecommerceTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5"
-                style={{ backgroundColor: colors.primary }}
-              />
-            )}
-          </button>
-        ))}
-      </div>
 
       {/* 内容区域 */}
       <AnimatePresence mode="wait">
