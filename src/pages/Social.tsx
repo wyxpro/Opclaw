@@ -8,7 +8,7 @@ import {
   IdCard, Download, Share, History, Palette, Loader2, Plus, Star,
   Crown, Check, CreditCard, Shield, Settings, Info, FlaskConical,
   Rocket, Brain, Eye, Smartphone, Database, Layers, Wifi, Beaker,
-  Sparkles
+  Sparkles, Heart, Music, Youtube, Instagram
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { ThemeSelectorPanel } from '../components/ui/ThemeSwitcher'
@@ -80,8 +80,8 @@ export default function Social() {
             avatar: storedUser.avatar || presetAvatars[0].url,
             background: storedUser.backgroundUrl || null,
             name: storedUser.username || '晓叶',
-            gender: 'secret',
-            age: '',
+            gender: 'male',
+            age: 23,
             bio: storedUser.bio || '',
             phone: storedUser.phone || '',
             email: storedUser.email || '',
@@ -93,10 +93,10 @@ export default function Social() {
     }
     return {
       avatar: presetAvatars[0].url,
-      background: null,
+      background: 'https://copyright.bdstatic.com/vcg/creative/3e1471d9d1093bba28455470ae71e3f5.jpg@wm_1,k_cGljX2JqaHdhdGVyLmpwZw==',
       name: '晓叶',
-      gender: 'secret',
-      age: '',
+      gender: 'male',
+      age: 23,
       bio: '',
       phone: '',
       email: '',
@@ -128,7 +128,7 @@ export default function Social() {
   // 主题切换时自动更新背景
   useEffect(() => {
     const themeBackgrounds: Record<string, string> = {
-      'minimal': 'https://images.unsplash.com/photo-1557683316-973673baf926?w=800&q=80',
+      'minimal': 'https://copyright.bdstatic.com/vcg/creative/3e1471d9d1093bba28455470ae71e3f5.jpg@wm_1,k_cGljX2JqaHdhdGVyLmpwZw==',
       'cyber': 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800&q=80',
       'artistic': 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80',
       'cartoon': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80',
@@ -201,11 +201,29 @@ export default function Social() {
                       已认证
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-white/70 text-sm">ID 33a4****c533</span>
-                    <button className="px-2 py-0.5 rounded bg-white/20 text-white text-xs hover:bg-white/30 transition-colors">
-                      复制
-                    </button>
+                  <div className="flex items-center gap-3 mt-2">
+                    {/* 性别标签 - 双向同步 & 精致配色 */}
+                    <div className={`px-2.5 py-0.5 rounded-md backdrop-blur-md border flex items-center gap-1.5 shadow-sm transition-colors duration-300 ${
+                      userProfile.gender === 'male' 
+                        ? 'bg-blue-500/40 border-blue-400/30 text-blue-50' 
+                        : userProfile.gender === 'female'
+                          ? 'bg-rose-500/40 border-rose-400/30 text-rose-50'
+                          : 'bg-gray-500/30 border-gray-400/20 text-gray-100'
+                    }`}>
+                      <span className="text-xs font-bold">
+                        {userProfile.gender === 'male' ? '♂' : userProfile.gender === 'female' ? '♀' : '?'}
+                      </span>
+                      <span className="text-xs font-medium tracking-wider">
+                        {userProfile.gender === 'male' ? '男' : userProfile.gender === 'female' ? '女' : '保密'}
+                      </span>
+                    </div>
+                    
+                    {/* 年龄标签 */}
+                    <div className="px-2.5 py-0.5 rounded-md bg-violet-600/30 backdrop-blur-md border border-violet-400/20 shadow-sm">
+                      <span className="text-xs text-white font-bold">
+                        {userProfile.age || '??'} 岁
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2157,46 +2175,67 @@ function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { 
           : undefined
       }}
     >
-      {/* 背景遮罩层 */}
+      {/* 背景遮罩层 - 用户要求删除白蓝遮罩，直接显示真实图片 */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-primary to-primary-dim"
-        style={{ opacity: userProfile.background ? 0.85 : 1 }}
+        className="absolute inset-0 bg-black/10" 
+        style={{ opacity: userProfile.background ? 0.2 : 0 }} 
       />
       <div className="relative flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full overflow-hidden bg-white/20 flex items-center justify-center text-white text-2xl font-bold border-2 border-white/30">
+        <div className="w-16 h-16 rounded-full overflow-hidden bg-white/20 flex items-center justify-center text-white text-2xl font-bold border-2 border-white/30 shrink-0">
           {userProfile.avatar ? (
             <img src={userProfile.avatar} alt="avatar" className="w-full h-full object-cover" />
           ) : (
             '叶'
           )}
         </div>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-white">{userProfile.name}</h2>
+            <h2 className="text-xl font-bold text-white drop-shadow-md">{userProfile.name}</h2>
             <button
               onClick={onVipClick}
-              className={`px-2 py-0.5 rounded-full text-white text-xs font-medium transition-all hover:scale-105 ${
+              className={`px-3 py-1 rounded-full text-white text-xs font-bold transition-all hover:scale-105 flex items-center gap-1 shadow-lg shrink-0 ${
                 isVip 
-                  ? 'bg-gradient-to-r from-amber-400 to-amber-600 shadow-lg shadow-amber-500/50' 
-                  : 'bg-white/30 hover:bg-white/40'
+                  ? 'bg-gradient-to-r from-yellow-400 via-amber-500 to-amber-600 shadow-amber-500/50 outline outline-1 outline-white/30' 
+                  : 'bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-600 shadow-purple-500/40 hover:shadow-purple-500/60'
               }`}
             >
-              {isVip ? 'VIP会员' : '开通VIP'}
+              <Crown size={12} className={isVip ? 'text-white' : 'text-purple-200'} />
+              {isVip ? 'VIP会员' : '开通权益'}
             </button>
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-white/70 text-sm">ID 33a4****c533</span>
-            <button className="px-2 py-0.5 rounded bg-white/20 text-white text-xs">
-              复制
+          <div className="flex items-center gap-2 mt-2">
+            {/* 性别标签 - 动态颜色与内容 */}
+            <div className={`px-2 py-0.5 rounded-md backdrop-blur-md border flex items-center gap-1 shadow-sm transition-colors duration-300 ${
+              userProfile.gender === 'male' 
+                ? 'bg-blue-500/40 border-blue-400/30 text-blue-100' 
+                : userProfile.gender === 'female'
+                  ? 'bg-rose-500/40 border-rose-400/30 text-rose-100'
+                  : 'bg-gray-500/30 border-gray-400/20 text-gray-100'
+            }`}>
+              <span className="text-[10px] font-bold">
+                {userProfile.gender === 'male' ? '♂' : userProfile.gender === 'female' ? '♀' : '?'}
+              </span>
+              <span className="text-[10px] font-medium tracking-wider">
+                {userProfile.gender === 'male' ? '男' : userProfile.gender === 'female' ? '女' : '保密'}
+              </span>
+            </div>
+            
+            {/* 年龄标签 - 动态显示 */}
+            <div className="px-2 py-0.5 rounded-md bg-violet-600/30 backdrop-blur-md border border-violet-400/20 shadow-sm">
+              <span className="text-[10px] text-white font-bold">
+                {userProfile.age || '??'} 岁
+              </span>
+            </div>
+            
+            {/* 编辑按钮 - 原味图标 */}
+            <button 
+              onClick={onEdit}
+              className="p-1.5 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors ml-1.5 backdrop-blur-md shadow-lg border border-white/10"
+            >
+              <Edit2 size={14} />
             </button>
           </div>
         </div>
-        <button 
-          onClick={onEdit}
-          className="p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
-        >
-          <Edit2 size={18} />
-        </button>
       </div>
     </div>
   )
@@ -2204,28 +2243,81 @@ function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { 
 
 // 移动端数字名片入口卡片
 function DigitalCardEntry({ onOpen }: { onOpen: () => void }) {
+  const { currentTheme } = useTheme()
+  const isCyber = currentTheme === 'cyber'
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="mx-4 -mt-4 relative z-10"
     >
-      <div className="p-4 flex items-center justify-between shadow-lg bg-white rounded-2xl" style={{ zIndex: 10, position: 'relative' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-pink-500/40">
-            <Palette size={20} className="text-white" />
+      <div 
+        className={`p-4 flex items-center justify-between border transition-all duration-500 ${
+          isCyber 
+            ? 'shadow-[0_0_25px_rgba(0,212,255,0.25)] border-primary/40 backdrop-blur-xl' 
+            : 'shadow-lg border-border/40'
+        }`}
+        style={{ 
+          zIndex: 10, 
+          position: 'relative',
+          backgroundColor: 'var(--color-surface)',
+          borderRadius: 'var(--radius-xl)',
+        }}
+      >
+        {/* 精致背景装饰 - 仅赛博主题 */}
+        {isCyber && (
+          <div className="absolute inset-0 overflow-hidden rounded-[var(--radius-xl)] pointer-events-none">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-20 h-20 bg-accent/10 blur-2xl" />
+            {/* 科技线装饰 */}
+            <div className="absolute top-2 right-2 w-4 h-px bg-primary/40" />
+            <div className="absolute top-2 right-2 w-px h-4 bg-primary/40" />
+          </div>
+        )}
+
+        <div className="flex items-center gap-3 relative z-10">
+          <div 
+            className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+              isCyber ? 'shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'shadow-md shadow-primary/20'
+            }`}
+            style={{ 
+              background: isCyber 
+                ? 'linear-gradient(135deg, var(--color-primary), var(--color-accent))' 
+                : 'linear-gradient(135deg, #f43f5e, #ec4899, #d946ef)', // 极简下采用甜美粉色渐变
+              transform: isCyber ? 'rotate(5deg)' : 'none'
+            }}
+          >
+            <Palette size={22} className="text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-text">生成个人数字名片</h3>
-            <p className="text-xs text-text-muted mt-0.5">智能整合你的精彩瞬间</p>
+            <h3 className="font-bold text-text" style={{ fontSize: '15px', letterSpacing: '0.01em' }}>生成个人数字名片</h3>
+            <p className="text-[11px] text-text-muted mt-0.5 font-medium opacity-80">智能整合你的精彩瞬间</p>
           </div>
         </div>
-        <button 
+        
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={onOpen}
-          className="px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-white text-sm font-medium active:scale-95 transition-transform shadow-lg shadow-blue-500/40 hover:shadow-xl hover:shadow-blue-500/50"
+          className={`px-5 py-1.5 rounded-full text-white text-sm font-bold transition-all relative overflow-hidden group ${
+            isCyber ? 'shadow-[0_0_15px_rgba(0,212,255,0.4)]' : 'shadow-md shadow-primary/30'
+          }`}
+          style={{ 
+            background: isCyber 
+              ? 'linear-gradient(90deg, var(--color-primary), var(--color-accent))' 
+              : 'linear-gradient(90deg, #f43f5e, #ec4899)' // 极简下采用更有能量的玫瑰粉渐变
+          }}
         >
-          生成
-        </button>
+          {/* 交互式光影 sweep 效果 */}
+          <motion.div 
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-20"
+            initial={{ x: '-150%' }}
+            whileHover={{ x: '150%' }}
+            transition={{ duration: 0.75, ease: "easeInOut" }}
+          />
+          <span className="relative z-10">生成</span>
+        </motion.button>
       </div>
     </motion.div>
   )
@@ -3444,6 +3536,7 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
       className="min-h-screen bg-bg"
     >
       <MobilePageHeader title="自媒体矩阵" onBack={onBack} />
+
       
       {/* 添加按钮 */}
       <div className="px-4 pt-4">
@@ -3489,6 +3582,89 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
             </motion.div>
           )
         })}
+      </div>
+
+      {/* 3D 旋转魔方展示 - 移动至内容下方 */}
+      <div className="flex justify-center py-10 overflow-hidden perspective-1000">
+        <style>{`
+          .perspective-1000 { perspective: 1000px; }
+          .cube-container {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateCube 15s infinite linear;
+          }
+          @keyframes rotateCube {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+          }
+          .cube-face {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 20px;
+          }
+          .face-front  { transform: translateZ(60px); }
+          .face-back   { transform: rotateY(180deg) translateZ(60px); }
+          .face-top    { transform: rotateX(90deg) translateZ(60px); }
+          .face-bottom { transform: rotateX(-90deg) translateZ(60px); }
+          .face-left   { transform: rotateY(-90deg) translateZ(60px); }
+          .face-right  { transform: rotateY(90deg) translateZ(60px); }
+        `}</style>
+        
+        <div className="cube-container">
+          {/* 前: 微信 */}
+          <div className="cube-face face-front" style={{ backgroundColor: 'rgba(7, 193, 96, 0.3)' }}>
+            <div className="flex flex-col items-center">
+              <MessageSquare size={40} className="text-[#07c160] drop-shadow-[0_0_8px_rgba(7,193,96,0.6)]" />
+              <span className="text-[10px] mt-1 font-bold">微信</span>
+            </div>
+          </div>
+          {/* 后: QQ */}
+          <div className="cube-face face-back" style={{ backgroundColor: 'rgba(18, 183, 245, 0.3)' }}>
+            <div className="flex flex-col items-center">
+              <MessageCircle size={40} className="text-[#12b7f5] drop-shadow-[0_0_8px_rgba(18,183,245,0.6)]" />
+              <span className="text-[10px] mt-1 font-bold">QQ</span>
+            </div>
+          </div>
+          {/* 上: 抖音 */}
+          <div className="cube-face face-top" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+            <div className="flex flex-col items-center">
+              <Music size={40} className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
+              <span className="text-[10px] mt-1 font-bold">抖音</span>
+            </div>
+          </div>
+          {/* 下: 小红书 */}
+          <div className="cube-face face-bottom" style={{ backgroundColor: 'rgba(255, 36, 66, 0.3)' }}>
+            <div className="flex flex-col items-center">
+              <Heart size={40} className="text-[#ff2442] drop-shadow-[0_0_8px_rgba(255,36,66,0.6)]" />
+              <span className="text-[10px] mt-1 font-bold">小红书</span>
+            </div>
+          </div>
+          {/* 左: B站 */}
+          <div className="cube-face face-left" style={{ backgroundColor: 'rgba(251, 114, 153, 0.3)' }}>
+            <div className="flex flex-col items-center">
+              <Play size={40} className="text-[#fb7299] drop-shadow-[0_0_8px_rgba(251,114,153,0.6)]" />
+              <span className="text-[10px] mt-1 font-bold">Bilibili</span>
+            </div>
+          </div>
+          {/* 右: 微博 */}
+          <div className="cube-face face-right" style={{ backgroundColor: 'rgba(230, 22, 45, 0.3)' }}>
+            <div className="flex flex-col items-center">
+              <Zap size={40} className="text-[#e6162d] drop-shadow-[0_0_8px_rgba(230,22,45,0.6)]" />
+              <span className="text-[10px] mt-1 font-bold">微博</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 详情/编辑弹窗 */}

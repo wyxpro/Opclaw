@@ -1842,7 +1842,7 @@ export default function Work() {
     <PageTransition>
       <div className="mx-auto max-w-6xl px-6 py-8">
         {/* 顶部页眉与标签导航 */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-start gap-12">
+        <div className="mb-4 md:mb-8 flex flex-col md:flex-row md:items-center justify-start gap-4 md:gap-12">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
