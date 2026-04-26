@@ -4,6 +4,7 @@ import { ExternalLink, Github, Layers, X, ChevronLeft, ChevronRight } from 'luci
 import { useTheme } from '../../hooks/useTheme'
 import type { PortfolioItem, PortfolioCategory } from '../../types/profile'
 import { AnimatedSection } from './AnimatedSection'
+import { EditableWrapper } from '../ui/EditableWrapper'
 
 interface PortfolioSectionProps {
   projects: PortfolioItem[]
@@ -168,12 +169,16 @@ function ProjectModal({
   project, 
   onClose,
   onPrev,
-  onNext
+  onNext,
+  isEditMode,
+  onUpdatePortfolio
 }: { 
   project: PortfolioItem
   onClose: () => void
   onPrev: () => void
   onNext: () => void
+  isEditMode?: boolean
+  onUpdatePortfolio?: (itemId: string, field: keyof PortfolioItem, value: any) => void
 }) {
   const { themeConfig } = useTheme()
 
@@ -236,11 +241,20 @@ function ProjectModal({
 
         {/* 图片 */}
         <div className="relative aspect-video">
-          <img
-            src={project.thumbnail}
-            alt={project.title}
-            className="w-full h-full object-cover"
-          />
+          <EditableWrapper
+            value={project.thumbnail}
+            onSave={(val) => onUpdatePortfolio?.(project.id, 'thumbnail', val)}
+            type="image"
+            isEditMode={isEditMode || false}
+            label="项目封面"
+            className="w-full h-full"
+          >
+            <img
+              src={project.thumbnail}
+              alt={project.title}
+              className="w-full h-full object-cover"
+            />
+          </EditableWrapper>
           <div
             className="absolute inset-0"
             style={{
@@ -276,12 +290,19 @@ function ProjectModal({
                   </span>
                 )}
               </div>
-              <h2
-                className="text-2xl font-bold"
-                style={{ color: themeConfig.colors.text }}
+              <EditableWrapper
+                value={project.title}
+                onSave={(val) => onUpdatePortfolio?.(project.id, 'title', val)}
+                isEditMode={isEditMode || false}
+                label="项目标题"
               >
-                {project.title}
-              </h2>
+                <h2
+                  className="text-2xl font-bold"
+                  style={{ color: themeConfig.colors.text }}
+                >
+                  {project.title}
+                </h2>
+              </EditableWrapper>
             </div>
             <span
               className="text-sm"
@@ -292,12 +313,20 @@ function ProjectModal({
           </div>
 
           {/* 描述 */}
-          <p
-            className="text-base leading-relaxed mb-6"
-            style={{ color: themeConfig.colors.textSecondary }}
+          <EditableWrapper
+            value={project.description}
+            onSave={(val) => onUpdatePortfolio?.(project.id, 'description', val)}
+            type="textarea"
+            isEditMode={isEditMode || false}
+            label="项目描述"
           >
-            {project.description}
-          </p>
+            <p
+              className="text-base leading-relaxed mb-6"
+              style={{ color: themeConfig.colors.textSecondary }}
+            >
+              {project.description}
+            </p>
+          </EditableWrapper>
 
           {/* 标签 */}
           <div className="flex flex-wrap gap-2 mb-6">
@@ -317,38 +346,54 @@ function ProjectModal({
           </div>
 
           {/* 操作按钮 */}
-          <div className="flex gap-3">
-            {project.link && (
-              <a
-                href={project.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all"
-                style={{
-                  background: themeConfig.colors.primary,
-                  color: '#fff'
-                }}
-              >
-                <ExternalLink size={18} />
-                访问项目
-              </a>
-            )}
-            {project.github && (
-              <a
-                href={project.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all"
-                style={{
-                  background: themeConfig.colors.bg,
-                  color: themeConfig.colors.text,
-                  border: `1px solid ${themeConfig.colors.border}`
-                }}
-              >
-                <Github size={18} />
-                查看源码
-              </a>
-            )}
+          <div className="flex flex-wrap gap-3">
+            <EditableWrapper
+              value={project.link || ''}
+              onSave={(val) => onUpdatePortfolio?.(project.id, 'link', val)}
+              type="link"
+              isEditMode={isEditMode || false}
+              label="项目链接"
+            >
+              {project.link && (
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all"
+                  style={{
+                    background: themeConfig.colors.primary,
+                    color: '#fff'
+                  }}
+                >
+                  <ExternalLink size={18} />
+                  访问项目
+                </a>
+              )}
+            </EditableWrapper>
+            <EditableWrapper
+              value={project.github || ''}
+              onSave={(val) => onUpdatePortfolio?.(project.id, 'github', val)}
+              type="link"
+              isEditMode={isEditMode || false}
+              label="GitHub 链接"
+            >
+              {project.github && (
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all"
+                  style={{
+                    background: themeConfig.colors.bg,
+                    color: themeConfig.colors.text,
+                    border: `1px solid ${themeConfig.colors.border}`
+                  }}
+                >
+                  <Github size={18} />
+                  查看源码
+                </a>
+              )}
+            </EditableWrapper>
           </div>
         </div>
       </motion.div>
@@ -477,6 +522,8 @@ export function PortfolioSection({ projects, isEditMode = false, onUpdatePortfol
             onClose={() => setSelectedProject(null)}
             onPrev={handlePrev}
             onNext={handleNext}
+            isEditMode={isEditMode}
+            onUpdatePortfolio={onUpdatePortfolio}
           />
         )}
       </AnimatePresence>

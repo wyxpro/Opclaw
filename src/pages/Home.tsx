@@ -44,9 +44,13 @@ export default function Home() {
     profile,
     skillCategories,
     portfolioItems,
+    hobbies,
+    contact,
     updateProfile,
     updateSkill,
     updatePortfolio,
+    updateHobby,
+    updateContact,
     canUndo,
     canRedo,
     undo,
@@ -306,6 +310,8 @@ export default function Home() {
                   skillCategories={skillCategories}
                   isEditMode={mode === 'edit'}
                   onUpdateSkill={updateSkill}
+                  profile={profile}
+                  onUpdateProfile={updateProfile}
                 />
 
                 {/* Portfolio Section - 项目作品集 */}
@@ -316,10 +322,18 @@ export default function Home() {
                 />
 
                 {/* Hobbies Section - 兴趣爱好 */}
-                <HobbiesSection isEditMode={mode === 'edit'} />
+                <HobbiesSection 
+                  hobbies={hobbies}
+                  isEditMode={mode === 'edit'} 
+                  onUpdateHobby={updateHobby}
+                />
 
                 {/* Contact Section - 联系区域 */}
-                <ContactSection isEditMode={mode === 'edit'} />
+                <ContactSection 
+                  config={contact}
+                  isEditMode={mode === 'edit'} 
+                  onUpdateContact={updateContact}
+                />
 
                 {/* Footer */}
                 <footer 

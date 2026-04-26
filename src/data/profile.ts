@@ -3,7 +3,9 @@ import type {
   PortfolioItem, 
   SkillCategory, 
   ModuleEntry,
-  ProfileStats 
+  ProfileStats,
+  HobbyItem,
+  ContactConfig
 } from '../types/profile'
 
 // 个人资料数据
@@ -11,6 +13,7 @@ export const personalProfile: PersonalProfile = {
   name: '晓叶',
   title: '全栈开发工程师 & AI 研究员',
   bio: '热爱技术与设计的全栈开发者，专注于人工智能、Web 开发和用户体验设计。致力于创造优雅且实用的数字产品，一起加油💪',
+  skillsBio: '多维度可视化数据呈现你的技能矩阵',
   avatar: '/vibe_images/avatar_1771416390.png',
   coverImage: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80',
   location: '中国 · 杭州',
@@ -19,46 +22,40 @@ export const personalProfile: PersonalProfile = {
   website: 'https://xiaoyu.dev',
   socialLinks: [
     {
-      platform: 'github',
-      url: 'https://github.com/zhangxiaoyu',
-      username: 'zhangxiaoyu',
-      displayName: 'GitHub',
-      followerCount: 1234
+      platform: 'qq',
+      url: 'tencent://message/?uin=123456789',
+      username: '123456789',
+      displayName: 'QQ'
     },
     {
-      platform: 'twitter',
-      url: 'https://twitter.com/zhangxiaoyu',
-      username: 'zhangxiaoyu',
-      displayName: 'Twitter',
-      followerCount: 567
+      platform: 'wechat',
+      url: '#',
+      username: 'xiaoye_dev',
+      displayName: '微信'
     },
     {
-      platform: 'bilibili',
-      url: 'https://space.bilibili.com/346710742?spm_id_from=333.1007.0.0',
-      username: '晓叶的代码世界',
-      displayName: 'Bilibili',
-      followerCount: 8900
+      platform: 'douyin',
+      url: 'https://v.douyin.com/abc',
+      username: 'xiaoye',
+      displayName: '抖音'
     },
     {
-      platform: 'zhihu',
-      url: 'https://www.zhihu.com/people/zhangxiaoyu',
+      platform: 'xiaohongshu',
+      url: 'https://www.xiaohongshu.com/user/profile/123',
       username: '晓叶',
-      displayName: '知乎',
-      followerCount: 3456
+      displayName: '小红书'
     },
     {
       platform: 'weibo',
       url: 'https://weibo.com/zhangxiaoyu',
       username: '晓叶Dev',
-      displayName: '微博',
-      followerCount: 5678
+      displayName: '微博'
     },
     {
-      platform: 'linkedin',
-      url: 'https://linkedin.com/in/zhangxiaoyu',
-      username: 'zhangxiaoyu',
-      displayName: 'LinkedIn',
-      followerCount: 890
+      platform: 'bilibili',
+      url: 'https://space.bilibili.com/346710742',
+      username: '晓叶的代码世界',
+      displayName: '哔哩哔哩'
     }
   ],
   achievements: [
@@ -99,8 +96,20 @@ export const personalProfile: PersonalProfile = {
     yearsOfExperience: 5,
     projectsCompleted: 50,
     happyClients: 30,
-    awards: 8
-  }
+    awards: 8,
+    totalSkills: 20,
+    masteredSkills: 14,
+    avgLevel: 83,
+    learningHours: '2000h+'
+  },
+  skillsRadar: [
+    { name: '前端开发', score: 90, color: '#3B82F6' },
+    { name: '后端开发', score: 85, color: '#10B981' },
+    { name: 'AI/ML', score: 82, color: '#8B5CF6' },
+    { name: 'DevOps', score: 78, color: '#F59E0B' },
+    { name: 'UI设计', score: 75, color: '#EC4899' },
+    { name: '产品思维', score: 80, color: '#06B6D4' }
+  ]
 }
 
 // 技能数据
@@ -374,6 +383,118 @@ export const profileStats: ProfileStats[] = [
     color: '#8B5CF6'
   }
 ]
+
+
+// 兴趣爱好数据
+export const hobbiesData: HobbyItem[] = [
+  {
+    id: 'sports',
+    title: '运动健身',
+    description: '保持活力，挑战自我，享受运动带来的快乐与健康',
+    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80',
+    icon: 'Dumbbell',
+    color: '#10B981',
+    gradient: 'from-emerald-500 to-teal-500',
+    stats: [
+      { label: '坚持天数', value: '365+', icon: 'Clock' },
+      { label: '喜爱项目', value: '跑步、游泳', icon: 'Target' },
+      { label: '消耗热量', value: '50万+', icon: 'Zap' }
+    ],
+    highlights: ['马拉松', '游泳', '健身', '瑜伽'],
+    details: {
+      fullDescription: '运动是我生活中不可或缺的一部分。通过坚持运动，我不仅保持了良好的身体状态，更培养了坚韧不拔的意志力。从最初的几百米到现在的马拉松，每一步都是对自己的挑战和超越。',
+      achievements: ['完成人生第一个半程马拉松', '坚持晨跑365天不间断', '学会自由泳和蛙泳', '获得健身初级教练认证'],
+      goals: ['完成全程马拉松', '学会冲浪', '挑战铁人三项', '攀登一座雪山'],
+      favoriteItems: ['Nike Zoom Fly 跑鞋', 'Garmin 运动手表', 'AirPods Pro', 'Lululemon 运动服']
+    }
+  },
+  {
+    id: 'travel',
+    title: '旅游探索',
+    description: '用脚步丈量世界，用镜头记录美好，探索未知的风景',
+    image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80',
+    icon: 'Plane',
+    color: '#3B82F6',
+    gradient: 'from-blue-500 to-cyan-500',
+    stats: [
+      { label: '已访城市', value: '20+', icon: 'MapPin' },
+      { label: '足迹遍布', value: '5个国家', icon: 'Target' },
+      { label: '拍摄照片', value: '1万+', icon: 'Zap' }
+    ],
+    highlights: ['自然风光', '人文古迹', '美食之旅', '摄影'],
+    details: {
+      fullDescription: '旅行让我看到了世界的广阔和多样性。每一次出行都是一次心灵的洗礼，让我在陌生的环境中发现新的自己。用镜头记录下那些美好的瞬间，成为最珍贵的回忆。',
+      achievements: ['独自完成西藏自驾游', '在冰岛看到极光', '登上富士山顶', '品尝过20+国家的特色美食'],
+      goals: ['环游世界七大洲', '在撒哈拉沙漠露营', '探访南极', '学习潜水证'],
+      favoriteItems: ['Sony A7M4 相机', 'DJI Mini 无人机', 'Osprey 背包', 'Kindle 电子书']
+    }
+  },
+  {
+    id: 'food',
+    title: '美食烹饪',
+    description: '品味人间烟火，探索味蕾的无限可能，享受美食时光',
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
+    icon: 'UtensilsCrossed',
+    color: '#F59E0B',
+    gradient: 'from-amber-500 to-orange-500',
+    stats: [
+      { label: '拿手菜品', value: '30+', icon: 'ChefHat' },
+      { label: '探索菜系', value: '8大菜系', icon: 'Target' },
+      { label: '探店数量', value: '200+', icon: 'Zap' }
+    ],
+    highlights: ['中式料理', '烘焙甜点', '咖啡品鉴', '探店'],
+    details: {
+      fullDescription: '美食是生活中最美好的享受之一。从品尝到自己动手制作，每一道菜都承载着对食材的尊重和对味道的追求。无论是家常小炒还是精致甜点，都能带给我满满的成就感。',
+      achievements: ['成功复刻米其林餐厅菜品', '学会拉花艺术', '举办家庭美食派对', '建立个人食谱博客'],
+      goals: ['学习法式料理', '考取咖啡师证书', '出版个人食谱', '开一家小餐馆'],
+      favoriteItems: ['Le Creuset 珐琅锅', 'KitchenAid 厨师机', 'Breville 咖啡机', '藤次郎菜刀']
+    }
+  },
+  {
+    id: 'gaming',
+    title: '游戏娱乐',
+    description: '在虚拟世界中冒险，体验精彩故事，放松身心',
+    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80',
+    icon: 'Gamepad2',
+    color: '#8B5CF6',
+    gradient: 'from-violet-500 to-purple-500',
+    stats: [
+      { label: '游戏时长', value: '1000+', icon: 'Clock' },
+      { label: '喜爱类型', value: 'RPG、策略', icon: 'Target' },
+      { label: '通关游戏', value: '50+', icon: 'Zap' }
+    ],
+    highlights: ['单机大作', '独立游戏', '桌游', '电竞'],
+    details: {
+      fullDescription: '游戏是我放松和娱乐的重要方式。在虚拟世界中，我可以成为任何人，体验不同的故事和冒险。从3A大作到独立精品，每一款好游戏都是一件艺术品，值得细细品味。',
+      achievements: ['全成就通关《塞尔达传说》', '组建自己的电竞战队', '参加桌游马拉松24小时', '直播游戏收获1万粉丝'],
+      goals: ['开发自己的独立游戏', '参加国际电竞比赛', '收集100款经典游戏', '建立游戏主题房间'],
+      favoriteItems: ['PS5 游戏主机', 'Nintendo Switch', 'Steam Deck', 'Secretlab 电竞椅']
+    }
+  }
+]
+
+// 联系方式配置
+export const contactConfig: ContactConfig = {
+  formTitle: '发送消息',
+  qrCodes: [
+    {
+      platform: 'wechat',
+      label: '微信号',
+      description: '交个朋友呀',
+      image: '/vibe_images/wx.jpg',
+      icon: 'MessageCircle',
+      color: '#07C160'
+    },
+    {
+      platform: 'douyin',
+      label: '抖音号',
+      description: '我的日常生活',
+      image: '/vibe_images/dy.jpg',
+      icon: 'Video',
+      color: '#000000'
+    }
+  ]
+}
 
 // 所有标签
 export const allTags = Array.from(

@@ -10,6 +10,8 @@ export type SocialPlatform =
   | 'zhihu' 
   | 'douyin'
   | 'wechat'
+  | 'qq'
+  | 'xiaohongshu'
   | 'email'
   | 'website'
 
@@ -20,6 +22,7 @@ export interface SocialLink {
   username: string
   followerCount?: number
   displayName: string
+  icon?: string
 }
 
 // 成就/荣誉
@@ -37,6 +40,7 @@ export interface PersonalProfile {
   name: string
   title: string
   bio: string
+  skillsBio?: string
   avatar: string
   coverImage?: string
   location: string
@@ -50,7 +54,12 @@ export interface PersonalProfile {
     projectsCompleted: number
     happyClients: number
     awards: number
+    totalSkills?: number
+    masteredSkills?: number
+    avgLevel?: number
+    learningHours?: string
   }
+  skillsRadar?: { name: string; score: number; color: string }[]
 }
 
 // 项目作品分类
@@ -110,3 +119,45 @@ export interface ProfileStats {
   icon: string
   color: string
 }
+
+// 兴趣爱好
+export interface HobbyItem {
+  id: string
+  title: string
+  description: string
+  image: string
+  icon: string
+  color: string
+  gradient: string
+  stats: { label: string; value: string; icon?: string }[]
+  highlights: string[]
+  details: {
+    fullDescription: string
+    achievements: string[]
+    goals: string[]
+    favoriteItems: string[]
+  }
+}
+
+// 联系表单配置
+export interface ContactConfig {
+  qrCodes: {
+    platform: string
+    image: string
+    label: string
+    description: string
+    icon: string
+    color: string
+  }[]
+  formTitle: string
+}
+
+// 整个首页的编辑器状态类型
+export interface HomeEditorData {
+  profile: PersonalProfile
+  skillCategories: SkillCategory[]
+  portfolioItems: PortfolioItem[]
+  hobbies: HobbyItem[]
+  contact: ContactConfig
+}
+

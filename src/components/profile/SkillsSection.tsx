@@ -2,14 +2,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { Zap, Award, Activity, Clock } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
-import type { SkillCategory, Skill } from '../../types/profile'
+import type { SkillCategory, Skill, PersonalProfile } from '../../types/profile'
 import { AnimatedSection } from './AnimatedSection'
 
 interface SkillsSectionProps {
   skillCategories: SkillCategory[]
   isEditMode?: boolean
   onUpdateSkill?: (categoryId: string, skillId: string, field: string, value: any) => void
+  profile?: PersonalProfile
+  onUpdateProfile?: (field: keyof PersonalProfile, value: any) => void
 }
+
+import { EditableWrapper } from '../ui/EditableWrapper'
 
 // 统计卡片组件
 function StatCard({ 
@@ -17,13 +21,21 @@ function StatCard({
   label, 
   value, 
   color,
-  delay = 0 
+  delay = 0,
+  isEditMode = false,
+  onSave,
+  labelForEdit,
+  type = 'text'
 }: { 
   icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>
   label: string
   value: string | number
   color: string
   delay?: number
+  isEditMode?: boolean
+  onSave?: (newValue: string | number) => void
+  labelForEdit?: string
+  type?: 'text' | 'number' | 'percentage'
 }) {
   const { themeConfig } = useTheme()
 
@@ -48,12 +60,20 @@ function StatCard({
           <Icon size={20} style={{ color }} />
         </div>
         <div>
-          <div
-            className="text-xl font-bold"
-            style={{ color: themeConfig.colors.text }}
+          <EditableWrapper
+            value={value}
+            onSave={(val) => onSave?.(val)}
+            isEditMode={isEditMode}
+            type={type === 'number' ? 'number' : type === 'percentage' ? 'percentage' : 'text'}
+            label={labelForEdit || label}
           >
-            {value}
-          </div>
+            <div
+              className="text-xl font-bold"
+              style={{ color: themeConfig.colors.text }}
+            >
+              {value}
+            </div>
+          </EditableWrapper>
           <div
             className="text-xs"
             style={{ color: themeConfig.colors.textMuted }}
@@ -67,7 +87,19 @@ function StatCard({
 }
 
 // 技能进度条组件
-function SkillBar({ skill, index }: { skill: Skill; index: number }) {
+function SkillBar({ 
+  skill, 
+  index, 
+  isEditMode, 
+  onUpdateSkill,
+  categoryId
+}: { 
+  skill: Skill; 
+  index: number;
+  isEditMode?: boolean;
+  onUpdateSkill?: (categoryId: string, skillId: string, field: string, value: any) => void;
+  categoryId: string;
+}) {
   const { themeConfig } = useTheme()
 
   const getLevelColor = (level: number) => {
@@ -96,12 +128,19 @@ function SkillBar({ skill, index }: { skill: Skill; index: number }) {
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span
-            className="text-sm font-medium"
-            style={{ color: themeConfig.colors.text }}
+          <EditableWrapper
+            value={skill.name}
+            onSave={(val) => onUpdateSkill?.(categoryId, skill.id, 'name', val)}
+            isEditMode={isEditMode || false}
+            label="技能名称"
           >
-            {skill.name}
-          </span>
+            <span
+              className="text-sm font-medium"
+              style={{ color: themeConfig.colors.text }}
+            >
+              {skill.name}
+            </span>
+          </EditableWrapper>
           <span
             className="text-xs px-2 py-0.5 rounded-full"
             style={{
@@ -112,12 +151,20 @@ function SkillBar({ skill, index }: { skill: Skill; index: number }) {
             {getLevelText(skill.level)}
           </span>
         </div>
-        <span
-          className="text-sm font-medium"
-          style={{ color: themeConfig.colors.textMuted }}
+        <EditableWrapper
+          value={skill.level}
+          onSave={(val) => onUpdateSkill?.(categoryId, skill.id, 'level', val)}
+          type="percentage"
+          isEditMode={isEditMode || false}
+          label="熟练度"
         >
-          {skill.level}%
-        </span>
+          <span
+            className="text-sm font-medium"
+            style={{ color: themeConfig.colors.textMuted }}
+          >
+            {skill.level}%
+          </span>
+        </EditableWrapper>
       </div>
       <div
         className="h-2 rounded-full overflow-hidden"
@@ -137,7 +184,15 @@ function SkillBar({ skill, index }: { skill: Skill; index: number }) {
 }
 
 // 雷达图组件
-function RadarChart() {
+function RadarChart({ 
+  data, 
+  isEditMode, 
+  onUpdate 
+}: { 
+  data: { name: string; score: number; color: string }[]
+  isEditMode?: boolean
+  onUpdate?: (index: number, field: string, value: any) => void
+}) {
   const { themeConfig } = useTheme()
   const [isVisible, setIsVisible] = useState(false)
   const chartRef = useRef<HTMLDivElement>(null)
@@ -159,19 +214,11 @@ function RadarChart() {
     return () => observer.disconnect()
   }, [])
 
-  const dimensions = [
-    { name: '前端开发', score: 90, color: '#3B82F6' },
-    { name: '后端开发', score: 85, color: '#10B981' },
-    { name: 'AI/ML', score: 82, color: '#8B5CF6' },
-    { name: 'DevOps', score: 78, color: '#F59E0B' },
-    { name: 'UI设计', score: 75, color: '#EC4899' },
-    { name: '产品思维', score: 80, color: '#06B6D4' }
-  ]
-
+  const dimensions = data || []
   const size = 280
   const center = size / 2
   const radius = 90
-  const angleStep = (Math.PI * 2) / dimensions.length
+  const angleStep = (Math.PI * 2) / (dimensions.length || 1)
 
   const getPoint = (index: number, value: number) => {
     const angle = index * angleStep - Math.PI / 2
@@ -183,7 +230,6 @@ function RadarChart() {
   }
 
   const dataPoints = dimensions.map((dim, index) => getPoint(index, dim.score))
-  // 生成 polygon 的 points 属性格式: "x1,y1 x2,y2 x3,y3 ..."
   const polygonPoints = dataPoints.map(p => `${p.x},${p.y}`).join(' ')
 
   return (
@@ -193,7 +239,7 @@ function RadarChart() {
         className="w-full max-w-[300px] h-auto overflow-visible"
         style={{ minHeight: '280px' }}
       >
-        {/* 背景网格 - 使用更显眼的颜色 */}
+        {/* 背景网格 */}
         {[20, 40, 60, 80, 100].map((level) => {
           const points = dimensions.map((_, index) => {
             const point = getPoint(index, level)
@@ -211,7 +257,7 @@ function RadarChart() {
           )
         })}
 
-        {/* 轴线 - 使用更显眼的颜色 */}
+        {/* 轴线 */}
         {dimensions.map((_, index) => {
           const end = getPoint(index, 100)
           return (
@@ -228,7 +274,7 @@ function RadarChart() {
           )
         })}
 
-        {/* 数据区域 - 使用正确的 polygon points 格式 */}
+        {/* 数据区域 */}
         <motion.polygon
           points={polygonPoints}
           fill={`${themeConfig.colors.primary}30`}
@@ -281,21 +327,36 @@ function RadarChart() {
         })}
       </svg>
 
-      {/* 图例 */}
+      {/* 图例 (可编辑) */}
       <motion.div 
-        className="flex flex-wrap justify-center gap-3 mt-6 px-2"
+        className="flex flex-wrap justify-center gap-x-8 gap-y-4 mt-8 px-4"
         initial={{ opacity: 0, y: 10 }}
         animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
         transition={{ delay: 0.8, duration: 0.4 }}
       >
-        {dimensions.map((dim) => (
-          <div key={dim.name} className="flex items-center gap-1.5 text-xs">
+        {dimensions.map((dim, index) => (
+          <div key={index} className="flex items-center gap-1.5 text-xs">
             <div
               className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: dim.color }}
             />
-            <span style={{ color: themeConfig.colors.textMuted }}>{dim.name}</span>
-            <span style={{ color: themeConfig.colors.text, fontWeight: 600 }}>{dim.score}</span>
+            <EditableWrapper
+              value={dim.name}
+              onSave={(val) => onUpdate?.(index, 'name', val)}
+              isEditMode={isEditMode || false}
+              label="分类名称"
+            >
+              <span style={{ color: themeConfig.colors.textMuted }}>{dim.name}</span>
+            </EditableWrapper>
+            <EditableWrapper
+              value={dim.score}
+              onSave={(val) => onUpdate?.(index, 'score', Number(val))}
+              isEditMode={isEditMode || false}
+              type="number"
+              label="掌握度"
+            >
+              <span style={{ color: themeConfig.colors.text, fontWeight: 600 }}>{dim.score}</span>
+            </EditableWrapper>
           </div>
         ))}
       </motion.div>
@@ -303,7 +364,13 @@ function RadarChart() {
   )
 }
 
-export function SkillsSection({ skillCategories, isEditMode = false, onUpdateSkill }: SkillsSectionProps) {
+export function SkillsSection({ 
+  skillCategories, 
+  isEditMode = false, 
+  onUpdateSkill,
+  profile,
+  onUpdateProfile
+}: SkillsSectionProps) {
   const { themeConfig } = useTheme()
   const [activeCategory, setActiveCategory] = useState(skillCategories[0]?.id)
 
@@ -333,12 +400,20 @@ export function SkillsSection({ skillCategories, isEditMode = false, onUpdateSki
           >
             技能专长
           </h2>
-          <p
-            className="text-lg max-w-2xl mx-auto"
-            style={{ color: themeConfig.colors.textMuted }}
+          <EditableWrapper
+            value={profile?.skillsBio || "多维度可视化数据呈现你的技能矩阵"}
+            onSave={(val) => onUpdateProfile?.('skillsBio', val)}
+            isEditMode={isEditMode || false}
+            label="技能描述"
+            type="textarea"
           >
-            多年积累的技术栈，涵盖前端、后端、AI 和 DevOps 等多个领域
-          </p>
+            <p
+              className="text-lg max-w-2xl mx-auto"
+              style={{ color: themeConfig.colors.textMuted }}
+            >
+              {profile?.skillsBio || "多维度可视化数据呈现你的技能矩阵"}
+            </p>
+          </EditableWrapper>
         </AnimatedSection>
 
         {/* 统计数据 */}
@@ -346,30 +421,60 @@ export function SkillsSection({ skillCategories, isEditMode = false, onUpdateSki
           <StatCard
             icon={Zap}
             label="总技能数"
-            value={totalSkills}
+            value={profile?.stats.totalSkills || totalSkills}
             color="#8B5CF6"
             delay={0}
+            isEditMode={isEditMode}
+            type="number"
+            onSave={(val) => {
+              if (profile) {
+                onUpdateProfile?.('stats', { ...profile.stats, totalSkills: Number(val) })
+              }
+            }}
           />
           <StatCard
             icon={Award}
             label="已精通"
-            value={masteredSkills}
+            value={profile?.stats.masteredSkills || masteredSkills}
             color="#10B981"
             delay={0.1}
+            isEditMode={isEditMode}
+            type="number"
+            onSave={(val) => {
+              if (profile) {
+                onUpdateProfile?.('stats', { ...profile.stats, masteredSkills: Number(val) })
+              }
+            }}
           />
           <StatCard
             icon={Activity}
             label="平均掌握度"
-            value={`${avgLevel}%`}
+            value={profile?.stats.avgLevel ? `${profile.stats.avgLevel}%` : `${avgLevel}%`}
             color="#F59E0B"
             delay={0.2}
+            isEditMode={isEditMode}
+            onSave={(val) => {
+              if (profile) {
+                // 如果用户输入了带 % 的字符串，尝试提取数字
+                const num = parseInt(val.toString().replace('%', ''))
+                if (!isNaN(num)) {
+                  onUpdateProfile?.('stats', { ...profile.stats, avgLevel: num })
+                }
+              }
+            }}
           />
           <StatCard
             icon={Clock}
             label="学习时长"
-            value="2000h+"
+            value={profile?.stats.learningHours || "2000h+"}
             color="#06B6D4"
             delay={0.3}
+            isEditMode={isEditMode}
+            onSave={(val) => {
+              if (profile) {
+                onUpdateProfile?.('stats', { ...profile.stats, learningHours: val.toString() })
+              }
+            }}
           />
         </div>
 
@@ -392,7 +497,17 @@ export function SkillsSection({ skillCategories, isEditMode = false, onUpdateSki
                 <Zap size={20} style={{ color: themeConfig.colors.primary }} />
                 技能雷达图
               </h3>
-              <RadarChart />
+              <RadarChart 
+                data={profile?.skillsRadar || []}
+                isEditMode={isEditMode || false}
+                onUpdate={(index, field, value) => {
+                  if (profile?.skillsRadar) {
+                    const newRadar = [...profile.skillsRadar]
+                    newRadar[index] = { ...newRadar[index], [field]: value }
+                    onUpdateProfile?.('skillsRadar', newRadar)
+                  }
+                }}
+              />
             </div>
           </AnimatedSection>
 
@@ -440,7 +555,14 @@ export function SkillsSection({ skillCategories, isEditMode = false, onUpdateSki
                   className="space-y-4"
                 >
                   {activeSkills.map((skill, index) => (
-                    <SkillBar key={skill.id} skill={skill} index={index} />
+                    <SkillBar 
+                      key={skill.id} 
+                      skill={skill} 
+                      index={index} 
+                      isEditMode={isEditMode}
+                      onUpdateSkill={onUpdateSkill}
+                      categoryId={activeCategory || ''}
+                    />
                   ))}
                 </motion.div>
               </AnimatePresence>
