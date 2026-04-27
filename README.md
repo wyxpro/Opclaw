@@ -2,8 +2,6 @@
 
 # 🌈 Opclaw — 全能数字资产与AI分身助手
 
-**一个人的数字宇宙，从这里开始**
-
 [![React](https://img.shields.io/badge/React-19.2.0-61DAFB?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.3.1-646CFF?logo=vite)](https://vitejs.dev/)
@@ -17,9 +15,7 @@
 
 ## 📋 项目简介
 
-**Opclaw** 是一款面向 **OPC 超级个体**（One Person Company）的现代化全栈 Web 应用，基于 **React 19 + TypeScript + Vite 7** 构建，完美适配 PC 与移动端。
-
-项目融合 **个人主页（简历）**、**学习空间（知识库/RAG 问答）**、**工作助手（电商/新媒体/百宝箱）**、**生活记录（朋友圈/旅行/恋爱记录等 7+ 功能）**、**AI 数字人分身** 于一体，支持 **5 种主题** 一键切换，致力于打造高颜值、可扩展的个人数字宇宙——实现 **个人 IP 展示 + 数字资产管理 + AI 数字人分身赋能** 的一站式解决方案。
+**Opclaw** 是一款面向 **OPC 超级个体**（One Person Company）的现代化全栈 Web 应用，基于 **React 19 + TypeScript + Vite 7** 构建，完美适配 PC 与移动端。项目融合 **个人主页（简历）**、**学习空间（知识库/RAG 问答）**、**工作助手（电商/新媒体/百宝箱）**、**生活记录（朋友圈/旅行/恋爱记录等 7+ 功能）**、**AI 数字人分身** 于一体，支持 **5 种主题** 一键切换，致力于打造高颜值、可扩展的个人数字宇宙——实现 **个人 IP 展示 + 数字资产管理 + AI 数字人分身赋能** 的一站式解决方案。
 
 ### ✨ 核心亮点
 
@@ -78,14 +74,6 @@
 | [echarts-for-react](https://github.com/hustcc/echarts-for-react) | 3.0.6 | ECharts React 封装组件 |
 | [Tiptap](https://tiptap.dev/) | 3.20.0 | 富文本编辑器（图片/链接/占位符扩展） |
 | [html2canvas](https://html2canvas.hertzen.com/) | 1.4.1 | DOM 截图，用于数字名片图片生成 |
-
-
-### 🔧 辅助工具
-
-| 技术 | 用途 |
-|---|---|
-| [class-variance-authority](https://cva.style/) | 组件变体样式管理 |
-| [clsx](https://github.com/lukeed/clsx) + [tailwind-merge](https://github.com/dcastil/tailwind-merge) | 条件样式合并 + Tailwind 类去重 |
 
 ---
 

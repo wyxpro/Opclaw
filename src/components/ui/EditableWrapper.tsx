@@ -27,6 +27,7 @@ export function EditableWrapper({
 }: EditableWrapperProps) {
   const { themeConfig } = useTheme()
   const [isEditing, setIsEditing] = useState(false)
+  const openTimeRef = useRef(0)
   const [tempValue, setTempValue] = useState(value)
   const [isHovered, setIsHovered] = useState(false)
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
@@ -34,6 +35,12 @@ export function EditableWrapper({
   const wrapperRef = useRef<HTMLDivElement>(null)
 
   const [coords, setCoords] = useState<{ x: number; y: number } | null>(null)
+
+  useEffect(() => {
+    if (isEditing) {
+      openTimeRef.current = Date.now()
+    }
+  }, [isEditing])
 
   useEffect(() => {
     setTempValue(value)
@@ -104,20 +111,35 @@ export function EditableWrapper({
     <div 
       ref={wrapperRef}
       className={`relative group ${className} ${isEditing ? 'z-[9999]' : ''}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onPointerEnter={() => setIsHovered(true)}
+      onPointerLeave={() => setIsHovered(false)}
+      onClick={(e) => {
+        if (!isEditing) {
+          // 对于图片类型，不需要 preventDefault，否则可能导致某些浏览器无法触发文件选择
+          if (type !== 'image') {
+            e.preventDefault();
+          }
+          e.stopPropagation();
+          if (type === 'image') {
+            fileInputRef.current?.click()
+          } else {
+            setIsEditing(true)
+          }
+        }
+      }}
     >
       {/* 原始内容 */}
-      <div className={`${isEditing ? 'opacity-30 blur-sm' : 'group-hover:opacity-60 transition-all cursor-pointer'} transition-all duration-300`}>
+      <div className={`${isEditing ? 'opacity-30 blur-sm' : (isHovered ? 'opacity-60' : '')} transition-all cursor-pointer duration-300`}>
         {children}
       </div>
 
-      {/* 悬浮编辑图标 (移动端点击直接触发) */}
+      {/* 悬浮编辑图标 (支持移动端点击显示/电脑端悬停显示) */}
       {!isEditing && (
         <motion.button
           initial={{ opacity: 0 }}
-          animate={{ opacity: (isHovered || isEditing || 'ontouchstart' in window) ? 1 : 0 }}
-          onPointerDown={(e) => {
+          animate={{ opacity: isHovered ? 1 : 0 }}
+          onPointerDown={(e) => e.stopPropagation()} // 仅阻止 pointer 事件，真正逻辑在 onClick
+          onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             if (type === 'image') {
@@ -156,7 +178,8 @@ export function EditableWrapper({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 pointer-events-auto"
-                onPointerDown={(e) => {
+                onClick={(e) => {
+                  if (Date.now() - openTimeRef.current < 400) return;
                   e.stopPropagation();
                   handleCancel();
                 }}
@@ -167,7 +190,7 @@ export function EditableWrapper({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 10 }}
                 className="absolute flex flex-col items-center justify-center p-4 rounded-2xl shadow-2xl border pointer-events-auto"
-                onPointerDown={(e) => e.stopPropagation()} // 阻止在弹窗内点击触发关闭
+                onClick={(e) => e.stopPropagation()} // 阻止在弹窗内点击触发关闭
                 style={{ 
                   left: coords.x,
                   top: coords.y,
@@ -258,7 +281,7 @@ export function EditableWrapper({
               >
                 <button
                   type="button"
-                  onPointerDown={(e) => {
+                  onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     handleSave();
@@ -274,7 +297,7 @@ export function EditableWrapper({
                 </button>
                 <button
                   type="button"
-                  onPointerDown={(e) => {
+                  onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     handleCancel();
