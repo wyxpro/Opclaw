@@ -324,21 +324,27 @@ export function HeroSection({ profile, showResume = false, onToggleResume, onOpe
   return (
     <section
       ref={containerRef}
-      className="relative min-h-screen flex items-start justify-center overflow-hidden"
+      className="relative min-h-screen flex items-start justify-center overflow-hidden print:overflow-visible"
       style={{ background: themeConfig.colors.bg, paddingTop: '80px' }}
     >
       {/* 动态网格背景 */}
-      <AnimatedGrid color={themeConfig.colors.text} />
+      <div className="no-print">
+        <AnimatedGrid color={themeConfig.colors.text} />
+      </div>
 
       {/* 发光球体背景 */}
-      <GlowingOrbs colors={{ primary: themeConfig.colors.primary, accent: themeConfig.colors.accent }} />
+      <div className="no-print">
+        <GlowingOrbs colors={{ primary: themeConfig.colors.primary, accent: themeConfig.colors.accent }} />
+      </div>
 
       {/* 浮动粒子效果 */}
-      <FloatingParticles colors={{ primary: themeConfig.colors.primary, accent: themeConfig.colors.accent }} />
+      <div className="no-print">
+        <FloatingParticles colors={{ primary: themeConfig.colors.primary, accent: themeConfig.colors.accent }} />
+      </div>
 
       {/* 顶部渐变光晕 */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 no-print"
         style={{
           background: `radial-gradient(ellipse at 50% 0%, ${themeConfig.colors.primary}12 0%, transparent 50%)`,
           y: backgroundY

@@ -603,6 +603,7 @@ export default function Learning() {
                 />
                 <AIChatSidebar
                   currentArticle={selectedArticle}
+                  allArticles={allArticles}
                   isOpen={true}
                   onToggle={() => {}}
                   width={aiSidebarWidth}
@@ -617,6 +618,7 @@ export default function Learning() {
         <div className="xl:hidden">
           <AIAssistant 
             currentArticle={selectedArticle}
+            allArticles={allArticles}
             isOpen={aiAssistantOpen}
             onToggle={() => setAiAssistantOpen(prev => !prev)}
           />
@@ -837,7 +839,7 @@ export default function Learning() {
           </div>
 
           {/* Right Sidebar - AI Chat (Desktop Only) */}
-          <aside className="hidden xl:flex flex-shrink-0 h-[calc(100vh-200px)] sticky top-24">
+          <aside className="hidden xl:flex flex-shrink-0 h-[calc(100vh-340px)] sticky top-24">
             {aiSidebarOpen && (
               <>
                 <ResizableDivider 

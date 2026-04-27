@@ -70,17 +70,17 @@ export interface ResumeData {
 
 export const defaultResumeData: ResumeData = {
   personalInfo: {
-    name: '刘宇阳',
-    title: '前端开发工程师',
-    age: 22,
-    location: '郑州',
-    phone: '1778811xxxx',
-    email: 'liuyuyang1024@yeah.net',
-    github: 'github.com',
-    avatar: ''
+    name: '晓叶',
+    title: 'AI大模型/Agent工程师',
+    age: 23,
+    location: '杭州',
+    phone: '18323765634',
+    email: 'wyxcide@qq.com',
+    github: 'https://github.com/wyxpro/',
+    avatar: '男',
   },
   advantages: [
-    { id: '1', content: '上海市第十五届计算机应用能力大赛 三等奖、创新项目奖' },
+    { id: '1', content: '杭州市第十五届计算机应用能力大赛 三等奖、创新项目奖' },
     { id: '2', content: 'GitHub 开源项目作者（ThriveX CMS 建站系统）Star 900+' },
     { id: '3', content: 'ThriveX CMS 建站系统 计算机软件著作权（申请中）' },
     { id: '4', content: '具备项目从 0 到 1 部署上线的经验' },
@@ -123,7 +123,7 @@ export const defaultResumeData: ResumeData = {
   workExperiences: [
     {
       id: '1',
-      company: '宁波 XXXX 数字科技有限公司',
+      company: '杭州 XXXX 数字科技有限公司',
       position: '前端负责人',
       startDate: '2024-07',
       endDate: '',
@@ -136,7 +136,7 @@ export const defaultResumeData: ResumeData = {
     {
       id: '2',
       company: '成都 XX 科技有限公司',
-      position: '前端开发工程师',
+      position: 'AI大模型/Agent工程师',
       startDate: '2024-05',
       endDate: '2024-06',
       isCurrent: false,
@@ -168,7 +168,7 @@ export const defaultResumeData: ResumeData = {
     {
       id: '2',
       name: '点点易付（DianDianPay）',
-      role: '前端开发工程师',
+      role: 'AI大模型/Agent工程师',
       startDate: '2024-12',
       endDate: '',
       isCurrent: true,
@@ -185,7 +185,7 @@ export const defaultResumeData: ResumeData = {
     {
       id: '3',
       name: 'Shopify 跨境电商结账页',
-      role: '前端开发工程师',
+      role: 'AI大模型/Agent工程师',
       startDate: '2024-07',
       endDate: '2024-09',
       isCurrent: false,

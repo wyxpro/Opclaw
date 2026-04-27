@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
 import { Bot, User } from 'lucide-react'
 import type { ThemeConfig } from '../../lib/themes'
-import type { Message } from './AIAssistant'
+import type { Message } from './types'
+import { aiService } from '../../services/aiService'
+import { personalInfo } from '../../data/mock'
 
 interface ChatMessageListProps {
   messages: Message[]
@@ -151,17 +153,26 @@ function MessageItem({ message, themeConfig, index }: { message: Message; themeC
     >
       {/* Avatar */}
       <div 
-        className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
+        className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden border"
         style={{ 
           background: message.role === 'user' 
-            ? themeConfig.colors.primary 
-            : themeConfig.colors.primaryMuted
+            ? themeConfig.colors.primaryMuted
+            : themeConfig.colors.surface,
+          borderColor: themeConfig.colors.primary
         }}
       >
         {message.role === 'user' ? (
-          <User size={14} className="text-white sm:w-4 sm:h-4" />
+          <img 
+            src={personalInfo.avatar} 
+            alt="Me" 
+            className="w-full h-full object-cover"
+          />
         ) : (
-          <Bot size={14} style={{ color: themeConfig.colors.primary }} className="sm:w-4 sm:h-4" />
+          <img 
+            src={aiService.getAvatar()} 
+            alt="AI" 
+            className="w-full h-full object-cover"
+          />
         )}
       </div>
 
@@ -232,7 +243,31 @@ function MessageItem({ message, themeConfig, index }: { message: Message; themeC
           
           {/* Text Content */}
           <div className="leading-relaxed whitespace-pre-wrap text-[13px] sm:text-sm">
-            {formatContent(message.content)}
+            {message.content === '' && message.role === 'assistant' ? (
+              <div className="flex gap-1 py-1">
+                <motion.span
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
+                  className="text-primary font-bold"
+                >
+                  .
+                </motion.span>
+                <motion.span
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+                  className="text-primary font-bold"
+                >
+                  .
+                </motion.span>
+                <motion.span
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+                  className="text-primary font-bold"
+                >
+                  .
+                </motion.span>
+              </div>
+            ) : formatContent(message.content)}
           </div>
         </div>
       </div>

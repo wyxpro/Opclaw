@@ -400,33 +400,120 @@ input[type="password"]:focus {
 
 /* 打印样式 - 用于PDF导出 */
 @media print {
-  /* 隐藏不必要的元素 */
+  /* 基础页面设置 */
+  @page {
+    margin: 1.5cm;
+    size: auto;
+  }
+
+  /* 隐藏所有界面交互元素、导航、悬浮球和页脚 */
   nav,
+  header,
+  footer,
   button,
   .no-print,
   .fixed,
-  [class*="fixed"] {
+  [class*="fixed"],
+  .edit-portal,
+  .bubble-menu {
     display: none !important;
   }
 
-  /* 优化打印布局 */
-  body {
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-
-  section {
-    page-break-inside: avoid;
-  }
-
-  /* 确保背景色和边框打印 */
+  /* 强制显示所有由于动画隐藏的内容 */
   * {
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-
-  /* 移除阴影以提升打印效果 */
-  * {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
     box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 重置基础布局 */
+  html, body {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 处理全屏高度问题，确保内容不被截断 */
+  section, 
+  div[class*="min-h-screen"],
+  div[class*="h-screen"],
+  main,
+  #root,
+  .flex-1 {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    display: block !important;
+    position: static !important;
+  }
+
+  /* 页面内元素的分页控制 */
+  section {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+    margin-bottom: 2rem !important;
+  }
+
+  /* 内容块尽量不被分页截断 */
+  .glass-card, 
+  .rounded-2xl,
+  .p-6,
+  article {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* 标题和间距优化 */
+  h1, h2, h3 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    color: #1a1a1a !important;
+    margin-top: 1.5rem !important;
+  }
+
+  /* 文本颜色强制修复，确保黑色文字 */
+  p, span, div, li, td, th {
+    color: #111827 !important;
+    background: transparent !important;
+  }
+
+  /* 隐藏背景装饰元素以节省墨水并防止遮挡文字 */
+  canvas,
+  svg:not(.lucide),
+  .particles-container,
+  [class*="Particles"],
+  [class*="Grid"],
+  [class*="Orb"] {
+    display: none !important;
+  }
+
+  /* 优化各个板块的打印表现 */
+  .container,
+  .max-w-6xl,
+  .max-w-5xl {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 针对首页特殊元素的修复 */
+  #main-content,
+  .overflow-y-auto,
+  .overflow-x-hidden {
+    overflow: visible !important;
+    height: auto !important;
   }
 }

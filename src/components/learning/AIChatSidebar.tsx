@@ -4,22 +4,14 @@ import { Bot, X } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { ChatInput } from './ChatInput'
 import { ChatMessageList } from './ChatMessageList'
-import type { ArticleWithMeta } from './types'
+import type { ArticleWithMeta, Message } from './types'
+import { aiService, type ChatMessage } from '../../services/aiService'
 
-export interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: number
-  attachments?: {
-    type: 'image' | 'file'
-    url: string
-    name: string
-  }[]
-}
+// Interface moved to ./types
 
 interface AIChatSidebarProps {
   currentArticle: ArticleWithMeta | null
+  allArticles?: ArticleWithMeta[]
   isOpen: boolean
   onToggle: () => void
   width: number
@@ -28,7 +20,7 @@ interface AIChatSidebarProps {
 
 const STORAGE_KEY = 'ai-chat-sidebar-messages'
 
-export function AIChatSidebar({ currentArticle, isOpen, onToggle, width, height }: AIChatSidebarProps) {
+export function AIChatSidebar({ currentArticle, allArticles = [], isOpen, onToggle, width, height }: AIChatSidebarProps) {
   const { themeConfig } = useTheme()
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -134,56 +126,42 @@ export function AIChatSidebar({ currentArticle, isOpen, onToggle, width, height 
     
     setMessages(prev => [...prev, userMessage])
     setIsLoading(true)
-    
-    // Simulate AI response with RAG context
-    setTimeout(() => {
-      const response = generateRAGResponse(content, currentArticle)
-      const assistantMessage: Message = {
-        id: `assistant-${Date.now()}`,
-        role: 'assistant',
-        content: response,
-        timestamp: Date.now()
-      }
-      setMessages(prev => [...prev, assistantMessage])
-      setIsLoading(false)
-    }, 1500)
-  }
 
-  const generateRAGResponse = (query: string, article: ArticleWithMeta | null): string => {
-    if (!article) {
-      return '请先选择一篇文章，我才能基于文章内容为你提供帮助。'
+    // Prepare message for streaming
+    const assistantMessageId = `assistant-${Date.now()}`
+    const assistantMessage: Message = {
+      id: assistantMessageId,
+      role: 'assistant',
+      content: '',
+      timestamp: Date.now()
     }
+    setMessages(prev => [...prev, assistantMessage])
+
+    // Find context for RAG
+    const context = aiService.findRelevantContext(content, allArticles, currentArticle)
     
-    // Simple keyword matching for demo
-    const queryLower = query.toLowerCase()
+    // Prepare history for AI
+    const apiMessages: ChatMessage[] = [
+      { role: 'system', content: aiService.getSystemPrompt(context) },
+      ...messages.slice(-6).map(m => ({ 
+        role: m.role as 'user' | 'assistant', 
+        content: m.content 
+      })),
+      { role: 'user', content }
+    ]
+
+    let fullResponse = ''
     
-    if (queryLower.includes('总结') || queryLower.includes('概括')) {
-      return `《${article.title}》的主要内容包括：
+    await aiService.streamChat(apiMessages, (chunk) => {
+      fullResponse += chunk
+      setMessages(prev => prev.map(msg => 
+        msg.id === assistantMessageId 
+          ? { ...msg, content: fullResponse }
+          : msg
+      ))
+    })
 
-${article.excerpt}
-
-文章详细探讨了相关技术的核心概念和实践方法，适合${article.readTime}左右的阅读时间。`
-    }
-    
-    if (queryLower.includes('重点') || queryLower.includes('关键')) {
-      const headings = article.content.match(/##\s+(.+)/g) || []
-      if (headings.length > 0) {
-        const headingList = headings.map((h: string) => `• ${h.replace('## ', '')}`).join('\n')
-        return `文章的重点内容包括：
-
-${headingList}
-
-这些内容涵盖了该主题的核心知识点。`
-      }
-    }
-    
-    // Generic contextual response
-    const tags = article.tags.join('、')
-    return `关于《${article.title}》，我可以告诉你：
-
-这是一篇关于${article.seriesName}的文章，属于${article.categoryName}分类。文章标签包括：${tags}。
-
-你可以问我关于文章的具体内容、技术细节或者要求我解释某个概念。`
+    setIsLoading(false)
   }
 
   const clearMessages = () => {
@@ -216,13 +194,7 @@ ${headingList}
         }}
       >
         <div className="flex items-center gap-2">
-          <div 
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: themeConfig.colors.primaryMuted }}
-          >
-            <Bot size={18} style={{ color: themeConfig.colors.primary }} />
-          </div>
-          <div>
+          <div className="flex flex-col">
             <h3 
               className="text-sm font-semibold"
               style={{ color: themeConfig.colors.text }}
@@ -302,43 +274,7 @@ ${headingList}
           parentRef={messagesEndRef}
         />
         
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-2"
-          >
-            <div 
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: themeConfig.colors.primaryMuted }}
-            >
-              <Bot size={16} style={{ color: themeConfig.colors.primary }} />
-            </div>
-            <div className="flex gap-1">
-              <motion.span
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
-                style={{ color: themeConfig.colors.textMuted }}
-              >
-                .
-              </motion.span>
-              <motion.span
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                style={{ color: themeConfig.colors.textMuted }}
-              >
-                .
-              </motion.span>
-              <motion.span
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
-                style={{ color: themeConfig.colors.textMuted }}
-              >
-                .
-              </motion.span>
-            </div>
-          </motion.div>
-        )}
+        {/* ChatMessageList now handles dots when content is empty */}
         <div ref={scrollBottomRef} />
       </div>
 
