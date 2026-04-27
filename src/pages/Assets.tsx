@@ -8,6 +8,7 @@ import {
 import PageTransition from '../components/ui/PageTransition'
 import { useTheme } from '../hooks/useTheme'
 import WorkAssistant from '../components/work/WorkAssistant'
+import musicBoxCover from '../assets/music_box_cover.png'
 
 // 学习类卡片数据 - 对应学习页面的子菜单
 const learningCards = [
@@ -73,7 +74,7 @@ const lifeCards = [
     color: 'from-cyan-500/70 to-blue-700/70',
     icon: Music,
     tag: '音乐',
-    bgImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80',
+    bgImage: musicBoxCover,
   },
   {
     id: 'movies',

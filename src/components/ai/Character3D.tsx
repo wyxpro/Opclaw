@@ -191,10 +191,10 @@ export function Character3D({
       )}
 
       {!customMedia && style !== 'hidden' && (
-        <div className={`absolute inset-0 flex items-center justify-center p-4 ${isMobileVoiceUI ? '-top-44 h-full' : ''}`}>
+        <div className={`absolute inset-0 flex items-center justify-center p-4 ${isMobileVoiceUI ? '-top-38 h-full' : ''}`}>
           {style === 'realistic' ? (
             <motion.div
-              className="relative w-40 h-60 md:w-60 md:h-[22rem] lg:w-64 lg:h-[26rem] rounded-[40px] md:rounded-[48px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] border-4 border-white/10 md:-mt-36 lg:-mt-40"
+              className="relative w-40 h-60 md:w-60 md:h-[22rem] lg:w-64 lg:h-[26rem] rounded-[40px] md:rounded-[48px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] border-4 border-white/10 md:-mt-30 lg:-mt-34"
               animate={{
                 y: bodyAnimation.breathing ? [0, -10, 0] : 0,
                 ...getExpressionAnimation()
@@ -228,7 +228,7 @@ export function Character3D({
             </motion.div>
           ) : (
             <motion.div
-              className="relative w-36 h-52 md:w-48 md:h-72 lg:w-56 lg:h-84 rounded-3xl md:-mt-36 lg:-mt-40"
+              className="relative w-36 h-52 md:w-48 md:h-72 lg:w-56 lg:h-84 rounded-3xl md:-mt-30 lg:-mt-34"
               style={getCharacterStyle()}
               animate={{
                 y: bodyAnimation.breathing ? [0, -8, 0] : 0,
