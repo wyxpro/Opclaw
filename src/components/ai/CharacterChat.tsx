@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mic, Phone, Keyboard, Smile, Image as ImageIcon, PhoneCall, SendHorizontal, X } from 'lucide-react'
+import { VoiceWaveAnimation } from './VoiceWaveAnimation'
 import { StreamingText } from './StreamingText'
 import type { Message } from './types'
 import { sttService } from '../../services/sttService'
@@ -27,7 +28,7 @@ export function CharacterChat({ messages, isLoading, themeConfig, customAvatar, 
   const emojis = [
     '😊', '😂', '😍', '🤔', '😎', '🙌', '🔥', '✨', '❤️', '👍', '🎉', '🌟', 
     '🤖', '💡', '🎵', '📸', '🎨', '🚀', '☕', '🌈', '🍦', '🎮', '📱', '📚',
-    '🍕', '🍔', ' popcorn', '⚽', '🎸', '🚲', '✈️', '🏠', '🐶', '🐱', '🌸', '🌓',
+    '🍕', '🍔', '🍿', '⚽', '🎸', '🚲', '✈️', '🏠', '🐶', '🐱', '🌸', '🌓',
     '🌍', '🍎', '🎁', '💎', '✉️', '🔨', '🔑', '⏰', '💪', '🍀', '🍬', '🥂'
   ]
   
@@ -199,14 +200,6 @@ export function CharacterChat({ messages, isLoading, themeConfig, customAvatar, 
             >
               {/* 工具栏 */}
               <div className="flex items-center gap-5 px-1 relative">
-                {/* 语音通话按钮 (移动到表情左边紧靠) */}
-                <button 
-                  onClick={() => setChatMode('call')}
-                  className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg transition-all active:scale-95 hover:bg-emerald-600"
-                >
-                  <PhoneCall size={20} strokeWidth={2.5} />
-                </button>
-
                 {/* 表情按钮 */}
                 <button 
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -248,48 +241,26 @@ export function CharacterChat({ messages, isLoading, themeConfig, customAvatar, 
                 </AnimatePresence>
               </div>
 
-              {/* 输入框区域 */}
+              {/* 输入框区域 - 语音通话按钮移至此处 */}
               <div className="flex items-center gap-3">
-                {/* 模式切换按钮 */}
+                {/* 语音通话按钮 (Emerald Color) */}
                 <button 
-                  onClick={() => setInputMode(inputMode === 'keyboard' ? 'voice' : 'keyboard')}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-all active:scale-90 shadow-xl border-2 ${
-                    inputMode === 'voice' 
-                      ? 'bg-amber-500 border-amber-600 text-white' 
-                      : 'bg-white border-gray-100 text-purple-600 hover:bg-gray-50'
-                  }`}
+                  onClick={() => setChatMode('call')}
+                  className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-xl transition-all active:scale-90 hover:bg-emerald-600 border-2 border-emerald-400/20 shrink-0"
                 >
-                  {inputMode === 'keyboard' ? <Mic size={24} /> : <Keyboard size={24} />}
+                  <PhoneCall size={24} strokeWidth={2.5} />
                 </button>
 
-                {/* 主输入框/按住说话 */}
+                {/* 主输入框 */}
                 <div className="flex-1 relative">
-                  {inputMode === 'keyboard' ? (
-                    <input
-                      type="text"
-                      value={userInput}
-                      onChange={(e) => setUserInput(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="想聊点什么..."
-                      className="w-full bg-white border-2 border-gray-100 rounded-full px-7 py-3.5 text-[16px] text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-lg font-medium"
-                    />
-                  ) : (
-                    <motion.button
-                      onMouseDown={handlePressStart}
-                      onMouseUp={handlePressEnd}
-                      onMouseLeave={() => {
-                        if (isPressing) handlePressEnd()
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`w-full rounded-full py-3.5 text-[16px] font-bold transition-all shadow-xl border-2 ${
-                        isPressing 
-                          ? 'bg-blue-600 border-blue-700 text-white animate-pulse' 
-                          : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      {isPressing ? '聆听中...' : '按住 说话'}
-                    </motion.button>
-                  )}
+                  <input
+                    type="text"
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="想聊点什么..."
+                    className="w-full bg-white border-2 border-gray-100 rounded-full px-7 py-3.5 text-[16px] text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-lg font-medium"
+                  />
                 </div>
 
                 {/* 发送按钮 (背景改为蓝色) */}
@@ -310,11 +281,10 @@ export function CharacterChat({ messages, isLoading, themeConfig, customAvatar, 
             <motion.div 
               key="call-mode"
               initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: 1, scale: 1, y: 72 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="flex flex-col items-center gap-8 pb-4"
+              className="flex flex-col items-center gap-10 pb-4"
             >
-              {/* 原有的语音通话 UI */}
               <div className="flex items-center justify-center gap-24 w-full">
                 {/* 麦克风按钮 */}
                 <motion.button
@@ -327,32 +297,19 @@ export function CharacterChat({ messages, isLoading, themeConfig, customAvatar, 
                   }`}
                 >
                   {isListening && (
-                    <>
-                      {[
-                        { color: 'rgba(34, 211, 238, 0.4)', delay: 0 },
-                        { color: 'rgba(99, 102, 241, 0.3)', delay: 0.5 },
-                        { color: 'rgba(139, 92, 246, 0.2)', delay: 1.0 }
-                      ].map((config, i) => (
+                    <div className="absolute inset-0">
+                      {[0, 0.5, 1].map((delay, i) => (
                         <motion.div
                           key={i}
                           initial={{ scale: 1, opacity: 0.8 }}
                           animate={{ scale: 2.2, opacity: 0 }}
-                          transition={{ 
-                            duration: 2, 
-                            repeat: Infinity, 
-                            delay: config.delay,
-                            ease: "easeOut"
-                          }}
-                          style={{ border: `2px solid ${config.color}` }}
-                          className="absolute inset-0 rounded-full pointer-events-none"
+                          transition={{ duration: 2, repeat: Infinity, delay, ease: "easeOut" }}
+                          className="absolute inset-0 rounded-full border-2 border-cyan-400/30"
                         />
                       ))}
-                    </>
+                    </div>
                   )}
-                  
-                  <div className="relative z-10 pointer-events-none">
-                    <Mic className="text-white" size={32} />
-                  </div>
+                  <Mic className="text-white relative z-10" size={32} />
                 </motion.button>
 
                 {/* 挂断按钮 */}
@@ -364,18 +321,20 @@ export function CharacterChat({ messages, isLoading, themeConfig, customAvatar, 
                   }}
                   className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.4)] border-2 border-white/20"
                 >
-                  <Phone className="text-white rotate-[135deg]" size={32} pointer-events-none />
+                  <Phone className="text-white rotate-[135deg]" size={32} />
                 </motion.button>
               </div>
 
-              {/* 切回文字聊天按钮 */}
-              <button 
+              {/* 语音输入的波浪动态显示代替原来的返回按钮 */}
+              <div 
                 onClick={() => setChatMode('text')}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all text-sm"
+                className="flex flex-col items-center gap-4 cursor-pointer group pb-4 pointer-events-auto"
               >
-                <Keyboard size={16} />
-                <span>文字对话模式</span>
-              </button>
+                <VoiceWaveAnimation isListening={isListening} />
+                <span className="text-white/40 text-[11px] font-medium tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">
+                  点击波纹返回文字模式
+                </span>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

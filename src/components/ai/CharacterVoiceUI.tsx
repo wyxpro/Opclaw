@@ -281,33 +281,25 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
               exit={{ opacity: 0, y: 20 }}
               className="flex flex-col gap-3"
             >
-              {/* 工具栏 */}
-              <div className="flex items-center gap-5 px-1 relative">
-                {/* 语音通话按钮 (移动到表情左边紧靠) */}
-                <button 
-                  onClick={() => setChatMode('call')}
-                  className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg transition-all active:scale-95 hover:bg-emerald-600 hover:shadow-emerald-500/20"
-                >
-                  <PhoneCall size={20} strokeWidth={2.5} />
-                </button>
-
-                {/* 表情按钮 */}
-                <button 
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  className={`hover:scale-110 transition-all duration-300 ${showEmojiPicker ? 'text-purple-600' : 'text-purple-500'}`}
-                >
-                  <Smile size={30} strokeWidth={2.5} />
-                </button>
-
-                {/* 图片按钮 */}
-                <button 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-indigo-500 hover:text-indigo-600 hover:scale-110 transition-all duration-300 ml-1"
-                >
-                  <ImageIcon size={30} strokeWidth={2.5} />
-                </button>
-
-                {/* 表情面板 */}
+                {/* Toolbar now only has Emoji and Image */}
+                <div className="flex items-center gap-5 px-1 relative">
+                  {/* 表情按钮 */}
+                  <button 
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    className={`hover:scale-110 transition-all duration-300 ${showEmojiPicker ? 'text-purple-600' : 'text-purple-500'}`}
+                  >
+                    <Smile size={30} strokeWidth={2.5} />
+                  </button>
+  
+                  {/* 图片按钮 */}
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-indigo-500 hover:text-indigo-600 hover:scale-110 transition-all duration-300 ml-1"
+                  >
+                    <ImageIcon size={30} strokeWidth={2.5} />
+                  </button>
+  
+                  {/* 表情面板 */}
                 <AnimatePresence>
                   {showEmojiPicker && (
                     <motion.div
@@ -335,23 +327,18 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                 </AnimatePresence>
               </div>
 
-              {/* 输入框区域 */}
-              <div className="flex items-center gap-3">
-                {/* 模式切换按钮 */}
-                <button 
-                  onClick={() => setInputMode(inputMode === 'keyboard' ? 'voice' : 'keyboard')}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-all active:scale-90 shadow-xl border-2 ${
-                    inputMode === 'voice' 
-                      ? 'bg-amber-500 border-amber-600 text-white' 
-                      : 'bg-white border-gray-100 text-purple-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {inputMode === 'keyboard' ? <Mic size={24} /> : <Keyboard size={24} />}
-                </button>
-
-                {/* 主输入框/按住说话 */}
-                <div className="flex-1">
-                  {inputMode === 'keyboard' ? (
+                {/* 输入框区域 - 语音通话按钮移至此处 */}
+                <div className="flex items-center gap-3">
+                  {/* 语音通话按钮 (Emerald Color) */}
+                  <button 
+                    onClick={() => setChatMode('call')}
+                    className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-xl transition-all active:scale-90 hover:bg-emerald-600 border-2 border-emerald-400/20 shrink-0"
+                  >
+                    <PhoneCall size={24} strokeWidth={2.5} />
+                  </button>
+  
+                  {/* 主输入框 */}
+                  <div className="flex-1">
                     <div className="relative">
                       <input
                         type="text"
@@ -362,29 +349,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                         className="w-full bg-white border-2 border-gray-100 rounded-full px-6 py-3.5 text-[15px] text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-lg font-medium"
                       />
                     </div>
-                  ) : (
-                    <motion.button
-                      onMouseDown={handlePressStart}
-                      onMouseUp={handlePressEnd}
-                      onTouchStart={(e) => {
-                        e.preventDefault() // 防止长按弹出菜单
-                        handlePressStart()
-                      }}
-                      onTouchEnd={(e) => {
-                        e.preventDefault()
-                        handlePressEnd()
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`w-full rounded-full py-3.5 text-[15px] font-bold transition-all shadow-xl border-2 ${
-                        isPressing 
-                          ? 'bg-blue-600 border-blue-700 text-white animate-pulse' 
-                          : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      {isPressing ? '聆听中...' : '按住 说话'}
-                    </motion.button>
-                  )}
-                </div>
+                  </div>
 
                 {/* 发送按钮 (背景改为蓝色) */}
                 <button 
@@ -404,9 +369,9 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
             <motion.div 
               key="call-mode"
               initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: 1, scale: 1, y: 72 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="flex flex-col items-center gap-12"
+              className="flex flex-col items-center gap-10 pb-8"
             >
               <div className="flex items-center justify-center gap-20 w-full">
                 {/* 麦克风按钮 */}
@@ -448,15 +413,17 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                 </motion.button>
               </div>
 
-              {/* 切换模式按钮 */}
-              <button 
-                onClick={() => setChatMode('text')}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 border border-white/20 text-white/80 backdrop-blur-lg text-[13px] font-medium"
-              >
-                <Keyboard size={16} />
-                <span>返回文字聊天</span>
-              </button>
-            </motion.div>
+                {/* 语音输入的波浪动态显示代替原来的返回按钮 */}
+                <div 
+                  onClick={() => setChatMode('text')}
+                  className="flex flex-col items-center gap-4 cursor-pointer group"
+                >
+                  <VoiceWaveAnimation isListening={isListening} />
+                  <span className="text-white/40 text-[11px] font-medium tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">
+                    点击波纹返回文字模式
+                  </span>
+                </div>
+              </motion.div>
           )}
         </AnimatePresence>
       </div>
