@@ -1,94 +1,60 @@
 import { getSupabaseClient } from '../lib/supabase'
-import type { ArticleWithMeta } from '../components/learning/types'
+import { ragEngine } from '../lib/ragEngine'
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
   content: string
 }
 
-const AI_AVATAR_URL = 'https://img0.baidu.com/it/u=234561400,973736250&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500'
-
 /**
- * AI Service to handle RAG and Chat logic
+ * AI Service to handle RAG and Chat logic using MiniMax-M2.5
  */
 export const aiService = {
-  getAvatar: () => AI_AVATAR_URL,
-
   /**
-   * Find relevant context for RAG
+   * Find relevant context for RAG using the centralized engine
    */
-  findRelevantContext: (query: string, articles: ArticleWithMeta[], currentArticle: ArticleWithMeta | null) => {
-    let context = ''
-    
-    // 1. If there's a current article, prioritize it
-    if (currentArticle) {
-       context += `当前文章标题：${currentArticle.title}\n内容详情：${currentArticle.content}\n\n`
-    }
-
-    // 2. Simple keyword matching with other articles to provide broader context
-    const queryKeywords = query.toLowerCase().split(/\s+/)
-    const relatedArticles = articles
-      .filter(a => a.id !== currentArticle?.id)
-      .filter(a => {
-        const text = (a.title + a.excerpt + a.tags.join(' ')).toLowerCase()
-        return queryKeywords.some(kw => kw.length > 1 && text.includes(kw))
-      })
-      .slice(0, 2) // Limit to 2 additional relevant articles
-
-    if (relatedArticles.length > 0) {
-      context += '相关背景资料：\n'
-      relatedArticles.forEach(a => {
-        context += `- 《${a.title}》: ${a.excerpt}\n`
-      })
-    }
-
-    return context
+  findRelevantContext: (query: string) => {
+    const context = ragEngine.search(query)
+    const userProfile = ragEngine.getUserProfileContext()
+    return `用户信息：\n${userProfile}\n\n检索到的相关知识/记录：\n${context || '（未找到直接相关的个人资产）'}`
   },
 
   /**
-   * Generate system prompt with empathy and formatting rules
+   * Generate system prompt with empathy and specific formatting rules
    */
   getSystemPrompt: (context: string) => {
-    return `你是一个专业的AI学习助手，集成在学习空间中。
-你的目标是帮助用户学习和理解文档内容。
+    return `你是一个亲切、自然且富有共情感的AI分身助手。你拥有用户的完整知识库、生活记录和工作资料。
 
-核心任务：
-1. 基于以下提供的背景知识（RAG）回答用户问题：
-${context || '（目前没有特定背景资料，请根据通用知识库回答）'}
+你的目标是基于提供的背景知识，像用户的"数字双胞胎"一样进行对话。
 
-对话要求：
-- 保持自然、友好、专业且充满共情的语调。
-- 对用户的学习进度和困惑表示理解和鼓励。
-- 回复内容必须准确、简洁、有条理。
+核心规则：
+1. **内容检索(RAG)**：优先基于以下检索到的内容资产进行准确回答：
+${context}
 
-格式要求：
-- **每一条回复的开头必须包含一个适当的表情符号（如 🤖, ✨, 📚等）**。
-- **回复的结尾绝对不能添加任何表情符号**。
-- 使用 Markdown 格式美化你的回答。
+2. **对话风格**：
+   - 语调必须自然友好，像真正的朋友一样交流。
+   - 表达要真诚，具有高度共情能力，能够理解用户的感受。
+   - 回复内容要简洁、准确，避免啰嗦。
 
-如果你不知道答案，请诚实告知，不要胡编乱造。`
+3. **格式约束（极其重要）**：
+   - **每条回复的开头必须包含一个适当的emoji表情符号**（如 😊, 🚀, 📚, ❤️ 等）。
+   - **每条回复的结尾绝对不得添加任何表情符号**。
+   - 使用打字机效果进行输出，保持逻辑清晰。
+
+4. **安全与限制**：
+   - 如果检索内容中没有相关信息，可以基于常识回答，但要说明这是基于通用知识的建议。
+   - 严禁胡编乱造用户的个人信息或虚假记录。`
   },
 
   /**
-   * Call the AI API via Supabase Edge Function (Streaming)
+   * Call the MiniMax API (via ModelScope) with Streaming
    */
   async streamChat(messages: ChatMessage[], onChunk: (chunk: string) => void) {
-    const supabase = getSupabaseClient()
-    
     try {
-      // In a real production environment, you'd use:
-      // const { data, error } = await supabase.functions.invoke('chat', { body: { messages } })
-      
-      // For this implementation, since we need to handle streaming and the user might not have 
-      // Supabase Edge Functions set up locally, we'll implement a direct fetch to ModelScope 
-      // but instruct the user to use the Edge Function for security in production.
-      
-      // Check if we have an API key in the environment
       const apiKey = import.meta.env.VITE_MODEL_SCOPE_API_KEY
       
       if (!apiKey) {
-        // Fallback for demo if no key is provided
-        await this.simulateStreaming('⚠️ 抱歉，我检测到 API Key 尚未配置。请在 .env 文件中设置 VITE_MODEL_SCOPE_API_KEY 以开启真实的 AI 对话功能。\n\n当前我正处于模拟模式运行。', onChunk)
+        await this.simulateStreaming('⚠️ 抱歉，我检测到 API Key 尚未配置。请在 .env 文件中设置 VITE_MODEL_SCOPE_API_KEY 以开启真实的 AI 分身对话功能。', onChunk)
         return
       }
 
@@ -102,11 +68,13 @@ ${context || '（目前没有特定背景资料，请根据通用知识库回答
           model: 'MiniMax/MiniMax-M2.5',
           messages: messages,
           stream: true,
+          temperature: 0.7,
         }),
       })
 
       if (!response.ok) {
-        throw new Error(`API Error: ${response.statusText}`)
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(`API Error: ${response.status} ${JSON.stringify(errorData)}`)
       }
 
       const reader = response.body?.getReader()
@@ -124,22 +92,24 @@ ${context || '（目前没有特定背景资料，请根据通用知识库回答
         buffer = lines.pop() || ''
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const jsonStr = line.slice(6)
-            if (jsonStr === '[DONE]') continue
+          const trimmed = line.trim()
+          if (!trimmed || trimmed === 'data: [DONE]') continue
+          
+          if (trimmed.startsWith('data: ')) {
             try {
+              const jsonStr = trimmed.slice(6)
               const data = JSON.parse(jsonStr)
               const content = data.choices[0]?.delta?.content || ''
               if (content) onChunk(content)
             } catch (e) {
-              console.error('Error parsing JSON chunk', e)
+              // Ignore parse errors for partial chunks
             }
           }
         }
       }
     } catch (error: any) {
       console.error('Chat Error:', error)
-      onChunk(`❌ 对不起，连接 AI 服务时出现错误: ${error.message}`)
+      onChunk(`❌ 对不起，AI分身服务暂时不可用: ${error.message}`)
     }
   },
 
@@ -150,7 +120,7 @@ ${context || '（目前没有特定背景资料，请根据通用知识库回答
     const chars = Array.from(text)
     for (let i = 0; i < chars.length; i++) {
       onChunk(chars[i])
-      await new Promise(resolve => setTimeout(resolve, 30))
+      await new Promise(resolve => setTimeout(resolve, 20))
     }
   }
 }

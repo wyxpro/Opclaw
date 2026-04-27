@@ -12,6 +12,7 @@ import { CharacterVoiceUI } from '../components/ai/CharacterVoiceUI'
 import { HistoryDialog, type ChatSession } from '../components/ai/HistoryDialog'
 import { useTheme } from '../hooks/useTheme'
 import { ragEngine } from '../lib/ragEngine'
+import { aiService, type ChatMessage } from '../services/aiService'
 import { Upload, History, MoreHorizontal, Sparkles, Bot } from 'lucide-react'
 import { AvatarSelectionDialog } from '../components/ai/AvatarSelectionDialog'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
@@ -123,29 +124,53 @@ export default function AICharacter() {
     setMessages(prev => [...prev, userMessage])
     setIsLoading(true)
 
-    // 使用RAG引擎生成智能回复
-    setTimeout(() => {
-      const ragResponse = ragEngine.generateResponse(content)
-      const responseMessage: Message = {
-        id: `assistant-${Date.now()}`,
+    try {
+      // 1. 获取检索到的上下文
+      const context = aiService.findRelevantContext(content)
+      
+      // 2. 准备消息列表 (系统提示词 + 历史消息)
+      const chatMessages: ChatMessage[] = [
+        { role: 'system', content: aiService.getSystemPrompt(context) },
+        ...messages.map(m => ({ role: m.role as any, content: m.content })),
+        { role: 'user', content }
+      ]
+
+      // 3. 创建空的助手回复消息
+      const assistantMessageId = `assistant-${Date.now()}`
+      const newAssistantMessage: Message = {
+        id: assistantMessageId,
         role: 'assistant',
-        content: ragResponse,
+        content: '',
         timestamp: Date.now()
       }
-      setMessages(prev => [...prev, responseMessage])
+      setMessages(prev => [...prev, newAssistantMessage])
+
+      let fullContent = ''
+      
+      // 4. 调用流式接口
+      await aiService.streamChat(chatMessages, (chunk) => {
+        fullContent += chunk
+        setMessages(prev => prev.map(msg => 
+          msg.id === assistantMessageId ? { ...msg, content: fullContent } : msg
+        ))
+      })
+
       setIsLoading(false)
       
-      // 自动播放语音回复
-      if ('speechSynthesis' in window) {
-        setTimeout(() => {
-          const utterance = new SpeechSynthesisUtterance(ragResponse)
-          utterance.lang = 'zh-CN'
-          utterance.rate = 1.0
-          utterance.pitch = 1.0
-          speechSynthesis.speak(utterance)
-        }, 500)
+      // 5. 自动播放语音回复 (在流结束后)
+      if ('speechSynthesis' in window && fullContent) {
+        // 过滤掉开头的 emoji 以获得更好的语音效果
+        const textToSpeak = fullContent.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]+ /u, '')
+        const utterance = new SpeechSynthesisUtterance(textToSpeak)
+        utterance.lang = 'zh-CN'
+        utterance.rate = 1.0
+        utterance.pitch = 1.0
+        speechSynthesis.speak(utterance)
       }
-    }, 1500)
+    } catch (error) {
+      console.error('Failed to stream chat:', error)
+      setIsLoading(false)
+    }
   }
 
   // 保存当前对话到历史

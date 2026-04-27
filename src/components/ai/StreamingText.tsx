@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 interface StreamingTextProps {
   text: string
@@ -7,30 +7,54 @@ interface StreamingTextProps {
   onUpdate?: () => void
 }
 
+/**
+ * Enhanced StreamingText that supports real-time streaming input 
+ * without resetting when the text prop appends new content.
+ */
 export const StreamingText: React.FC<StreamingTextProps> = ({ 
   text, 
-  speed = 50, 
+  speed = 10, // Faster for real streaming
   onComplete,
   onUpdate
 }) => {
   const [displayedText, setDisplayedText] = useState('')
+  const indexRef = useRef(0)
+  const fullTextRef = useRef(text)
 
   useEffect(() => {
-    setDisplayedText('')
-    let index = 0
+    // If text is totally different (not just appending), reset
+    if (!text.startsWith(fullTextRef.current)) {
+      setDisplayedText('')
+      indexRef.current = 0
+    }
+    fullTextRef.current = text
+  }, [text])
+
+  useEffect(() => {
     const timer = setInterval(() => {
-      if (index < text.length) {
-        setDisplayedText(prev => prev + text.charAt(index))
-        index++
+      if (indexRef.current < fullTextRef.current.length) {
+        const nextChar = fullTextRef.current.charAt(indexRef.current)
+        setDisplayedText(prev => prev + nextChar)
+        indexRef.current++
         onUpdate?.()
-      } else {
-        clearInterval(timer)
-        onComplete?.()
+      } else if (onComplete && indexRef.current === fullTextRef.current.length && fullTextRef.current.length > 0) {
+        // Only call onComplete if we are not expecting more data soon? 
+        // This is tricky with real streaming.
+        // For now, let the component stay active.
       }
     }, speed)
 
     return () => clearInterval(timer)
-  }, [text, speed])
+  }, [speed, onUpdate])
+
+  // If the stream is much faster than the typing speed, we might lag behind.
+  // Catch up if the gap is too large
+  useEffect(() => {
+    if (fullTextRef.current.length - indexRef.current > 20) {
+      setDisplayedText(fullTextRef.current.slice(0, indexRef.current + 10))
+      indexRef.current += 10
+    }
+  }, [text])
 
   return <span>{displayedText}</span>
 }

@@ -1,191 +1,193 @@
-import type { RAGContext } from '../components/ai/types'
+import { 
+  learningCategories, 
+  loveTimeline, 
+  socialPosts, 
+  travelLocations,
+  personalInfo,
+} from '../data/mock'
+import { skillCategories } from '../data/skillTree'
 
-//模拟的资产数据
-const mockAssetData = {
-  learning: [
-    {
-      id: 'learn-1',
-      title: 'React Hooks完全指南',
-      content: 'React Hooks是React 16.8引入的新特性，让我们可以在函数组件中使用state和其他React特性。常用的Hooks包括useState、useEffect、useContext等。',
-      tags: ['React', '前端', 'JavaScript'],
-      category: '技术教程'
-    },
-    {
-      id: 'learn-2',
-      title: 'TypeScript进阶技巧',
-      content: 'TypeScript是JavaScript的超集，添加了静态类型检查。高级特性包括泛型、条件类型、映射类型等，能显著提升代码质量和开发体验。',
-      tags: ['TypeScript', '前端', '编程'],
-      category: '技术教程'
-    }
+// Work Assistant Data (extracted from Work.tsx common patterns)
+const workData = {
+  contents: [
+    { id: '1', title: 'AI 工具深度使用指南', type: 'article', description: '详细介绍常用 AI 工具的使用方法和技巧分享，适合小白入门', tags: ['AI', '工具', '教程'], platform: 'wechat', createdAt: '2024-01-15' },
+    { id: '2', title: '独立开发者如何变现', type: 'article', description: '关于个人开发产品如何找到第一批用户并实现盈利的思考', tags: ['变现', '开发', '成长'], platform: 'wechat', createdAt: '2024-01-12' },
+    { id: '3', title: '互联网早报速读', type: 'article', description: '一分钟带你了解今天互联网圈发生的大小事', tags: ['早报', '资讯', '互联网'], platform: 'weibo', createdAt: '2024-01-16' },
+    { id: '7', title: '产品设计思路大解密', type: 'video', description: '从用户需求出发，3步教你如何打造爆款产品逻辑', tags: ['设计', '产品', '思维'], platform: 'douyin', createdAt: '2024-01-10' },
   ],
-  life: [
-    {
-      id: 'life-1',
-      title: '深圳旅行日记',
-      content: '在深圳度过了美好的一周，参观了世界之窗、欢乐谷等景点。深圳的现代化程度令人印象深刻，科技氛围浓厚。',
-      tags: ['旅行', '深圳', '生活'],
-      category: '旅行记录'
-    }
+  products: [
+    { id: '1', name: '无线蓝牙耳机 降噪高音质', price: 299, sales: 1234, stock: 568, category: '数码配件' },
+    { id: '2', name: '智能手表 运动健康监测', price: 899, sales: 856, stock: 234, category: '智能穿戴' },
   ],
-  entertainment: [
-    {
-      id: 'ent-1',
-      title: '最近听的音乐',
-      content: '最近在循环播放一些轻音乐和电子音乐，特别喜欢Lo-fi hip hop类型。音乐能帮助我放松和专注工作。',
-      tags: ['音乐', 'Lo-fi', '放松'],
-      category: '音乐收藏'
-    }
+  orders: [
+    { id: 'DD20240115001', productName: '无线蓝牙耳机 降噪高音质', customer: '张三', status: 'completed', date: '2024-01-15' },
+    { id: 'DD20240115002', productName: '智能手表 运动健康监测', customer: '李四', status: 'pending', date: '2024-01-15' },
   ]
 }
 
-//简单的关键词提取
-const extractKeywords = (text: string): string[] => {
-  const stopWords = ['的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一', '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '自己', '这']
-  const cleanText = text.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s]/g, '')
-  return cleanText
-    .split(/\s+/)
-    .filter(word => word.length > 1 && !stopWords.includes(word))
-    .map(word => word.toLowerCase())
+export interface RAGItem {
+  id: string
+  module: 'learning' | 'life' | 'work'
+  title: string
+  content: string
+  tags: string[]
+  metadata: any
 }
 
-//计算文本相似度
-const calculateSimilarity = (query: string, content: string): number => {
-  const queryKeywords = extractKeywords(query)
-  const contentKeywords = extractKeywords(content)
-  
-  if (queryKeywords.length === 0) return 0
-  
-  const matches = queryKeywords.filter(keyword => 
-    contentKeywords.some(contentWord => 
-      contentWord.includes(keyword) || keyword.includes(contentWord)
-    )
-  )
-  
-  return matches.length / queryKeywords.length
-}
-
-// RAG引擎核心类
 export class RAGEngine {
-  private index: Map<string, any[]> = new Map()
+  private items: RAGItem[] = []
 
   constructor() {
-    this.buildIndex()
+    this.indexData()
   }
 
-  //构建索引
-  private buildIndex() {
-    Object.entries(mockAssetData).forEach(([module, items]) => {
-      this.index.set(module, items)
-    })
-  }
-
-  //检索相关内容
-  public search(query: string, topK: number = 3): RAGContext {
-    const results: Array<{ content: string, module: string, similarity: number }> = []
-    
-    this.index.forEach((items, module) => {
-      items.forEach(item => {
-        const similarity = calculateSimilarity(query, item.content + ' ' + item.title)
-        if (similarity > 0.1) {
-          results.push({
-            content: `${item.title}: ${item.content}`,
-            module,
-            similarity
+  private indexData() {
+    // 1. Index Learning Space
+    learningCategories.forEach(cat => {
+      cat.series.forEach(s => {
+        s.articles.forEach(art => {
+          this.items.push({
+            id: art.id,
+            module: 'learning',
+            title: art.title,
+            content: `${art.excerpt}\n${art.content}`,
+            tags: art.tags,
+            metadata: { category: cat.name, series: s.name, date: art.date }
           })
-        }
+        })
       })
     })
 
-    results.sort((a, b) => b.similarity - a.similarity)
-    const topResults = results.slice(0, topK)
+    skillCategories.forEach(cat => {
+      cat.skills.forEach(skill => {
+        this.items.push({
+          id: skill.id,
+          module: 'learning',
+          title: skill.name,
+          content: skill.description,
+          tags: [cat.name],
+          metadata: { type: 'skill', level: skill.level }
+        })
+      })
+    })
 
-    return {
-      relevantContent: topResults.map(r => r.content),
-      sourceModules: [...new Set(topResults.map(r => r.module as any))],
-      confidence: topResults.length > 0 ? topResults[0].similarity : 0
-    }
+    // 2. Index Life Record
+    loveTimeline.forEach(item => {
+      this.items.push({
+        id: item.id,
+        module: 'life',
+        title: item.title,
+        content: item.description,
+        tags: ['恋爱', '纪念'],
+        metadata: { date: item.date, emoji: item.emoji }
+      })
+    })
+
+    socialPosts.forEach(post => {
+      this.items.push({
+        id: post.id,
+        module: 'life',
+        title: `动态: ${post.date}`,
+        content: post.content,
+        tags: ['朋友圈', '动态', post.location || ''],
+        metadata: { author: post.author, likes: post.likes, date: post.date }
+      })
+    })
+
+    travelLocations.forEach(loc => {
+      this.items.push({
+        id: loc.id,
+        module: 'life',
+        title: `旅行: ${loc.name}`,
+        content: `${loc.description}\n亮点: ${loc.details.highlights.join(', ')}\n贴士: ${loc.details.tips}`,
+        tags: ['旅行', loc.country],
+        metadata: { bestTime: loc.details.bestTime }
+      })
+    })
+
+    // 3. Index Work Assistant
+    workData.contents.forEach(c => {
+      this.items.push({
+        id: c.id,
+        module: 'work',
+        title: c.title,
+        content: c.description,
+        tags: c.tags,
+        metadata: { platform: c.platform, type: c.type }
+      })
+    })
+
+    workData.products.forEach(p => {
+      this.items.push({
+        id: p.id,
+        module: 'work',
+        title: `商品: ${p.name}`,
+        content: `价格: ${p.price}, 销量: ${p.sales}, 库存: ${p.stock}, 分类: ${p.category}`,
+        tags: ['电商', '商品', p.category],
+        metadata: { price: p.price, stock: p.stock }
+      })
+    })
+
+    workData.orders.forEach(o => {
+      this.items.push({
+        id: o.id,
+        module: 'work',
+        title: `订单: ${o.id}`,
+        content: `商品: ${o.productName}, 客户: ${o.customer}, 状态: ${o.status}, 日期: ${o.date}`,
+        tags: ['电商', '订单'],
+        metadata: { status: o.status, date: o.date }
+      })
+    })
   }
 
-  // 生成基于检索的回复
-  public generateResponse(query: string): string {
-    const context = this.search(query)
-    
-    if (context.relevantContent.length === 0) {
-      return this.getFallbackResponse(query)
-    }
-
+  public search(query: string, topK: number = 5): string {
     const queryLower = query.toLowerCase()
     
-    if (queryLower.includes('推荐') || queryLower.includes('建议')) {
-      return this.generateRecommendationResponse(context)
-    }
-    
-    if (queryLower.includes('怎么') || queryLower.includes('如何')) {
-      return this.generateHowToResponse(context)
-    }
-    
-    if (queryLower.includes('什么') || queryLower.includes('介绍')) {
-      return this.generateInfoResponse(context)
-    }
+    // 简单的加权搜索
+    const scored = this.items.map(item => {
+      let score = 0
+      const titleLower = item.title.toLowerCase()
+      const contentLower = item.content.toLowerCase()
+      
+      if (titleLower.includes(queryLower)) score += 10
+      if (contentLower.includes(queryLower)) score += 5
+      
+      item.tags.forEach(tag => {
+        if (tag.toLowerCase().includes(queryLower)) score += 3
+      })
 
-    return this.generateGeneralResponse(context)
+      // 关键词拆分搜索
+      const words = queryLower.split(/\s+/)
+      words.forEach(word => {
+        if (word.length > 1) {
+          if (titleLower.includes(word)) score += 2
+          if (contentLower.includes(word)) score += 1
+        }
+      })
+
+      return { item, score }
+    })
+
+    const results = scored
+      .filter(s => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, topK)
+
+    if (results.length === 0) return ''
+
+    return results.map(r => {
+      const { item } = r
+      return `[模块: ${item.module}] ${item.title}\n内容: ${item.content}\n标签: ${item.tags.join(', ')}`
+    }).join('\n\n---\n\n')
   }
 
-  private getFallbackResponse(query: string): string {
-    const responses = [
-      `关于"${query}"，我需要更多信息才能为您提供准确的回答。`,
-      `我没有找到与"${query}"直接相关的内容，您能提供更具体的描述吗？`
-    ]
-    return responses[Math.floor(Math.random() * responses.length)]
-  }
-
-  private generateRecommendationResponse(context: RAGContext): string {
-    const recommendations = context.relevantContent.slice(0, 2)
-    const recList = recommendations.map((rec, i) => `${i + 1}. ${rec}`).join('\n\n')
-    return `基于您的兴趣，我推荐以下内容：
-
-${recList}
-
-这些内容来自${context.sourceModules.join('和')}模块，希望能对您有帮助！`
-  }
-
-  private generateHowToResponse(context: RAGContext): string {
-    return `关于您的问题，我找到以下相关信息：
-
-${context.relevantContent[0]}
-
-希望这些信息能帮到您！`
-  }
-
-  private generateInfoResponse(context: RAGContext): string {
-    const contentList = context.relevantContent.map((content, i) => `${i + 1}. ${content}`).join('\n\n')
-    return `让我为您介绍一下相关的内容：
-
-${contentList}
-
-这些信息来自${context.sourceModules.join('和')}模块，置信度为${(context.confidence * 100).toFixed(1)}%。`
-  }
-
-  private generateGeneralResponse(context: RAGContext): string {
-    const mainContent = context.relevantContent[0]
-    const additionalContent = context.relevantContent.slice(1, 3)
-    
-    let response = `根据您的查询，我找到以下相关信息：\n\n${mainContent}`
-    
-    if (additionalContent.length > 0) {
-      const addList = additionalContent.map(content => `• ${content}`).join('\n')
-      response += `\n\n我还发现了相关内容：\n${addList}`
-    }
-    
-    response += `\n\n信息来源：${context.sourceModules.join('、')}模块`
-    
-    if (context.confidence < 0.5) {
-      response += `\n\n提示：搜索结果的相关性较低，建议您提供更具体的查询关键词。`
-    }
-    
-    return response
+  // 获取用户信息作为基础背景
+  public getUserProfileContext(): string {
+    return `用户姓名: ${personalInfo.name}
+头衔: ${personalInfo.title}
+简介: ${personalInfo.bio}
+所在地: ${personalInfo.location}`
   }
 }
 
-//导出单例实例
 export const ragEngine = new RAGEngine()
