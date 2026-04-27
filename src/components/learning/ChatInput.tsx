@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { 
   Send, Mic, Image, Smile, X
 } from 'lucide-react'
+import { sttService } from '../../services/sttService'
 import type { ThemeConfig } from '../../lib/themes'
 
 interface ChatInputProps {
@@ -45,14 +46,24 @@ export function ChatInput({ onSend, themeConfig, disabled }: ChatInputProps) {
     }
   }
 
-  const handleMicClick = () => {
-    setIsRecording(!isRecording)
-    // Simulate voice input
-    if (!isRecording) {
-      setTimeout(() => {
-        setIsRecording(false)
-        setInput(prev => prev + '（语音输入内容）')
-      }, 2000)
+  const handleMicClick = async () => {
+    if (isRecording) {
+      setIsRecording(false)
+      try {
+        const text = await sttService.stopRecording()
+        if (text.trim()) {
+          setInput(prev => prev + text)
+        }
+      } catch (error) {
+        console.error('Transcription failed:', error)
+      }
+    } else {
+      try {
+        await sttService.startRecording()
+        setIsRecording(true)
+      } catch (error) {
+        console.error('Failed to start recording:', error)
+      }
     }
   }
 
@@ -220,17 +231,17 @@ export function ChatInput({ onSend, themeConfig, disabled }: ChatInputProps) {
         <div className="flex-1 relative">
           <textarea
             ref={textareaRef}
-            value={input}
+            value={isRecording ? '正在录音...' : input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder="说点什么吧..."
-            disabled={disabled}
+            disabled={disabled || isRecording}
             rows={1}
-            className="w-full px-3 py-2.5 rounded-xl resize-none outline-none transition-all text-sm"
+            className={`w-full px-3 py-2.5 rounded-xl resize-none outline-none transition-all text-sm ${isRecording ? 'text-red-500 font-medium' : ''}`}
             style={{
               background: themeConfig.colors.surface,
-              border: `1px solid ${themeConfig.colors.border}`,
-              color: themeConfig.colors.text,
+              border: `1px solid ${isRecording ? themeConfig.colors.rose : themeConfig.colors.border}`,
+              color: isRecording ? themeConfig.colors.rose : themeConfig.colors.text,
               minHeight: '40px',
               maxHeight: '100px'
             }}
@@ -264,21 +275,7 @@ export function ChatInput({ onSend, themeConfig, disabled }: ChatInputProps) {
         className="hidden"
       />
   
-      {/* Recording Indicator */}
-      {isRecording && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center justify-center gap-2 py-1"
-          style={{ color: themeConfig.colors.rose }}
-        >
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: themeConfig.colors.rose }}></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: themeConfig.colors.rose }}></span>
-          </span>
-          <span className="text-xs">正在录音...</span>
-        </motion.div>
-      )}
+      {/* Recording Indicator removed from here as it's now inside the input box */}
     </div>
   )
 }

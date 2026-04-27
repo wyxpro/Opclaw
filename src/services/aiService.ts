@@ -11,10 +11,27 @@ export interface ChatMessage {
  */
 export const aiService = {
   /**
-   * Find relevant context for RAG using the centralized engine
+   * Get the AI assistant's avatar URL
    */
-  findRelevantContext: (query: string) => {
-    const context = ragEngine.search(query)
+  getAvatar: (type: 'digital' | 'learning' = 'digital') => {
+    if (type === 'learning') {
+      return "https://img0.baidu.com/it/u=234561400,973736250&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"
+    }
+    return "https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"
+  },
+
+  /**
+   * Find relevant context for RAG using the centralized engine.
+   * Can accept additional context like allArticles or currentArticle from specific pages.
+   */
+  findRelevantContext: (query: string, allArticles?: any[], currentArticle?: any) => {
+    let context = ragEngine.search(query)
+    
+    // If we have a current article context, prioritize it
+    if (currentArticle) {
+      context = `【当前正在阅读文章】\n标题：${currentArticle.title}\n内容：${currentArticle.excerpt || ''}\n${currentArticle.content || ''}\n\n${context}`
+    }
+
     const userProfile = ragEngine.getUserProfileContext()
     return `用户信息：\n${userProfile}\n\n检索到的相关知识/记录：\n${context || '（未找到直接相关的个人资产）'}`
   },

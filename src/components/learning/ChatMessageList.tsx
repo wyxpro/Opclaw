@@ -169,7 +169,7 @@ function MessageItem({ message, themeConfig, index }: { message: Message; themeC
           />
         ) : (
           <img 
-            src={aiService.getAvatar()} 
+            src={aiService.getAvatar('learning')} 
             alt="AI" 
             className="w-full h-full object-cover"
           />
@@ -244,28 +244,23 @@ function MessageItem({ message, themeConfig, index }: { message: Message; themeC
           {/* Text Content */}
           <div className="leading-relaxed whitespace-pre-wrap text-[13px] sm:text-sm">
             {message.content === '' && message.role === 'assistant' ? (
-              <div className="flex gap-1 py-1">
-                <motion.span
-                  animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
-                  className="text-primary font-bold"
-                >
-                  .
-                </motion.span>
-                <motion.span
-                  animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                  className="text-primary font-bold"
-                >
-                  .
-                </motion.span>
-                <motion.span
-                  animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
-                  className="text-primary font-bold"
-                >
-                  .
-                </motion.span>
+              <div className="flex items-center gap-1.5 py-1.5 px-1">
+                {[0, 0.2, 0.4].map((delay) => (
+                  <motion.div
+                    key={delay}
+                    animate={{ 
+                      height: ["8px", "16px", "8px"],
+                      opacity: [0.3, 1, 0.3]
+                    }}
+                    transition={{ 
+                      duration: 0.8, 
+                      repeat: Infinity, 
+                      delay 
+                    }}
+                    className="w-1 rounded-full bg-primary"
+                    style={{ backgroundColor: themeConfig.colors.primary }}
+                  />
+                ))}
               </div>
             ) : formatContent(message.content)}
           </div>
