@@ -6,8 +6,10 @@ import { StreamingText } from './StreamingText'
 import type { Message } from './types'
 import { sttService } from '../../services/sttService'
 import type { ThemeConfig } from '../../lib/themes'
+import type { CharacterStyle } from './types'
 
 interface CharacterChatProps {
+  style?: CharacterStyle
   messages: Message[]
   isLoading: boolean
   themeConfig: ThemeConfig
@@ -16,7 +18,7 @@ interface CharacterChatProps {
   onEndCall: () => void
 }
 
-export function CharacterChat({ messages, isLoading, themeConfig, customAvatar, onSendMessage, onEndCall }: CharacterChatProps) {
+export function CharacterChat({ style, messages, isLoading, themeConfig, customAvatar, onSendMessage, onEndCall }: CharacterChatProps) {
   const [isListening, setIsListening] = useState(false)
   const [userInput, setUserInput] = useState('')
   const [showStreamingContent, setShowStreamingContent] = useState(false)
@@ -113,14 +115,14 @@ export function CharacterChat({ messages, isLoading, themeConfig, customAvatar, 
 
   return (
     <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-end pb-12">
-      {/* 4. 对话区域 - 严限 2 条消息 */}
+      {/* 4. 对话区域 - 加载全部消息 */}
       <div 
         ref={scrollRef}
-        className="pointer-events-auto max-h-[45vh] overflow-y-auto no-scrollbar flex flex-col gap-5 py-4 transition-all px-12 lg:px-24 mb-6"
+        className={`pointer-events-auto ${style === 'hidden' ? 'max-h-[82vh]' : 'max-h-[45vh]'} overflow-y-auto no-scrollbar flex flex-col gap-5 py-4 transition-all px-12 lg:px-24 mb-6`}
       >
         <AnimatePresence initial={false}>
-          {messages.slice(-2).map((msg, idx, arr) => {
-            const opacity = idx === 0 && arr.length === 2 ? 0.5 : 1;
+          {messages.map((msg, idx, arr) => {
+            const opacity = 1;
             
             return (
               <motion.div 
@@ -142,10 +144,10 @@ export function CharacterChat({ messages, isLoading, themeConfig, customAvatar, 
                 
                 <div className={`max-w-[85%] backdrop-blur-md rounded-2xl px-4 py-2.5 shadow-lg border ${
                   msg.role === 'user' 
-                    ? 'bg-white/5 border-white/10 rounded-tr-none' 
-                    : 'bg-white/5 border-cyan-400/10 rounded-tl-none'
+                    ? 'bg-blue-500/60 border-white/20 rounded-tr-none' 
+                    : 'bg-pink-400/60 border-white/20 rounded-tl-none'
                 }`}>
-                  <div className="text-[14px] text-white/90 leading-relaxed font-medium">
+                  <div className={`text-[14px] leading-relaxed font-medium text-white/95`}>
                     {msg.role === 'assistant' && idx === arr.length - 1 && showStreamingContent ? (
                       <StreamingText 
                         text={msg.content} 

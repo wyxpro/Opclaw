@@ -204,6 +204,7 @@ export default function AICharacter() {
     setMessages(session.messages)
     setCurrentSessionId(session.id)
     setIsHistoryOpen(false)
+    setCharacterStyle('hidden') // 点击后自动隐藏数字人
   }
 
   // 删除历史会话
@@ -277,6 +278,7 @@ export default function AICharacter() {
 
             {/* Floating Voice Call Overlay at Bottom */}
             <CharacterChat 
+              style={avatarModel?.style || characterStyle}
               messages={messages}
               isLoading={isLoading}
               themeConfig={themeConfig}
@@ -339,7 +341,7 @@ export default function AICharacter() {
                   </div>
 
                   <motion.button
-                    onClick={() => setCharacterStyle(characterStyle === 'cartoon' ? 'realistic' : 'cartoon')}
+                    onClick={() => setCharacterStyle(characterStyle === 'realistic' ? 'cartoon' : characterStyle === 'cartoon' ? 'hidden' : 'realistic')}
                     whileTap={{ scale: 0.95 }}
                     className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold transition-all backdrop-blur-md border border-white/20 shadow-lg"
                     style={{
@@ -347,7 +349,7 @@ export default function AICharacter() {
                       color: 'white'
                     }}
                   >
-                    <span>{characterStyle === 'cartoon' ? '🎨 卡通' : '👤 真实'}</span>
+                    <span>{characterStyle === 'cartoon' ? '🎨 卡通' : characterStyle === 'hidden' ? '🚫 隐藏' : '👤 真实'}</span>
                   </motion.button>
 
                   <motion.button

@@ -181,7 +181,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
 
           {onStyleChange && (
             <motion.button
-              onClick={() => onStyleChange(style === 'cartoon' ? 'realistic' : 'cartoon')}
+              onClick={() => onStyleChange(style === 'realistic' ? 'cartoon' : style === 'cartoon' ? 'hidden' : 'realistic')}
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all backdrop-blur-md"
               style={{
@@ -190,20 +190,20 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                 color: 'white'
               }}
             >
-              <span>{style === 'cartoon' ? '🎨 卡通' : '👤 真实'}</span>
+              <span>{style === 'cartoon' ? '🎨 卡通' : style === 'hidden' ? '🚫 隐藏' : '👤 真实'}</span>
             </motion.button>
           )}
         </div>
       </div>
 
-      {/* 4. 对话区域 - 严限 2 条消息 */}
+      {/* 4. 对话区域 - 加载全部消息 */}
       <div 
         ref={scrollRef}
-        className="absolute bottom-64 left-0 right-0 z-20 px-6 max-h-[45vh] overflow-y-auto no-scrollbar flex flex-col gap-5 py-4 transition-all"
+        className={`absolute ${style === 'hidden' ? 'bottom-[120px] top-32' : 'bottom-64 top-[50vh]'} left-0 right-0 z-20 px-6 overflow-y-auto no-scrollbar flex flex-col gap-5 py-4 transition-all`}
       >
         <AnimatePresence initial={false}>
-          {messages.slice(-2).map((msg, idx, arr) => {
-            const opacity = idx === 0 && arr.length === 2 ? 0.5 : 1;
+          {messages.map((msg, idx, arr) => {
+            const opacity = 1;
             
             return (
               <motion.div 
@@ -225,10 +225,10 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                 
                 <div className={`max-w-[85%] backdrop-blur-md rounded-2xl px-4 py-2.5 shadow-lg border ${
                   msg.role === 'user' 
-                    ? 'bg-white/5 border-white/10 rounded-tr-none' 
-                    : 'bg-white/5 border-cyan-400/10 rounded-tl-none'
+                    ? 'bg-blue-500/60 border-white/20 rounded-tr-none' 
+                    : 'bg-pink-400/60 border-white/20 rounded-tl-none'
                 }`}>
-                  <div className="text-[14px] text-white/90 leading-relaxed font-medium">
+                  <div className={`text-[14px] leading-relaxed font-medium text-white/95`}>
                     {msg.role === 'assistant' && idx === arr.length - 1 && showStreamingContent ? (
                       <StreamingText 
                         text={msg.content} 

@@ -1,6 +1,6 @@
 // AI分身相关类型定义
 
-export type CharacterStyle = 'cartoon' | 'realistic'
+export type CharacterStyle = 'cartoon' | 'realistic' | 'hidden'
 
 export type BackgroundType = 'office' | 'living-room' | 'outdoor' | 'custom' | string
 
