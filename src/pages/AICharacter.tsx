@@ -14,7 +14,7 @@ import { useTheme } from '../hooks/useTheme'
 import { ragEngine } from '../lib/ragEngine'
 import { aiService, type ChatMessage } from '../services/aiService'
 import { Upload, History, MoreHorizontal, Sparkles, Bot } from 'lucide-react'
-import { AvatarSelectionDialog } from '../components/ai/AvatarSelectionDialog'
+import { AvatarSelectionDialog, DEFAULT_AI_AVATAR } from '../components/ai/AvatarSelectionDialog'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
 
 export default function AICharacter() {
@@ -27,48 +27,65 @@ export default function AICharacter() {
   
   // 数字人配置
   const [voiceModel, setVoiceModel] = useState<VoiceModel | null>(null)
-  const [avatarModel, setAvatarModel] = useState<AvatarModel | null>(null)
+  const [avatarModel, setAvatarModel] = useState<AvatarModel | null>(DEFAULT_AI_AVATAR)
   
   // 对话界面状态
   const [characterStyle, setCharacterStyle] = useState<CharacterStyle>('realistic')
   const [background, setBackground] = useState<string>('office')
   const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
-  const [customAvatar, setCustomAvatar] = useState<{ type: 'image' | 'video' | 'custom', url: string, style?: string } | null>(null)
-  
+  const [customAvatar, setCustomAvatar] = useState<any>(DEFAULT_AI_AVATAR)
   // 历史对话状态
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string>(`session-${Date.now()}`)
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
 
-  // 检测窗口大小及加载历史记录
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    
-    // 加载历史记录
-    const savedSessions = localStorage.getItem('ai_chat_sessions')
-    if (savedSessions) {
-      try {
-        setSessions(JSON.parse(savedSessions))
-      } catch (e) {
-        console.error('Failed to parse sessions', e)
+    // 加载历史记录及已克隆的模型
+    useEffect(() => {
+      const checkMobile = () => {
+        setIsMobile(window.innerWidth < 768)
       }
-    }
+      checkMobile()
+      window.addEventListener('resize', checkMobile)
+      
+      const savedSessions = localStorage.getItem('ai_chat_sessions')
+      if (savedSessions) {
+        try { setSessions(JSON.parse(savedSessions)) } catch (e) { console.error(e) }
+      }
 
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+      const savedVoice = localStorage.getItem('ai_cloned_voice')
+      if (savedVoice) {
+        try { setVoiceModel(JSON.parse(savedVoice)) } catch (e) { console.error(e) }
+      }
 
-  // 持久化保存历史
+      const savedAvatar = localStorage.getItem('ai_cloned_avatar')
+      if (savedAvatar) {
+        try { 
+          const avatar = JSON.parse(savedAvatar)
+          setAvatarModel(avatar)
+          setCustomAvatar(avatar)
+        } catch (e) { console.error(e) }
+      } else {
+        // 没有保存的头像时使用默认AI头像
+        setCustomAvatar(DEFAULT_AI_AVATAR)
+      }
+
+      return () => window.removeEventListener('resize', checkMobile)
+    }, [])
+
+  // 持久化保存数据
   useEffect(() => {
-    if (sessions.length > 0) {
-      localStorage.setItem('ai_chat_sessions', JSON.stringify(sessions))
-    }
+    if (sessions.length > 0) localStorage.setItem('ai_chat_sessions', JSON.stringify(sessions))
   }, [sessions])
+
+  useEffect(() => {
+    if (voiceModel) localStorage.setItem('ai_cloned_voice', JSON.stringify(voiceModel))
+  }, [voiceModel])
+
+  useEffect(() => {
+    if (avatarModel) localStorage.setItem('ai_cloned_avatar', JSON.stringify(avatarModel))
+  }, [avatarModel])
 
   // 初始化欢迎消息
   const [messages, setMessages] = useState<Message[]>([
@@ -91,25 +108,27 @@ export default function AICharacter() {
     if (!completedSteps.includes('voice-clone')) {
       setCompletedSteps(prev => [...prev, 'voice-clone'])
     }
-    // 自动跳转到下一步
-    setTimeout(() => {
-      setCurrentStep('avatar-clone')
-    }, 1000)
   }
 
   // 处理形象复刻完成
   const handleAvatarCloned = (avatar: any) => {
-    setAvatarModel({ ...avatar, id: 'custom', name: '我的分身' })
-    setCustomAvatar(avatar)
+    const newAvatar = { ...avatar, id: 'custom', name: '我的分身', isCloned: true }
+    setAvatarModel(newAvatar)
+    setCustomAvatar(newAvatar)
     if (avatar.style) setCharacterStyle(avatar.style as any)
+    
+    // 同步到 localStorage
+    localStorage.setItem('ai_cloned_avatar', JSON.stringify(newAvatar))
     
     if (!completedSteps.includes('avatar-clone')) {
       setCompletedSteps(prev => [...prev, 'avatar-clone'])
     }
-    // 自动跳转到对话界面
-    setTimeout(() => {
-      setCurrentStep('chat')
-    }, 1000)
+  }
+
+  // 处理从形象库选择
+  const handleAvatarSelect = (avatar: any) => {
+    setCustomAvatar(avatar)
+    if (avatar.style) setCharacterStyle(avatar.style as any)
   }
 
   const handleSendMessage = async (content: string, attachments?: Message['attachments']) => {
@@ -244,7 +263,7 @@ export default function AICharacter() {
           return (
             <div className="flex-1 relative">
               <CharacterVoiceUI 
-                style={avatarModel?.style || characterStyle}
+                style={characterStyle}
                 messages={messages}
                 isLoading={isLoading}
                 onSendMessage={handleSendMessage}
@@ -254,7 +273,12 @@ export default function AICharacter() {
                 onEndCall={handleEndCall}
                 onOpenHistory={() => setIsHistoryOpen(true)}
                 customAvatar={customAvatar}
-                onAvatarChange={handleAvatarCloned}
+                onAvatarChange={handleAvatarSelect}
+                myAvatar={avatarModel}
+                onGoToClone={() => {
+                  setCurrentStep('avatar-clone')
+                  setIsAvatarDialogOpen(false)
+                }}
               />
             </div>
           )
@@ -265,7 +289,7 @@ export default function AICharacter() {
             {/* 3D Character Area (Now Full Screen) */}
             <div className="absolute inset-0 z-0">
               <Character3D 
-                style={avatarModel?.style || characterStyle}
+                style={characterStyle}
                 currentMessage={messages[messages.length - 1]}
                 background={background === 'custom' && customBackgroundUrl ? customBackgroundUrl : background}
                 onStyleChange={(newStyle) => setCharacterStyle(newStyle)}
@@ -278,7 +302,7 @@ export default function AICharacter() {
 
             {/* Floating Voice Call Overlay at Bottom */}
             <CharacterChat 
-              style={avatarModel?.style || characterStyle}
+              style={characterStyle}
               messages={messages}
               isLoading={isLoading}
               themeConfig={themeConfig}
@@ -330,7 +354,7 @@ export default function AICharacter() {
                     className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
                   >
                     <Bot size={16} className="text-indigo-400" />
-                    <span>数字分身</span>
+                    <span>形象选择</span>
                   </motion.button>
 
                   <div className="flex items-center bg-white/10 rounded-full border border-white/20 backdrop-blur-md shadow-lg">
@@ -411,7 +435,12 @@ export default function AICharacter() {
         <AvatarSelectionDialog 
           isOpen={isAvatarDialogOpen} 
           onClose={() => setIsAvatarDialogOpen(false)}
-          onSelectAvatar={handleAvatarCloned}
+          onSelectAvatar={handleAvatarSelect}
+          myAvatar={avatarModel}
+          onGoToClone={() => {
+            setCurrentStep('avatar-clone')
+            setIsAvatarDialogOpen(false)
+          }}
         />
       </div>
     </PageTransition>

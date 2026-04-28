@@ -15,9 +15,9 @@ export const aiService = {
    */
   getAvatar: (type: 'digital' | 'learning' = 'digital') => {
     if (type === 'learning') {
-      return "https://img0.baidu.com/it/u=234561400,973736250&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"
+      return "https://api.dicebear.com/7.x/bottts/svg?seed=Lucky&backgroundColor=b6e3f4"
     }
-    return "https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"
+    return "https://api.dicebear.com/7.x/bottts/svg?seed=Dreamer&backgroundColor=ffdfbf"
   },
 
   /**

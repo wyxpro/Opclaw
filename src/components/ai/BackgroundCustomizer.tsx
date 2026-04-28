@@ -99,7 +99,7 @@ export function BackgroundCustomizer({
   const [customImage, setCustomImage] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isMobileUI, setIsMobileUI] = useState(false)
-  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop')
+  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('mobile')
 
   useEffect(() => {
     const handleResize = () => {
@@ -226,6 +226,16 @@ export function BackgroundCustomizer({
               {/* 电脑端/移动端切换按钮 */}
               <div className="px-5 py-3 border-b border-gray-100 bg-gray-50/30">
                 <div className="flex items-center gap-2 p-1 rounded-xl bg-gray-100">
+                   <button
+                    onClick={() => setViewMode('mobile')}
+                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                      viewMode === 'mobile'
+                        ? 'bg-white text-indigo-600 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    📱 移动端
+                  </button>
                   <button
                     onClick={() => setViewMode('desktop')}
                     className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
@@ -235,16 +245,6 @@ export function BackgroundCustomizer({
                     }`}
                   >
                     🖥️ 电脑端
-                  </button>
-                  <button
-                    onClick={() => setViewMode('mobile')}
-                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
-                      viewMode === 'mobile'
-                        ? 'bg-white text-indigo-600 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    📱 移动端
                   </button>
                 </div>
               </div>
@@ -273,7 +273,7 @@ export function BackgroundCustomizer({
                           isSelected ? 'border-indigo-500 bg-indigo-50/30' : 'border-gray-100 hover:border-indigo-200'
                         }`}
                       >
-                        <div className={`w-full ${isMobileUI ? 'aspect-[3/4]' : 'aspect-video'} rounded-lg overflow-hidden mb-1.5`}>
+                        <div className="w-full aspect-[16/9] rounded-lg overflow-hidden mb-1.5">
                           <img src={option.thumbnail} alt={option.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                         </div>
                         <div className="px-1 text-left w-full">

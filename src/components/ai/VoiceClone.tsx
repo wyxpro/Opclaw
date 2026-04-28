@@ -171,7 +171,7 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 overflow-auto">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 overflow-auto">
         {/* 左侧：录音区域 - 包含标题 */}
         <div 
           className="rounded-2xl p-4 md:p-6"
@@ -203,58 +203,38 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
             录音
           </h3>
 
-          {/* 录音按钮 */}
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
             <motion.button
               onClick={isRecording ? stopRecording : startRecording}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="relative w-24 h-24 rounded-full flex items-center justify-center"
+              className="relative w-20 h-20 rounded-full flex items-center justify-center shrink-0"
               style={{
                 background: isRecording 
                   ? `linear-gradient(135deg, ${themeConfig.colors.rose}, #ef4444)`
                   : `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`,
                 boxShadow: isRecording
-                  ? `0 0 30px rgba(244, 63, 94, 0.5)`
-                  : `0 0 30px ${themeConfig.colors.primaryMuted}`
+                  ? `0 0 25px rgba(244, 63, 94, 0.4)`
+                  : `0 0 25px ${themeConfig.colors.primaryMuted}`
               }}
             >
-              {isRecording ? (
-                <Square size={32} className="text-white" />
-              ) : (
-                <Mic size={32} className="text-white" />
-              )}
-              
-              {/* 录音波纹动画 */}
+              {isRecording ? <Square size={28} className="text-white" /> : <Mic size={28} className="text-white" />}
               {isRecording && (
                 <>
-                  <motion.div
-                    className="absolute inset-0 rounded-full"
-                    style={{ border: `2px solid ${themeConfig.colors.rose}` }}
-                    animate={{ scale: [1, 1.3, 1], opacity: [1, 0, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  />
-                  <motion.div
-                    className="absolute inset-0 rounded-full"
-                    style={{ border: `2px solid ${themeConfig.colors.rose}` }}
-                    animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
-                  />
+                  <motion.div className="absolute inset-0 rounded-full" style={{ border: `2px solid ${themeConfig.colors.rose}` }} animate={{ scale: [1, 1.3, 1], opacity: [1, 0, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                  <motion.div className="absolute inset-0 rounded-full" style={{ border: `2px solid ${themeConfig.colors.rose}` }} animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }} />
                 </>
               )}
             </motion.button>
 
-            {/* 录音时长 */}
-            <div 
-              className="text-3xl font-mono font-bold"
-              style={{ color: isRecording ? themeConfig.colors.rose : themeConfig.colors.text }}
-            >
-              {formatTime(recordingTime)}
+            <div className="flex flex-col items-center sm:items-start gap-1">
+              <div className="text-2xl font-mono font-bold" style={{ color: isRecording ? themeConfig.colors.rose : themeConfig.colors.text }}>
+                {formatTime(recordingTime)}
+              </div>
+              <p className="text-xs font-medium" style={{ color: themeConfig.colors.textMuted }}>
+                {isRecording ? '点击结束录制' : '点击图标录制'}
+              </p>
             </div>
-
-            <p className="text-sm" style={{ color: themeConfig.colors.textMuted }}>
-              {isRecording ? '点击停止录音' : '点击开始录音'}
-            </p>
           </div>
 
           {/* 录音控制 */}

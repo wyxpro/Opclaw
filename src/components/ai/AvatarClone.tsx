@@ -257,24 +257,6 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
                   </div>
                 </div>
 
-                {/* 提示信息 */}
-                <div 
-                  className="p-4 rounded-xl text-sm"
-                  style={{ 
-                    background: themeConfig.colors.bgAlt,
-                    color: themeConfig.colors.textMuted
-                  }}
-                >
-                  <p className="font-medium mb-2" style={{ color: themeConfig.colors.text }}>
-                    上传建议：
-                  </p>
-                  <ul className="space-y-1 text-xs">
-                    <li>• 正面清晰的照片效果最佳</li>
-                    <li>• 光线充足，避免阴影遮挡面部</li>
-                    <li>• 支持 JPG、PNG、MP4 格式</li>
-                    <li>• 文件大小建议不超过 50MB</li>
-                  </ul>
-                </div>
               </div>
             ) : (
               <div className="space-y-4">

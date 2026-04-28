@@ -1218,8 +1218,8 @@ export const mockCommunityUsers: CommunityUser[] = [
   },
   {
     id: 'ai1',
-    name: '智能助手Alpha',
-    avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=Alpha&backgroundColor=8b5cf6',
+    name: 'AI数字人',
+    avatar: 'https://img2.baidu.com/it/u=1898671101,2896470450&fm=253&fmt=auto&app=138&f=JPEG?w=380&h=380',
     bio: '你的AI分身伙伴',
     isAI: true,
   },

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, User, Check, Video, Image as ImageIcon, Sparkles } from 'lucide-react'
+import { Upload, User, Check, Video, Image as ImageIcon, Sparkles, Bot } from 'lucide-react'
+import type { AvatarModel, CharacterStyle } from './types'
 
 export interface AvatarPreset {
     id: string
@@ -8,36 +9,60 @@ export interface AvatarPreset {
     url: string
     type: 'image' | 'video'
     gender: 'male' | 'female'
-    style: 'realistic' | 'cartoon' | 'professional' | 'casual'
+    style: CharacterStyle
 }
 
 const PRESET_AVATARS: AvatarPreset[] = [
+    // Default AI Avatar
+    { id: 'default-ai', name: 'AI数字人', url: 'https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500', type: 'image', gender: 'female', style: 'realistic' },
+    
     // Females
-    { id: 'f1', name: '职场专家', url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400', type: 'image', gender: 'female', style: 'professional' },
-    { id: 'f2', name: '活力少女', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400', type: 'image', gender: 'female', style: 'casual' },
+    { id: 'f1', name: '职场专家', url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400', type: 'image', gender: 'female', style: 'realistic' },
+    { id: 'f2', name: '活力少女', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400', type: 'image', gender: 'female', style: 'realistic' },
     { id: 'f3', name: '文静学姐', url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400', type: 'image', gender: 'female', style: 'realistic' },
     { id: 'f4', name: '元气卡通', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Lucy', type: 'image', gender: 'female', style: 'cartoon' },
     { id: 'f5', name: '摩登都会', url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400', type: 'image', gender: 'female', style: 'realistic' },
     
     // Males
-    { id: 'm1', name: '商务精英', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400', type: 'image', gender: 'male', style: 'professional' },
-    { id: 'm2', name: '阳光暖男', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', type: 'image', gender: 'male', style: 'casual' },
+    { id: 'm1', name: '商务精英', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400', type: 'image', gender: 'male', style: 'realistic' },
+    { id: 'm2', name: '阳光暖男', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', type: 'image', gender: 'male', style: 'realistic' },
     { id: 'm3', name: '智慧学者', url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400', type: 'image', gender: 'male', style: 'realistic' },
     { id: 'm4', name: '硬派克隆', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Jack', type: 'image', gender: 'male', style: 'cartoon' },
-    { id: 'm5', name: '潮流极客', url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400', type: 'image', gender: 'male', style: 'casual' },
+    { id: 'm5', name: '潮流极客', url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400', type: 'image', gender: 'male', style: 'realistic' },
 ]
+
+// 默认AI头像配置
+export const DEFAULT_AI_AVATAR: AvatarModel = {
+    id: 'default-ai',
+    name: 'AI数字人',
+    type: 'image',
+    url: 'https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500',
+    style: 'realistic',
+    createdAt: Date.now(),
+    isCloned: false
+}
 
 interface AvatarSelectionDialogProps {
     isOpen: boolean
     onClose: () => void
-    onSelectAvatar: (avatar: { type: 'image' | 'video' | 'custom', url: string, style?: string }) => void
+    onSelectAvatar: (avatar: any) => void
+    myAvatar?: AvatarModel | null
+    onGoToClone?: () => void
 }
 
-export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar }: AvatarSelectionDialogProps) {
-    const [activeTab, setActiveTab] = useState<'presets' | 'custom'>('presets')
+export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvatar, onGoToClone }: AvatarSelectionDialogProps) {
+    const [activeTab, setActiveTab] = useState<'presets' | 'my'>('presets')
     const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all')
+    const [myStyleFilter, setMyStyleFilter] = useState<CharacterStyle>(myAvatar?.style || 'realistic')
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [uploadPreview, setUploadPreview] = useState<{ url: string, type: 'image' | 'video' } | null>(null)
+
+    // 同步外部传入的我的分身风格
+    React.useEffect(() => {
+        if (myAvatar?.style) {
+            setMyStyleFilter(myAvatar.style)
+        }
+    }, [myAvatar])
 
     const filteredPresets = PRESET_AVATARS.filter(p => genderFilter === 'all' || p.gender === genderFilter)
 
@@ -79,7 +104,7 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar }: Avata
                                 <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
                                     <Sparkles size={16} />
                                 </div>
-                                <h3 className="text-base font-bold text-gray-900">克隆数字分身</h3>
+                                <h3 className="text-base font-bold text-gray-900">选择分身形象</h3>
                             </div>
                             <button onClick={onClose} className="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">×</button>
                         </div>
@@ -94,13 +119,13 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar }: Avata
                             >
                                 预设库
                             </button>
-                            <button 
-                                onClick={() => setActiveTab('custom')}
+                             <button 
+                                onClick={() => setActiveTab('my')}
                                 className={`flex-1 py-1.5 rounded-xl text-sm font-bold transition-all ${
-                                    activeTab === 'custom' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'bg-gray-50 text-gray-400'
+                                    activeTab === 'my' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'bg-gray-50 text-gray-400'
                                 }`}
                             >
-                                自定义上传
+                                我的分身
                             </button>
                         </div>
 
@@ -134,7 +159,7 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar }: Avata
                                                 className="group relative flex flex-col p-1.5 rounded-xl border-2 border-gray-50 hover:border-indigo-100 transition-all"
                                             >
                                                 <div className="w-full aspect-square rounded-lg overflow-hidden mb-1.5">
-                                                    <img src={p.url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                                    <img src={p.url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
                                                 </div>
                                                 <div className="px-1 text-left w-full">
                                                     <div className="font-bold text-[11px] text-gray-800 truncate">{p.name}</div>
@@ -144,49 +169,110 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar }: Avata
                                     </div>
                                 </div>
                             ) : (
-                                <div className="space-y-4 pt-1 text-center">
-                                    <div 
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="aspect-video rounded-3xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/30 transition-all overflow-hidden relative"
-                                    >
-                                        {uploadPreview ? (
-                                            <>
-                                                {uploadPreview.type === 'video' ? (
-                                                    <video src={uploadPreview.url} className="w-full h-full object-cover" autoPlay loop muted />
-                                                ) : (
-                                                    <img src={uploadPreview.url} className="w-full h-full object-cover" alt="Preview" />
-                                                )}
-                                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                                    <p className="text-white text-sm font-bold">更换素材</p>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <div className="w-16 h-16 rounded-2xl bg-white shadow-xl flex items-center justify-center text-indigo-500 mb-4">
-                                                    <Upload size={32} />
-                                                </div>
-                                                <div className="font-bold text-gray-800">上传视频或照片</div>
-                                                <p className="text-xs text-gray-400 mt-1 max-w-[200px]">支持 MP4, MOV 或 JPG, PNG 打造专属数字形象</p>
-                                            </>
-                                        )}
+                                 <div className="space-y-5 pt-1">
+                                    {/* Style Selection */}
+                                    <div className="flex gap-2 p-1 bg-gray-50 rounded-2xl">
+                                        <button 
+                                            onClick={() => setMyStyleFilter('realistic')}
+                                            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                                                myStyleFilter === 'realistic' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'
+                                            }`}
+                                        >
+                                            <User size={14} />
+                                            真实风格
+                                        </button>
+                                        <button 
+                                            onClick={() => setMyStyleFilter('cartoon')}
+                                            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                                                myStyleFilter === 'cartoon' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'
+                                            }`}
+                                        >
+                                            <Sparkles size={14} />
+                                            卡通风格
+                                        </button>
                                     </div>
 
-                                    {uploadPreview && (
-                                        <button 
-                                            onClick={() => {
-                                                onSelectAvatar({ type: uploadPreview.type, url: uploadPreview.url, style: 'realistic' })
-                                                onClose()
-                                            }}
-                                            className="w-full py-4 bg-indigo-600 rounded-2xl text-white font-bold shadow-xl shadow-indigo-200 active:scale-95 transition-all"
-                                        >
-                                            确认使用此形象
-                                        </button>
+                                    {myAvatar ? (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <motion.button
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={() => {
+                                                    onSelectAvatar({ ...myAvatar, style: myStyleFilter })
+                                                    onClose()
+                                                }}
+                                                className="relative group aspect-[3/4] rounded-2xl overflow-hidden border-2 border-indigo-100 shadow-lg"
+                                            >
+                                                {myAvatar.type === 'video' ? (
+                                                    <video src={myAvatar.url} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <img src={myAvatar.url} className="w-full h-full object-cover" alt="My Avatar" referrerPolicy="no-referrer" />
+                                                )}
+                                                <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                                                    <p className="text-white text-[11px] font-bold truncate">{myAvatar.name}</p>
+                                                    <p className="text-white/60 text-[9px]">{myStyleFilter === 'realistic' ? '真实风格' : '卡通风格'}</p>
+                                                </div>
+                                                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white">
+                                                    <Check size={12} />
+                                                </div>
+                                            </motion.button>
+                                            
+                                            {/* Quick Clone Button */}
+                                            <button 
+                                                onClick={() => onGoToClone?.()}
+                                                className="aspect-[3/4] rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all"
+                                            >
+                                                <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-400 group-hover:text-indigo-500">
+                                                    <Upload size={20} />
+                                                </div>
+                                                <div className="text-[11px] font-bold text-gray-500">再创建一个</div>
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {/* 默认AI数字人头像 */}
+                                            {myStyleFilter === 'realistic' && (
+                                                <motion.button
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    onClick={() => {
+                                                        onSelectAvatar({ ...DEFAULT_AI_AVATAR, style: myStyleFilter })
+                                                        onClose()
+                                                    }}
+                                                    className="relative group aspect-[3/4] rounded-2xl overflow-hidden border-2 border-indigo-100 shadow-lg"
+                                                >
+                                                    <img src={DEFAULT_AI_AVATAR.url} className="w-full h-full object-cover" alt={DEFAULT_AI_AVATAR.name} referrerPolicy="no-referrer" />
+                                                    <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                                                        <p className="text-white text-[11px] font-bold truncate">{DEFAULT_AI_AVATAR.name}</p>
+                                                        <p className="text-white/60 text-[9px]">真实风格</p>
+                                                    </div>
+                                                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white">
+                                                        <Check size={12} />
+                                                    </div>
+                                                </motion.button>
+                                            )}
+                                            
+                                            {/* Quick Clone Button */}
+                                            <button 
+                                                onClick={() => onGoToClone?.()}
+                                                className={`aspect-[3/4] rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all ${
+                                                    myStyleFilter === 'cartoon' ? 'col-span-2' : ''
+                                                }`}
+                                            >
+                                                <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-400 group-hover:text-indigo-500">
+                                                    <Upload size={20} />
+                                                </div>
+                                                <div className="text-[11px] font-bold text-gray-500">
+                                                    {myStyleFilter === 'realistic' ? '再创建一个' : '创建卡通风格分身'}
+                                                </div>
+                                            </button>
+                                        </div>
                                     )}
 
-                                    <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100">
-                                        <p className="text-[11px] text-amber-700 leading-relaxed text-left flex gap-2">
-                                            <span className="shrink-0 mt-0.5">💡</span>
-                                            提示：上传清晰的脸部特写视频或照片，能获得更逼真的数字人合成效果和面部动态。
+                                    <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                                        <p className="text-[11px] text-blue-700 leading-relaxed text-left flex gap-2">
+                                            <span className="shrink-0 mt-0.5">✨</span>
+                                            提示：我的分身支持在不同对话场景中切换风格，真实风格适合正式场合，卡通风格适合趣味互动。
                                         </p>
                                     </div>
                                 </div>

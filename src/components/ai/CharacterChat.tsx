@@ -4,6 +4,7 @@ import { Mic, Phone, Keyboard, Smile, Image as ImageIcon, PhoneCall, SendHorizon
 import { VoiceWaveAnimation } from './VoiceWaveAnimation'
 import { StreamingText } from './StreamingText'
 import type { Message } from './types'
+import { aiService } from '../../services/aiService'
 import { sttService } from '../../services/sttService'
 import type { ThemeConfig } from '../../lib/themes'
 import type { CharacterStyle } from './types'
@@ -132,9 +133,9 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-3 px-1 transition-opacity duration-500`}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-10 h-10 rounded-full border-2 border-indigo-400/30 bg-white/10 flex-shrink-0 flex items-center justify-center shadow-lg overflow-hidden">
+                  <div className="w-8 h-8 rounded-full border-2 border-indigo-400/30 bg-white/10 flex-shrink-0 flex items-center justify-center shadow-lg overflow-hidden">
                     <img 
-                      src={customAvatar?.url || "https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"} 
+                      src={customAvatar?.url || aiService.getAvatar('digital')} 
                       alt="AI" 
                       className="w-full h-full object-cover" 
                       referrerPolicy="no-referrer"
@@ -142,12 +143,12 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
                   </div>
                 )}
                 
-                <div className={`max-w-[85%] backdrop-blur-md rounded-2xl px-4 py-2.5 shadow-lg border ${
+                <div className={`max-w-[80%] backdrop-blur-md rounded-2xl px-3 py-2 shadow-lg border ${
                   msg.role === 'user' 
                     ? 'bg-blue-500/60 border-white/20 rounded-tr-none' 
                     : 'bg-pink-400/60 border-white/20 rounded-tl-none'
                 }`}>
-                  <div className={`text-[14px] leading-relaxed font-medium text-white/95`}>
+                  <div className={`text-[12px] leading-relaxed font-medium text-white/95`}>
                     {msg.role === 'assistant' && idx === arr.length - 1 && showStreamingContent ? (
                       <StreamingText 
                         text={msg.content} 
@@ -179,7 +180,7 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
                 </div>
 
                 {msg.role === 'user' && (
-                  <div className="w-10 h-10 rounded-full border-2 border-white/20 overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-white/5">
+                  <div className="w-8 h-8 rounded-full border-2 border-white/20 overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-white/5">
                     <img src="https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="User" className="w-full h-full object-cover" />
                   </div>
                 )}

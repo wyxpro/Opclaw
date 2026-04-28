@@ -6,7 +6,8 @@ import { VoiceWaveAnimation } from './VoiceWaveAnimation'
 import { StreamingText } from './StreamingText'
 import { BackgroundCustomizer } from './BackgroundCustomizer'
 import { AvatarSelectionDialog } from './AvatarSelectionDialog'
-import type { Message, CharacterStyle } from './types'
+import type { Message, CharacterStyle, AvatarModel } from './types'
+import { aiService } from '../../services/aiService'
 import { sttService } from '../../services/sttService'
 import { useTheme } from '../../hooks/useTheme'
 
@@ -23,6 +24,8 @@ interface CharacterVoiceUIProps {
   onOpenHistory?: () => void
   customAvatar?: { type: 'image' | 'video' | 'custom', url: string, style?: string } | null
   onAvatarChange?: (avatar: { type: 'image' | 'video' | 'custom', url: string, style?: string }) => void
+  myAvatar?: AvatarModel | null
+  onGoToClone?: () => void
 }
 
 export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
@@ -37,7 +40,9 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
   onEndCall,
   onOpenHistory,
   customAvatar,
-  onAvatarChange
+  onAvatarChange,
+  myAvatar,
+  onGoToClone
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { themeConfig } = useTheme()
@@ -167,7 +172,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg shadow-black/10"
           >
             <Bot size={13} className="text-indigo-400" />
-            <span>数字分身</span>
+            <span>形象选择</span>
           </motion.button>
 
           {onBackgroundChange && (
@@ -199,7 +204,11 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
       {/* 4. 对话区域 - 加载全部消息 */}
       <div 
         ref={scrollRef}
-        className={`absolute ${style === 'hidden' ? 'bottom-[120px] top-32' : 'bottom-64 top-[50vh]'} left-0 right-0 z-20 px-6 overflow-y-auto no-scrollbar flex flex-col gap-5 py-4 transition-all`}
+        className={`absolute ${style === 'hidden' ? 'bottom-[120px] top-32' : 'bottom-64 top-[50vh]'} left-0 right-0 z-20 px-6 overflow-y-auto no-scrollbar flex flex-col gap-3 py-4 transition-all`}
+        style={{
+          maskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)'
+        }}
       >
         <AnimatePresence initial={false}>
           {messages.map((msg, idx, arr) => {
@@ -213,9 +222,9 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-3 px-1 transition-opacity duration-500`}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-10 h-10 rounded-full border-2 border-indigo-400/30 bg-white/10 flex-shrink-0 flex items-center justify-center shadow-lg overflow-hidden">
+                  <div className="w-8 h-8 rounded-full border-2 border-indigo-400/30 bg-white/10 flex-shrink-0 flex items-center justify-center shadow-lg overflow-hidden">
                     <img 
-                      src={customAvatar?.url || "https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"} 
+                      src={customAvatar?.url || aiService.getAvatar('digital')} 
                       alt="AI" 
                       className="w-full h-full object-cover" 
                       referrerPolicy="no-referrer"
@@ -223,12 +232,12 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                   </div>
                 )}
                 
-                <div className={`max-w-[85%] backdrop-blur-md rounded-2xl px-4 py-2.5 shadow-lg border ${
+                <div className={`max-w-[80%] backdrop-blur-md rounded-2xl px-3 py-2 shadow-lg border ${
                   msg.role === 'user' 
                     ? 'bg-blue-500/60 border-white/20 rounded-tr-none' 
                     : 'bg-pink-400/60 border-white/20 rounded-tl-none'
                 }`}>
-                  <div className={`text-[14px] leading-relaxed font-medium text-white/95`}>
+                  <div className={`text-[12px] leading-relaxed font-medium text-white/95`}>
                     {msg.role === 'assistant' && idx === arr.length - 1 && showStreamingContent ? (
                       <StreamingText 
                         text={msg.content} 
@@ -260,7 +269,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                 </div>
 
                 {msg.role === 'user' && (
-                  <div className="w-10 h-10 rounded-full border-2 border-white/20 overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-white/5">
+                  <div className="w-8 h-8 rounded-full border-2 border-white/20 overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-white/5">
                     <img src="https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="User" className="w-full h-full object-cover" />
                   </div>
                 )}
@@ -433,6 +442,8 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
         isOpen={isAvatarDialogOpen} 
         onClose={() => setIsAvatarDialogOpen(false)}
         onSelectAvatar={(avatar) => onAvatarChange && onAvatarChange(avatar)}
+        myAvatar={myAvatar}
+        onGoToClone={onGoToClone}
       />
     </div>
   )

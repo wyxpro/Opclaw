@@ -212,9 +212,10 @@ export function Character3D({
                 />
               ) : (
                 <img 
-                  src={customAvatar?.url || "/vibe_images/person/g1.jpg"} 
+                  src={customAvatar?.url || "https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"} 
                   alt="AI Character" 
                   className="w-full h-full object-cover select-none"
+                  referrerPolicy="no-referrer"
                 />
               )}
               {isSpeaking && (
