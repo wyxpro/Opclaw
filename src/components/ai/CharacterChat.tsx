@@ -17,9 +17,11 @@ interface CharacterChatProps {
   customAvatar?: { type: 'image' | 'video' | 'custom', url: string, style?: string } | null
   onSendMessage: (content: string) => void
   onEndCall: () => void
+  onBackgroundChange?: (background: string) => void
 }
 
-export function CharacterChat({ style, messages, isLoading, themeConfig, customAvatar, onSendMessage, onEndCall }: CharacterChatProps) {
+export function CharacterChat({ style, messages, isLoading, themeConfig, customAvatar, onSendMessage, onEndCall, onBackgroundChange }: CharacterChatProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [isListening, setIsListening] = useState(false)
   const [userInput, setUserInput] = useState('')
   const [showStreamingContent, setShowStreamingContent] = useState(false)
@@ -212,9 +214,27 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
                 </button>
 
                 {/* 图片按钮 */}
-                <button className="text-indigo-500 hover:text-indigo-600 hover:scale-110 transition-all duration-300 ml-1">
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-indigo-500 hover:text-indigo-600 hover:scale-110 transition-all duration-300 ml-1"
+                >
                   <ImageIcon size={30} strokeWidth={2.5} />
                 </button>
+
+                {/* 文件上传 */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,.gltf,.glb,.obj,.fbx"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file && onBackgroundChange) {
+                      const url = URL.createObjectURL(file)
+                      onBackgroundChange(url)
+                    }
+                  }}
+                />
 
                 {/* 表情面板 */}
                 <AnimatePresence>

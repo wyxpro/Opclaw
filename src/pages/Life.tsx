@@ -13,6 +13,7 @@ import { TimeAlbum } from '../components/love/TimeAlbum'
 import { WishList } from '../components/love/WishList'
 import { BlessingBoard } from '../components/love/BlessingBoard'
 import { MusicBox, MovieWall } from '../components/entertainment/EntertainmentModules'
+import { sttService } from '../services/sttService'
 
 // Couple info configuration
 const coupleInfo = {
@@ -1106,56 +1107,32 @@ function CommentList({ comments, isExpanded }: { comments: PostComment[]; isExpa
   )
 }
 
-// 语音输入 Hook
+// 语音输入 Hook - 改用 FunAudioLLM/SenseVoiceSmall
 function useSpeechRecognition(onResult: (text: string) => void) {
   const [isListening, setIsListening] = useState(false)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const isSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+  const isSupported = true // 现代浏览器基本都支持 MediaRecorder
 
-  const startListening = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    
-    if (!SpeechRecognitionAPI) {
-      alert('您的浏览器不支持语音识别功能')
-      return
+  const startListening = async () => {
+    try {
+      await sttService.startRecording()
+      setIsListening(true)
+    } catch (error) {
+      console.error('Failed to start recording:', error)
+      alert('无法启动麦克风，请检查权限设置')
     }
-
-    const recognition = new SpeechRecognitionAPI()
-    recognition.continuous = false
-    recognition.interimResults = true
-    recognition.lang = 'zh-CN'
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (event: any) => {
-      let finalTranscript = ''
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript
-        }
-      }
-
-      if (finalTranscript) {
-        onResult(finalTranscript)
-      }
-    }
-
-    recognition.onerror = () => {
-      setIsListening(false)
-    }
-
-    recognition.onend = () => {
-      setIsListening(false)
-    }
-
-    recognition.start()
-    setIsListening(true)
   }
 
-  const stopListening = () => {
+  const stopListening = async () => {
     setIsListening(false)
+    try {
+      const text = await sttService.stopRecording()
+      if (text.trim()) {
+        onResult(text)
+      }
+    } catch (error) {
+      console.error('Transcription failed:', error)
+      alert('语音识别失败，请重试')
+    }
   }
 
   return { isListening, startListening, stopListening, isSupported }

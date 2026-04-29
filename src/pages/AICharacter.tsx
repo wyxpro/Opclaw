@@ -309,6 +309,7 @@ export default function AICharacter() {
               customAvatar={customAvatar}
               onSendMessage={handleSendMessage}
               onEndCall={handleEndCall}
+              onBackgroundChange={(newBg) => setBackground(newBg)}
             />
           </div>
         )

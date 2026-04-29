@@ -153,7 +153,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="video/*,.gltf,.glb,.obj,.fbx"
+        accept="image/*,.gltf,.glb,.obj,.fbx"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0]
