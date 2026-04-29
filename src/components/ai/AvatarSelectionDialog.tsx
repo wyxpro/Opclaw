@@ -14,10 +14,10 @@ export interface AvatarPreset {
 
 const PRESET_AVATARS: AvatarPreset[] = [
     // Default AI Avatar
-    { id: 'default-ai', name: 'AI数字人', url: 'https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500', type: 'image', gender: 'female', style: 'realistic' },
+    { id: 'default-ai', name: 'AI数字人', url: '/vibe_images/person/girl/girl.png', type: 'image', gender: 'female', style: 'realistic' },
     
     // Females
-    { id: 'f1', name: '职场专家', url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400', type: 'image', gender: 'female', style: 'realistic' },
+    { id: 'f1', name: '职场专家', url: '/vibe_images/person/girl/girl1.png', type: 'image', gender: 'female', style: 'realistic' },
     { id: 'f2', name: '活力少女', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400', type: 'image', gender: 'female', style: 'realistic' },
     { id: 'f3', name: '文静学姐', url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400', type: 'image', gender: 'female', style: 'realistic' },
     { id: 'f4', name: '元气卡通', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Lucy', type: 'image', gender: 'female', style: 'cartoon' },
@@ -36,7 +36,7 @@ export const DEFAULT_AI_AVATAR: AvatarModel = {
     id: 'default-ai',
     name: 'AI数字人',
     type: 'image',
-    url: 'https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500',
+    url: '/vibe_images/person/girl/girl.png',
     style: 'realistic',
     createdAt: Date.now(),
     isCloned: false
@@ -47,10 +47,11 @@ interface AvatarSelectionDialogProps {
     onClose: () => void
     onSelectAvatar: (avatar: any) => void
     myAvatar?: AvatarModel | null
+    currentAvatarUrl?: string
     onGoToClone?: () => void
 }
 
-export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvatar, onGoToClone }: AvatarSelectionDialogProps) {
+export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvatar, currentAvatarUrl, onGoToClone }: AvatarSelectionDialogProps) {
     const [activeTab, setActiveTab] = useState<'presets' | 'my'>('presets')
     const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all')
     const [myStyleFilter, setMyStyleFilter] = useState<CharacterStyle>(myAvatar?.style || 'realistic')
@@ -156,13 +157,22 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                                                     onSelectAvatar({ type: p.type, url: p.url, style: p.style })
                                                     onClose()
                                                 }}
-                                                className="group relative flex flex-col p-1.5 rounded-xl border-2 border-gray-50 hover:border-indigo-100 transition-all"
+                                                className={`group relative flex flex-col p-1.5 rounded-xl border-2 transition-all ${
+                                                    currentAvatarUrl === p.url ? 'border-indigo-500 bg-indigo-50/30' : 'border-gray-50 hover:border-indigo-100'
+                                                }`}
                                             >
-                                                <div className="w-full aspect-square rounded-lg overflow-hidden mb-1.5">
+                                                <div className="w-full aspect-square rounded-lg overflow-hidden mb-1.5 relative">
                                                     <img src={p.url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
+                                                    {currentAvatarUrl === p.url && (
+                                                        <div className="absolute inset-0 bg-indigo-600/20 flex items-center justify-center">
+                                                            <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-lg">
+                                                                <Check size={14} />
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className="px-1 text-left w-full">
-                                                    <div className="font-bold text-[11px] text-gray-800 truncate">{p.name}</div>
+                                                    <div className={`font-bold text-[11px] truncate ${currentAvatarUrl === p.url ? 'text-indigo-600' : 'text-gray-800'}`}>{p.name}</div>
                                                 </div>
                                             </button>
                                         ))}
@@ -212,9 +222,11 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                                                     <p className="text-white text-[11px] font-bold truncate">{myAvatar.name}</p>
                                                     <p className="text-white/60 text-[9px]">{myStyleFilter === 'realistic' ? '真实风格' : '卡通风格'}</p>
                                                 </div>
-                                                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white">
-                                                    <Check size={12} />
-                                                </div>
+                                                {currentAvatarUrl === myAvatar.url && (
+                                                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white shadow-lg">
+                                                        <Check size={12} />
+                                                    </div>
+                                                )}
                                             </motion.button>
                                             
                                             {/* Quick Clone Button */}
@@ -246,9 +258,11 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                                                         <p className="text-white text-[11px] font-bold truncate">{DEFAULT_AI_AVATAR.name}</p>
                                                         <p className="text-white/60 text-[9px]">真实风格</p>
                                                     </div>
-                                                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white">
-                                                        <Check size={12} />
-                                                    </div>
+                                                    {currentAvatarUrl === DEFAULT_AI_AVATAR.url && (
+                                                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white shadow-lg">
+                                                            <Check size={12} />
+                                                        </div>
+                                                    )}
                                                 </motion.button>
                                             )}
                                             

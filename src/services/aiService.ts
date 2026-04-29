@@ -17,7 +17,7 @@ export const aiService = {
     if (type === 'learning') {
       return "https://api.dicebear.com/7.x/bottts/svg?seed=Lucky&backgroundColor=b6e3f4"
     }
-    return "https://api.dicebear.com/7.x/bottts/svg?seed=Dreamer&backgroundColor=ffdfbf"
+    return "/vibe_images/person/girl/girl.png"
   },
 
   /**

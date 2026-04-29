@@ -192,7 +192,8 @@ export function Character3D({
 
       {!customMedia && style !== 'hidden' && (
         <div className={`absolute inset-0 flex items-center justify-center p-4 ${isMobileVoiceUI ? '-top-38 h-full' : ''}`}>
-          {style === 'realistic' ? (
+          {/* Always show custom avatar if URL is available, otherwise show style-based default */}
+          {(customAvatar?.url || style === 'realistic') ? (
             <motion.div
               className="relative w-40 h-60 md:w-60 md:h-[22rem] lg:w-64 lg:h-[26rem] rounded-[40px] md:rounded-[48px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] border-4 border-white/10 md:-mt-30 lg:-mt-34"
               animate={{
@@ -212,7 +213,7 @@ export function Character3D({
                 />
               ) : (
                 <img 
-                  src={customAvatar?.url || "https://img0.baidu.com/it/u=1387904049,367428306&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500"} 
+                  src={customAvatar?.url || "/vibe_images/person/girl/girl.png"} 
                   alt="AI Character" 
                   className="w-full h-full object-cover select-none"
                   referrerPolicy="no-referrer"

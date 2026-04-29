@@ -145,6 +145,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
             onStyleChange={onStyleChange}
             onBackgroundChange={onBackgroundChange}
             isMobileVoiceUI={true}
+            customAvatar={customAvatar}
           />
         </div>
 
@@ -443,6 +444,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
         onClose={() => setIsAvatarDialogOpen(false)}
         onSelectAvatar={(avatar) => onAvatarChange && onAvatarChange(avatar)}
         myAvatar={myAvatar}
+        currentAvatarUrl={customAvatar?.url}
         onGoToClone={onGoToClone}
       />
     </div>

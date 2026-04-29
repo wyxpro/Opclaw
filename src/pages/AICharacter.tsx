@@ -437,6 +437,7 @@ export default function AICharacter() {
           onClose={() => setIsAvatarDialogOpen(false)}
           onSelectAvatar={handleAvatarSelect}
           myAvatar={avatarModel}
+          currentAvatarUrl={customAvatar?.url}
           onGoToClone={() => {
             setCurrentStep('avatar-clone')
             setIsAvatarDialogOpen(false)
