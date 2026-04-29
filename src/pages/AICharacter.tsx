@@ -27,7 +27,7 @@ export default function AICharacter() {
   
   // 数字人配置
   const [voiceModel, setVoiceModel] = useState<VoiceModel | null>(null)
-  const [avatarModel, setAvatarModel] = useState<AvatarModel | null>(DEFAULT_AI_AVATAR)
+  const [avatarModel, setAvatarModel] = useState<AvatarModel | null>(null)
   
   // 对话界面状态
   const [characterStyle, setCharacterStyle] = useState<CharacterStyle>('realistic')
@@ -64,12 +64,11 @@ export default function AICharacter() {
         try { 
           const avatar = JSON.parse(savedAvatar)
           setAvatarModel(avatar)
-          setCustomAvatar(avatar)
         } catch (e) { console.error(e) }
-      } else {
-        // 没有保存的头像时使用默认AI头像
-        setCustomAvatar(DEFAULT_AI_AVATAR)
       }
+      
+      // 无论是否有克隆形象，打开界面时默认使用第一个预设形象
+      setCustomAvatar(DEFAULT_AI_AVATAR)
 
       return () => window.removeEventListener('resize', checkMobile)
     }, [])
