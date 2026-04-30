@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
+import {
   PenTool, ShoppingCart, Plus, Bookmark,
   Video, FileText, Calendar, Users, TrendingUp, Package,
   DollarSign, Eye, ThumbsUp, MessageSquare, Share2, Edit3,
@@ -123,7 +123,7 @@ function NewMediaModule() {
       tooltip: { trigger: type === 'pie' ? 'item' : 'axis' },
       textStyle: { color: colors.textMuted },
     };
-    
+
     if (type === 'pie') {
       return {
         ...baseOption,
@@ -154,10 +154,10 @@ function NewMediaModule() {
       const isDouyin = platform === 'douyin';
       const isXHS = platform === 'xiaohongshu';
       const isWeibo = platform === 'weibo';
-      const values = isDouyin ? [95, 88, 75, 98, 85] : 
-                     isXHS ? [85, 95, 80, 90, 92] : 
-                     isWeibo ? [90, 60, 50, 70, 75] : 
-                     [80, 75, 65, 80, 85];
+      const values = isDouyin ? [95, 88, 75, 98, 85] :
+        isXHS ? [85, 95, 80, 90, 92] :
+          isWeibo ? [90, 60, 50, 70, 75] :
+            [80, 75, 65, 80, 85];
 
       return {
         ...baseOption,
@@ -230,11 +230,10 @@ function NewMediaModule() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedPlatform('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              selectedPlatform === 'all'
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedPlatform === 'all'
                 ? 'bg-primary/10 text-primary border border-primary/20'
                 : 'bg-surface border border-border text-text-muted hover:text-text'
-            }`}
+              }`}
           >
             全部平台
           </button>
@@ -242,11 +241,10 @@ function NewMediaModule() {
             <button
               key={platform.id}
               onClick={() => setSelectedPlatform(platform.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
-                selectedPlatform === platform.id
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${selectedPlatform === platform.id
                   ? 'bg-primary/10 text-primary border border-primary/20'
                   : 'bg-surface border border-border text-text-muted hover:text-text'
-              }`}
+                }`}
             >
               <span>{platform.icon}</span>
               <span className="hidden sm:inline">{platform.name}</span>
@@ -277,11 +275,10 @@ function NewMediaModule() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as 'content' | 'posts' | 'analytics')}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors relative ${
-              activeTab === tab.id
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors relative ${activeTab === tab.id
                 ? 'text-primary'
                 : 'text-text-muted hover:text-text'
-            }`}
+              }`}
           >
             <tab.icon size={16} />
             {tab.label}
@@ -317,14 +314,14 @@ function NewMediaModule() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary shadow-sm"
-                    style={{ 
+                    style={{
                       backgroundColor: colors.surface,
                       border: `1px solid ${colors.border}`,
                       color: colors.text
                     }}
                   />
                 </div>
-                <button 
+                <button
                   onClick={() => setIsFilterExpanded(!isFilterExpanded)}
                   className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm transition-all border ${isFilterExpanded ? 'bg-primary/10 text-primary border-primary/20' : 'bg-surface border-border text-text'}`}
                   style={{ borderColor: isFilterExpanded ? 'transparent' : colors.border }}
@@ -400,27 +397,27 @@ function NewMediaModule() {
                   key={content.id}
                   whileHover={{ y: -6, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
                   className="group relative flex flex-col rounded-2xl overflow-hidden shadow-md"
-                  style={{ 
+                  style={{
                     backgroundColor: colors.surface,
                     border: `1px solid ${colors.border}`
                   }}
                 >
                   {/* 封面图部分 */}
                   <div className="relative aspect-video overflow-hidden">
-                    <img 
-                      src={content.thumbnail || 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500'} 
+                    <img
+                      src={content.thumbnail || 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500'}
                       alt={content.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
                       <div className="flex justify-end gap-2">
-                        <button 
+                        <button
                           onClick={(e) => { e.stopPropagation(); setModalType('edit'); setIsModalOpen(true); }}
                           className="p-2 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/40 transition-colors"
                         >
                           <Edit3 size={14} />
                         </button>
-                        <button 
+                        <button
                           onClick={(e) => { e.stopPropagation(); setDeleteId(content.id); }}
                           className="p-2 rounded-full bg-rose-500/80 backdrop-blur-md text-white hover:bg-rose-500 transition-colors"
                         >
@@ -461,7 +458,7 @@ function NewMediaModule() {
                         <span
                           key={tag}
                           className="px-2 py-0.5 rounded-md text-[10px] font-medium"
-                          style={{ 
+                          style={{
                             backgroundColor: colors.primaryMuted,
                             color: colors.primary
                           }}
@@ -489,7 +486,7 @@ function NewMediaModule() {
                 whileHover={{ y: -4, scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 className="group relative h-full min-h-[300px] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center p-6 transition-colors shadow-sm overflow-hidden"
-                style={{ 
+                style={{
                   backgroundColor: colors.surfaceAlt,
                   borderColor: colors.border
                 }}
@@ -522,7 +519,7 @@ function NewMediaModule() {
                 key={post.id}
                 whileHover={{ x: 4 }}
                 className="glass-card p-4"
-                style={{ 
+                style={{
                   backgroundColor: colors.surface,
                   border: `1px solid ${colors.border}`
                 }}
@@ -537,13 +534,12 @@ function NewMediaModule() {
                         {post.title}
                       </h3>
                       <div className="flex items-center gap-2 text-xs mt-1">
-                        <span className={`px-2 py-0.5 rounded-full font-medium ${
-                          post.status === 'published' ? 'bg-emerald-500/10 text-emerald-500' :
-                          post.status === 'draft' ? 'bg-amber-500/10 text-amber-500' :
-                          'bg-blue-500/10 text-blue-500'
-                        }`}>
+                        <span className={`px-2 py-0.5 rounded-full font-medium ${post.status === 'published' ? 'bg-emerald-500/10 text-emerald-500' :
+                            post.status === 'draft' ? 'bg-amber-500/10 text-amber-500' :
+                              'bg-blue-500/10 text-blue-500'
+                          }`}>
                           {post.status === 'published' ? '已发布' :
-                           post.status === 'draft' ? '草稿' : '定时发布'}
+                            post.status === 'draft' ? '草稿' : '定时发布'}
                         </span>
                         <span style={{ color: colors.textMuted }}>
                           {post.status === 'scheduled' && post.scheduledAt ? `预定: ${post.scheduledAt}` : post.createdAt}
@@ -609,13 +605,13 @@ function NewMediaModule() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   className="glass-card p-4"
-                  style={{ 
+                  style={{
                     backgroundColor: colors.surface,
                     border: `1px solid ${colors.border}`
                   }}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <div 
+                    <div
                       className="p-2 rounded-lg"
                       style={{ backgroundColor: `${stat.color}20` }}
                     >
@@ -642,11 +638,10 @@ function NewMediaModule() {
                     <button
                       key={t}
                       onClick={() => setChartType(t)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        chartType === t
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${chartType === t
                           ? 'bg-primary/10 text-primary border border-primary/20'
                           : 'bg-surface border border-border text-text-muted hover:text-text'
-                      }`}
+                        }`}
                     >
                       {t === 'line' ? '折线图' : t === 'bar' ? '柱状图' : t === 'pie' ? '饼图' : '雷达图'}
                     </button>
@@ -654,9 +649,9 @@ function NewMediaModule() {
                 </div>
               </div>
               <div className="h-[300px] w-full">
-                <ReactECharts 
+                <ReactECharts
                   notMerge={true}
-                  option={getChartOption(chartType, colors, selectedPlatform)} 
+                  option={getChartOption(chartType, colors, selectedPlatform)}
                   style={{ height: '100%', width: '100%' }}
                 />
               </div>
@@ -695,10 +690,10 @@ function NewMediaModule() {
                     {['图文', '视频', '动态'].map(t => {
                       const isSelected = modalContentType === t;
                       return (
-                        <button 
-                          key={t} 
+                        <button
+                          key={t}
                           onClick={() => setModalContentType(t)}
-                          className={`px-4 py-1.5 rounded-lg text-sm transition-colors border ${isSelected ? 'bg-primary/10 text-primary border-primary/20' : ''}`} 
+                          className={`px-4 py-1.5 rounded-lg text-sm transition-colors border ${isSelected ? 'bg-primary/10 text-primary border-primary/20' : ''}`}
                           style={{ borderColor: isSelected ? 'transparent' : colors.border, color: isSelected ? colors.primary : colors.text }}
                         >
                           {t}
@@ -715,11 +710,11 @@ function NewMediaModule() {
                       return (
                         <button
                           key={p.id}
-                          onClick={() => setModalPlatforms(prev => 
+                          onClick={() => setModalPlatforms(prev =>
                             prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id]
                           )}
                           className={`px-3 py-1.5 border rounded-lg text-xs flex items-center gap-1 transition-colors`}
-                          style={{ 
+                          style={{
                             backgroundColor: isSelected ? `${p.color}15` : 'transparent',
                             borderColor: isSelected ? `${p.color}40` : colors.border,
                             color: isSelected ? p.color : colors.textMuted
@@ -850,7 +845,7 @@ function EcommerceModule() {
   const [orderStatusFilter, setOrderStatusFilter] = React.useState<'all' | 'completed' | 'pending' | 'shipped' | 'cancelled'>('all')
   const [orderSearchQuery, setOrderSearchQuery] = React.useState('')
   const [expandedOrderId, setExpandedOrderId] = React.useState<string | null>(null)
-  
+
   // 订单创建状态
   const [isOrderModalOpen, setIsOrderModalOpen] = React.useState(false)
   const [orderFormData, setOrderFormData] = React.useState<Partial<Order>>({})
@@ -890,7 +885,7 @@ function EcommerceModule() {
 
   const [orders, setOrders] = React.useState<Order[]>([
     { id: 'DD20240115001', productName: '无线蓝牙耳机 降噪高音质', amount: 299, quantity: 1, status: 'completed', date: '2024-01-15 14:30', customer: '张三', phone: '138****8888', address: '北京市朝阳区XX路XX号', payMethod: '微信支付' },
-    { id: 'DD20240115002', productName: '智能手表 运动健康监测', amount: 1798, quantity: 2, status: 'pending', date: '2024-01-15 15:45', customer: '李四', phone: '139****9999', address: '上海市浦东新区XX路XX室', payMethod: '支付宝' },
+    { id: 'DD20240115002', productName: '智能手表 运动健康监测', amount: 1798, quantity: 2, status: 'pending', date: '2024-01-15 15:45', customer: '李四', phone: '139****9999', address: '浙江浦东新区XX路XX室', payMethod: '支付宝' },
     { id: 'DD20240116001', productName: '无线蓝牙耳机 降噪高音质', amount: 299, quantity: 1, status: 'shipped', date: '2024-01-16 09:20', customer: '王五', phone: '187****7777', address: '广州市天河区XX街道XX号', payMethod: '银行卡' },
     { id: 'DD20240116002', productName: '智能手表 运动健康监测', amount: 899, quantity: 1, status: 'cancelled', date: '2024-01-16 11:10', customer: '赵六', phone: '136****6666', address: '深圳市南山区XX大道XX层', payMethod: '微信支付' },
     { id: 'DD20240117001', productName: '无线蓝牙耳机 降噪高音质', amount: 597, quantity: 2, status: 'completed', date: '2024-01-17 10:00', customer: '孙七', phone: '135****5555', address: '成都市武侯区XX大道XX号', payMethod: '支付宝' },
@@ -964,14 +959,14 @@ function EcommerceModule() {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
       legend: { data: ['访客数', '浏览量', '加购数'], textStyle: { color: colors.textMuted }, top: 0 },
       grid: { left: '2%', right: '2%', bottom: '3%', top: '12%', containLabel: true },
-      xAxis: { 
-        type: 'category', 
+      xAxis: {
+        type: 'category',
         data: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
         axisLine: { lineStyle: { color: colors.border } },
         axisLabel: { color: colors.textMuted, fontSize: 11 }
       },
-      yAxis: { 
-        type: 'value', 
+      yAxis: {
+        type: 'value',
         splitLine: { lineStyle: { color: colors.border, type: 'dashed' } },
         axisLabel: { color: colors.textMuted }
       },
@@ -1007,7 +1002,7 @@ function EcommerceModule() {
     let days: string[] = [];
     if (timeRange === 'day') days = ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
     else if (timeRange === 'week') days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    else if (timeRange === 'month') days = Array.from({length: 15}, (_, i) => String(i*2 + 1) + '日');
+    else if (timeRange === 'month') days = Array.from({ length: 15 }, (_, i) => String(i * 2 + 1) + '日');
     else if (timeRange === 'quarter') days = ['第一季度', '第二季度', '第三季度', '第四季度'];
     else if (timeRange === 'year') days = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 
@@ -1165,7 +1160,7 @@ function EcommerceModule() {
                       key={r}
                       onClick={() => setSalesTimeRange(r as any)}
                       className={"px-3 py-1 text-xs rounded-lg transition-colors " + (salesTimeRange === r ? 'bg-primary text-white' : 'hover:bg-surface/60')}
-                      style={{ 
+                      style={{
                         backgroundColor: salesTimeRange === r ? colors.primary : colors.surfaceAlt,
                         color: salesTimeRange === r ? '#fff' : colors.textMuted
                       }}
@@ -1212,7 +1207,7 @@ function EcommerceModule() {
           <motion.div key="products" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
             {/* 搜索栏 */}
             <div className="relative">
-               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.textMuted }} />
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.textMuted }} />
               <input
                 type="text"
                 placeholder="搜索商品名称、分类..."
@@ -1260,7 +1255,7 @@ function EcommerceModule() {
                         style={{ backgroundColor: colors.primary }}
                         onClick={() => handleOpenEditModal(product)}
                       >
-                         <Edit3 size={14} /> 编辑
+                        <Edit3 size={14} /> 编辑
                       </button>
                       <button className="flex-1 py-1.5 rounded-lg text-sm font-medium hover:brightness-95 transition-all flex justify-center items-center gap-1"
                         style={{ backgroundColor: colors.surfaceAlt, border: "1px solid " + colors.border, color: colors.text }}
@@ -1277,216 +1272,216 @@ function EcommerceModule() {
         )}
 
         {activeTab === 'orders' && (
-           <motion.div key="orders" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
-             {/* 统计卡片行 */}
-             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-               {[
-                 { label: '全部订单', count: orders.length, color: '#6366f1', icon: Package },
-                 { label: '待付款', count: orders.filter(o => o.status === 'pending').length, color: '#f59e0b', icon: Clock },
-                 { label: '已发货', count: orders.filter(o => o.status === 'shipped').length, color: '#3b82f6', icon: Truck },
-                 { label: '已完成', count: orders.filter(o => o.status === 'completed').length, color: '#10b981', icon: CheckCircle }
-               ].map(s => (
-                 <div key={s.label} className="glass-card p-4 flex items-center gap-3" style={{ backgroundColor: colors.surface, border: '1px solid ' + colors.border }}>
-                   <div className="p-2 rounded-lg" style={{ backgroundColor: s.color + '20' }}>
-                     <s.icon size={18} style={{ color: s.color }} />
-                   </div>
-                   <div>
-                     <div className="text-xl font-bold" style={{ color: colors.text }}>{s.count}</div>
-                     <div className="text-xs" style={{ color: colors.textMuted }}>{s.label}</div>
-                   </div>
-                 </div>
-               ))}
-             </div>
+          <motion.div key="orders" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
+            {/* 统计卡片行 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: '全部订单', count: orders.length, color: '#6366f1', icon: Package },
+                { label: '待付款', count: orders.filter(o => o.status === 'pending').length, color: '#f59e0b', icon: Clock },
+                { label: '已发货', count: orders.filter(o => o.status === 'shipped').length, color: '#3b82f6', icon: Truck },
+                { label: '已完成', count: orders.filter(o => o.status === 'completed').length, color: '#10b981', icon: CheckCircle }
+              ].map(s => (
+                <div key={s.label} className="glass-card p-4 flex items-center gap-3" style={{ backgroundColor: colors.surface, border: '1px solid ' + colors.border }}>
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: s.color + '20' }}>
+                    <s.icon size={18} style={{ color: s.color }} />
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold" style={{ color: colors.text }}>{s.count}</div>
+                    <div className="text-xs" style={{ color: colors.textMuted }}>{s.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-             {/* 搜索 + 状态筛选 */}
-             <div className="flex flex-col sm:flex-row gap-3">
-               <div className="relative flex-1">
-                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.textMuted }} />
-                 <input
-                   type="text"
-                   placeholder="搜索订单号、商品名称、客户..."
-                   value={orderSearchQuery}
-                   onChange={e => setOrderSearchQuery(e.target.value)}
-                   className="w-full pl-9 pr-4 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary shadow-sm"
-                   style={{ backgroundColor: colors.surface, border: '1px solid ' + colors.border, color: colors.text }}
-                 />
-               </div>
-               <div className="flex gap-2 flex-wrap items-center">
-                 <button
-                   onClick={handleOpenCreateOrderModal}
-                   className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-primary hover:brightness-110 transition-all flex items-center gap-1.5 shadow-md"
-                   style={{ backgroundColor: colors.primary }}
-                 >
-                   <Plus size={14} />
-                   新建订单
-                 </button>
-                 <div className="h-6 w-[1px] bg-border mx-1 hidden sm:block" />
-                 {(['all', 'pending', 'shipped', 'completed', 'cancelled'] as const).map(s => (
-                   <button
-                     key={s}
-                     onClick={() => setOrderStatusFilter(s)}
-                     className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                     style={{
-                       backgroundColor: orderStatusFilter === s ? colors.primary : colors.surfaceAlt,
-                       color: orderStatusFilter === s ? '#fff' : colors.textMuted,
-                       border: '1px solid ' + (orderStatusFilter === s ? colors.primary : colors.border)
-                     }}
-                   >
-                     {s === 'all' ? '全部' : s === 'pending' ? '待付款' : s === 'shipped' ? '已发货' : s === 'completed' ? '已完成' : '已取消'}
-                   </button>
-                 ))}
-               </div>
-             </div>
+            {/* 搜索 + 状态筛选 */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.textMuted }} />
+                <input
+                  type="text"
+                  placeholder="搜索订单号、商品名称、客户..."
+                  value={orderSearchQuery}
+                  onChange={e => setOrderSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary shadow-sm"
+                  style={{ backgroundColor: colors.surface, border: '1px solid ' + colors.border, color: colors.text }}
+                />
+              </div>
+              <div className="flex gap-2 flex-wrap items-center">
+                <button
+                  onClick={handleOpenCreateOrderModal}
+                  className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-primary hover:brightness-110 transition-all flex items-center gap-1.5 shadow-md"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  <Plus size={14} />
+                  新建订单
+                </button>
+                <div className="h-6 w-[1px] bg-border mx-1 hidden sm:block" />
+                {(['all', 'pending', 'shipped', 'completed', 'cancelled'] as const).map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setOrderStatusFilter(s)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                    style={{
+                      backgroundColor: orderStatusFilter === s ? colors.primary : colors.surfaceAlt,
+                      color: orderStatusFilter === s ? '#fff' : colors.textMuted,
+                      border: '1px solid ' + (orderStatusFilter === s ? colors.primary : colors.border)
+                    }}
+                  >
+                    {s === 'all' ? '全部' : s === 'pending' ? '待付款' : s === 'shipped' ? '已发货' : s === 'completed' ? '已完成' : '已取消'}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-             {/* 订单列表 */}
-             <div className="space-y-3">
-               {orders
-                 .filter(o => orderStatusFilter === 'all' || o.status === orderStatusFilter)
-                 .filter(o => !orderSearchQuery || o.id.includes(orderSearchQuery) || o.productName.includes(orderSearchQuery) || o.customer.includes(orderSearchQuery))
-                 .map(order => (
-                   <motion.div
-                     key={order.id}
-                     layout
-                     className="glass-card overflow-hidden"
-                     style={{ backgroundColor: colors.surface, border: '1px solid ' + colors.border }}
-                   >
-                     <div
-                       className="flex items-center gap-4 p-4 cursor-pointer hover:bg-black/3 dark:hover:bg-white/3 transition-colors"
-                       onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
-                     >
-                       <div className="flex-1 min-w-0">
-                         <div className="flex items-center gap-2 flex-wrap">
-                           <span className="text-sm font-mono font-medium" style={{ color: colors.primary }}>{order.id}</span>
-                           <span className={"px-2 py-0.5 rounded-full text-[10px] font-medium " + (
-                             order.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' :
-                             order.status === 'pending' ? 'bg-amber-500/10 text-amber-500' :
-                             order.status === 'shipped' ? 'bg-blue-500/10 text-blue-500' :
-                             'bg-rose-500/10 text-rose-500'
-                           )}>
-                             {order.status === 'completed' ? '✓ 已完成' : order.status === 'pending' ? '⏳ 待付款' : order.status === 'shipped' ? '🚚 已发货' : '✗ 已取消'}
-                           </span>
-                         </div>
-                         <div className="text-sm mt-0.5 truncate" style={{ color: colors.text }}>{order.productName} × {order.quantity}</div>
-                         <div className="text-xs mt-0.5" style={{ color: colors.textMuted }}>{order.customer} · {order.date}</div>
-                       </div>
-                       <div className="text-right shrink-0">
-                         <div className="text-base font-bold" style={{ color: colors.primary }}>¥{order.amount}</div>
-                         <div className="text-xs" style={{ color: colors.textMuted }}>{order.payMethod}</div>
-                       </div>
-                       <ChevronDown
-                         size={16}
-                         style={{ color: colors.textMuted, transform: expandedOrderId === order.id ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
-                       />
-                     </div>
-                     <AnimatePresence>
-                       {expandedOrderId === order.id && (
-                         <motion.div
-                           initial={{ height: 0, opacity: 0 }}
-                           animate={{ height: 'auto', opacity: 1 }}
-                           exit={{ height: 0, opacity: 0 }}
-                           transition={{ duration: 0.2 }}
-                           className="border-t overflow-hidden"
-                           style={{ borderColor: colors.border }}
-                         >
-                           <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                             <div>
-                               <span className="text-xs font-medium" style={{ color: colors.textMuted }}>联系电话</span>
-                               <div style={{ color: colors.text }}>{order.phone}</div>
-                             </div>
-                             <div>
-                               <span className="text-xs font-medium" style={{ color: colors.textMuted }}>支付方式</span>
-                               <div style={{ color: colors.text }}>{order.payMethod}</div>
-                             </div>
-                             <div className="sm:col-span-2">
-                               <span className="text-xs font-medium" style={{ color: colors.textMuted }}>收货地址</span>
-                               <div style={{ color: colors.text }}>{order.address}</div>
-                             </div>
+            {/* 订单列表 */}
+            <div className="space-y-3">
+              {orders
+                .filter(o => orderStatusFilter === 'all' || o.status === orderStatusFilter)
+                .filter(o => !orderSearchQuery || o.id.includes(orderSearchQuery) || o.productName.includes(orderSearchQuery) || o.customer.includes(orderSearchQuery))
+                .map(order => (
+                  <motion.div
+                    key={order.id}
+                    layout
+                    className="glass-card overflow-hidden"
+                    style={{ backgroundColor: colors.surface, border: '1px solid ' + colors.border }}
+                  >
+                    <div
+                      className="flex items-center gap-4 p-4 cursor-pointer hover:bg-black/3 dark:hover:bg-white/3 transition-colors"
+                      onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-sm font-mono font-medium" style={{ color: colors.primary }}>{order.id}</span>
+                          <span className={"px-2 py-0.5 rounded-full text-[10px] font-medium " + (
+                            order.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' :
+                              order.status === 'pending' ? 'bg-amber-500/10 text-amber-500' :
+                                order.status === 'shipped' ? 'bg-blue-500/10 text-blue-500' :
+                                  'bg-rose-500/10 text-rose-500'
+                          )}>
+                            {order.status === 'completed' ? '✓ 已完成' : order.status === 'pending' ? '⏳ 待付款' : order.status === 'shipped' ? '🚚 已发货' : '✗ 已取消'}
+                          </span>
+                        </div>
+                        <div className="text-sm mt-0.5 truncate" style={{ color: colors.text }}>{order.productName} × {order.quantity}</div>
+                        <div className="text-xs mt-0.5" style={{ color: colors.textMuted }}>{order.customer} · {order.date}</div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-base font-bold" style={{ color: colors.primary }}>¥{order.amount}</div>
+                        <div className="text-xs" style={{ color: colors.textMuted }}>{order.payMethod}</div>
+                      </div>
+                      <ChevronDown
+                        size={16}
+                        style={{ color: colors.textMuted, transform: expandedOrderId === order.id ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                      />
+                    </div>
+                    <AnimatePresence>
+                      {expandedOrderId === order.id && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="border-t overflow-hidden"
+                          style={{ borderColor: colors.border }}
+                        >
+                          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-xs font-medium" style={{ color: colors.textMuted }}>联系电话</span>
+                              <div style={{ color: colors.text }}>{order.phone}</div>
+                            </div>
+                            <div>
+                              <span className="text-xs font-medium" style={{ color: colors.textMuted }}>支付方式</span>
+                              <div style={{ color: colors.text }}>{order.payMethod}</div>
+                            </div>
+                            <div className="sm:col-span-2">
+                              <span className="text-xs font-medium" style={{ color: colors.textMuted }}>收货地址</span>
+                              <div style={{ color: colors.text }}>{order.address}</div>
+                            </div>
 
-                             {/* 订单附件上传 */}
-                             <div className="sm:col-span-2 mt-2 pt-3 border-t border-dashed" style={{ borderColor: colors.border }}>
-                               <span className="text-xs font-bold block mb-2" style={{ color: colors.textSecondary }}>订单附件 / 凭证</span>
-                               <div className="flex items-center gap-3">
-                                 <button 
-                                   onClick={() => document.getElementById(`file-upload-${order.id}`)?.click()}
-                                   disabled={!!uploadProgress[order.id]}
-                                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors disabled:opacity-50"
-                                   style={{ 
-                                     borderColor: colors.border, 
-                                     backgroundColor: colors.surfaceAlt,
-                                     color: colors.text
-                                   }}
-                                 >
-                                    <Upload size={14} />
-                                    {uploadProgress[order.id] ? '正在上传...' : '上传附件'}
-                                 </button>
-                                 <input 
-                                   id={`file-upload-${order.id}`}
-                                   type="file"
-                                   className="hidden"
-                                   onChange={(e) => {
-                                     const file = e.target.files?.[0]
-                                     if (file) handleFileUpload(order.id, file)
-                                   }}
-                                 />
-                                 <span className="text-[10px]" style={{ color: colors.textMuted }}>支持 PDF, Word, Excel (Max 10MB)</span>
-                               </div>
+                            {/* 订单附件上传 */}
+                            <div className="sm:col-span-2 mt-2 pt-3 border-t border-dashed" style={{ borderColor: colors.border }}>
+                              <span className="text-xs font-bold block mb-2" style={{ color: colors.textSecondary }}>订单附件 / 凭证</span>
+                              <div className="flex items-center gap-3">
+                                <button
+                                  onClick={() => document.getElementById(`file-upload-${order.id}`)?.click()}
+                                  disabled={!!uploadProgress[order.id]}
+                                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors disabled:opacity-50"
+                                  style={{
+                                    borderColor: colors.border,
+                                    backgroundColor: colors.surfaceAlt,
+                                    color: colors.text
+                                  }}
+                                >
+                                  <Upload size={14} />
+                                  {uploadProgress[order.id] ? '正在上传...' : '上传附件'}
+                                </button>
+                                <input
+                                  id={`file-upload-${order.id}`}
+                                  type="file"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0]
+                                    if (file) handleFileUpload(order.id, file)
+                                  }}
+                                />
+                                <span className="text-[10px]" style={{ color: colors.textMuted }}>支持 PDF, Word, Excel (Max 10MB)</span>
+                              </div>
 
-                               {/* 进度条 */}
-                               {uploadProgress[order.id] !== undefined && (
-                                 <div className="mt-3 space-y-1">
-                                   <div className="flex justify-between text-[10px]">
-                                     <span style={{ color: colors.textMuted }}>文件上传中...</span>
-                                     <span className="font-bold text-primary">{uploadProgress[order.id]}%</span>
-                                   </div>
-                                   <div className="h-1 w-full bg-surface-alt rounded-full overflow-hidden" style={{ backgroundColor: colors.border + '20' }}>
-                                     <motion.div 
-                                       initial={{ width: 0 }}
-                                       animate={{ width: `${uploadProgress[order.id]}%` }}
-                                       className="h-full bg-primary"
-                                       style={{ backgroundColor: colors.primary }}
-                                     />
-                                   </div>
-                                 </div>
-                               )}
-                             </div>
+                              {/* 进度条 */}
+                              {uploadProgress[order.id] !== undefined && (
+                                <div className="mt-3 space-y-1">
+                                  <div className="flex justify-between text-[10px]">
+                                    <span style={{ color: colors.textMuted }}>文件上传中...</span>
+                                    <span className="font-bold text-primary">{uploadProgress[order.id]}%</span>
+                                  </div>
+                                  <div className="h-1 w-full bg-surface-alt rounded-full overflow-hidden" style={{ backgroundColor: colors.border + '20' }}>
+                                    <motion.div
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${uploadProgress[order.id]}%` }}
+                                      className="h-full bg-primary"
+                                      style={{ backgroundColor: colors.primary }}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
 
-                             <div className="sm:col-span-2 flex gap-2 pt-2">
-                               {order.status === 'pending' && (
-                                 <button
-                                   onClick={() => setOrders(orders.map(o => o.id === order.id ? { ...o, status: 'shipped' } : o))}
-                                   className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all hover:brightness-110"
-                                   style={{ backgroundColor: '#3b82f6' }}
-                                 >
-                                   🚚 确认发货
-                                 </button>
-                               )}
-                               {order.status === 'shipped' && (
-                                 <button
-                                   onClick={() => setOrders(orders.map(o => o.id === order.id ? { ...o, status: 'completed' } : o))}
-                                   className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all hover:brightness-110"
-                                   style={{ backgroundColor: '#10b981' }}
-                                 >
-                                   ✓ 确认收货
-                                 </button>
-                               )}
-                               {(order.status === 'pending' || order.status === 'shipped') && (
-                                 <button
-                                   onClick={() => setOrders(orders.map(o => o.id === order.id ? { ...o, status: 'cancelled' } : o))}
-                                   className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:brightness-95"
-                                   style={{ backgroundColor: colors.surfaceAlt, border: '1px solid ' + colors.border, color: colors.textMuted }}
-                                 >
-                                   取消订单
-                                 </button>
-                               )}
-                             </div>
-                           </div>
-                         </motion.div>
-                       )}
-                     </AnimatePresence>
-                   </motion.div>
-                 ))}
-             </div>
-           </motion.div>
+                            <div className="sm:col-span-2 flex gap-2 pt-2">
+                              {order.status === 'pending' && (
+                                <button
+                                  onClick={() => setOrders(orders.map(o => o.id === order.id ? { ...o, status: 'shipped' } : o))}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all hover:brightness-110"
+                                  style={{ backgroundColor: '#3b82f6' }}
+                                >
+                                  🚚 确认发货
+                                </button>
+                              )}
+                              {order.status === 'shipped' && (
+                                <button
+                                  onClick={() => setOrders(orders.map(o => o.id === order.id ? { ...o, status: 'completed' } : o))}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all hover:brightness-110"
+                                  style={{ backgroundColor: '#10b981' }}
+                                >
+                                  ✓ 确认收货
+                                </button>
+                              )}
+                              {(order.status === 'pending' || order.status === 'shipped') && (
+                                <button
+                                  onClick={() => setOrders(orders.map(o => o.id === order.id ? { ...o, status: 'cancelled' } : o))}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:brightness-95"
+                                  style={{ backgroundColor: colors.surfaceAlt, border: '1px solid ' + colors.border, color: colors.textMuted }}
+                                >
+                                  取消订单
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                ))}
+            </div>
+          </motion.div>
         )}
 
         {activeTab === 'analysis' && (
@@ -1582,41 +1577,41 @@ function EcommerceModule() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="col-span-1 md:col-span-2">
                     <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>商品名称</label>
-                    <input 
-                      type="text" 
-                      placeholder="输入商品名称" 
-                      className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary" 
-                      style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }} 
+                    <input
+                      type="text"
+                      placeholder="输入商品名称"
+                      className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary"
+                      style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }}
                       value={formData.name || ''}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>销售价格</label>
-                    <input 
-                      type="number" 
-                      placeholder="0.00" 
-                      className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary" 
-                      style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }} 
+                    <input
+                      type="number"
+                      placeholder="0.00"
+                      className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary"
+                      style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }}
                       value={formData.price || 0}
                       onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>库存数量</label>
-                    <input 
-                      type="number" 
-                      placeholder="0" 
-                      className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary" 
-                      style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }} 
+                    <input
+                      type="number"
+                      placeholder="0"
+                      className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary"
+                      style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }}
                       value={formData.stock || 0}
                       onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
                     />
                   </div>
                   <div className="col-span-1 md:col-span-2">
                     <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>商品分类</label>
-                    <select 
-                      className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary" 
+                    <select
+                      className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary"
                       style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }}
                       value={formData.category || '数码配件'}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -1628,11 +1623,11 @@ function EcommerceModule() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>原始价格</label>
-                    <input 
-                      type="number" 
-                      placeholder="0.00" 
-                      className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary" 
-                      style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }} 
+                    <input
+                      type="number"
+                      placeholder="0.00"
+                      className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary"
+                      style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }}
                       value={formData.originalPrice || 0}
                       onChange={(e) => setFormData({ ...formData, originalPrice: Number(e.target.value) })}
                     />
@@ -1640,12 +1635,12 @@ function EcommerceModule() {
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>商品评分</label>
                     <div className="flex items-center gap-2">
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         min="0" max="5" step="0.1"
-                        placeholder="5.0" 
-                        className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary" 
-                        style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }} 
+                        placeholder="5.0"
+                        className="w-full px-3 py-2 rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary"
+                        style={{ backgroundColor: colors.bgAlt, border: "1px solid " + colors.border, color: colors.text }}
                         value={formData.rating || 5.0}
                         onChange={(e) => setFormData({ ...formData, rating: Number(e.target.value) })}
                       />
@@ -1654,11 +1649,11 @@ function EcommerceModule() {
                   </div>
                   <div className="col-span-1 md:col-span-2">
                     <label className="block text-sm font-medium mb-1.5" style={{ color: colors.text }}>商品主图</label>
-                    <div 
+                    <div
                       className={`relative border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center transition-all ${isDraggingProduct ? 'scale-[0.98] border-primary bg-primary/5' : 'border-border/40 bg-surface-alt'}`}
-                      style={{ 
-                        borderColor: isDraggingProduct ? colors.primary : colors.border + '40', 
-                        backgroundColor: isDraggingProduct ? colors.primary + '05' : colors.surfaceAlt 
+                      style={{
+                        borderColor: isDraggingProduct ? colors.primary : colors.border + '40',
+                        backgroundColor: isDraggingProduct ? colors.primary + '05' : colors.surfaceAlt
                       }}
                       onDragOver={(e) => { e.preventDefault(); setIsDraggingProduct(true); }}
                       onDragLeave={() => setIsDraggingProduct(false)}
@@ -1675,11 +1670,11 @@ function EcommerceModule() {
                       }}
                       onClick={() => document.getElementById('product-image-upload')?.click()}
                     >
-                      <input 
+                      <input
                         id="product-image-upload"
-                        type="file" 
+                        type="file"
                         accept=".jpg,.jpeg,.png,.webp"
-                        className="hidden" 
+                        className="hidden"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
@@ -1735,7 +1730,7 @@ function EcommerceModule() {
                   <X size={20} style={{ color: colors.textMuted }} />
                 </button>
               </div>
-              
+
               <div className="p-6 space-y-4 overflow-y-auto no-scrollbar">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
@@ -1828,14 +1823,14 @@ function EcommerceModule() {
 export default function Work() {
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
-  
+
   // 根据 URL 参数确定当前标签，默认为 media
   const getInitialTab = (): TabId => {
     if (tabParam === 'ecommerce') return 'ecommerce'
     if (tabParam === 'bookmarks') return 'bookmarks'
     return 'bookmarks'
   }
-  
+
   const [activeTab, setActiveTab] = useState<TabId>(getInitialTab)
 
   return (
@@ -1862,11 +1857,10 @@ export default function Work() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                  activeTab === tab.id
+                className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id
                     ? 'text-primary'
                     : 'text-text-muted hover:text-text-secondary'
-                }`}
+                  }`}
               >
                 <tab.icon size={16} />
                 {tab.label}

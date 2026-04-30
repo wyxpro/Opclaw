@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
-import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon, Share2, Upload, Eye, Edit3, Download, Undo2, Redo2, RotateCcw } from 'lucide-react'
+import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon, Share2, Upload, Eye, Edit3, Download, Undo2, Redo2, RotateCcw, ArrowLeft } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import type { PersonalProfile } from '../../types/profile'
 import { AnimatedSection, Floating } from './AnimatedSection'
@@ -211,6 +211,7 @@ interface HeroSectionProps {
   onUndo?: () => void
   onRedo?: () => void
   onResetToDefault?: () => void
+  onBack?: () => void
 }
 
 // 官方图标组件
@@ -285,7 +286,7 @@ const socialIcons: Record<string, { icon: React.ComponentType<{ size?: number; c
   website: { icon: LinkIcon, color: '#4F46E5' }
 }
 
-export function HeroSection({ profile, showResume = false, onToggleResume, onOpenCardModal, isEditMode = false, onUpdateProfile, mode = 'preview', onModeChange, onDownloadPDF, canUndo, canRedo, onUndo, onRedo, onResetToDefault }: HeroSectionProps) {
+export function HeroSection({ profile, showResume = false, onToggleResume, onOpenCardModal, isEditMode = false, onUpdateProfile, mode = 'preview', onModeChange, onDownloadPDF, canUndo, canRedo, onUndo, onRedo, onResetToDefault, onBack }: HeroSectionProps) {
   const { themeConfig, currentTheme } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
   const isMobile = useIsMobile()
@@ -325,7 +326,7 @@ export function HeroSection({ profile, showResume = false, onToggleResume, onOpe
     <section
       ref={containerRef}
       className="relative min-h-screen flex items-start justify-center overflow-hidden print:overflow-visible"
-      style={{ background: themeConfig.colors.bg, paddingTop: '80px' }}
+      style={{ background: themeConfig.colors.bg, paddingTop: isMobile ? '60px' : '80px' }}
     >
       {/* 动态网格背景 */}
       <div className="no-print">
@@ -357,7 +358,7 @@ export function HeroSection({ profile, showResume = false, onToggleResume, onOpe
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="absolute top-6 left-6 z-20"
+          className="absolute top-4 left-4 md:top-6 md:left-6 z-20"
         >
           <div 
             className="flex items-center p-1 rounded-xl backdrop-blur-md"
@@ -366,6 +367,19 @@ export function HeroSection({ profile, showResume = false, onToggleResume, onOpe
               border: `1px solid ${themeConfig.colors.border}`
             }}
           >
+            {/* 返回按钮 */}
+            {onBack && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={onBack}
+                className="p-2 rounded-lg text-text hover:bg-surface/80 transition-colors mr-1"
+                title="返回"
+              >
+                <ArrowLeft size={18} />
+              </motion.button>
+            )}
+
             {/* 个人主页按钮 */}
             <motion.button
               whileHover={{ scale: 1.02 }}

@@ -202,12 +202,12 @@ export const defaultResumeData: ResumeData = {
   education: [
     {
       id: '1',
-      school: '上海开放大学',
+      school: '浙江大学',
       major: '软件工程',
       degree: '本科',
       achievements: [
-        '上海市计算机应用能力大赛三等奖',
-        '上海开放大学创新项目奖',
+        '浙江计算机应用能力大赛三等奖',
+        '浙江大学创新项目奖',
         '二等奖学金',
         '计算机软件著作权'
       ]

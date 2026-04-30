@@ -15,6 +15,15 @@ import { ThemeSelectorPanel } from '../components/ui/ThemeSwitcher'
 import { SettingsModal } from '../components/ui/SettingsModal'
 import ProfileEditModal, { type ProfileData } from '../components/ProfileEditModal'
 import AuthModal from '../components/auth/AuthModal'
+import { ProfileTabContent } from '../components/profile/ProfileTabContent'
+
+function MobileProfileTabContent({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="relative min-h-screen bg-bg pb-24 overflow-y-auto">
+      <ProfileTabContent onBack={onBack} />
+    </div>
+  )
+}
 
 import { useTheme } from '../hooks/useTheme'
 import { useAuth } from '../contexts/AuthContext'
@@ -22,7 +31,7 @@ import { friendLinks, danmakuMessages, socialAccounts, generateDigitalCard, card
 import { generateCardImage, downloadImage, saveToHistory, getHistoryList, deleteHistoryItem, wechatShare, formatRelativeTime } from '../lib/cardUtils'
 
 const tabs = [
-  { id: 'social', label: '自媒体矩阵', icon: Share2 },
+  { id: 'social', label: '个人主页', icon: IdCard },
   { id: 'danmaku', label: '留言墙', icon: MessageCircle },
   { id: 'laboratory', label: '实验室', icon: FlaskConical },
 ] as const
@@ -53,7 +62,7 @@ export default function Social() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   // 认证状态
   const { isAuthenticated, isLoading, user, updateUser } = useAuth()
-  
+
   // 未登录时自动显示登录弹窗（等待 AuthContext 加载完成）
   useEffect(() => {
     if (isLoading) return
@@ -67,7 +76,7 @@ export default function Social() {
       setShowAuthModal(false)
     }
   }, [isLoading, isAuthenticated, showAuthModal])
-  
+
   // 用户资料状态 - 优先使用本地存储中的上次登录信息，避免刷新时先闪默认头像
   const [userProfile, setUserProfile] = useState<ProfileData>(() => {
     try {
@@ -134,7 +143,7 @@ export default function Social() {
       'cartoon': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80',
       'retro': 'https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=800&q=80',
     }
-    
+
     // 只有当用户没有自定义背景时，才根据主题自动设置
     const savedBackground = localStorage.getItem('userProfile_background')
     if (!savedBackground && themeBackgrounds[currentTheme]) {
@@ -162,26 +171,26 @@ export default function Social() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 sm:mb-8"
         >
-          <div 
+          <div
             className="relative rounded-2xl overflow-hidden"
             style={{
-              background: userProfile.background 
+              background: userProfile.background
                 ? `url(${userProfile.background}) center/cover no-repeat`
                 : undefined
             }}
           >
             {/* 背景遮罩层 */}
-            <div 
+            <div
               className="absolute inset-0 bg-gradient-to-br from-primary to-primary-dim"
               style={{ opacity: userProfile.background ? 0.85 : 1 }}
             />
             <div className="relative px-6 py-6 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-white/20 flex items-center justify-center text-white text-2xl font-bold border-2 border-white/30">
-                  <img 
-                    src={userProfile.avatar} 
-                    alt="" 
-                    className="w-full h-full object-cover" 
+                  <img
+                    src={userProfile.avatar}
+                    alt=""
+                    className="w-full h-full object-cover"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                       const parent = (e.target as HTMLImageElement).parentElement;
@@ -203,13 +212,12 @@ export default function Social() {
                   </div>
                   <div className="flex items-center gap-3 mt-2">
                     {/* 性别标签 - 双向同步 & 精致配色 */}
-                    <div className={`px-2.5 py-0.5 rounded-md backdrop-blur-md border flex items-center gap-1.5 shadow-sm transition-colors duration-300 ${
-                      userProfile.gender === 'male' 
-                        ? 'bg-blue-500/40 border-blue-400/30 text-blue-50' 
+                    <div className={`px-2.5 py-0.5 rounded-md backdrop-blur-md border flex items-center gap-1.5 shadow-sm transition-colors duration-300 ${userProfile.gender === 'male'
+                        ? 'bg-blue-500/40 border-blue-400/30 text-blue-50'
                         : userProfile.gender === 'female'
                           ? 'bg-rose-500/40 border-rose-400/30 text-rose-50'
                           : 'bg-gray-500/30 border-gray-400/20 text-gray-100'
-                    }`}>
+                      }`}>
                       <span className="text-xs font-bold">
                         {userProfile.gender === 'male' ? '♂' : userProfile.gender === 'female' ? '♀' : '?'}
                       </span>
@@ -217,7 +225,7 @@ export default function Social() {
                         {userProfile.gender === 'male' ? '男' : userProfile.gender === 'female' ? '女' : '保密'}
                       </span>
                     </div>
-                    
+
                     {/* 年龄标签 */}
                     <div className="px-2.5 py-0.5 rounded-md bg-violet-600/30 backdrop-blur-md border border-violet-400/20 shadow-sm">
                       <span className="text-xs text-white font-bold">
@@ -270,11 +278,10 @@ export default function Social() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                activeTab === tab.id
+              className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id
                   ? 'text-primary'
                   : 'text-text-muted hover:text-text-secondary'
-              }`}
+                }`}
             >
               <tab.icon size={16} />
               {tab.label}
@@ -315,7 +322,7 @@ export default function Social() {
           )}
           {activeTab === 'social' && (
             <motion.div key="social" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-              <SocialMatrix />
+              <ProfileTabContent />
             </motion.div>
           )}
           {activeTab === 'laboratory' && (
@@ -329,7 +336,7 @@ export default function Social() {
         <AnimatePresence>
           {showDesktopCardModal && (
             <DigitalCardModal
-              onClose={() => setShowDesktopCardModal(false)} 
+              onClose={() => setShowDesktopCardModal(false)}
               onOpenHistory={() => {
                 setShowDesktopCardModal(false)
                 setShowDesktopHistoryModal(true)
@@ -358,7 +365,7 @@ export default function Social() {
             />
           )}
         </AnimatePresence>
-        
+
         {/* 桌面端历史记录弹窗 */}
         <AnimatePresence>
           {showDesktopHistoryModal && (
@@ -387,9 +394,9 @@ export default function Social() {
       <div className="md:hidden min-h-screen pb-20">
         <AnimatePresence mode="sync">
           {mobileView === 'menu' ? (
-            <MobileMenu 
+            <MobileMenu
               key="menu"
-              onNavigate={setMobileView} 
+              onNavigate={setMobileView}
               userProfile={userProfile}
               onEditProfile={() => setShowProfileEditModal(true)}
               onOpenSettings={() => setShowSettingsModal(true)}
@@ -398,7 +405,7 @@ export default function Social() {
           ) : mobileView === 'danmaku' ? (
             <MobileDanmakuWall key="danmaku" onBack={() => setMobileView('menu')} />
           ) : mobileView === 'social' ? (
-            <MobileSocialMatrix key="social" onBack={() => setMobileView('menu')} />
+            <MobileProfileTabContent key="social" onBack={() => setMobileView('menu')} />
           ) : null}
         </AnimatePresence>
       </div>
@@ -435,7 +442,7 @@ export default function Social() {
           })
         }}
       />
-      
+
       {/* Auth Modal - 未登录时显示 */}
       <AuthModal
         isOpen={showAuthModal}
@@ -761,12 +768,12 @@ function DanmakuWall() {
       speed: number
     ) => {
       const container = ref.current
-      if (!container) return () => {}
-      
+      if (!container) return () => { }
+
       let animationId: number
       let scrollPos = container.scrollLeft
       const maxScroll = container.scrollWidth - container.clientWidth
-      
+
       // 初始化位置
       if (direction === 'left') {
         scrollPos = 0
@@ -774,7 +781,7 @@ function DanmakuWall() {
         scrollPos = maxScroll
       }
       container.scrollLeft = scrollPos
-      
+
       const animate = () => {
         if (direction === 'left') {
           scrollPos += speed
@@ -790,7 +797,7 @@ function DanmakuWall() {
         container.scrollLeft = scrollPos
         animationId = requestAnimationFrame(animate)
       }
-      
+
       animationId = requestAnimationFrame(animate)
       return () => cancelAnimationFrame(animationId)
     }
@@ -798,7 +805,7 @@ function DanmakuWall() {
     const cleanup1 = animateScroll(scrollRef1, 'right', 0.4)
     const cleanup2 = animateScroll(scrollRef2, 'left', 0.5)
     const cleanup3 = animateScroll(scrollRef3, 'right', 0.45)
-    
+
     return () => {
       cleanup1()
       cleanup2()
@@ -808,7 +815,7 @@ function DanmakuWall() {
 
   const handleSend = () => {
     if (!newMessage.trim()) return
-    
+
     const newMsg: StickerMessage = {
       id: `sticker-${crypto.randomUUID()}`,
       text: newMessage.trim(),
@@ -817,7 +824,7 @@ function DanmakuWall() {
       rotation: (Math.random() - 0.5) * 4,
       createdAt: Date.now(),
     }
-    
+
     setMessages((prev) => [...prev, newMsg])
     setNewMessage('')
   }
@@ -831,9 +838,9 @@ function DanmakuWall() {
 
   const handleEdit = () => {
     if (!selectedSticker || !editText.trim()) return
-    
-    setMessages(prev => prev.map(msg => 
-      msg.id === selectedSticker.id 
+
+    setMessages(prev => prev.map(msg =>
+      msg.id === selectedSticker.id
         ? { ...msg, text: editText.trim(), author: editAuthor.trim() || '匿名访客' }
         : msg
     ))
@@ -843,7 +850,7 @@ function DanmakuWall() {
 
   const handleDelete = () => {
     if (!selectedSticker) return
-    
+
     if (confirm('确定要删除这张贴纸吗？')) {
       setMessages(prev => prev.filter(msg => msg.id !== selectedSticker.id))
       setSelectedSticker(null)
@@ -966,7 +973,7 @@ function DanmakuWall() {
           placeholder="你的昵称（选填）"
           className="w-full px-3 py-2 rounded-lg sm:rounded-xl bg-surface border border-border text-text text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 transition-all mb-2"
         />
-        
+
         {/* Message Input */}
         <textarea
           value={newMessage}
@@ -975,7 +982,7 @@ function DanmakuWall() {
           rows={2}
           className="w-full px-3 py-2 rounded-lg sm:rounded-xl bg-surface border border-border text-text text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 transition-all resize-none mb-2"
         />
-        
+
         {/* Color Selector & Send Button */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           {/* Sticker Color Options */}
@@ -984,19 +991,18 @@ function DanmakuWall() {
               <button
                 key={index}
                 onClick={() => setSelectedColor(color)}
-                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 transition-all ${
-                  selectedColor === color 
-                    ? 'ring-2 ring-primary ring-offset-1 sm:ring-offset-2 ring-offset-bg scale-110' 
+                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 transition-all ${selectedColor === color
+                    ? 'ring-2 ring-primary ring-offset-1 sm:ring-offset-2 ring-offset-bg scale-110'
                     : 'hover:scale-105'
-                }`}
-                style={{ 
+                  }`}
+                style={{
                   backgroundColor: color.bg,
-                  borderColor: color.border 
+                  borderColor: color.border
                 }}
               />
             ))}
           </div>
-          
+
           {/* Send Button */}
           <button
             onClick={handleSend}
@@ -1042,14 +1048,14 @@ function DanmakuWall() {
               }}
             >
               {/* Header */}
-              <div 
+              <div
                 className="px-4 py-3 flex items-center justify-between"
                 style={{ borderBottom: `1px solid ${selectedSticker.color.border}40` }}
               >
                 <span className="text-sm font-medium" style={{ color: selectedSticker.color.text }}>
                   贴纸详情
                 </span>
-                <button 
+                <button
                   onClick={closeModal}
                   className="p-1 rounded-full hover:bg-black/10 transition-colors"
                   style={{ color: selectedSticker.color.text }}
@@ -1094,13 +1100,13 @@ function DanmakuWall() {
                   </div>
                 ) : (
                   <>
-                    <p 
+                    <p
                       className="text-lg font-medium leading-relaxed mb-4"
                       style={{ color: selectedSticker.color.text }}
                     >
                       {selectedSticker.text}
                     </p>
-                    <div 
+                    <div
                       className="flex items-center justify-between text-sm opacity-70"
                       style={{ color: selectedSticker.color.text }}
                     >
@@ -1115,7 +1121,7 @@ function DanmakuWall() {
 
               {/* Actions */}
               {!isEditing && (
-                <div 
+                <div
                   className="px-4 py-3 flex gap-2"
                   style={{ borderTop: `1px solid ${selectedSticker.color.border}40` }}
                 >
@@ -1262,9 +1268,9 @@ function GrowthTimeline() {
 
   const handleEdit = () => {
     if (!selectedEvent || !editTitle.trim()) return
-    
-    setEvents(prev => prev.map(event => 
-      event.id === selectedEvent.id 
+
+    setEvents(prev => prev.map(event =>
+      event.id === selectedEvent.id
         ? { ...event, title: editTitle.trim(), description: editDescription.trim(), image: editImage, date: editDate }
         : event
     ))
@@ -1273,7 +1279,7 @@ function GrowthTimeline() {
 
   const handleSaveNew = () => {
     if (!editTitle.trim()) return
-    
+
     const newEvent: TimelineEvent = {
       id: `event-${crypto.randomUUID()}`,
       title: editTitle.trim(),
@@ -1287,7 +1293,7 @@ function GrowthTimeline() {
 
   const handleDelete = () => {
     if (!selectedEvent) return
-    
+
     if (confirm('确定要删除这条学习记录吗？')) {
       setEvents(prev => prev.filter(event => event.id !== selectedEvent.id))
       closeModal()
@@ -1336,7 +1342,7 @@ function GrowthTimeline() {
               onClick={() => handleCardClick(event)}
             >
               {/* Card */}
-              <motion.div 
+              <motion.div
                 className="glass-card overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/40 relative"
                 whileHover={{ y: -4, scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
@@ -1349,7 +1355,7 @@ function GrowthTimeline() {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  
+
                   {/* Date badge on image - 只显示年月日 */}
                   <div className="absolute top-2 left-2 px-2 py-1 rounded-lg bg-black/40 backdrop-blur-sm text-white text-[10px] sm:text-xs flex items-center gap-1">
                     <Calendar size={10} />
@@ -1366,7 +1372,7 @@ function GrowthTimeline() {
                     {event.description}
                   </p>
                 </div>
-                
+
                 {/* Hover indicator */}
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </motion.div>
@@ -1415,9 +1421,9 @@ function GrowthTimeline() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  
+
                   {/* Close button */}
-                  <button 
+                  <button
                     onClick={closeModal}
                     className="absolute top-3 right-3 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
                   >
@@ -1846,7 +1852,7 @@ function LaboratoryContent() {
           >
             <div className="relative">
               {/* 中央时间轴线 */}
-              <div 
+              <div
                 className="absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2"
                 style={{ background: `linear-gradient(to bottom, #8b5cf630, #ec489930)` }}
               />
@@ -1895,16 +1901,16 @@ function LabTimelineItem({ item, index }: { item: typeof labTimelineData[0]; ind
       style={{ marginTop: `${topMargin}px` }}
     >
       {/* 内容卡片 */}
-      <div 
+      <div
         className={`p-4 rounded-xl w-full lg:w-[calc(100%-24px)] ${isLeft ? 'lg:mr-6' : 'lg:ml-6'}`}
-        style={{ 
+        style={{
           background: themeConfig.colors.surface,
           border: `1px solid ${themeConfig.colors.border}`
         }}
       >
         <div className="flex items-center gap-2 mb-2">
           <span className="text-xs font-medium" style={{ color: item.color }}>{item.date}</span>
-          <span 
+          <span
             className="text-xs px-2 py-0.5 rounded-full"
             style={{ background: `${item.color}20`, color: item.color }}
           >
@@ -1915,7 +1921,7 @@ function LabTimelineItem({ item, index }: { item: typeof labTimelineData[0]; ind
         <p className="text-sm mb-3" style={{ color: themeConfig.colors.textMuted }}>{item.description}</p>
         <div className="flex flex-wrap gap-1.5">
           {item.tags.map(tag => (
-            <span 
+            <span
               key={tag}
               className="text-xs px-2 py-1 rounded-md"
               style={{ background: themeConfig.colors.bg, color: themeConfig.colors.textMuted }}
@@ -1925,28 +1931,28 @@ function LabTimelineItem({ item, index }: { item: typeof labTimelineData[0]; ind
           ))}
         </div>
       </div>
-      
+
       {/* 中央节点 - 只在 lg 屏幕显示 */}
-      <div 
+      <div
         className="hidden lg:flex absolute left-1/2 top-4 -translate-x-1/2 w-4 h-4 rounded-full items-center justify-center z-10"
         style={{ background: item.color }}
       >
         <div className="w-2 h-2 rounded-full bg-white" />
       </div>
-      
+
       {/* 左侧图标 - 只在 lg 屏幕且右侧项目时显示 */}
       {!isLeft && (
-        <div 
+        <div
           className="hidden lg:flex absolute left-0 top-4 w-8 h-8 rounded-lg items-center justify-center"
           style={{ background: `${item.color}20` }}
         >
           <Icon size={16} style={{ color: item.color }} />
         </div>
       )}
-      
+
       {/* 右侧图标 - 只在 lg 屏幕且左侧项目时显示 */}
       {isLeft && (
-        <div 
+        <div
           className="hidden lg:flex absolute right-0 top-4 w-8 h-8 rounded-lg items-center justify-center"
           style={{ background: `${item.color}20` }}
         >
@@ -1968,13 +1974,13 @@ function LabPlanCard({ plan, index }: { plan: typeof labPlansData[0]; index: num
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
       className="p-4 rounded-xl"
-      style={{ 
+      style={{
         background: themeConfig.colors.surface,
         border: `1px solid ${themeConfig.colors.border}`
       }}
     >
       <div className="flex items-start gap-3 mb-3">
-        <div 
+        <div
           className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
           style={{ background: `${plan.color}20` }}
         >
@@ -1985,18 +1991,18 @@ function LabPlanCard({ plan, index }: { plan: typeof labPlansData[0]; index: num
           <p className="text-xs" style={{ color: themeConfig.colors.textMuted }}>{plan.description}</p>
         </div>
       </div>
-      
+
       {/* 进度条 */}
       <div className="mb-3">
         <div className="flex items-center justify-between text-xs mb-1">
           <span style={{ color: themeConfig.colors.textMuted }}>进度</span>
           <span style={{ color: plan.color }}>{plan.progress}%</span>
         </div>
-        <div 
+        <div
           className="h-1.5 rounded-full overflow-hidden"
           style={{ background: themeConfig.colors.bg }}
         >
-          <motion.div 
+          <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${plan.progress}%` }}
             transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
@@ -2005,11 +2011,11 @@ function LabPlanCard({ plan, index }: { plan: typeof labPlansData[0]; index: num
           />
         </div>
       </div>
-      
+
       {/* 标签 */}
       <div className="flex flex-wrap gap-1.5">
         {plan.tags.map(tag => (
-          <span 
+          <span
             key={tag}
             className="text-xs px-2 py-1 rounded-md"
             style={{ background: `${plan.color}15`, color: plan.color }}
@@ -2159,7 +2165,6 @@ const labPlansData = [
 
 // 移动端菜单项配置
 const mobileMenuItems = [
-  { id: 'social' as const, label: '自媒体矩阵', description: '关注我的我的媒体', icon: Share2, color: '#f59e0b' },
   { id: 'danmaku' as const, label: '留言墙', description: '留下你的足迹和祝福', icon: MessageCircle, color: '#ec4899' },
   { id: 'laboratory' as const, label: '实验室', description: '技术实验与开发计划', icon: FlaskConical, color: '#8b5cf6' },
 ]
@@ -2167,18 +2172,18 @@ const mobileMenuItems = [
 // 移动端顶部用户信息组件
 function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { userProfile: ProfileData; onEdit: () => void; isVip?: boolean; onVipClick?: () => void }) {
   return (
-    <div 
+    <div
       className="relative px-4 pt-12 pb-8 rounded-b-3xl overflow-hidden z-0"
       style={{
-        background: userProfile.background 
+        background: userProfile.background
           ? `url(${userProfile.background}) center/cover no-repeat`
           : undefined
       }}
     >
       {/* 背景遮罩层 - 用户要求删除白蓝遮罩，直接显示真实图片 */}
-      <div 
-        className="absolute inset-0 bg-black/10" 
-        style={{ opacity: userProfile.background ? 0.2 : 0 }} 
+      <div
+        className="absolute inset-0 bg-black/10"
+        style={{ opacity: userProfile.background ? 0.2 : 0 }}
       />
       <div className="relative flex items-center gap-4">
         <div className="w-16 h-16 rounded-full overflow-hidden bg-white/20 flex items-center justify-center text-white text-2xl font-bold border-2 border-white/30 shrink-0">
@@ -2193,11 +2198,10 @@ function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { 
             <h2 className="text-xl font-bold text-white drop-shadow-md">{userProfile.name}</h2>
             <button
               onClick={onVipClick}
-              className={`px-3 py-1 rounded-full text-white text-xs font-bold transition-all hover:scale-105 flex items-center gap-1 shadow-lg shrink-0 ${
-                isVip 
-                  ? 'bg-gradient-to-r from-yellow-400 via-amber-500 to-amber-600 shadow-amber-500/50 outline outline-1 outline-white/30' 
+              className={`px-3 py-1 rounded-full text-white text-xs font-bold transition-all hover:scale-105 flex items-center gap-1 shadow-lg shrink-0 ${isVip
+                  ? 'bg-gradient-to-r from-yellow-400 via-amber-500 to-amber-600 shadow-amber-500/50 outline outline-1 outline-white/30'
                   : 'bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-600 shadow-purple-500/40 hover:shadow-purple-500/60'
-              }`}
+                }`}
             >
               <Crown size={12} className={isVip ? 'text-white' : 'text-purple-200'} />
               {isVip ? 'VIP会员' : '开通权益'}
@@ -2205,13 +2209,12 @@ function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { 
           </div>
           <div className="flex items-center gap-2 mt-2">
             {/* 性别标签 - 动态颜色与内容 */}
-            <div className={`px-2 py-0.5 rounded-md backdrop-blur-md border flex items-center gap-1 shadow-sm transition-colors duration-300 ${
-              userProfile.gender === 'male' 
-                ? 'bg-blue-500/40 border-blue-400/30 text-blue-100' 
+            <div className={`px-2 py-0.5 rounded-md backdrop-blur-md border flex items-center gap-1 shadow-sm transition-colors duration-300 ${userProfile.gender === 'male'
+                ? 'bg-blue-500/40 border-blue-400/30 text-blue-100'
                 : userProfile.gender === 'female'
                   ? 'bg-rose-500/40 border-rose-400/30 text-rose-100'
                   : 'bg-gray-500/30 border-gray-400/20 text-gray-100'
-            }`}>
+              }`}>
               <span className="text-[10px] font-bold">
                 {userProfile.gender === 'male' ? '♂' : userProfile.gender === 'female' ? '♀' : '?'}
               </span>
@@ -2219,16 +2222,16 @@ function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { 
                 {userProfile.gender === 'male' ? '男' : userProfile.gender === 'female' ? '女' : '保密'}
               </span>
             </div>
-            
+
             {/* 年龄标签 - 动态显示 */}
             <div className="px-2 py-0.5 rounded-md bg-violet-600/30 backdrop-blur-md border border-violet-400/20 shadow-sm">
               <span className="text-[10px] text-white font-bold">
                 {userProfile.age || '??'} 岁
               </span>
             </div>
-            
+
             {/* 编辑按钮 - 原味图标 */}
-            <button 
+            <button
               onClick={onEdit}
               className="p-1.5 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors ml-1.5 backdrop-blur-md shadow-lg border border-white/10"
             >
@@ -2245,21 +2248,20 @@ function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { 
 function DigitalCardEntry({ onOpen }: { onOpen: () => void }) {
   const { currentTheme } = useTheme()
   const isCyber = currentTheme === 'cyber'
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="mx-4 -mt-4 relative z-10"
     >
-      <div 
-        className={`p-4 flex items-center justify-between border transition-all duration-500 ${
-          isCyber 
-            ? 'shadow-[0_0_25px_rgba(0,212,255,0.25)] border-primary/40 backdrop-blur-xl' 
+      <div
+        className={`p-4 flex items-center justify-between border transition-all duration-500 ${isCyber
+            ? 'shadow-[0_0_25px_rgba(0,212,255,0.25)] border-primary/40 backdrop-blur-xl'
             : 'shadow-lg border-border/40'
-        }`}
-        style={{ 
-          zIndex: 10, 
+          }`}
+        style={{
+          zIndex: 10,
           position: 'relative',
           backgroundColor: 'var(--color-surface)',
           borderRadius: 'var(--radius-xl)',
@@ -2277,13 +2279,12 @@ function DigitalCardEntry({ onOpen }: { onOpen: () => void }) {
         )}
 
         <div className="flex items-center gap-3 relative z-10">
-          <div 
-            className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-300 ${
-              isCyber ? 'shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'shadow-md shadow-primary/20'
-            }`}
-            style={{ 
-              background: isCyber 
-                ? 'linear-gradient(135deg, var(--color-primary), var(--color-accent))' 
+          <div
+            className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-300 ${isCyber ? 'shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 'shadow-md shadow-primary/20'
+              }`}
+            style={{
+              background: isCyber
+                ? 'linear-gradient(135deg, var(--color-primary), var(--color-accent))'
                 : 'linear-gradient(135deg, #f43f5e, #ec4899, #d946ef)', // 极简下采用甜美粉色渐变
               transform: isCyber ? 'rotate(5deg)' : 'none'
             }}
@@ -2295,22 +2296,21 @@ function DigitalCardEntry({ onOpen }: { onOpen: () => void }) {
             <p className="text-[11px] text-text-muted mt-0.5 font-medium opacity-80">智能整合你的精彩瞬间</p>
           </div>
         </div>
-        
-        <motion.button 
+
+        <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onOpen}
-          className={`px-5 py-1.5 rounded-full text-white text-sm font-bold transition-all relative overflow-hidden group ${
-            isCyber ? 'shadow-[0_0_15px_rgba(0,212,255,0.4)]' : 'shadow-md shadow-primary/30'
-          }`}
-          style={{ 
-            background: isCyber 
-              ? 'linear-gradient(90deg, var(--color-primary), var(--color-accent))' 
+          className={`px-5 py-1.5 rounded-full text-white text-sm font-bold transition-all relative overflow-hidden group ${isCyber ? 'shadow-[0_0_15px_rgba(0,212,255,0.4)]' : 'shadow-md shadow-primary/30'
+            }`}
+          style={{
+            background: isCyber
+              ? 'linear-gradient(90deg, var(--color-primary), var(--color-accent))'
               : 'linear-gradient(90deg, #f43f5e, #ec4899)' // 极简下采用更有能量的玫瑰粉渐变
           }}
         >
           {/* 交互式光影 sweep 效果 */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-20"
             initial={{ x: '-150%' }}
             whileHover={{ x: '150%' }}
@@ -2377,21 +2377,39 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
       exit={{ opacity: 0 }}
       className="min-h-screen bg-bg"
     >
-      <MobileUserHeader 
-        userProfile={userProfile} 
-        onEdit={onEditProfile} 
+      <MobileUserHeader
+        userProfile={userProfile}
+        onEdit={onEditProfile}
         isVip={isVip}
         onVipClick={() => setShowVipModal(true)}
       />
       <DigitalCardEntry onOpen={() => setShowCardModal(true)} />
-      
+
       {/* 功能菜单列表 */}
       <div className="px-4 mt-4 space-y-2">
-        {/* 主题风格选择入口 */}
+        {/* 个人主页入口 */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0 * 0.05 }}
+          onClick={() => onNavigate('social')}
+          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/15">
+            <IdCard size={20} className="text-amber-500" />
+          </div>
+          <div className="flex-1 text-left">
+            <h3 className="font-medium text-text">个人主页</h3>
+            <p className="text-xs text-text-muted mt-0.5">我的个人资料与简历</p>
+          </div>
+          <ChevronRight size={18} className="text-text-dim" />
+        </motion.button>
+
+        {/* 主题风格选择入口 */}
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 1 * 0.05 }}
           onClick={() => setShowThemePanel(true)}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
@@ -2404,13 +2422,13 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
           </div>
           <ChevronRight size={18} className="text-text-dim" />
         </motion.button>
-        
+
         {mobileMenuItems.map((item, index) => (
           <motion.button
             key={item.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: (index + 1) * 0.05 }}
+            transition={{ delay: (index + 2) * 0.05 }}
             onClick={() => item.id === 'laboratory' ? navigate('/laboratory') : onNavigate(item.id)}
             className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
           >
@@ -2427,12 +2445,12 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
             <ChevronRight size={18} className="text-text-dim" />
           </motion.button>
         ))}
-        
+
         {/* 系统设置入口 */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: (mobileMenuItems.length + 1) * 0.05 }}
+          transition={{ delay: (mobileMenuItems.length + 2) * 0.05 }}
           onClick={() => onOpenSettings()}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
@@ -2450,7 +2468,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: (mobileMenuItems.length + 2) * 0.05 }}
+          transition={{ delay: (mobileMenuItems.length + 3) * 0.05 }}
           onClick={() => onOpenAbout()}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
@@ -2468,8 +2486,8 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
       {/* 数字名片弹窗 */}
       <AnimatePresence>
         {showCardModal && (
-          <DigitalCardModal 
-            onClose={() => setShowCardModal(false)} 
+          <DigitalCardModal
+            onClose={() => setShowCardModal(false)}
             onOpenHistory={() => {
               setShowCardModal(false)
               setShowHistoryModal(true)
@@ -2629,7 +2647,7 @@ function MobileFriendLinks({ onBack }: { onBack: () => void }) {
       className="min-h-screen bg-bg"
     >
       <MobilePageHeader title="友链" onBack={onBack} />
-      
+
       {/* 添加按钮 */}
       <div className="px-4 pt-4">
         <motion.button
@@ -2819,12 +2837,12 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
       direction: 'left' | 'right',
       speed: number
     ) => {
-      if (!container) return () => {}
-      
+      if (!container) return () => { }
+
       let animationId: number
       let scrollPos = container.scrollLeft
       const maxScroll = container.scrollWidth - container.clientWidth
-      
+
       // 初始化位置
       if (direction === 'left') {
         scrollPos = 0
@@ -2832,7 +2850,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
         scrollPos = maxScroll
       }
       container.scrollLeft = scrollPos
-      
+
       const animate = () => {
         if (direction === 'left') {
           scrollPos += speed
@@ -2848,7 +2866,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
         container.scrollLeft = scrollPos
         animationId = requestAnimationFrame(animate)
       }
-      
+
       animationId = requestAnimationFrame(animate)
       return () => cancelAnimationFrame(animationId)
     }
@@ -2856,7 +2874,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
     const cleanup1 = animateScroll(scrollRef1.current, 'right', 0.3)
     const cleanup2 = animateScroll(scrollRef2.current, 'left', 0.4)
     const cleanup3 = animateScroll(scrollRef3.current, 'right', 0.35)
-    
+
     return () => {
       cleanup1()
       cleanup2()
@@ -2871,7 +2889,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
 
   const handleSend = () => {
     if (!newMessage.trim()) return
-    
+
     const newMsg: StickerMessage = {
       id: `sticker-${crypto.randomUUID()}`,
       text: newMessage.trim(),
@@ -2880,7 +2898,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
       rotation: (Math.random() - 0.5) * 4,
       createdAt: Date.now(),
     }
-    
+
     setMessages((prev) => [...prev, newMsg])
     setNewMessage('')
   }
@@ -2894,9 +2912,9 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
 
   const handleEdit = () => {
     if (!selectedSticker || !editText.trim()) return
-    
-    setMessages(prev => prev.map(msg => 
-      msg.id === selectedSticker.id 
+
+    setMessages(prev => prev.map(msg =>
+      msg.id === selectedSticker.id
         ? { ...msg, text: editText.trim(), author: editAuthor.trim() || '匿名访客' }
         : msg
     ))
@@ -2906,7 +2924,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
 
   const handleDelete = () => {
     if (!selectedSticker) return
-    
+
     if (confirm('确定要删除这张贴纸吗？')) {
       setMessages(prev => prev.filter(msg => msg.id !== selectedSticker.id))
       setSelectedSticker(null)
@@ -2926,7 +2944,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
   ) => {
     const duplicated = [...rowMessages, ...rowMessages, ...rowMessages, ...rowMessages]
     return (
-      <div 
+      <div
         ref={scrollRef}
         className="overflow-x-auto overflow-y-hidden no-scrollbar py-2"
         style={{ scrollBehavior: 'auto' }}
@@ -2974,7 +2992,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
       className="min-h-screen bg-bg"
     >
       <MobilePageHeader title="留言墙" onBack={onBack} />
-      
+
       {/* 3行滚动贴纸墙 */}
       <div className="mt-4 space-y-1">
         {renderScrollRow(row1Messages, scrollRef1, 'right')}
@@ -2986,7 +3004,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
       <div className="px-4 mt-4">
         <div className="glass-card p-4">
           <p className="text-text-muted text-xs text-center mb-3">留下你的足迹，选一张贴纸</p>
-          
+
           <input
             type="text"
             value={authorName}
@@ -2994,7 +3012,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
             placeholder="你的昵称（选填）"
             className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 transition-all mb-2"
           />
-          
+
           <textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
@@ -3002,26 +3020,25 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
             rows={2}
             className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-sm placeholder:text-text-muted focus:outline-none focus:border-primary/50 transition-all resize-none mb-3"
           />
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               {stickerColors.map((color, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedColor(color)}
-                  className={`w-6 h-6 rounded-full border-2 transition-all ${
-                    selectedColor === color 
-                      ? 'ring-2 ring-primary ring-offset-1 scale-110' 
+                  className={`w-6 h-6 rounded-full border-2 transition-all ${selectedColor === color
+                      ? 'ring-2 ring-primary ring-offset-1 scale-110'
                       : ''
-                  }`}
-                  style={{ 
+                    }`}
+                  style={{
                     backgroundColor: color.bg,
-                    borderColor: color.border 
+                    borderColor: color.border
                   }}
                 />
               ))}
             </div>
-            
+
             <button
               onClick={handleSend}
               disabled={!newMessage.trim()}
@@ -3032,7 +3049,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
             </button>
           </div>
         </div>
-        
+
         <p className="text-center text-xs text-text-muted mt-3">
           已有 {messages.length} 张贴纸 · 快来留下你的足迹
         </p>
@@ -3059,14 +3076,14 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
                 border: `2px solid ${selectedSticker.color.border}`,
               }}
             >
-              <div 
+              <div
                 className="px-4 py-3 flex items-center justify-between"
                 style={{ borderBottom: `1px solid ${selectedSticker.color.border}40` }}
               >
                 <span className="text-sm font-medium" style={{ color: selectedSticker.color.text }}>
                   贴纸详情
                 </span>
-                <button 
+                <button
                   onClick={closeModal}
                   className="p-1 rounded-full hover:bg-black/10 transition-colors"
                   style={{ color: selectedSticker.color.text }}
@@ -3110,13 +3127,13 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
                   </div>
                 ) : (
                   <>
-                    <p 
+                    <p
                       className="text-base font-medium leading-relaxed mb-3"
                       style={{ color: selectedSticker.color.text }}
                     >
                       {selectedSticker.text}
                     </p>
-                    <div 
+                    <div
                       className="flex items-center justify-between text-sm opacity-70"
                       style={{ color: selectedSticker.color.text }}
                     >
@@ -3130,7 +3147,7 @@ function MobileDanmakuWall({ onBack }: { onBack: () => void }) {
               </div>
 
               {!isEditing && (
-                <div 
+                <div
                   className="px-4 py-3 flex gap-2"
                   style={{ borderTop: `1px solid ${selectedSticker.color.border}40` }}
                 >
@@ -3197,9 +3214,9 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
 
   const handleEdit = () => {
     if (!selectedEvent || !editTitle.trim()) return
-    
-    setEvents(prev => prev.map(event => 
-      event.id === selectedEvent.id 
+
+    setEvents(prev => prev.map(event =>
+      event.id === selectedEvent.id
         ? { ...event, title: editTitle.trim(), description: editDescription.trim(), image: editImage, date: editDate }
         : event
     ))
@@ -3210,7 +3227,7 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
 
   const handleSaveNew = () => {
     if (!editTitle.trim()) return
-    
+
     const newEvent: TimelineEvent = {
       id: `event-${crypto.randomUUID()}`,
       title: editTitle.trim(),
@@ -3218,7 +3235,7 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
       date: editDate,
       image: editImage || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400',
     }
-    
+
     setEvents(prev => [...prev, newEvent])
     setIsAdding(false)
     setShowModal(false)
@@ -3229,7 +3246,7 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
 
   const handleDelete = () => {
     if (!selectedEvent) return
-    
+
     if (confirm('确定要删除这条学习记录吗？')) {
       setEvents(prev => prev.filter(event => event.id !== selectedEvent.id))
       setSelectedEvent(null)
@@ -3252,7 +3269,7 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
       className="min-h-screen bg-bg"
     >
       <MobilePageHeader title="成长时间轴" onBack={onBack} />
-      
+
       {/* 新增按钮 */}
       <div className="px-4 py-3">
         <motion.button
@@ -3335,7 +3352,7 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <button 
+                  <button
                     onClick={closeModal}
                     className="absolute top-3 right-3 p-2 rounded-full bg-black/30 text-white"
                   >
@@ -3537,7 +3554,7 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
     >
       <MobilePageHeader title="自媒体矩阵" onBack={onBack} />
 
-      
+
       {/* 添加按钮 */}
       <div className="px-4 pt-4">
         <motion.button
@@ -3620,7 +3637,7 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
           .face-left   { transform: rotateY(-90deg) translateZ(60px); }
           .face-right  { transform: rotateY(90deg) translateZ(60px); }
         `}</style>
-        
+
         <div className="cube-container">
           {/* 前: 微信 */}
           <div className="cube-face face-front" style={{ backgroundColor: 'rgba(7, 193, 96, 0.3)' }}>
@@ -3813,7 +3830,7 @@ function SimpleRadarChart({ skills, theme }: { skills: { name: string; level: nu
   const center = size / 2
   const radius = 45
   const angleStep = (Math.PI * 2) / skills.length
-  
+
   const points = skills.map((skill, i) => {
     const angle = i * angleStep - Math.PI / 2
     const r = (skill.level / 100) * radius
@@ -3824,9 +3841,9 @@ function SimpleRadarChart({ skills, theme }: { skills: { name: string; level: nu
       labelY: center + (radius + 15) * Math.sin(angle),
     }
   })
-  
+
   const polygonPoints = points.map(p => `${p.x},${p.y}`).join(' ')
-  
+
   return (
     <svg width={size} height={size} className="mx-auto">
       {/* Background circles */}
@@ -3877,13 +3894,13 @@ function SimpleRadarChart({ skills, theme }: { skills: { name: string; level: nu
 }
 
 // 数字名片弹窗
-function DigitalCardModal({ 
-  onClose, 
+function DigitalCardModal({
+  onClose,
   onOpenHistory,
   onOpenEdit,
   initialCard
-}: { 
-  onClose: () => void; 
+}: {
+  onClose: () => void;
   onOpenHistory?: () => void;
   onOpenEdit?: (card: DigitalCard) => void;
   initialCard?: DigitalCard;
@@ -3955,7 +3972,7 @@ function DigitalCardModal({
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 relative z-10">
             <h2 className="text-lg font-semibold text-text">个人数字名片</h2>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 rounded-full hover:bg-surface/60 transition-colors cursor-pointer flex items-center justify-center"
               aria-label="关闭"
@@ -3970,8 +3987,8 @@ function DigitalCardModal({
               {/* Card Header */}
               <div className={`bg-gradient-to-br ${theme.gradient} p-6 text-white`}>
                 <div className="flex items-center gap-4">
-                  <img 
-                    src={card.avatar} 
+                  <img
+                    src={card.avatar}
                     alt={card.name}
                     className="w-16 h-16 rounded-full bg-white/20 border-2 border-white/30 object-cover"
                     crossOrigin="anonymous"
@@ -4002,8 +4019,8 @@ function DigitalCardModal({
                     <h4 className="text-xs font-medium text-text-muted mb-2">技能分布</h4>
                     <div className="flex flex-wrap gap-1.5">
                       {card.skills.map((skill, i) => (
-                        <span 
-                          key={i} 
+                        <span
+                          key={i}
                           className="px-2 py-0.5 rounded-full text-xs bg-primary/10 text-primary"
                         >
                           {skill.name} {skill.level}%
@@ -4112,14 +4129,14 @@ function DigitalCardModal({
 }
 
 // 名片编辑弹窗
-function DigitalCardEditModal({ 
-  card, 
-  onSave, 
-  onClose 
-}: { 
+function DigitalCardEditModal({
+  card,
+  onSave,
+  onClose
+}: {
   card: DigitalCard
   onSave: (card: DigitalCard) => void
-  onClose: () => void 
+  onClose: () => void
 }) {
   const [editedCard, setEditedCard] = useState<DigitalCard>(card)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -4174,8 +4191,8 @@ function DigitalCardEditModal({
           <div>
             <h3 className="text-sm font-medium text-text mb-3">头像</h3>
             <div className="flex items-center gap-4">
-              <img 
-                src={editedCard.avatar} 
+              <img
+                src={editedCard.avatar}
                 alt="头像预览"
                 className="w-16 h-16 rounded-full object-cover border-2 border-border"
               />
@@ -4206,11 +4223,10 @@ function DigitalCardEditModal({
                 <button
                   key={themeKey}
                   onClick={() => handleThemeChange(themeKey)}
-                  className={`p-3 rounded-xl border-2 transition-all ${
-                    editedCard.theme === themeKey 
-                      ? 'border-primary bg-primary/5' 
+                  className={`p-3 rounded-xl border-2 transition-all ${editedCard.theme === themeKey
+                      ? 'border-primary bg-primary/5'
                       : 'border-border/50 hover:border-border'
-                  }`}
+                    }`}
                 >
                   <div className={`w-full h-8 rounded-lg bg-gradient-to-br ${cardThemes[themeKey].gradient} mb-2`} />
                   <span className="text-xs text-text">{cardThemes[themeKey].name}</span>
@@ -4315,7 +4331,7 @@ function CardHistoryModal({ onClose }: { onClose: () => void }) {
           <h2 className="text-lg font-semibold text-text">名片历史记录</h2>
           <div className="flex items-center gap-2">
             {history.length > 0 && (
-              <button 
+              <button
                 onClick={handleClearAll}
                 className="text-xs text-rose-500 px-2 py-1 rounded-lg hover:bg-rose-500/10"
               >
@@ -4347,9 +4363,9 @@ function CardHistoryModal({ onClose }: { onClose: () => void }) {
                   className="glass-card p-3 flex items-center gap-3"
                 >
                   {item.previewImage ? (
-                    <img 
-                      src={item.previewImage} 
-                      alt="名片预览" 
+                    <img
+                      src={item.previewImage}
+                      alt="名片预览"
                       className="w-16 h-16 rounded-lg object-cover"
                     />
                   ) : (
@@ -4388,12 +4404,12 @@ function CardHistoryModal({ onClose }: { onClose: () => void }) {
 }
 
 // 会员订阅弹窗组件
-function MembershipModal({ 
-  onClose, 
-  selectedPlan, 
+function MembershipModal({
+  onClose,
+  selectedPlan,
   onSelectPlan,
   onPaymentSuccess
-}: { 
+}: {
   onClose: () => void
   selectedPlan: string
   onSelectPlan: (plan: string) => void
@@ -4435,14 +4451,14 @@ function MembershipModal({
           {/* 装饰性光晕 */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-          
-          <button 
+
+          <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors z-10"
           >
             <X size={20} />
           </button>
-          
+
           <div className="relative flex items-center gap-4 mb-2">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/50 ring-4 ring-white/20">
               <Crown size={32} className="text-white" />
@@ -4466,11 +4482,10 @@ function MembershipModal({
                 key={plan.id}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onSelectPlan(plan.id)}
-                className={`w-full relative p-4 rounded-2xl border-2 transition-all ${
-                  selectedPlan === plan.id
+                className={`w-full relative p-4 rounded-2xl border-2 transition-all ${selectedPlan === plan.id
                     ? 'border-primary bg-primary/5'
                     : 'border-border/50 bg-surface hover:border-primary/30'
-                }`}
+                  }`}
               >
                 {plan.popular && (
                   <span className="absolute -top-2 right-4 px-2 py-0.5 rounded-full bg-gradient-to-r from-primary to-accent text-white text-[10px] font-medium shadow-sm">
@@ -4479,9 +4494,8 @@ function MembershipModal({
                 )}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      selectedPlan === plan.id ? 'border-primary' : 'border-text-muted'
-                    }`}>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPlan === plan.id ? 'border-primary' : 'border-text-muted'
+                      }`}>
                       {selectedPlan === plan.id && (
                         <div className="w-2.5 h-2.5 rounded-full bg-primary" />
                       )}
@@ -4520,15 +4534,14 @@ function MembershipModal({
           <div className="grid grid-cols-2 gap-3 mb-6">
             <button
               onClick={() => setPaymentMethod('wechat')}
-              className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border-2 transition-all ${
-                paymentMethod === 'wechat'
+              className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border-2 transition-all ${paymentMethod === 'wechat'
                   ? 'border-green-500 bg-green-50 shadow-sm'
                   : 'border-gray-200 bg-white hover:border-green-300'
-              }`}
+                }`}
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-green-500">
-                <path d="M9.5 11.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm7 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" fill="currentColor"/>
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.73.55-3.33 1.48-4.64.38.56.98.93 1.66.93.65 0 1.24-.34 1.62-.87.38.53.97.87 1.62.87s1.24-.34 1.62-.87c.38.53.97.87 1.62.87.68 0 1.28-.37 1.66-.93C19.45 10.67 20 12.27 20 14c0 4.41-3.59 8-8 8z" fill="currentColor"/>
+                <path d="M9.5 11.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm7 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" fill="currentColor" />
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.73.55-3.33 1.48-4.64.38.56.98.93 1.66.93.65 0 1.24-.34 1.62-.87.38.53.97.87 1.62.87s1.24-.34 1.62-.87c.38.53.97.87 1.62.87.68 0 1.28-.37 1.66-.93C19.45 10.67 20 12.27 20 14c0 4.41-3.59 8-8 8z" fill="currentColor" />
               </svg>
               <span className={`text-sm font-medium ${paymentMethod === 'wechat' ? 'text-green-600' : 'text-gray-700'}`}>微信支付</span>
               {paymentMethod === 'wechat' && (
@@ -4539,15 +4552,14 @@ function MembershipModal({
             </button>
             <button
               onClick={() => setPaymentMethod('alipay')}
-              className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border-2 transition-all ${
-                paymentMethod === 'alipay'
+              className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border-2 transition-all ${paymentMethod === 'alipay'
                   ? 'border-blue-500 bg-blue-50 shadow-sm'
                   : 'border-gray-200 bg-white hover:border-blue-300'
-              }`}
+                }`}
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-blue-500">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
               <span className={`text-sm font-medium ${paymentMethod === 'alipay' ? 'text-blue-600' : 'text-gray-700'}`}>支付宝</span>
               {paymentMethod === 'alipay' && (
@@ -4567,7 +4579,7 @@ function MembershipModal({
             <span className="text-2xl sm:text-3xl font-bold text-primary">¥{currentPlan?.price}</span>
             <span className="text-text-muted text-sm">/{currentPlan?.period}</span>
           </div>
-          
+
           {/* 立即支付按钮 */}
           <button
             onClick={handlePayment}
@@ -4586,7 +4598,7 @@ function MembershipModal({
               </>
             )}
           </button>
-          
+
           {/* 协议说明 */}
           <p className="text-center text-xs text-text-dim mt-3 sm:mt-4 flex items-center justify-center gap-1">
             <Shield size={12} />
@@ -4644,7 +4656,7 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[103] flex items-center justify-center p-4 pointer-events-none"
           >
-            <div 
+            <div
               className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl p-6 pointer-events-auto"
               style={{
                 background: themeConfig.glassEffect.background,
@@ -4656,7 +4668,7 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 
+                <h2
                   className="text-xl font-bold"
                   style={{ color: themeConfig.colors.text }}
                 >
@@ -4672,7 +4684,7 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
               </div>
               {/* Social Links */}
               <div className="space-y-3 mb-6">
-                <h4 
+                <h4
                   className="text-sm font-semibold mb-3"
                   style={{ color: themeConfig.colors.text }}
                 >
@@ -4694,20 +4706,20 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                       <span className="text-2xl">{link.icon}</span>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <span 
+                          <span
                             className="font-medium"
                             style={{ color: themeConfig.colors.text }}
                           >
                             {link.name}
                           </span>
-                          <span 
+                          <span
                             className="text-sm font-semibold"
                             style={{ color: themeConfig.colors.primary }}
                           >
                             {link.value}
                           </span>
                         </div>
-                        <p 
+                        <p
                           className="text-xs mt-1"
                           style={{ color: themeConfig.colors.textMuted }}
                         >
@@ -4716,7 +4728,7 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                       </div>
                     </div>
                     {link.hasQR && (
-                      <div 
+                      <div
                         className="mt-3 p-3 rounded-lg text-center"
                         style={{ background: themeConfig.colors.bg }}
                       >
@@ -4725,7 +4737,7 @@ function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                           alt="公众号二维码"
                           className="w-24 h-24 mx-auto rounded-lg object-cover"
                         />
-                        <p 
+                        <p
                           className="text-xs mt-2"
                           style={{ color: themeConfig.colors.textMuted }}
                         >

@@ -37,6 +37,7 @@ type TabId = (typeof tabs)[number]['id']
 export default function Life() {
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
+  const viewParam = searchParams.get('view')
   const location = useLocation()
 
   const getInitialTab = (): TabId => {
@@ -45,9 +46,15 @@ export default function Life() {
     return 'love'
   }
 
+  const getInitialLoveView = (): 'main' | 'album' | 'wish' | 'blessing' => {
+    const validViews = ['main', 'album', 'wish', 'blessing']
+    if (viewParam && validViews.includes(viewParam)) return viewParam as any
+    return 'main'
+  }
+
   const [activeTab, setActiveTab] = useState<TabId>(getInitialTab)
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
-  const [loveView, setLoveView] = useState<'main' | 'album' | 'wish' | 'blessing'>('main')
+  const [loveView, setLoveView] = useState<'main' | 'album' | 'wish' | 'blessing'>(getInitialLoveView)
 
   // 监听导航变化，重置详情页状态并跳转到顶部
   useLayoutEffect(() => {
@@ -59,11 +66,11 @@ export default function Life() {
 
   // 当路径直接点击 /life 时（或无特定参数时），重置为首屏
   useEffect(() => {
-    if (location.pathname === '/life' && !tabParam) {
+    if (location.pathname === '/life' && !tabParam && !viewParam) {
       setActiveTab('love')
       setLoveView('main')
     }
-  }, [location, tabParam])
+  }, [location, tabParam, viewParam])
 
   // 如果处于子页面，显示子页面
   if (loveView !== 'main' && activeTab === 'love') {
