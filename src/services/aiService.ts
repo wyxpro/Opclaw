@@ -85,7 +85,8 @@ ${context}
           model: 'MiniMax/MiniMax-M2.5',
           messages: messages,
           stream: true,
-          temperature: 0.7,
+          temperature: 0.6,
+          max_tokens: 1024
         }),
       })
 

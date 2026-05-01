@@ -1,7 +1,10 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, Square, Play, Pause, Trash2, Check, Volume2, RefreshCw, Sparkles } from 'lucide-react'
+import { Mic, Square, Play, Pause, Trash2, Check, Volume2, RefreshCw, Sparkles, Upload } from 'lucide-react'
 import type { ThemeConfig } from '../../lib/themes'
+
+const API_KEY = import.meta.env.VITE_SILICON_FLOW_API_KEY
+const BASE_URL = 'https://api.siliconflow.com/v1'
 
 export interface VoiceModel {
   id: string
@@ -119,27 +122,87 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
     setRecordingTime(0)
   }
 
+  // 上传音频文件
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (recordedAudio) {
+        URL.revokeObjectURL(recordedAudio)
+      }
+      const url = URL.createObjectURL(file)
+      setRecordedAudio(url)
+      
+      const audio = new Audio(url)
+      audio.onloadedmetadata = () => {
+        setRecordingTime(Math.round(audio.duration))
+      }
+    }
+  }
+
   // 克隆声音
   const cloneVoice = async () => {
     if (!recordedAudio) return
+    if (!API_KEY) {
+      alert('API Key 未配置，请检查 VITE_SILICON_FLOW_API_KEY 环境变量')
+      return
+    }
 
     setIsCloning(true)
     
-    // 模拟声音克隆过程
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    try {
+      // 获取音频 Blob
+      const response = await fetch(recordedAudio)
+      if (!response.ok) throw new Error('读取录音数据失败')
+      const blob = await response.blob()
+      
+      // 创建表单数据
+      const formData = new FormData()
+      formData.append('model', 'fnlp/MOSS-TTSD-v0.5')
+      // 直接传 blob 并指定文件名
+      formData.append('file', blob, 'voice_sample.wav')
+      formData.append('customName', `VoiceClone_${Date.now()}`)
+      // text 是参考音频的内容，这里使用示例 4 的内容作为默认参考文本
+      formData.append('text', sampleTexts[3])
 
-    const voiceModel: VoiceModel = {
-      id: `voice-${Date.now()}`,
-      name: `我的声音克隆 ${new Date().toLocaleDateString()}`,
-      audioUrl: recordedAudio,
-      duration: recordingTime,
-      createdAt: Date.now(),
-      isCloned: true
+      console.log('正在上传声音到 SiliconFlow...', { url: `${BASE_URL}/uploads/audio/voice` })
+
+      const uploadResponse = await fetch(`${BASE_URL}/uploads/audio/voice`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${API_KEY}`
+        },
+        body: formData
+      }).catch(err => {
+        if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+          throw new Error('网络连接重置或被拦截 (ERR_CONNECTION_RESET)，请检查网络环境或代理设置')
+        }
+        throw err
+      })
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json().catch(() => ({ message: '未知服务器错误' }))
+        throw new Error(errorData.message || `上传失败 (${uploadResponse.status})`)
+      }
+
+      const result = await uploadResponse.json()
+      
+      const voiceModel: VoiceModel = {
+        id: result.uri || result.id || `voice-${Date.now()}`,
+        name: `我的声音克隆 ${new Date().toLocaleDateString()}`,
+        audioUrl: recordedAudio,
+        duration: recordingTime,
+        createdAt: Date.now(),
+        isCloned: true
+      }
+
+      setClonedVoice(voiceModel)
+      onVoiceCloned(voiceModel)
+    } catch (error) {
+      console.error('声音克隆失败:', error)
+      alert('声音克隆失败: ' + (error instanceof Error ? error.message : '未知错误'))
+    } finally {
+      setIsCloning(false)
     }
-
-    setClonedVoice(voiceModel)
-    onVoiceCloned(voiceModel)
-    setIsCloning(false)
   }
 
   // 测试克隆的声音
@@ -148,16 +211,41 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
 
     setIsTesting(true)
     
-    // 模拟语音合成
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(sampleText)
-      utterance.lang = 'zh-CN'
-      utterance.rate = 1.0
-      utterance.pitch = 1.0
-      utterance.onend = () => setIsTesting(false)
-      speechSynthesis.speak(utterance)
-    } else {
-      await new Promise(resolve => setTimeout(resolve, 2000))
+    try {
+      const response = await fetch(`${BASE_URL}/audio/speech`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'fnlp/MOSS-TTSD-v0.5',
+          input: sampleText,
+          voice: clonedVoice.id, // 使用返回的 URI
+          response_format: 'mp3',
+          stream: false // 设置为 false 以获取完整的音频文件
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || '语音合成失败')
+      }
+
+      const audioBlob = await response.blob()
+      const audioUrl = URL.createObjectURL(audioBlob)
+      
+      if (audioRef.current) {
+        audioRef.current.pause()
+      }
+      
+      const audio = new Audio(audioUrl)
+      audioRef.current = audio
+      audio.onended = () => setIsTesting(false)
+      await audio.play()
+    } catch (error) {
+      console.error('语音合成失败:', error)
+      alert('合成语音失败: ' + (error instanceof Error ? error.message : '未知错误'))
       setIsTesting(false)
     }
   }
@@ -227,14 +315,29 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
               )}
             </motion.button>
 
-            <div className="flex flex-col items-center sm:items-start gap-1">
-              <div className="text-2xl font-mono font-bold" style={{ color: isRecording ? themeConfig.colors.rose : themeConfig.colors.text }}>
-                {formatTime(recordingTime)}
+              <div className="flex flex-col items-center sm:items-start gap-2">
+                <div className="text-2xl font-mono font-bold" style={{ color: isRecording ? themeConfig.colors.rose : themeConfig.colors.text }}>
+                  {formatTime(recordingTime)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-medium" style={{ color: themeConfig.colors.textMuted }}>
+                    {isRecording ? '点击结束录制' : '点击图标录制'}
+                  </p>
+                  {!isRecording && !recordedAudio && (
+                    <>
+                      <span style={{ color: themeConfig.colors.border }}>|</span>
+                      <label 
+                        className="text-xs font-medium cursor-pointer flex items-center gap-1 hover:opacity-80 transition-opacity"
+                        style={{ color: themeConfig.colors.primary }}
+                      >
+                        <Upload size={12} />
+                        上传文件
+                        <input type="file" accept="audio/*" onChange={handleFileUpload} className="hidden" />
+                      </label>
+                    </>
+                  )}
+                </div>
               </div>
-              <p className="text-xs font-medium" style={{ color: themeConfig.colors.textMuted }}>
-                {isRecording ? '点击结束录制' : '点击图标录制'}
-              </p>
-            </div>
           </div>
 
           {/* 录音控制 */}

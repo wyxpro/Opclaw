@@ -13,6 +13,7 @@ interface Character3DProps {
   onBackgroundChange?: (background: string) => void
   isMobileVoiceUI?: boolean
   customAvatar?: { type: 'image' | 'video' | 'custom', url: string, style?: string } | null
+  isSpeaking?: boolean
 }
 
 export function Character3D({ 
@@ -22,7 +23,8 @@ export function Character3D({
   onStyleChange, 
   onBackgroundChange,
   isMobileVoiceUI = false,
-  customAvatar
+  customAvatar,
+  isSpeaking: externalIsSpeaking
 }: Character3DProps) {
   const [customMedia, setCustomMedia] = useState<{ type: 'video' | 'model', url: string, name: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -65,28 +67,50 @@ export function Character3D({
         setExpression('thinking')
         setHeadRotation({ x: -3, y: 5 })
       }, 1000)
-    } else if (currentMessage.role === 'assistant') {
-      setExpression('happy')
-      setIsSpeaking(true)
-      setBodyAnimation(prev => ({ ...prev, gesturing: true }))
-      setHeadRotation({ x: 0, y: 0 })
-      
-      const lipSyncInterval = setInterval(() => {
-        setMouthOpenness(Math.random() * 0.8 + 0.2)
-      }, 100)
-      
-      setTimeout(() => {
-        clearInterval(lipSyncInterval)
-        setIsSpeaking(false)
+    }
+  }, [currentMessage])
+
+  // 处理语音播放状态同步
+  useEffect(() => {
+    if (externalIsSpeaking !== undefined) {
+      setIsSpeaking(externalIsSpeaking)
+      if (externalIsSpeaking) {
+        setExpression('happy')
+        setBodyAnimation(prev => ({ ...prev, gesturing: true }))
+        setHeadRotation({ x: 0, y: 0 })
+        const lipSyncInterval = setInterval(() => {
+          setMouthOpenness(Math.random() * 0.8 + 0.2)
+        }, 100)
+        return () => clearInterval(lipSyncInterval)
+      } else {
         setMouthOpenness(0)
         setExpression('neutral')
         setBodyAnimation(prev => ({ ...prev, gesturing: false }))
-        setHeadRotation({ x: 0, y: 0 })
-      }, Math.min(currentMessage.content.length * 100, 5000))
-      
-      return () => clearInterval(lipSyncInterval)
+      }
+    } else {
+      // 回退到基于消息的启发式逻辑 (如果未提供 externalIsSpeaking)
+      if (currentMessage?.role === 'assistant') {
+        setIsSpeaking(true)
+        setExpression('happy')
+        setBodyAnimation(prev => ({ ...prev, gesturing: true }))
+        const lipSyncInterval = setInterval(() => {
+          setMouthOpenness(Math.random() * 0.8 + 0.2)
+        }, 100)
+        
+        const timer = setTimeout(() => {
+          setIsSpeaking(false)
+          setMouthOpenness(0)
+          setExpression('neutral')
+          setBodyAnimation(prev => ({ ...prev, gesturing: false }))
+        }, Math.min(currentMessage.content.length * 100, 5000))
+
+        return () => {
+          clearInterval(lipSyncInterval)
+          clearTimeout(timer)
+        }
+      }
     }
-  }, [currentMessage])
+  }, [externalIsSpeaking, currentMessage])
 
   const getExpressionAnimation = () => {
     switch (expression) {

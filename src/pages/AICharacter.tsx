@@ -13,6 +13,7 @@ import { HistoryDialog, type ChatSession } from '../components/ai/HistoryDialog'
 import { useTheme } from '../hooks/useTheme'
 import { ragEngine } from '../lib/ragEngine'
 import { aiService, type ChatMessage } from '../services/aiService'
+import { ttsService } from '../services/ttsService'
 import { Upload, History, MoreHorizontal, Sparkles, Bot } from 'lucide-react'
 import { AvatarSelectionDialog, DEFAULT_AI_AVATAR } from '../components/ai/AvatarSelectionDialog'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
@@ -40,6 +41,7 @@ export default function AICharacter() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string>(`session-${Date.now()}`)
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
 
     // 加载历史记录及已克隆的模型
     useEffect(() => {
@@ -141,6 +143,9 @@ export default function AICharacter() {
 
     setMessages(prev => [...prev, userMessage])
     setIsLoading(true)
+    
+    // 停止当前正在播放的语音
+    ttsService.stop()
 
     try {
       // 1. 获取检索到的上下文
@@ -167,6 +172,7 @@ export default function AICharacter() {
       
       // 4. 调用流式接口
       await aiService.streamChat(chatMessages, (chunk) => {
+        if (fullContent === '') setIsLoading(false)
         fullContent += chunk
         setMessages(prev => prev.map(msg => 
           msg.id === assistantMessageId ? { ...msg, content: fullContent } : msg
@@ -175,15 +181,13 @@ export default function AICharacter() {
 
       setIsLoading(false)
       
-      // 5. 自动播放语音回复 (在流结束后)
-      if ('speechSynthesis' in window && fullContent) {
-        // 过滤掉开头的 emoji 以获得更好的语音效果
-        const textToSpeak = fullContent.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]+ /u, '')
-        const utterance = new SpeechSynthesisUtterance(textToSpeak)
-        utterance.lang = 'zh-CN'
-        utterance.rate = 1.0
-        utterance.pitch = 1.0
-        speechSynthesis.speak(utterance)
+      // 5. 自动播放语音回复 (使用 SiliconFlow TTS)
+      if (fullContent) {
+        ttsService.speak(
+          fullContent, 
+          () => setIsSpeaking(true), 
+          () => setIsSpeaking(false)
+        )
       }
     } catch (error) {
       console.error('Failed to stream chat:', error)
@@ -212,6 +216,8 @@ export default function AICharacter() {
   // 处理挂断 (结束通话)
   const handleEndCall = () => {
     saveCurrentSession()
+    // 停止当前语音
+    ttsService.stop()
     // 重置对话
     setMessages([messages[0]])
     setCurrentSessionId(`session-${Date.now()}`)
@@ -219,6 +225,7 @@ export default function AICharacter() {
 
   // 选中历史会话
   const handleSelectSession = (session: ChatSession) => {
+    ttsService.stop()
     setMessages(session.messages)
     setCurrentSessionId(session.id)
     setIsHistoryOpen(false)
@@ -278,6 +285,7 @@ export default function AICharacter() {
                   setCurrentStep('avatar-clone')
                   setIsAvatarDialogOpen(false)
                 }}
+                isSpeaking={isSpeaking}
               />
             </div>
           )
@@ -294,6 +302,7 @@ export default function AICharacter() {
                 onStyleChange={(newStyle) => setCharacterStyle(newStyle)}
                 onBackgroundChange={(newBackground) => setBackground(newBackground)}
                 customAvatar={customAvatar}
+                isSpeaking={isSpeaking}
               />
               
 

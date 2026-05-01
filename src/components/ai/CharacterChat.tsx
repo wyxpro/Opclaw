@@ -6,6 +6,7 @@ import { StreamingText } from './StreamingText'
 import type { Message } from './types'
 import { aiService } from '../../services/aiService'
 import { sttService } from '../../services/sttService'
+import { ttsService } from '../../services/ttsService'
 import type { ThemeConfig } from '../../lib/themes'
 import type { CharacterStyle } from './types'
 
@@ -60,6 +61,7 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
 
   const handleSendMessage = () => {
     if (userInput.trim()) {
+      ttsService.stop()
       onSendMessage(userInput)
       setUserInput('')
     }
@@ -85,6 +87,7 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
       }
     } else {
       try {
+        ttsService.stop()
         await sttService.startRecording()
         setIsListening(true)
       } catch (error) {
@@ -95,6 +98,7 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
 
   const handlePressStart = async () => {
     try {
+      ttsService.stop()
       setIsPressing(true)
       await sttService.startRecording()
     } catch (error) {

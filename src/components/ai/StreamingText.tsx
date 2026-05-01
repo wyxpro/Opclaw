@@ -13,7 +13,7 @@ interface StreamingTextProps {
  */
 export const StreamingText: React.FC<StreamingTextProps> = ({ 
   text, 
-  speed = 10, // Faster for real streaming
+  speed = 80, // Slower typing speed to better match voice pace
   onComplete,
   onUpdate
 }) => {
@@ -50,9 +50,9 @@ export const StreamingText: React.FC<StreamingTextProps> = ({
   // If the stream is much faster than the typing speed, we might lag behind.
   // Catch up if the gap is too large
   useEffect(() => {
-    if (fullTextRef.current.length - indexRef.current > 20) {
-      setDisplayedText(fullTextRef.current.slice(0, indexRef.current + 10))
-      indexRef.current += 10
+    if (fullTextRef.current.length - indexRef.current > 100) {
+      setDisplayedText(fullTextRef.current.slice(0, indexRef.current + 20))
+      indexRef.current += 20
     }
   }, [text])
 

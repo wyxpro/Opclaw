@@ -9,6 +9,7 @@ import { AvatarSelectionDialog } from './AvatarSelectionDialog'
 import type { Message, CharacterStyle, AvatarModel } from './types'
 import { aiService } from '../../services/aiService'
 import { sttService } from '../../services/sttService'
+import { ttsService } from '../../services/ttsService'
 import { useTheme } from '../../hooks/useTheme'
 
 interface CharacterVoiceUIProps {
@@ -26,6 +27,7 @@ interface CharacterVoiceUIProps {
   onAvatarChange?: (avatar: { type: 'image' | 'video' | 'custom', url: string, style?: string }) => void
   myAvatar?: AvatarModel | null
   onGoToClone?: () => void
+  isSpeaking?: boolean
 }
 
 export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
@@ -42,7 +44,8 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
   customAvatar,
   onAvatarChange,
   myAvatar,
-  onGoToClone
+  onGoToClone,
+  isSpeaking
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { themeConfig } = useTheme()
@@ -139,6 +142,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
 
   const handleSendMessage = () => {
     if (userInput.trim()) {
+      ttsService.stop()
       onSendMessage(userInput)
       setUserInput('')
     }
@@ -158,6 +162,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
       }
     } else {
       try {
+        ttsService.stop()
         await sttService.startRecording()
         setIsListening(true)
       } catch (error) {
@@ -168,6 +173,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
 
   const handlePressStart = async () => {
     try {
+      ttsService.stop()
       setIsPressing(true)
       await sttService.startRecording()
     } catch (error) {
@@ -201,6 +207,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
             onBackgroundChange={onBackgroundChange}
             isMobileVoiceUI={true}
             customAvatar={customAvatar}
+            isSpeaking={isSpeaking}
           />
         </div>
 
