@@ -55,6 +55,60 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
   const [isPressing, setIsPressing] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
+  // 播放 UI 音效
+  const playUISound = (type: 'start' | 'end' | 'toggle' | 'pop') => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const oscillator = audioCtx.createOscillator()
+      const gainNode = audioCtx.createGain()
+
+      oscillator.connect(gainNode)
+      gainNode.connect(audioCtx.destination)
+
+      const now = audioCtx.currentTime
+
+      if (type === 'start') {
+        // 呼叫开始：清脆的上升双音阶
+        oscillator.type = 'sine'
+        oscillator.frequency.setValueAtTime(523.25, now) // C5
+        oscillator.frequency.exponentialRampToValueAtTime(783.99, now + 0.1) // G5
+        gainNode.gain.setValueAtTime(0, now)
+        gainNode.gain.linearRampToValueAtTime(0.15, now + 0.05)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
+        oscillator.start(now)
+        oscillator.stop(now + 0.4)
+      } else if (type === 'end') {
+        // 挂断：低沉的下降音
+        oscillator.type = 'sine'
+        oscillator.frequency.setValueAtTime(392.00, now) // G4
+        oscillator.frequency.exponentialRampToValueAtTime(196.00, now + 0.15) // G3
+        gainNode.gain.setValueAtTime(0.15, now)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
+        oscillator.start(now)
+        oscillator.stop(now + 0.4)
+      } else if (type === 'toggle') {
+        // 切换/点击：极短的清脆点按声
+        oscillator.type = 'triangle'
+        oscillator.frequency.setValueAtTime(800, now)
+        gainNode.gain.setValueAtTime(0.08, now)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1)
+        oscillator.start(now)
+        oscillator.stop(now + 0.1)
+      } else if (type === 'pop') {
+        // 气泡破裂声
+        oscillator.type = 'sine'
+        oscillator.frequency.setValueAtTime(1000, now)
+        oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.1)
+        gainNode.gain.setValueAtTime(0.1, now)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1)
+        oscillator.start(now)
+        oscillator.stop(now + 0.1)
+      }
+    } catch (e) {
+      console.warn('Audio context failed', e)
+    }
+  }
+
   const emojis = [
     '😊', '😂', '😍', '🤔', '😎', '🙌', '🔥', '✨', '❤️', '👍', '🎉', '🌟', 
     '🤖', '💡', '🎵', '📸', '🎨', '🚀', '☕', '🌈', '🍦', '🎮', '📱', '📚',
@@ -91,6 +145,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
   }
 
   const handleMicToggleInCall = async () => {
+    playUISound('toggle')
     if (isListening) {
       setIsListening(false)
       try {
@@ -341,7 +396,10 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                 <div className="flex items-center gap-3">
                   {/* 语音通话按钮 (Emerald Color) */}
                   <button 
-                    onClick={() => setChatMode('call')}
+                    onClick={() => {
+                      playUISound('start')
+                      setChatMode('call')
+                    }}
                     className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-xl transition-all active:scale-90 hover:bg-emerald-600 border-2 border-emerald-400/20 shrink-0"
                   >
                     <PhoneCall size={24} strokeWidth={2.5} />
@@ -414,6 +472,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => {
+                    playUISound('end')
                     setChatMode('text')
                     if (onEndCall) onEndCall()
                   }}
@@ -425,7 +484,10 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
 
                 {/* 语音输入的波浪动态显示代替原来的返回按钮 */}
                 <div 
-                  onClick={() => setChatMode('text')}
+                  onClick={() => {
+                    playUISound('end')
+                    setChatMode('text')
+                  }}
                   className="flex flex-col items-center gap-4 cursor-pointer group"
                 >
                   <VoiceWaveAnimation isListening={isListening} />
