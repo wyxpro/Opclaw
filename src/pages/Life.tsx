@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { useSearchParams, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, Star, Zap, Medal, Music, Calendar, ChevronRight } from 'lucide-react'
+import { Heart, MessageCircle, ThumbsUp, Send, MapPin, Camera, Sparkles, X, Image as ImageIcon, MoreHorizontal, Loader2, Mic, Square, Film, Plus, Images, Gift, ScrollText, type LucideIcon, Dumbbell, Gamepad2, Trophy, Target, Flame, Timer, Star, Zap, Medal, Music, Calendar, ChevronRight, Palette, Check, ChevronDown } from 'lucide-react'
+import { useTheme } from '../hooks/useTheme'
 import PageTransition from '../components/ui/PageTransition'
 import { loveTimeline as initialLoveTimeline, socialPosts as initialSocialPosts, travelLocations as initialTravelLocations } from '../data/mock'
 import type { SocialPost, PostComment, TravelLocation } from '../data/mock'
@@ -1757,14 +1758,44 @@ function Moments() {
 }
 
 /* ===== Travel Album ===== */
+const amapStyles = [
+  { id: 'normal', name: '标准', style: 'amap://styles/normal' },
+  { id: 'dark', name: '幻影黑', style: 'amap://styles/dark' },
+  { id: 'light', name: '月光银', style: 'amap://styles/light' },
+  { id: 'whitesmoke', name: '远山黛', style: 'amap://styles/whitesmoke' },
+  { id: 'fresh', name: '草色青', style: 'amap://styles/fresh' },
+  { id: 'grey', name: '雅士灰', style: 'amap://styles/grey' },
+  { id: 'graffiti', name: '涂鸦', style: 'amap://styles/graffiti' },
+  { id: 'macaron', name: '马卡龙', style: 'amap://styles/macaron' },
+  { id: 'blue', name: '靛海蓝', style: 'amap://styles/blue' },
+  { id: 'darkblue', name: '极夜蓝', style: 'amap://styles/darkblue' },
+  { id: 'wine', name: '酱籽', style: 'amap://styles/wine' },
+]
+
+const projectThemeToAmapStyle: Record<string, string> = {
+  minimal: 'amap://styles/normal',
+  cyber: 'amap://styles/darkblue',
+  artistic: 'amap://styles/macaron',
+  cartoon: 'amap://styles/fresh',
+  retro: 'amap://styles/whitesmoke'
+}
+
 function TravelAlbum({ onSelect }: {
   selectedLocation?: string | null
   onSelect: (id: string | null) => void
 }) {
+  const { currentTheme } = useTheme()
   const [modalLocation, setModalLocation] = useState<TravelLocation | null>(null)
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [travelLocations, setTravelLocations] = useState<TravelLocation[]>(initialTravelLocations)
+  const [mapStyle, setMapStyle] = useState<string>(projectThemeToAmapStyle[currentTheme] || 'amap://styles/darkblue')
+  const [showStyleMenu, setShowStyleMenu] = useState(false)
+
+  // 监听项目主题变化，自动更新地图主题
+  useEffect(() => {
+    setMapStyle(projectThemeToAmapStyle[currentTheme] || 'amap://styles/darkblue')
+  }, [currentTheme])
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -1814,20 +1845,81 @@ function TravelAlbum({ onSelect }: {
         className="glass-card p-4 sm:p-6 relative overflow-hidden"
       >
         {/* Map title */}
-        <div className="relative z-10 mb-4">
-          <h3 className="text-base sm:text-lg font-semibold text-text flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-primary/10">
-              <MapPin size={16} className="text-primary" />
-            </div>
-            <span className="bg-gradient-to-r from-red-500 via-orange-400 via-yellow-400 via-green-400 via-blue-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent">
-              中国旅行足迹
-            </span>
-          </h3>
-          <p className="text-xs text-text-muted mt-2 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            点击地图上的光点查看旅行记录，拖拽可平移，滚轮可缩放
-          </p>
+        <div className="relative z-10 mb-4 flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <h3 className="text-base sm:text-lg font-semibold text-text flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-primary/10">
+                <MapPin size={16} className="text-primary" />
+              </div>
+              <span className="bg-gradient-to-r from-red-500 via-orange-400 via-yellow-400 via-green-400 via-blue-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent font-bold">
+                中国旅行足迹
+              </span>
+            </h3>
+            <p className="text-xs text-text-muted mt-2 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              点击地图上的光点查看旅行记录，拖拽可平移，滚轮可缩放
+            </p>
+          </div>
+
+          {/* 地图主题切换按钮 */}
+          <div className="relative">
+            <button
+              onClick={() => setShowStyleMenu(!showStyleMenu)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-border/50 text-xs font-medium text-text hover:bg-surface/80 transition-all"
+            >
+              <Palette size={14} className="text-primary" />
+              <span className="hidden sm:inline">地图主题</span>
+              <ChevronDown size={14} className={`transition-transform duration-300 ${showStyleMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+              {showStyleMenu && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setShowStyleMenu(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 mt-2 w-48 py-2 bg-card border border-border rounded-xl shadow-xl z-20 overflow-hidden"
+                  >
+                    <div className="px-3 py-1 mb-1 text-[10px] font-bold text-text-muted uppercase tracking-wider">
+                      选择地图主题
+                    </div>
+                    <div className="max-h-64 overflow-y-auto custom-scrollbar">
+                      {amapStyles.map((style) => (
+                        <button
+                          key={style.id}
+                          onClick={() => {
+                            setMapStyle(style.style)
+                            setShowStyleMenu(false)
+                          }}
+                          className="w-full px-3 py-2 flex items-center justify-between text-xs text-text hover:bg-surface transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-2 h-2 rounded-full" 
+                              style={{ 
+                                background: style.id === 'dark' || style.id === 'darkblue' ? '#1a1430' : 
+                                            style.id === 'whitesmoke' || style.id === 'light' ? '#f5f5f5' :
+                                            style.id === 'fresh' ? '#4ade80' : '#8b5cf6'
+                              }} 
+                            />
+                            {style.name}
+                          </div>
+                          {mapStyle === style.style && <Check size={12} className="text-primary" />}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
+
 
         {/* 中国地图组件 */}
         <ChinaMap
@@ -1836,6 +1928,7 @@ function TravelAlbum({ onSelect }: {
           hoveredLocation={hoveredLocation}
           onLocationHover={setHoveredLocation}
           height={isMobile ? 350 : 500}
+          mapStyle={mapStyle}
         />
       </motion.div>
 

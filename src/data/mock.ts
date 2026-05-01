@@ -476,6 +476,8 @@ export interface TravelLocation {
   description: string
   x: number
   y: number
+  lng?: number
+  lat?: number
   color: string
   images: string[]
   details: {
@@ -551,6 +553,8 @@ export const travelLocations: TravelLocation[] = [
     description: '山城雾都，火锅与轻轨的魔幻之城',
     x: 62,
     y: 42,
+    lng: 106.55,
+    lat: 29.56,
     color: '#ef4444',
     images: chinaCityImages.chongqing,
     details: {
@@ -566,6 +570,8 @@ export const travelLocations: TravelLocation[] = [
     description: '天府之国，熊猫故乡，慢生活的典范',
     x: 58,
     y: 44,
+    lng: 104.06,
+    lat: 30.57,
     color: '#f59e0b',
     images: chinaCityImages.chengdu,
     details: {
@@ -581,6 +587,8 @@ export const travelLocations: TravelLocation[] = [
     description: '十三朝古都，兵马俑与古城墙的历史回响',
     x: 60,
     y: 35,
+    lng: 108.94,
+    lat: 34.27,
     color: '#8b5cf6',
     images: chinaCityImages.xian,
     details: {
@@ -596,6 +604,8 @@ export const travelLocations: TravelLocation[] = [
     description: '千年帝都，故宫与长城的庄严壮美',
     x: 68,
     y: 28,
+    lng: 116.40,
+    lat: 39.90,
     color: '#dc2626',
     images: chinaCityImages.beijing,
     details: {
@@ -611,6 +621,8 @@ export const travelLocations: TravelLocation[] = [
     description: '创新之都，科技与自然并存的现代都市',
     x: 72,
     y: 52,
+    lng: 114.05,
+    lat: 22.54,
     color: '#0ea5e9',
     images: chinaCityImages.shenzhen,
     details: {
@@ -626,6 +638,8 @@ export const travelLocations: TravelLocation[] = [
     description: '人间天堂，西湖美景与互联网新贵的完美融合',
     x: 74,
     y: 42,
+    lng: 120.15,
+    lat: 30.27,
     color: '#10b981',
     images: chinaCityImages.hangzhou,
     details: {
@@ -641,6 +655,8 @@ export const travelLocations: TravelLocation[] = [
     description: '六朝古都，秦淮河畔的诗意与沧桑',
     x: 72,
     y: 38,
+    lng: 118.79,
+    lat: 32.06,
     color: '#ec4899',
     images: chinaCityImages.nanjing,
     details: {
@@ -656,6 +672,8 @@ export const travelLocations: TravelLocation[] = [
     description: '十三朝古都，龙门石窟与牡丹花城',
     x: 64,
     y: 36,
+    lng: 112.45,
+    lat: 34.62,
     color: '#f97316',
     images: chinaCityImages.luoyang,
     details: {
@@ -671,6 +689,8 @@ export const travelLocations: TravelLocation[] = [
     description: '英雄城，滕王阁与赣江风光',
     x: 70,
     y: 46,
+    lng: 115.85,
+    lat: 28.68,
     color: '#06b6d4',
     images: chinaCityImages.nanchang,
     details: {

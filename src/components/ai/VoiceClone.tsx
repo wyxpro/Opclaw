@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Mic, Square, Play, Pause, Trash2, Check, Volume2, RefreshCw, Sparkles, Upload } from 'lucide-react'
 import type { ThemeConfig } from '../../lib/themes'
 
-const API_KEY = import.meta.env.VITE_SILICON_FLOW_API_KEY
-const BASE_URL = 'https://api.siliconflow.com/v1'
+const BASE_URL = 'https://api.siliconflow.cn/v1'
 
 export interface VoiceModel {
   id: string
@@ -142,64 +141,41 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
   // 克隆声音
   const cloneVoice = async () => {
     if (!recordedAudio) return
-    if (!API_KEY) {
-      alert('API Key 未配置，请检查 VITE_SILICON_FLOW_API_KEY 环境变量')
-      return
-    }
 
     setIsCloning(true)
     
     try {
-      // 获取音频 Blob
+      // 获取音频 Blob 并转换为 Base64 进行零样本 (Zero-Shot) 克隆
       const response = await fetch(recordedAudio)
       if (!response.ok) throw new Error('读取录音数据失败')
       const blob = await response.blob()
       
-      // 创建表单数据
-      const formData = new FormData()
-      formData.append('model', 'fnlp/MOSS-TTSD-v0.5')
-      // 直接传 blob 并指定文件名
-      formData.append('file', blob, 'voice_sample.wav')
-      formData.append('customName', `VoiceClone_${Date.now()}`)
-      // text 是参考音频的内容，这里使用示例 4 的内容作为默认参考文本
-      formData.append('text', sampleTexts[3])
-
-      console.log('正在上传声音到 SiliconFlow...', { url: `${BASE_URL}/uploads/audio/voice` })
-
-      const uploadResponse = await fetch(`${BASE_URL}/uploads/audio/voice`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${API_KEY}`
-        },
-        body: formData
-      }).catch(err => {
-        if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
-          throw new Error('网络连接重置或被拦截 (ERR_CONNECTION_RESET)，请检查网络环境或代理设置')
-        }
-        throw err
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
       })
 
-      if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json().catch(() => ({ message: '未知服务器错误' }))
-        throw new Error(errorData.message || `上传失败 (${uploadResponse.status})`)
-      }
-
-      const result = await uploadResponse.json()
-      
+      // 对于 MOSS-TTSD-v0.5，我们可以直接在合成请求中带上参考音频
+      // 所以克隆步骤主要是准备好音频数据
       const voiceModel: VoiceModel = {
-        id: result.uri || result.id || `voice-${Date.now()}`,
+        id: 'zero-shot-moss',
         name: `我的声音克隆 ${new Date().toLocaleDateString()}`,
-        audioUrl: recordedAudio,
+        audioUrl: base64, // 这里存储 Base64 数据
         duration: recordingTime,
         createdAt: Date.now(),
         isCloned: true
       }
 
+      // 模拟一点处理时间，增强用户体验
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
       setClonedVoice(voiceModel)
       onVoiceCloned(voiceModel)
     } catch (error) {
-      console.error('声音克隆失败:', error)
-      alert('声音克隆失败: ' + (error instanceof Error ? error.message : '未知错误'))
+      console.error('声音克隆准备失败:', error)
+      alert('声音克隆准备失败: ' + (error instanceof Error ? error.message : '未知错误'))
     } finally {
       setIsCloning(false)
     }
@@ -212,23 +188,35 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
     setIsTesting(true)
     
     try {
+      const apiKey = (import.meta.env.VITE_SILICON_FLOW_API_KEY || '').trim()
+      
+      if (!apiKey) {
+        throw new Error('API Key 未配置，请在 .env 中设置 VITE_SILICON_FLOW_API_KEY')
+      }
+
       const response = await fetch(`${BASE_URL}/audio/speech`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${API_KEY}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           model: 'fnlp/MOSS-TTSD-v0.5',
-          input: sampleText,
-          voice: clonedVoice.id, // 使用返回的 URI
+          input: `[S1]${sampleText}`,
           response_format: 'mp3',
-          stream: false // 设置为 false 以获取完整的音频文件
+          stream: false,
+          // 尝试将 references 放在外层（部分版本模型要求）
+          references: [
+            {
+              audio: clonedVoice.audioUrl,
+              text: sampleTexts[3]
+            }
+          ]
         })
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
+        const errorData = await response.json().catch(() => ({ message: '语音合成服务不可用' }))
         throw new Error(errorData.message || '语音合成失败')
       }
 

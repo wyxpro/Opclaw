@@ -15,6 +15,16 @@
       rel="stylesheet"
     />
     <title>Opclaw - 应用</title>
+    <script type="text/javascript">
+      window._AMapSecurityConfig = {
+        securityJsCode: "%VITE_AMAP_SECURITY_CODE%",
+      };
+    </script>
+    <script
+      type="text/javascript"
+      src="https://webapi.amap.com/maps?v=2.0&key=%VITE_AMAP_KEY%"
+    ></script>
+
     <style>
       /* 初始加载遮罩 - 防止白屏/黑屏闪烁 */
       #initial-loader {
