@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, Square, Play, Pause, Trash2, Check, Volume2, RefreshCw, Sparkles, Upload } from 'lucide-react'
+import { Mic, Square, Play, Pause, Trash2, Check, Volume2, RefreshCw, Sparkles, Upload, RotateCcw, VolumeX } from 'lucide-react'
 import type { ThemeConfig } from '../../lib/themes'
 
 const BASE_URL = 'https://api.siliconflow.cn/v1'
@@ -21,26 +21,46 @@ interface VoiceCloneProps {
 }
 
 export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceCloneProps) {
+  const [isMobile, setIsMobile] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
   const [recordedAudio, setRecordedAudio] = useState<string | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isCloning, setIsCloning] = useState(false)
   const [clonedVoice, setClonedVoice] = useState<VoiceModel | null>(existingVoice || null)
-  const [sampleText, setSampleText] = useState('')
+  const [testText, setTestText] = useState('')
   const [isTesting, setIsTesting] = useState(false)
+  const [volume, setVolume] = useState(1)
+  const [isMuted, setIsMuted] = useState(false)
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const sampleTexts = [
-    '你好，我是你的AI分身助手。',
-    '今天天气真不错，我们一起去散步吧。',
-    '人工智能正在改变我们的生活方式。',
-    '请录制一段清晰的语音，用于克隆您的声音。'
+  const trainingText = '你好，很高兴认识你！'
+
+  const sampleTestTexts = [
+    '今天天气怎么样？',
+    '给我讲一个冷笑话吧。',
+    '你觉得人工智能未来会如何发展？',
+    '很高兴能拥有属于自己的AI分身。'
   ]
+
+  // 监听窗口大小变化
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // 监听音量变化
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume
+    }
+  }, [volume, isMuted])
 
   // 开始录音
   const startRecording = async () => {
@@ -87,13 +107,20 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
     }
   }
 
+  // 重新录制
+  const reRecord = () => {
+    clearRecording()
+    startRecording()
+  }
+
   // 播放录音
   const playRecording = () => {
     if (recordedAudio) {
-      if (!audioRef.current) {
+      if (!audioRef.current || audioRef.current.src !== recordedAudio) {
         audioRef.current = new Audio(recordedAudio)
         audioRef.current.onended = () => setIsPlaying(false)
       }
+      audioRef.current.volume = isMuted ? 0 : volume
       audioRef.current.play()
       setIsPlaying(true)
     }
@@ -145,7 +172,6 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
     setIsCloning(true)
     
     try {
-      // 获取音频 Blob 并转换为 Base64 进行零样本 (Zero-Shot) 克隆
       const response = await fetch(recordedAudio)
       if (!response.ok) throw new Error('读取录音数据失败')
       const blob = await response.blob()
@@ -157,25 +183,22 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
         reader.readAsDataURL(blob)
       })
 
-      // 对于 MOSS-TTSD-v0.5，我们可以直接在合成请求中带上参考音频
-      // 所以克隆步骤主要是准备好音频数据
       const voiceModel: VoiceModel = {
         id: 'zero-shot-moss',
         name: `我的声音克隆 ${new Date().toLocaleDateString()}`,
-        audioUrl: base64, // 这里存储 Base64 数据
+        audioUrl: base64,
         duration: recordingTime,
         createdAt: Date.now(),
         isCloned: true
       }
 
-      // 模拟一点处理时间，增强用户体验
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      await new Promise(resolve => setTimeout(resolve, 2000))
 
       setClonedVoice(voiceModel)
       onVoiceCloned(voiceModel)
     } catch (error) {
-      console.error('声音克隆准备失败:', error)
-      alert('声音克隆准备失败: ' + (error instanceof Error ? error.message : '未知错误'))
+      console.error('声音克隆失败:', error)
+      alert('声音克隆失败: ' + (error instanceof Error ? error.message : '未知错误'))
     } finally {
       setIsCloning(false)
     }
@@ -183,7 +206,7 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
 
   // 测试克隆的声音
   const testClonedVoice = async () => {
-    if (!sampleText || !clonedVoice) return
+    if (!testText || !clonedVoice) return
 
     setIsTesting(true)
     
@@ -191,7 +214,7 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
       const apiKey = (import.meta.env.VITE_SILICON_FLOW_API_KEY || '').trim()
       
       if (!apiKey) {
-        throw new Error('API Key 未配置，请在 .env 中设置 VITE_SILICON_FLOW_API_KEY')
+        throw new Error('API Key 未配置')
       }
 
       const response = await fetch(`${BASE_URL}/audio/speech`, {
@@ -202,14 +225,13 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
         },
         body: JSON.stringify({
           model: 'fnlp/MOSS-TTSD-v0.5',
-          input: `[S1]${sampleText}`,
+          input: `[S1]${testText}`,
           response_format: 'mp3',
           stream: false,
-          // 尝试将 references 放在外层（部分版本模型要求）
           references: [
             {
               audio: clonedVoice.audioUrl,
-              text: sampleTexts[3]
+              text: trainingText
             }
           ]
         })
@@ -229,11 +251,12 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
       
       const audio = new Audio(audioUrl)
       audioRef.current = audio
+      audio.volume = isMuted ? 0 : volume
       audio.onended = () => setIsTesting(false)
       await audio.play()
     } catch (error) {
-      console.error('语音合成失败:', error)
-      alert('合成语音失败: ' + (error instanceof Error ? error.message : '未知错误'))
+      console.error('测试失败:', error)
+      alert('合成语音失败')
       setIsTesting(false)
     }
   }
@@ -246,282 +269,400 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 overflow-auto">
-        {/* 左侧：录音区域 - 包含标题 */}
-        <div 
-          className="rounded-2xl p-4 md:p-6"
-          style={{ 
-            background: themeConfig.colors.surface,
-            border: `1px solid ${themeConfig.colors.border}`
-          }}
+    <div className="h-full flex flex-col gap-6 overflow-auto pb-10">
+      {/* 标题区域 */}
+      <div className="flex-shrink-0">
+        <motion.h2 
+          className="text-2xl font-bold mb-2 flex items-center gap-2"
+          style={{ color: themeConfig.colors.text }}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
         >
-          {/* 标题合并到卡片中 */}
-          <div className="mb-4">
-            <motion.h2 
-              className="text-lg md:text-xl font-bold mb-1"
-              style={{ color: themeConfig.colors.text }}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              声音克隆
-            </motion.h2>
-            <p className="text-xs md:text-sm" style={{ color: themeConfig.colors.textMuted }}>
-              录制一段语音，让AI学习并克隆您的声音
-            </p>
-          </div>
+          <Sparkles className="text-indigo-400" size={24} />
+          声音克隆训练
+        </motion.h2>
+        <p className="text-sm" style={{ color: themeConfig.colors.textMuted }}>
+          通过少量音频录制，即可生成您专属的 AI 声音模型
+        </p>
+      </div>
 
-          <h3 
-            className="text-base md:text-lg font-semibold mb-4 flex items-center gap-2"
-            style={{ color: themeConfig.colors.text }}
-          >
-            <Mic size={18} style={{ color: themeConfig.colors.primary }} />
-            录音
-          </h3>
-
-          <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
-            <motion.button
-              onClick={isRecording ? stopRecording : startRecording}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative w-20 h-20 rounded-full flex items-center justify-center shrink-0"
-              style={{
-                background: isRecording 
-                  ? `linear-gradient(135deg, ${themeConfig.colors.rose}, #ef4444)`
-                  : `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`,
-                boxShadow: isRecording
-                  ? `0 0 25px rgba(244, 63, 94, 0.4)`
-                  : `0 0 25px ${themeConfig.colors.primaryMuted}`
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* 左侧：训练与录制 (8/12) */}
+        <div className="lg:col-span-7 space-y-6">
+          {isMobile ? (
+            /* 移动端：合并示例文本与录制区 - 一行显示 */
+            <section 
+              className="rounded-2xl p-4"
+              style={{ 
+                background: themeConfig.colors.surface,
+                border: `1px solid ${themeConfig.colors.border}`,
+                boxShadow: themeConfig.glassEffect.boxShadow
               }}
             >
-              {isRecording ? <Square size={28} className="text-white" /> : <Mic size={28} className="text-white" />}
-              {isRecording && (
-                <>
-                  <motion.div className="absolute inset-0 rounded-full" style={{ border: `2px solid ${themeConfig.colors.rose}` }} animate={{ scale: [1, 1.3, 1], opacity: [1, 0, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
-                  <motion.div className="absolute inset-0 rounded-full" style={{ border: `2px solid ${themeConfig.colors.rose}` }} animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }} />
-                </>
-              )}
-            </motion.button>
-
-              <div className="flex flex-col items-center sm:items-start gap-2">
-                <div className="text-2xl font-mono font-bold" style={{ color: isRecording ? themeConfig.colors.rose : themeConfig.colors.text }}>
-                  {formatTime(recordingTime)}
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs font-medium" style={{ color: themeConfig.colors.textMuted }}>
-                    {isRecording ? '点击结束录制' : '点击图标录制'}
+              <div className="flex flex-row gap-4 items-stretch">
+                {/* 文本区域 */}
+                <div className="flex-1 flex flex-col">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-blue-500/10 text-blue-500">
+                      <span className="font-bold text-xs">1</span>
+                    </div>
+                    <h3 className="font-bold text-sm" style={{ color: themeConfig.colors.text }}>训练文本</h3>
+                  </div>
+                  <div 
+                    className="flex-1 p-3 rounded-xl text-sm leading-relaxed font-medium flex items-center justify-center italic"
+                    style={{ 
+                      background: themeConfig.colors.bgAlt,
+                      color: themeConfig.colors.text,
+                      border: `1px dashed ${themeConfig.colors.border}`
+                    }}
+                  >
+                    "{trainingText}"
+                  </div>
+                  <p className="mt-2 text-[10px]" style={{ color: themeConfig.colors.textMuted }}>
+                    请保持安静并自然朗读
                   </p>
-                  {!isRecording && !recordedAudio && (
-                    <>
-                      <span style={{ color: themeConfig.colors.border }}>|</span>
-                      <label 
-                        className="text-xs font-medium cursor-pointer flex items-center gap-1 hover:opacity-80 transition-opacity"
-                        style={{ color: themeConfig.colors.primary }}
-                      >
-                        <Upload size={12} />
-                        上传文件
-                        <input type="file" accept="audio/*" onChange={handleFileUpload} className="hidden" />
-                      </label>
-                    </>
-                  )}
+                </div>
+
+                {/* 录音区域 */}
+                <div 
+                  className="flex flex-col items-center justify-center gap-3 min-w-[120px] p-2 rounded-xl"
+                  style={{ background: `${themeConfig.colors.bgAlt}44` }}
+                >
+                  <div className="relative">
+                    <motion.button
+                      onClick={isRecording ? stopRecording : (recordedAudio ? reRecord : startRecording)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-16 h-16 rounded-full flex items-center justify-center z-10 relative"
+                      style={{
+                        background: isRecording 
+                          ? `linear-gradient(135deg, ${themeConfig.colors.rose}, #ef4444)`
+                          : recordedAudio 
+                            ? `linear-gradient(135deg, #fbbf24, #f59e0b)`
+                            : `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`,
+                        boxShadow: isRecording
+                          ? `0 0 15px rgba(244, 63, 94, 0.4)`
+                          : `0 0 15px ${themeConfig.colors.primaryMuted}`
+                      }}
+                    >
+                      {isRecording ? <Square size={24} className="text-white" /> : recordedAudio ? <RotateCcw size={24} className="text-white" /> : <Mic size={24} className="text-white" />}
+                    </motion.button>
+                    <AnimatePresence>
+                      {isRecording && (
+                        <motion.div 
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1.6, opacity: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut" }}
+                          className="absolute inset-0 rounded-full border-2 border-red-500 pointer-events-none"
+                        />
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <div className="text-center">
+                    <div className="text-xl font-mono font-bold" style={{ color: isRecording ? themeConfig.colors.rose : themeConfig.colors.text }}>
+                      {formatTime(recordingTime)}
+                    </div>
+                    <div className="text-[10px] font-medium" style={{ color: themeConfig.colors.textMuted }}>
+                      {isRecording ? '停止' : recordedAudio ? '重录' : '开始'}
+                    </div>
+                  </div>
                 </div>
               </div>
-          </div>
 
-          {/* 录音控制 */}
-          <AnimatePresence>
-            {recordedAudio && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-6 pt-6 border-t"
-                style={{ borderColor: themeConfig.colors.border }}
+              {/* 移动端操作栏 */}
+              {(recordedAudio || !isRecording) && (
+                <div className="mt-4 pt-4 border-t flex items-center justify-between gap-3" style={{ borderColor: themeConfig.colors.border }}>
+                  <div className="flex items-center gap-2">
+                    {recordedAudio && (
+                      <>
+                        <button onClick={isPlaying ? pauseRecording : playRecording} className="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-500 text-xs font-medium">
+                          {isPlaying ? '暂停' : '试听'}
+                        </button>
+                        <button onClick={clearRecording} className="p-1.5 rounded-lg bg-red-500/10 text-red-500">
+                          <Trash2 size={14} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  {recordedAudio && (
+                    <button onClick={cloneVoice} disabled={isCloning} className="px-5 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow-lg flex items-center gap-1">
+                      {isCloning ? <RefreshCw size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                      {isCloning ? '处理中' : '开始克隆'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </section>
+          ) : (
+            /* 电脑端：传统的垂直堆叠样式 */
+            <>
+              {/* 1. 示例文本区域 */}
+              <section 
+                className="rounded-2xl p-6"
+                style={{ 
+                  background: themeConfig.colors.surface,
+                  border: `1px solid ${themeConfig.colors.border}`,
+                  boxShadow: themeConfig.glassEffect.boxShadow
+                }}
               >
-                <div className="flex items-center justify-center gap-4">
-                  <motion.button
-                    onClick={isPlaying ? pauseRecording : playRecording}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{
-                      background: themeConfig.colors.primaryMuted,
-                      color: themeConfig.colors.primary
-                    }}
-                  >
-                    {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-                  </motion.button>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/10 text-blue-500">
+                    <span className="font-bold text-sm">1</span>
+                  </div>
+                  <h3 className="font-bold text-lg" style={{ color: themeConfig.colors.text }}>训练文本</h3>
+                </div>
+                <div 
+                  className="p-6 rounded-xl text-xl leading-relaxed font-medium text-center"
+                  style={{ 
+                    background: themeConfig.colors.bgAlt,
+                    color: themeConfig.colors.text,
+                    border: `1px dashed ${themeConfig.colors.border}`
+                  }}
+                >
+                  "{trainingText}"
+                </div>
+                <p className="mt-3 text-sm text-center" style={{ color: themeConfig.colors.textMuted }}>
+                  请保持环境安静，用平稳自然的语速朗读以上文本
+                </p>
+              </section>
 
-                  <motion.button
-                    onClick={clearRecording}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{
-                      background: `rgba(244, 63, 94, 0.1)`,
-                      color: themeConfig.colors.rose
-                    }}
-                  >
-                    <Trash2 size={20} />
-                  </motion.button>
+              {/* 2. 录制功能区 */}
+              <section 
+                className="rounded-2xl p-6"
+                style={{ 
+                  background: themeConfig.colors.surface,
+                  border: `1px solid ${themeConfig.colors.border}`,
+                  boxShadow: themeConfig.glassEffect.boxShadow
+                }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-red-500/10 text-red-500">
+                      <span className="font-bold text-sm">2</span>
+                    </div>
+                    <h3 className="font-bold text-lg" style={{ color: themeConfig.colors.text }}>录制音频</h3>
+                  </div>
+                  
+                  {isRecording && (
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-500 animate-pulse">
+                      <div className="w-2 h-2 rounded-full bg-red-500" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Recording</span>
+                    </div>
+                  )}
+                </div>
 
-                  <motion.button
-                    onClick={cloneVoice}
-                    disabled={isCloning}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="px-6 py-3 rounded-full flex items-center gap-2 font-medium"
+                <div className="flex flex-col items-center py-6">
+                  <div className="relative mb-8">
+                    <motion.button
+                      onClick={isRecording ? stopRecording : (recordedAudio ? reRecord : startRecording)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-24 h-24 rounded-full flex items-center justify-center z-10 relative"
+                      style={{
+                        background: isRecording 
+                          ? `linear-gradient(135deg, ${themeConfig.colors.rose}, #ef4444)`
+                          : recordedAudio 
+                            ? `linear-gradient(135deg, #fbbf24, #f59e0b)`
+                            : `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`,
+                        boxShadow: isRecording
+                          ? `0 0 30px rgba(244, 63, 94, 0.4)`
+                          : `0 0 30px ${themeConfig.colors.primaryMuted}`
+                      }}
+                    >
+                      {isRecording ? <Square size={32} className="text-white" /> : recordedAudio ? <RotateCcw size={32} className="text-white" /> : <Mic size={32} className="text-white" />}
+                    </motion.button>
+
+                    <AnimatePresence>
+                      {isRecording && (
+                        <motion.div 
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 2, opacity: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
+                          className="absolute inset-0 rounded-full border-2 border-red-500 pointer-events-none"
+                        />
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <div className="text-center">
+                    <div className="text-4xl font-mono font-bold mb-2" style={{ color: isRecording ? themeConfig.colors.rose : themeConfig.colors.text }}>
+                      {formatTime(recordingTime)}
+                    </div>
+                    <p className="text-sm font-medium" style={{ color: themeConfig.colors.textMuted }}>
+                      {isRecording ? '录制中，点击红色按钮停止' : recordedAudio ? '录制完成，点击可重新录制' : '点击图标开始录制'}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-8">
+                    {!isRecording && !recordedAudio && (
+                      <label 
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl cursor-pointer hover:bg-white/5 transition-all"
+                        style={{ border: `1px solid ${themeConfig.colors.border}`, color: themeConfig.colors.textSecondary }}
+                      >
+                        <Upload size={16} />
+                        <span className="text-sm">上传已有音频</span>
+                        <input type="file" accept="audio/*" onChange={handleFileUpload} className="hidden" />
+                      </label>
+                    )}
+
+                    {recordedAudio && !isRecording && (
+                      <div className="flex items-center gap-3">
+                        <button onClick={isPlaying ? pauseRecording : playRecording} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-all">
+                          {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+                          <span className="text-sm font-medium">试听录音</span>
+                        </button>
+                        <button onClick={clearRecording} className="p-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {recordedAudio && !isRecording && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 pt-6 border-t" style={{ borderColor: themeConfig.colors.border }}>
+                    <button onClick={cloneVoice} disabled={isCloning} className="w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-lg shadow-xl transition-all" style={{ background: `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`, color: 'white' }}>
+                      {isCloning ? <RefreshCw size={24} className="animate-spin" /> : <Sparkles size={24} />}
+                      {isCloning ? '正在提取声音特征...' : '开始声音克隆'}
+                    </button>
+                  </motion.div>
+                )}
+              </section>
+            </>
+          )}
+        </div>
+
+
+        {/* 右侧：测试与控制 (4/12) */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* 4. 测试播放区域 */}
+          <section 
+            className="rounded-2xl p-6 h-full flex flex-col"
+            style={{ 
+              background: themeConfig.colors.surface,
+              border: `1px solid ${themeConfig.colors.border}`,
+              boxShadow: themeConfig.glassEffect.boxShadow
+            }}
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-500/10 text-indigo-500">
+                <span className="font-bold text-sm">3</span>
+              </div>
+              <h3 className="font-bold text-lg" style={{ color: themeConfig.colors.text }}>模型测试</h3>
+            </div>
+
+            {clonedVoice ? (
+              <div className="flex-1 flex flex-col space-y-5">
+                {/* 模型信息 */}
+                <div 
+                  className="p-4 rounded-xl flex items-center gap-3 bg-emerald-500/5 border border-emerald-500/20"
+                >
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-emerald-500/10 text-emerald-500">
+                    <Check size={20} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: themeConfig.colors.text }}>{clonedVoice.name}</p>
+                    <p className="text-xs" style={{ color: themeConfig.colors.textMuted }}>创建时间: {new Date(clonedVoice.createdAt).toLocaleString()}</p>
+                  </div>
+                </div>
+
+                {/* 测试输入 */}
+                <div className="flex-1 flex flex-col">
+                  <label className="text-xs font-bold mb-2 uppercase tracking-wider" style={{ color: themeConfig.colors.textMuted }}>测试文本</label>
+                  <textarea
+                    value={testText}
+                    onChange={(e) => setTestText(e.target.value)}
+                    placeholder="输入你想让AI分身说的话..."
+                    className="w-full flex-1 p-4 rounded-xl resize-none focus:outline-none focus:ring-2 transition-all min-h-[120px]"
+                    style={{
+                      background: themeConfig.colors.bg,
+                      border: `1px solid ${themeConfig.colors.border}`,
+                      color: themeConfig.colors.text,
+                      ringColor: themeConfig.colors.primary
+                    }}
+                  />
+                </div>
+
+                {/* 快速选择 */}
+                <div className="flex flex-wrap gap-2">
+                  {sampleTestTexts.map((text, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setTestText(text)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-white/5 transition-all"
+                      style={{ border: `1px solid ${themeConfig.colors.border}`, color: themeConfig.colors.textSecondary }}
+                    >
+                      示例 {i + 1}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 5. 音频控制 */}
+                <div className="pt-4 space-y-4">
+                  <div className="flex items-center gap-4 px-2">
+                    <button 
+                      onClick={() => setIsMuted(!isMuted)}
+                      style={{ color: themeConfig.colors.textSecondary }}
+                    >
+                      {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                    </button>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="1" 
+                      step="0.1" 
+                      value={volume}
+                      onChange={(e) => setVolume(parseFloat(e.target.value))}
+                      className="flex-1 h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                    />
+                  </div>
+
+                  <button
+                    onClick={testClonedVoice}
+                    disabled={!testText || isTesting}
+                    className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-bold shadow-lg disabled:opacity-50 transition-all"
                     style={{
                       background: `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`,
                       color: 'white'
                     }}
                   >
-                    {isCloning ? (
+                    {isTesting ? (
                       <>
-                        <RefreshCw size={18} className="animate-spin" />
-                        克隆中...
+                        <RefreshCw size={20} className="animate-spin" />
+                        语音合成中...
                       </>
                     ) : (
                       <>
-                        <Sparkles size={18} />
-                        开始克隆
+                        <Play size={20} />
+                        播放测试
                       </>
                     )}
-                  </motion.button>
+                  </button>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* 右侧：测试区域 */}
-        <div 
-          className="rounded-2xl p-4 md:p-6"
-          style={{ 
-            background: themeConfig.colors.surface,
-            border: `1px solid ${themeConfig.colors.border}`
-          }}
-        >
-          <h3 
-            className="text-base md:text-lg font-semibold mb-4 flex items-center gap-2"
-            style={{ color: themeConfig.colors.text }}
-          >
-            <Volume2 size={18} style={{ color: themeConfig.colors.primary }} />
-            声音测试
-          </h3>
-
-          {clonedVoice ? (
-            <div className="space-y-4">
-              {/* 克隆成功提示 */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="p-4 rounded-xl flex items-center gap-3"
-                style={{
-                  background: `rgba(16, 185, 129, 0.1)`,
-                  border: `1px solid ${themeConfig.colors.emerald}`
-                }}
+              </div>
+            ) : (
+              <div 
+                className="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-2xl"
+                style={{ borderColor: themeConfig.colors.border }}
               >
                 <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ background: `rgba(16, 185, 129, 0.2)` }}
+                  className="w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-white/5"
                 >
-                  <Check size={20} style={{ color: themeConfig.colors.emerald }} />
+                  <Sparkles size={40} className="text-gray-600" />
                 </div>
-                <div>
-                  <p className="font-medium" style={{ color: themeConfig.colors.text }}>
-                    声音克隆成功！
-                  </p>
-                  <p className="text-sm" style={{ color: themeConfig.colors.textMuted }}>
-                    已保存: {clonedVoice.name}
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* 测试文本输入 */}
-              <div>
-                <label 
-                  className="block text-sm font-medium mb-2"
-                  style={{ color: themeConfig.colors.textSecondary }}
-                >
-                  输入测试文本
-                </label>
-                <textarea
-                  value={sampleText}
-                  onChange={(e) => setSampleText(e.target.value)}
-                  placeholder="输入一段文字来测试克隆的声音..."
-                  className="w-full p-3 rounded-xl resize-none focus:outline-none focus:ring-2 transition-all"
-                  style={{
-                    background: themeConfig.colors.bg,
-                    border: `1px solid ${themeConfig.colors.border}`,
-                    color: themeConfig.colors.text,
-                    minHeight: '100px'
-                  }}
-                />
+                <h4 className="font-bold mb-2" style={{ color: themeConfig.colors.textMuted }}>等待声音模型</h4>
+                <p className="text-xs max-w-[200px]" style={{ color: themeConfig.colors.textMuted }}>
+                  请先完成左侧的录音并点击“开始克隆”生成您的专属模型
+                </p>
               </div>
-
-              {/* 快速选择示例文本 */}
-              <div className="flex flex-wrap gap-2">
-                {sampleTexts.map((text, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSampleText(text)}
-                    className="px-3 py-1.5 rounded-full text-xs transition-all hover:opacity-80"
-                    style={{
-                      background: themeConfig.colors.bgAlt,
-                      color: themeConfig.colors.textMuted,
-                      border: `1px solid ${themeConfig.colors.border}`
-                    }}
-                  >
-                    示例 {index + 1}
-                  </button>
-                ))}
-              </div>
-
-              {/* 播放按钮 */}
-              <motion.button
-                onClick={testClonedVoice}
-                disabled={!sampleText || isTesting}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-medium disabled:opacity-50"
-                style={{
-                  background: `linear-gradient(135deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`,
-                  color: 'white'
-                }}
-              >
-                {isTesting ? (
-                  <>
-                    <RefreshCw size={18} className="animate-spin" />
-                    合成中...
-                  </>
-                ) : (
-                  <>
-                    <Play size={18} />
-                    播放测试
-                  </>
-                )}
-              </motion.button>
-            </div>
-          ) : (
-            <div 
-              className="h-full flex flex-col items-center justify-center text-center p-8"
-              style={{ minHeight: '300px' }}
-            >
-              <div 
-                className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-                style={{ background: themeConfig.colors.bgAlt }}
-              >
-                <Mic size={32} style={{ color: themeConfig.colors.textMuted }} />
-              </div>
-              <p style={{ color: themeConfig.colors.textMuted }}>
-                请先完成录音并克隆声音<br />
-                然后可以在这里测试效果
-              </p>
-            </div>
-          )}
+            )}
+          </section>
         </div>
       </div>
     </div>
   )
 }
+
