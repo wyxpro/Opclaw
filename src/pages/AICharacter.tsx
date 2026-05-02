@@ -162,14 +162,19 @@ export default function AICharacter() {
           const updatedAvatar = { 
             ...customAvatar, 
             url: result.url, 
-            style: newStyle 
+            style: newStyle,
+            styleUrls: {
+              ...(customAvatar.styleUrls || {}),
+              [newStyle]: result.url
+            }
           }
           setCustomAvatar(updatedAvatar)
-          // 如果是当前正在使用的模型，也更新它
-          if (avatarModel?.id === customAvatar.id) {
+          // 如果是我的分身，同步更新到 avatarModel 以便持久化到 localStorage
+          if (customAvatar.isCloned) {
             setAvatarModel(updatedAvatar)
           }
         }
+
       } catch (err) {
         console.error('Failed to regenerate style:', err)
       } finally {
@@ -231,10 +236,12 @@ export default function AICharacter() {
       if (fullContent) {
         ttsService.speak(
           fullContent, 
+          voiceModel,
           () => setIsSpeaking(true), 
           () => setIsSpeaking(false)
         )
       }
+
     } catch (error) {
       console.error('Failed to stream chat:', error)
       setIsLoading(false)

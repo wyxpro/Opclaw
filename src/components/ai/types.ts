@@ -45,7 +45,10 @@ export interface VoiceModel {
   duration: number
   createdAt: number
   isCloned: boolean
+  base64Audio?: string
+  referenceText?: string
 }
+
 
 // 形象模型
 export interface AvatarModel {
@@ -57,7 +60,9 @@ export interface AvatarModel {
   createdAt: number
   isCloned: boolean
   originalUrl?: string
+  styleUrls?: Partial<Record<CharacterStyle, string>>
 }
+
 
 // 数字人配置
 export interface DigitalHumanConfig {

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mic, Square, Play, Pause, Trash2, Check, Volume2, RefreshCw, Sparkles, Upload, RotateCcw, VolumeX } from 'lucide-react'
 import type { ThemeConfig } from '../../lib/themes'
+import type { VoiceModel } from './types'
+
 
 const BASE_URL = 'https://api.siliconflow.cn/v1'
 
@@ -67,16 +69,21 @@ function bufferToWave(abuffer: AudioBuffer, len: number) {
   return new Blob([buffer], { type: 'audio/wav' })
 }
 
-export interface VoiceModel {
-  id: string
-  name: string
-  audioUrl: string
-  duration: number
-  createdAt: number
-  isCloned: boolean
-}
+// 将 Blob 转换为 Base64
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = (reader.result as string).split(',')[1];
+      resolve(base64String);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
 
 interface VoiceCloneProps {
+
   themeConfig: ThemeConfig
   onVoiceCloned: (voiceModel: VoiceModel) => void
   existingVoice?: VoiceModel | null
@@ -98,9 +105,26 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [waveform, setWaveform] = useState<number[]>([])
+
+  // 生成波形数据
+  useEffect(() => {
+    if (isRecording) {
+      const interval = setInterval(() => {
+        setWaveform(prev => {
+          const next = [...prev, Math.random() * 50 + 10].slice(-30)
+          return next
+        })
+      }, 100)
+      return () => clearInterval(interval)
+    } else {
+      setWaveform([])
+    }
+  }, [isRecording])
 
   const trainingText = '你好，很高兴认识你！'
+
 
   const sampleTestTexts = [
     '今天天气怎么样？',
@@ -232,40 +256,48 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
     if (!recordedAudio) return
 
     setIsCloning(true)
-    console.log('开始创建声音模型...')
+    console.log('开始提取声音特征...')
     
     try {
-      const apiKey = (import.meta.env.VITE_SILICON_FLOW_API_KEY || '').trim()
-      if (!apiKey) throw new Error('Silicon Flow API Key 未配置')
+      // 获取录音的 Blob 并转换为 Base64
+      const response = await fetch(recordedAudio)
+      const blob = await response.blob()
+      const base64Audio = await blobToBase64(blob)
 
-      // 硅基流动暂不支持自定义音色克隆，使用预置音色模拟克隆流程
-      // 这里我们保存用户的录音作为参考，使用预置音色进行测试
-      console.log('正在准备声音模型...')
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // 模拟一些处理时间
+      await new Promise(resolve => setTimeout(resolve, 1500))
 
       // 创建声音模型信息
       const voiceModel: VoiceModel = {
-        id: 'fnlp/MOSS-TTSD-v0.5:alex', // 使用 alex 男声作为克隆后的音色
+        id: `cloned-${Date.now()}`,
         name: `我的声音模型 ${new Date().toLocaleDateString()}`,
         audioUrl: recordedAudio,
         duration: recordingTime,
         createdAt: Date.now(),
-        isCloned: true
+        isCloned: true,
+        base64Audio: base64Audio,
+        referenceText: trainingText
       }
 
       setClonedVoice(voiceModel)
       onVoiceCloned(voiceModel)
+      
+      // 预设一段测试文本
+      if (!testText) {
+        setTestText(sampleTestTexts[3])
+      }
     } catch (error) {
       console.error('克隆过程异常:', error)
-      alert('声音克隆失败: ' + (error instanceof Error ? error.message : '未知错误'))
+      alert('声音特征提取失败: ' + (error instanceof Error ? error.message : '未知错误'))
     } finally {
       setIsCloning(false)
     }
   }
 
+
   // 测试克隆的声音 (MOSS-TTSD-v0.5)
   const testClonedVoice = async () => {
-    if (!testText || !clonedVoice) return
+    if (!testText || !clonedVoice || !clonedVoice.base64Audio) return
 
     setIsTesting(true)
     console.log('开始测试 MOSS-TTSD 语音合成, voice:', clonedVoice.id)
@@ -274,15 +306,26 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
       const apiKey = (import.meta.env.VITE_SILICON_FLOW_API_KEY || '').trim()
       if (!apiKey) throw new Error('Silicon Flow API Key 未配置')
 
+      // MOSS-TTSD 通常需要角色标记，如 [S1] 或 [S2]
+      const inputWithTag = testText.startsWith('[') ? testText : `[S2]${testText}`
+
+      // 构造 MOSS-TTSD zero-shot 克隆请求
       const requestBody = {
         model: 'fnlp/MOSS-TTSD-v0.5',
-        input: testText,
-        voice: clonedVoice.id,
+        input: inputWithTag,
         response_format: 'mp3',
-        stream: false,
-        speed: 1.0
+        speed: 1.0,
+        references: [
+          {
+            audio: clonedVoice.base64Audio.startsWith('data:') 
+              ? clonedVoice.base64Audio 
+              : `data:audio/wav;base64,${clonedVoice.base64Audio}`,
+            text: clonedVoice.referenceText || trainingText
+          }
+        ]
       }
-      console.log('请求体内容:', requestBody)
+      console.log('请求 MOSS-TTSD 克隆接口:', { ...requestBody, references: [{ text: requestBody.references[0].text, audio: 'DATA_URI' }] })
+
 
       const response = await fetch('https://api.siliconflow.cn/v1/audio/speech', {
         method: 'POST',
@@ -317,6 +360,8 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
       setIsTesting(false)
     }
   }
+
+
 
   // 格式化时间
   const formatTime = (seconds: number) => {
@@ -534,6 +579,32 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
                       {isRecording ? '录制中，点击红色按钮停止' : recordedAudio ? '录制完成，点击可重新录制' : '点击图标开始录制'}
                     </p>
                   </div>
+
+                  {/* 波形动画 */}
+                  <div className="h-12 flex items-center gap-1 my-4">
+                    {isRecording ? (
+                      waveform.map((h, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ height: 10 }}
+                          animate={{ height: h }}
+                          className="w-1 rounded-full"
+                          style={{ background: themeConfig.colors.rose }}
+                        />
+                      ))
+                    ) : recordedAudio ? (
+                      <div className="flex items-center gap-1 opacity-50">
+                        {Array.from({ length: 30 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="w-1 rounded-full bg-blue-500"
+                            style={{ height: Math.random() * 30 + 5 }}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+
 
                   <div className="flex items-center gap-4 mt-8">
                     {!isRecording && !recordedAudio && (

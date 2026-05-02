@@ -21,13 +21,15 @@ serve(async (req) => {
     let prompt = userPrompt || `A happy, smiling person in the style of ${style}. `
     if (!userPrompt) {
         if (style === 'cartoon') {
-            prompt = `A happy 3D cartoon style digital human avatar of the person in the image, vibrant colors, stylized features, friendly smiling expression, keeping original person's features.`
+            prompt = `Cute 3D stylized character avatar, Pixar style animation, Disney-inspired digital art, large expressive eyes, friendly smile, smooth and clean skin texture, vibrant color palette, high-quality 3D render, Octane render style, keeping the recognizable facial features of the person in the image while transforming them into a cartoon.`
+
         } else if (style === 'realistic') {
-            prompt = `A high-quality realistic portrait of the person in the image, happy smiling expression, photorealistic, lifelike skin texture, keeping original person's features.`
+            prompt = `Professional high-quality 8k realistic portrait, photorealistic, raw photography, natural lighting, highly detailed skin pores and hair, realistic eyes, lifelike expression, keeping the exact facial features of the person in the image.`
         } else if (style === 'hidden') {
-            prompt = `A stylized, artistic hidden version of the person in the image, mysterious yet happy smiling expression, minimalist art style.`
+            prompt = `A stylized, artistic hidden version of the person in the image, mysterious yet happy smiling expression, minimalist art style, abstract interpretation.`
         }
     }
+
 
     console.log(`Generating image for style: ${style}, prompt: ${prompt}`)
 

@@ -151,8 +151,12 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
         style: selectedStyle,
         createdAt: Date.now(),
         isCloned: true,
-        originalUrl: base64
+        originalUrl: base64,
+        styleUrls: {
+          [selectedStyle]: result.url
+        }
       }
+
 
       stopProgressAnimation(true)
       setClonedAvatar(avatarModel)

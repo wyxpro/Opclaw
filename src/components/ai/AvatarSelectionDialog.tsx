@@ -61,32 +61,92 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
     const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all')
     const [myStyleFilter, setMyStyleFilter] = useState<CharacterStyle>(myAvatar?.style || 'realistic')
     const [isGeneratingStyle, setIsGeneratingStyle] = useState(false)
-    const [generatedAvatars, setGeneratedAvatars] = useState<Record<CharacterStyle, AvatarModel | null>>({
-        'realistic': myAvatar || null,
-        'cartoon': null,
-        'hidden': null
+    
+    // 从 myAvatar 初始化已生成的风格
+    const [generatedAvatars, setGeneratedAvatars] = useState<Record<CharacterStyle, AvatarModel | null>>(() => {
+        const initial: Record<CharacterStyle, AvatarModel | null> = {
+            'realistic': null,
+            'cartoon': null,
+            'hidden': null
+        }
+        
+        if (myAvatar) {
+            // 首先填充当前正在使用的
+            initial[myAvatar.style] = myAvatar
+            
+            // 然后根据 styleUrls 填充其他的
+            if (myAvatar.styleUrls) {
+                Object.entries(myAvatar.styleUrls).forEach(([style, url]) => {
+                    if (url) {
+                        initial[style as CharacterStyle] = {
+                            ...myAvatar,
+                            url: url,
+                            style: style as CharacterStyle
+                        }
+                    }
+                })
+            }
+        }
+        return initial
     })
+
+
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [uploadPreview, setUploadPreview] = useState<{ url: string, type: 'image' | 'video' } | null>(null)
 
-    // 同步外部传入的我的分身风格
+    // 同步外部传入的我的分身及其所有已生成的风格
     React.useEffect(() => {
-        if (myAvatar?.style) {
+        if (myAvatar) {
             setMyStyleFilter(myAvatar.style)
-            setGeneratedAvatars(prev => ({
-                ...prev,
-                [myAvatar.style]: myAvatar
-            }))
+            
+            const newGenerated: Record<CharacterStyle, AvatarModel | null> = {
+                'realistic': null,
+                'cartoon': null,
+                'hidden': null
+            }
+            
+            // 恢复当前风格
+            newGenerated[myAvatar.style] = myAvatar
+            
+            // 恢复缓存的其他风格
+            if (myAvatar.styleUrls) {
+                Object.entries(myAvatar.styleUrls).forEach(([style, url]) => {
+                    if (url) {
+                        newGenerated[style as CharacterStyle] = {
+                            ...myAvatar,
+                            url: url,
+                            style: style as CharacterStyle
+                        }
+                    }
+                })
+            }
+            
+            setGeneratedAvatars(newGenerated)
         }
     }, [myAvatar])
+
 
     // 风格切换时自动生成对应风格的头像
     React.useEffect(() => {
         const generateAvatarForStyle = async () => {
-            if (!myAvatar?.originalUrl || generatedAvatars[myStyleFilter] || isGeneratingStyle) {
+            // 基本检查
+            if (!myAvatar?.originalUrl || isGeneratingStyle || generatedAvatars[myStyleFilter]) {
                 return
             }
 
+            // 检查缓存中是否已有该风格的 URL
+            const existingUrl = myAvatar.styleUrls?.[myStyleFilter]
+            if (existingUrl) {
+                const cachedAvatar: AvatarModel = {
+                    ...myAvatar,
+                    url: existingUrl,
+                    style: myStyleFilter
+                }
+                setGeneratedAvatars(prev => ({ ...prev, [myStyleFilter]: cachedAvatar }))
+                return
+            }
+
+            // 真正开始生成
             setIsGeneratingStyle(true)
             try {
                 const result = await avatarCloneService.cloneAvatar({
@@ -94,32 +154,44 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                     style: myStyleFilter
                 })
 
-                if (result.error) {
-                    throw new Error(result.error)
-                }
+                if (result.error) throw new Error(result.error)
 
                 const newAvatar: AvatarModel = {
                     ...myAvatar,
-                    id: `avatar-${Date.now()}`,
+                    id: `avatar-${myStyleFilter}-${Date.now()}`,
                     url: result.url,
                     style: myStyleFilter,
                     createdAt: Date.now()
                 }
 
-                setGeneratedAvatars(prev => ({
-                    ...prev,
-                    [myStyleFilter]: newAvatar
-                }))
+                // 更新本地缓存状态
+                setGeneratedAvatars(prev => ({ ...prev, [myStyleFilter]: newAvatar }))
+
+                // 同步更新父组件的 styleUrls 以便持久化
+                const updatedStyleUrls = {
+                    ...(myAvatar.styleUrls || {}),
+                    [myStyleFilter]: result.url
+                }
+                
+                onSelectAvatar({
+                    ...myAvatar,
+                    styleUrls: updatedStyleUrls
+                })
             } catch (err) {
                 console.error('Generate style avatar failed:', err)
-                alert(`生成${myStyleFilter === 'cartoon' ? '卡通' : '真实'}风格形象失败: ${err instanceof Error ? err.message : '未知错误'}`)
+                // 仅在对话框打开时提示错误
+                if (isOpen) {
+                    alert(`生成${myStyleFilter === 'cartoon' ? '卡通' : '真实'}风格形象失败: ${err instanceof Error ? err.message : '未知错误'}`)
+                }
             } finally {
                 setIsGeneratingStyle(false)
             }
         }
 
         generateAvatarForStyle()
-    }, [myStyleFilter, myAvatar, generatedAvatars])
+    }, [myStyleFilter, myAvatar?.originalUrl, myAvatar?.styleUrls, isGeneratingStyle, onSelectAvatar, isOpen])
+
+
 
     const filteredPresets = PRESET_AVATARS.filter(p => genderFilter === 'all' || p.gender === genderFilter)
 
@@ -308,18 +380,25 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                                                 ) : generatedAvatars[myStyleFilter] ? (
                                                     <img src={generatedAvatars[myStyleFilter]!.url} className="w-full h-full object-cover" alt="My Avatar" referrerPolicy="no-referrer" />
                                                 ) : (
-                                                    <img src={myAvatar.url} className="w-full h-full object-cover" alt="My Avatar" referrerPolicy="no-referrer" />
+                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 gap-2">
+                                                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-400">
+                                                            <Sparkles size={16} />
+                                                        </div>
+                                                        <p className="text-[10px] font-medium text-gray-400">待生成{myStyleFilter === 'cartoon' ? '卡通' : '真实'}风格</p>
+                                                    </div>
                                                 )}
+
                                                 <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
                                                     <p className="text-white text-[11px] font-bold truncate">{myAvatar.name}</p>
                                                     <p className="text-white/60 text-[9px]">{myStyleFilter === 'realistic' ? '真实风格' : '卡通风格'}</p>
                                                 </div>
-                                                {(generatedAvatars[myStyleFilter] && currentAvatarUrl === generatedAvatars[myStyleFilter]!.url) || 
-                                                 (!generatedAvatars[myStyleFilter] && currentAvatarUrl === myAvatar.url) && (
+                                                {((generatedAvatars[myStyleFilter]?.url === currentAvatarUrl) || (!generatedAvatars[myStyleFilter] && myAvatar.url === currentAvatarUrl)) && (
                                                     <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white shadow-lg">
                                                         <Check size={12} />
                                                     </div>
                                                 )}
+
+
                                             </motion.button>
                                             
                                             {/* Quick Clone Button */}

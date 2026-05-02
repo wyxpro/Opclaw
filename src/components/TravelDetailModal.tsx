@@ -27,7 +27,7 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
           />
           
           {/* 弹窗内容 */}
@@ -41,11 +41,10 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
               damping: 30,
               delay: 0.1 
             }}
-            className="relative w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl glass-card"
+            className="relative w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-white/95 backdrop-blur-xl border border-white shadow-2xl shadow-black/10"
             style={{
-              background: 'linear-gradient(135deg, rgba(19, 25, 34, 0.95) 0%, rgba(13, 17, 23, 0.98) 100%)',
-              border: `1px solid ${location.color}30`,
-              boxShadow: `0 25px 80px ${location.color}25, 0 0 0 1px rgba(255,255,255,0.05)`
+              border: `1px solid ${location.color}20`,
+              boxShadow: `0 25px 80px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.02)`
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -60,12 +59,12 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
                 className="w-full h-full object-cover"
               />
               
-              {/* 渐变遮罩 */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#131922] via-[#131922]/60 to-transparent" />
+              {/* 渐变遮罩 - 调整为向白色渐变以适配亮色主题 */}
+              <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/20 to-transparent" />
               <div 
-                className="absolute inset-0 opacity-30"
+                className="absolute inset-0 opacity-20"
                 style={{
-                  background: `linear-gradient(135deg, ${location.color}20 0%, transparent 50%)`
+                  background: `linear-gradient(135deg, ${location.color} 0%, transparent 50%)`
                 }}
               />
               
@@ -75,7 +74,7 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 }}
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2.5 rounded-full bg-black/40 backdrop-blur-sm text-white/90 hover:bg-black/60 hover:text-white transition-all border border-white/10"
+                className="absolute top-4 right-4 p-2.5 rounded-full bg-white/60 backdrop-blur-md text-slate-900 hover:bg-white/80 hover:scale-110 transition-all border border-black/5"
               >
                 <X size={20} />
               </motion.button>
@@ -85,7 +84,7 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
-                className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm text-white/90 text-xs border border-white/10"
+                className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/60 backdrop-blur-md text-slate-700 text-xs font-medium border border-black/5"
               >
                 <Camera size={12} />
                 <span>{location.images.length} 张照片</span>
@@ -104,14 +103,14 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.3, type: 'spring' }}
                     className="w-3 h-3 rounded-full"
-                    style={{ background: location.color, boxShadow: `0 0 12px ${location.color}` }}
+                    style={{ background: location.color, boxShadow: `0 0 12px ${location.color}40` }}
                   />
-                  <span className="text-white/70 text-sm font-medium flex items-center gap-1">
+                  <span className="text-slate-600 text-sm font-semibold flex items-center gap-1">
                     <MapPin size={12} />
                     {location.country}
                   </span>
                 </div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
                   {location.name}
                 </h2>
               </motion.div>
@@ -124,7 +123,7 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
-                className="text-text-secondary text-base leading-relaxed mb-6"
+                className="text-slate-600 text-base leading-relaxed mb-6"
               >
                 {location.description}
               </motion.p>
@@ -136,18 +135,18 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="p-4 rounded-xl bg-surface/50 border border-border/50 hover:border-primary/30 transition-colors"
+                  className="p-4 rounded-xl bg-slate-50 border border-slate-200/60 hover:border-primary/30 transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <div 
                       className="p-2.5 rounded-lg shrink-0"
-                      style={{ background: `${location.color}15` }}
+                      style={{ background: `${location.color}10` }}
                     >
                       <Calendar size={18} style={{ color: location.color }} />
                     </div>
                     <div>
-                      <h4 className="text-sm font-semibold text-text mb-1">最佳旅行时间</h4>
-                      <p className="text-sm text-text-muted">{location.details.bestTime}</p>
+                      <h4 className="text-sm font-bold text-slate-900 mb-1">最佳旅行时间</h4>
+                      <p className="text-sm text-slate-500">{location.details.bestTime}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -157,26 +156,26 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.35 }}
-                  className="p-4 rounded-xl bg-surface/50 border border-border/50 hover:border-primary/30 transition-colors"
+                  className="p-4 rounded-xl bg-slate-50 border border-slate-200/60 hover:border-primary/30 transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <div 
                       className="p-2.5 rounded-lg shrink-0"
-                      style={{ background: `${location.color}15` }}
+                      style={{ background: `${location.color}10` }}
                     >
                       <Star size={18} style={{ color: location.color }} />
                     </div>
                     <div>
-                      <h4 className="text-sm font-semibold text-text mb-1">推荐指数</h4>
+                      <h4 className="text-sm font-bold text-slate-900 mb-1">推荐指数</h4>
                       <div className="flex items-center gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
                             size={14}
-                            className={star <= 4 ? 'fill-amber-400 text-amber-400' : 'text-text-muted'}
+                            className={star <= 4 ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}
                           />
                         ))}
-                        <span className="text-xs text-text-muted ml-1">4.8/5</span>
+                        <span className="text-xs text-slate-500 ml-1">4.8/5</span>
                       </div>
                     </div>
                   </div>
@@ -190,7 +189,7 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
                 transition={{ delay: 0.4 }}
                 className="mb-6"
               >
-                <h4 className="text-sm font-semibold text-text mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Sparkles size={16} style={{ color: location.color }} />
                   必游景点
                 </h4>
@@ -228,13 +227,13 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
                 <div className="flex items-start gap-3">
                   <div 
                     className="p-2 rounded-lg shrink-0"
-                    style={{ background: `${location.color}20` }}
+                    style={{ background: `${location.color}15` }}
                   >
                     <Lightbulb size={18} style={{ color: location.color }} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-text mb-1">旅行贴士</h4>
-                    <p className="text-sm text-text-muted leading-relaxed">{location.details.tips}</p>
+                    <h4 className="text-sm font-bold text-slate-900 mb-1">旅行贴士</h4>
+                    <p className="text-sm text-slate-600 leading-relaxed">{location.details.tips}</p>
                   </div>
                 </div>
               </motion.div>
@@ -245,8 +244,8 @@ export function TravelDetailModal({ location, isOpen, onClose }: TravelDetailMod
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.55 }}
               >
-                <h4 className="text-sm font-semibold text-text mb-3 flex items-center gap-2">
-                  <Camera size={16} className="text-text-muted" />
+                <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                  <Camera size={16} className="text-slate-400" />
                   精彩瞬间
                 </h4>
                 <div className="grid grid-cols-3 gap-2">
