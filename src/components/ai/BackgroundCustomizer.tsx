@@ -8,9 +8,9 @@ import type { BackgroundType, BackgroundOption } from './types'
 const mobileBackgroundOptions: BackgroundOption[] = [
   {
     id: 'office',
-    name: '办公室',
-    thumbnail: 'https://img2.baidu.com/it/u=2810055108,4136944177&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667',
-    description: '专业办公环境'
+    name: '默认',
+    thumbnail: '/vibe_images/background/phone/默认.png',
+    description: '默认背景环境'
   },
   {
     id: 'living-room',
@@ -26,30 +26,30 @@ const mobileBackgroundOptions: BackgroundOption[] = [
   },
   {
     id: 'studio',
-    name: '演播室',
-    thumbnail: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=400',
-    description: '专业录制环境'
+    name: '重庆',
+    thumbnail: '/vibe_images/background/phone/重庆.png',
+    description: '重庆都市夜景'
   },
   {
     id: 'library',
-    name: '图书馆',
-    thumbnail: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=400',
-    description: '安静学习氛围'
+    name: '杭州',
+    thumbnail: '/vibe_images/background/phone/杭州.png',
+    description: '杭州江南韵味'
   },
   {
     id: 'cafe',
-    name: '咖啡厅',
-    thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=400',
-    description: '休闲放松环境'
+    name: '北京',
+    thumbnail: '/vibe_images/background/phone/北京.png',
+    description: '北京古都风情'
   }
 ]
 
 const desktopBackgroundOptions: BackgroundOption[] = [
   {
     id: 'office',
-    name: '办公室',
-    thumbnail: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800',
-    description: '专业办公环境'
+    name: '默认',
+    thumbnail: '/vibe_images/background/pc/默认.png',
+    description: '默认背景环境'
   },
   {
     id: 'living-room',
@@ -65,21 +65,21 @@ const desktopBackgroundOptions: BackgroundOption[] = [
   },
   {
     id: 'studio',
-    name: '演播室',
-    thumbnail: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800',
-    description: '专业录制环境'
+    name: '重庆',
+    thumbnail: '/vibe_images/background/pc/重庆.png',
+    description: '重庆都市夜景'
   },
   {
     id: 'library',
-    name: '图书馆',
-    thumbnail: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=800',
-    description: '安静学习氛围'
+    name: '杭州',
+    thumbnail: '/vibe_images/background/pc/杭州.png',
+    description: '杭州江南韵味'
   },
   {
     id: 'cafe',
-    name: '咖啡厅',
-    thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=800',
-    description: '休闲放松环境'
+    name: '北京',
+    thumbnail: '/vibe_images/background/pc/北京.png',
+    description: '北京古都风情'
   }
 ]
 

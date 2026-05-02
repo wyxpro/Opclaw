@@ -1,8 +1,7 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, MessageSquare, Trash2, Calendar, Clock, ChevronRight, Brain } from 'lucide-react'
+import { X, MessageSquare, Trash2, Calendar, Clock, ChevronRight } from 'lucide-react'
 import type { Message } from './types'
-import { MemoryBankDialog } from './MemoryBankDialog'
 
 export interface ChatSession {
   id: string
@@ -27,8 +26,6 @@ export const HistoryDialog: React.FC<HistoryDialogProps> = ({
   onSelectSession,
   onDeleteSession
 }) => {
-  const [isMemoryBankOpen, setIsMemoryBankOpen] = React.useState(false)
-
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp)
     return `${date.getMonth() + 1}月${date.getDate()}日`
@@ -73,13 +70,6 @@ export const HistoryDialog: React.FC<HistoryDialogProps> = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsMemoryBankOpen(true)}
-                    className="px-3 h-10 rounded-full bg-indigo-50 hover:bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-sm transition-colors shadow-sm gap-1.5"
-                  >
-                    <Brain size={16} />
-                    记忆库
-                  </button>
                   <button 
                     onClick={onClose}
                     className="w-10 h-10 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center text-gray-400 shadow-sm border border-gray-100 transition-colors"
@@ -158,11 +148,6 @@ export const HistoryDialog: React.FC<HistoryDialogProps> = ({
           </div>
         )}
       </AnimatePresence>
-      <MemoryBankDialog 
-        isOpen={isMemoryBankOpen}
-        onClose={() => setIsMemoryBankOpen(false)}
-        sessions={sessions}
-      />
     </>
   )
 }

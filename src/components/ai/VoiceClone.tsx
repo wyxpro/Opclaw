@@ -5,6 +5,68 @@ import type { ThemeConfig } from '../../lib/themes'
 
 const BASE_URL = 'https://api.siliconflow.cn/v1'
 
+// 将 AudioBuffer 转换为 WAV 格式的 Blob
+function bufferToWave(abuffer: AudioBuffer, len: number) {
+  const numOfChan = abuffer.numberOfChannels
+  const length = len * numOfChan * 2 + 44
+  const buffer = new ArrayBuffer(length)
+  const view = new DataView(buffer)
+  const channels = []
+  let sample
+  let offset = 0
+  let pos = 0
+
+  const setUint16 = (data: number) => {
+    view.setUint16(pos, data, true)
+    pos += 2
+  }
+
+  const setUint32 = (data: number) => {
+    view.setUint32(pos, data, true)
+    pos += 4
+  }
+
+  const writeString = (s: string) => {
+    for (let i = 0; i < s.length; i++) {
+      view.setUint8(pos + i, s.charCodeAt(i))
+    }
+    pos += s.length
+  }
+
+  // 写 RIFF 头
+  writeString('RIFF')
+  setUint32(length - 8) // 文件长度 - 8
+  writeString('WAVE')
+
+  writeString('fmt ')
+  setUint32(16) // 长度 = 16
+  setUint16(1) // PCM (未压缩)
+  setUint16(numOfChan)
+  setUint32(abuffer.sampleRate)
+  setUint32(abuffer.sampleRate * 2 * numOfChan) // 平均字节/秒
+  setUint16(numOfChan * 2) // 块对齐
+  setUint16(16) // 16位
+
+  writeString('data')
+  setUint32(length - pos - 4) // chunk 长度
+
+  for (let i = 0; i < abuffer.numberOfChannels; i++) {
+    channels.push(abuffer.getChannelData(i))
+  }
+
+  while (pos < length) {
+    for (let i = 0; i < numOfChan; i++) {
+      sample = Math.max(-1, Math.min(1, channels[i][offset]))
+      sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0
+      view.setInt16(pos, sample, true)
+      pos += 2
+    }
+    offset++
+  }
+
+  return new Blob([buffer], { type: 'audio/wav' })
+}
+
 export interface VoiceModel {
   id: string
   name: string
@@ -77,7 +139,7 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
       }
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' })
+        const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType })
         const audioUrl = URL.createObjectURL(audioBlob)
         setRecordedAudio(audioUrl)
         stream.getTracks().forEach(track => track.stop())
@@ -165,81 +227,112 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
     }
   }
 
-  // 克隆声音
+  // 克隆声音 (上传到 StepFun)
   const cloneVoice = async () => {
     if (!recordedAudio) return
 
     setIsCloning(true)
+    console.log('开始上传音频到 StepFun...')
     
     try {
-      const response = await fetch(recordedAudio)
-      if (!response.ok) throw new Error('读取录音数据失败')
-      const blob = await response.blob()
+      const apiKey = (import.meta.env.VITE_STEP_API_KEY || '').trim()
+      if (!apiKey) throw new Error('StepFun API Key 未配置')
+
+      // 1. 获取音频 Blob 并转换为 WAV
+      const audioRes = await fetch(recordedAudio)
+      const originalBlob = await audioRes.blob()
+      console.log('原始录音大小:', originalBlob.size, '类型:', originalBlob.type)
+
+      // 转换为 WAV
+      console.log('正在转换为 WAV 格式...')
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const arrayBuffer = await originalBlob.arrayBuffer()
+      const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
+      const wavBlob = bufferToWave(audioBuffer, audioBuffer.length)
+      console.log('WAV 转换完成, 大小:', wavBlob.size)
       
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onloadend = () => resolve(reader.result as string)
-        reader.onerror = reject
-        reader.readAsDataURL(blob)
+      // 2. 上传文件到 StepFun
+      const formData = new FormData()
+      formData.append('file', wavBlob, 'voice_sample.wav')
+      formData.append('purpose', 'storage')
+
+      const uploadRes = await fetch('https://api.stepfun.com/v1/files', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: formData
       })
 
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({ message: '上传请求失败' }))
+        console.error('StepFun 上传失败详情:', err)
+        throw new Error(err.error?.message || err.message || '文件上传失败')
+      }
+
+      const fileData = await uploadRes.json()
+      console.log('文件上传成功, file_id:', fileData.id)
+      const fileId = fileData.id
+
+      // 3. 额外等待 3 秒，确保 StepFun 服务器完成索引
+      console.log('正在准备模型，请稍候...')
+      await new Promise(resolve => setTimeout(resolve, 3000))
+
+      // 4. 创建声音模型信息
       const voiceModel: VoiceModel = {
-        id: 'zero-shot-moss',
-        name: `我的声音克隆 ${new Date().toLocaleDateString()}`,
-        audioUrl: base64,
+        id: fileId,
+        name: `我的声音模型 ${new Date().toLocaleDateString()}`,
+        audioUrl: recordedAudio,
         duration: recordingTime,
         createdAt: Date.now(),
         isCloned: true
       }
 
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
       setClonedVoice(voiceModel)
       onVoiceCloned(voiceModel)
     } catch (error) {
-      console.error('声音克隆失败:', error)
+      console.error('StepFun 克隆过程异常:', error)
       alert('声音克隆失败: ' + (error instanceof Error ? error.message : '未知错误'))
     } finally {
       setIsCloning(false)
     }
   }
 
-  // 测试克隆的声音
+  // 测试克隆的声音 (StepAudio 2.5 TTS)
   const testClonedVoice = async () => {
     if (!testText || !clonedVoice) return
 
     setIsTesting(true)
+    console.log('开始测试 StepFun 语音合成, file_id:', clonedVoice.id)
     
     try {
-      const apiKey = (import.meta.env.VITE_SILICON_FLOW_API_KEY || '').trim()
-      
-      if (!apiKey) {
-        throw new Error('API Key 未配置')
-      }
+      const apiKey = (import.meta.env.VITE_STEP_API_KEY || '').trim()
+      if (!apiKey) throw new Error('StepFun API Key 未配置')
 
-      const response = await fetch(`${BASE_URL}/audio/speech`, {
+      const requestBody = {
+        model: 'stepaudio-2.5-tts',
+        file_id: clonedVoice.id,
+        text: trainingText,    // 阶跃 API 要求：text 为参考音频的文本 (用于校验 CER)
+        sample_text: testText, // 阶跃 API 要求：sample_text 为待合成的文本
+        instruction: '语气自然，语速适中',
+        response_format: 'mp3',
+        stream: false
+      }
+      console.log('请求体内容:', requestBody)
+
+      const response = await fetch('https://api.stepfun.com/v1/audio/voices/preview', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          model: 'fnlp/MOSS-TTSD-v0.5',
-          input: `[S1]${testText}`,
-          response_format: 'mp3',
-          stream: false,
-          references: [
-            {
-              audio: clonedVoice.audioUrl,
-              text: trainingText
-            }
-          ]
-        })
+        body: JSON.stringify(requestBody)
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: '语音合成服务不可用' }))
-        throw new Error(errorData.message || '语音合成失败')
+        const errorData = await response.json().catch(() => ({ message: '获取错误信息失败' }))
+        console.error('StepFun 合成失败详情:', errorData)
+        throw new Error(errorData.error?.message || errorData.message || '语音合成失败')
       }
 
       const audioBlob = await response.blob()
@@ -255,8 +348,8 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
       audio.onended = () => setIsTesting(false)
       await audio.play()
     } catch (error) {
-      console.error('测试失败:', error)
-      alert('合成语音失败')
+      console.error('StepFun 测试异常:', error)
+      alert('合成语音失败: ' + (error instanceof Error ? error.message : '未知错误'))
       setIsTesting(false)
     }
   }

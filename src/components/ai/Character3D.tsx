@@ -141,7 +141,7 @@ export function Character3D({
     switch (background) {
       case 'office':
         return { 
-          backgroundImage: `url('${isMobileVoiceUI ? 'https://img2.baidu.com/it/u=2810055108,4136944177&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667' : 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1600'}')`,
+          backgroundImage: `url('${isMobileVoiceUI ? '/vibe_images/background/phone/默认.png' : '/vibe_images/background/pc/默认.png'}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }
@@ -159,19 +159,19 @@ export function Character3D({
         }
       case 'studio':
         return { 
-          backgroundImage: `url('${isMobileVoiceUI ? 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=400' : 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=1600'}')`,
+          backgroundImage: `url('${isMobileVoiceUI ? '/vibe_images/background/phone/重庆.png' : '/vibe_images/background/pc/重庆.png'}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }
       case 'library':
         return { 
-          backgroundImage: `url('${isMobileVoiceUI ? 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=400' : 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=1600'}')`,
+          backgroundImage: `url('${isMobileVoiceUI ? '/vibe_images/background/phone/杭州.png' : '/vibe_images/background/pc/杭州.png'}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }
       case 'cafe':
         return { 
-          backgroundImage: `url('${isMobileVoiceUI ? 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=400' : 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=1600'}')`,
+          backgroundImage: `url('${isMobileVoiceUI ? '/vibe_images/background/phone/北京.png' : '/vibe_images/background/pc/北京.png'}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }

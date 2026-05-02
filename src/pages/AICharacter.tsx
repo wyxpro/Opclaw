@@ -10,11 +10,12 @@ import { VoiceClone } from '../components/ai/VoiceClone'
 import { AvatarClone } from '../components/ai/AvatarClone'
 import { CharacterVoiceUI } from '../components/ai/CharacterVoiceUI'
 import { HistoryDialog, type ChatSession } from '../components/ai/HistoryDialog'
+import { MemoryBankDialog } from '../components/ai/MemoryBankDialog'
 import { useTheme } from '../hooks/useTheme'
 import { ragEngine } from '../lib/ragEngine'
 import { aiService, type ChatMessage } from '../services/aiService'
 import { ttsService } from '../services/ttsService'
-import { Upload, History, MoreHorizontal, Sparkles, Bot } from 'lucide-react'
+import { Upload, History, MoreHorizontal, Sparkles, Bot, Brain } from 'lucide-react'
 import { AvatarSelectionDialog, DEFAULT_AI_AVATAR } from '../components/ai/AvatarSelectionDialog'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
 
@@ -32,13 +33,14 @@ export default function AICharacter() {
   
   // 对话界面状态
   const [characterStyle, setCharacterStyle] = useState<CharacterStyle>('realistic')
-  const [background, setBackground] = useState<string>('office')
+  const [background, setBackground] = useState<string>('cafe')
   const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [customAvatar, setCustomAvatar] = useState<any>(DEFAULT_AI_AVATAR)
   // 历史对话状态
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const [isMemoryBankOpen, setIsMemoryBankOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string>(`session-${Date.now()}`)
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -385,14 +387,24 @@ export default function AICharacter() {
                     <span>{characterStyle === 'cartoon' ? '🎨 卡通' : characterStyle === 'hidden' ? '🚫 隐藏' : '👤 真实'}</span>
                   </motion.button>
 
-                  <motion.button
-                    onClick={() => setIsHistoryOpen(true)}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
-                  >
-                    <History size={16} className="text-indigo-400" />
-                    <span>历史</span>
-                  </motion.button>
+                  <div className="flex flex-col gap-1.5">
+                    <motion.button
+                      onClick={() => setIsHistoryOpen(true)}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
+                    >
+                      <History size={16} className="text-indigo-400" />
+                      <span>历史</span>
+                    </motion.button>
+                    <motion.button
+                      onClick={() => setIsMemoryBankOpen(true)}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
+                    >
+                      <Brain size={16} className="text-indigo-400" />
+                      <span>记忆库</span>
+                    </motion.button>
+                  </div>
                 </div>
               )}
             </div>
@@ -408,22 +420,40 @@ export default function AICharacter() {
               
               {/* Mobile History Button - 紧靠数字人对话右边 */}
               {currentStep === 'chat' && (
-                <button 
-                  onClick={() => setIsHistoryOpen(true)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ml-2 ${
-                    isMobile && currentStep === 'chat' 
-                      ? 'bg-white/10 border-white/20 text-white shadow-lg' 
-                      : 'hover:opacity-80'
-                  }`}
-                  style={!(isMobile && currentStep === 'chat') ? {
-                    background: themeConfig.colors.surface,
-                    borderColor: themeConfig.colors.border,
-                    color: themeConfig.colors.text
-                  } : {}}
-                >
-                  <History size={12} />
-                  <span>历史对话</span>
-                </button>
+                  <div className="flex flex-col gap-1.5 ml-2">
+                    <button 
+                      onClick={() => setIsHistoryOpen(true)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
+                        isMobile && currentStep === 'chat' 
+                          ? 'bg-white/10 border-white/20 text-white shadow-lg' 
+                          : 'hover:opacity-80'
+                      }`}
+                      style={!(isMobile && currentStep === 'chat') ? {
+                        background: themeConfig.colors.surface,
+                        borderColor: themeConfig.colors.border,
+                        color: themeConfig.colors.text
+                      } : {}}
+                    >
+                      <History size={12} />
+                      <span>历史对话</span>
+                    </button>
+                    <button 
+                      onClick={() => setIsMemoryBankOpen(true)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
+                        isMobile && currentStep === 'chat' 
+                          ? 'bg-white/10 border-white/20 text-white shadow-lg' 
+                          : 'hover:opacity-80'
+                      }`}
+                      style={!(isMobile && currentStep === 'chat') ? {
+                        background: themeConfig.colors.surface,
+                        borderColor: themeConfig.colors.border,
+                        color: themeConfig.colors.text
+                      } : {}}
+                    >
+                      <Brain size={12} />
+                      <span>记忆库</span>
+                    </button>
+                  </div>
               )}
             </div>
           </div>
@@ -439,6 +469,12 @@ export default function AICharacter() {
           sessions={sessions}
           onSelectSession={handleSelectSession}
           onDeleteSession={handleDeleteSession}
+        />
+        {/* Memory Bank Dialog */}
+        <MemoryBankDialog 
+          isOpen={isMemoryBankOpen}
+          onClose={() => setIsMemoryBankOpen(false)}
+          sessions={sessions}
         />
         {/* Avatar Selection Dialog */}
         <AvatarSelectionDialog 
