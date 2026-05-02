@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, User, Check, Video, Image as ImageIcon, Sparkles, Bot } from 'lucide-react'
+import { Upload, User, Check, Video, Image as ImageIcon, Sparkles, Bot, RefreshCw } from 'lucide-react'
 import type { AvatarModel, CharacterStyle } from './types'
+import { avatarCloneService } from '../../services/avatarCloneService'
 
 export interface AvatarPreset {
     id: string
@@ -59,6 +60,12 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
     const [activeTab, setActiveTab] = useState<'presets' | 'my'>('presets')
     const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all')
     const [myStyleFilter, setMyStyleFilter] = useState<CharacterStyle>(myAvatar?.style || 'realistic')
+    const [isGeneratingStyle, setIsGeneratingStyle] = useState(false)
+    const [generatedAvatars, setGeneratedAvatars] = useState<Record<CharacterStyle, AvatarModel | null>>({
+        'realistic': myAvatar || null,
+        'cartoon': null,
+        'hidden': null
+    })
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [uploadPreview, setUploadPreview] = useState<{ url: string, type: 'image' | 'video' } | null>(null)
 
@@ -66,8 +73,53 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
     React.useEffect(() => {
         if (myAvatar?.style) {
             setMyStyleFilter(myAvatar.style)
+            setGeneratedAvatars(prev => ({
+                ...prev,
+                [myAvatar.style]: myAvatar
+            }))
         }
     }, [myAvatar])
+
+    // 风格切换时自动生成对应风格的头像
+    React.useEffect(() => {
+        const generateAvatarForStyle = async () => {
+            if (!myAvatar?.originalUrl || generatedAvatars[myStyleFilter] || isGeneratingStyle) {
+                return
+            }
+
+            setIsGeneratingStyle(true)
+            try {
+                const result = await avatarCloneService.cloneAvatar({
+                    imageUrl: myAvatar.originalUrl,
+                    style: myStyleFilter
+                })
+
+                if (result.error) {
+                    throw new Error(result.error)
+                }
+
+                const newAvatar: AvatarModel = {
+                    ...myAvatar,
+                    id: `avatar-${Date.now()}`,
+                    url: result.url,
+                    style: myStyleFilter,
+                    createdAt: Date.now()
+                }
+
+                setGeneratedAvatars(prev => ({
+                    ...prev,
+                    [myStyleFilter]: newAvatar
+                }))
+            } catch (err) {
+                console.error('Generate style avatar failed:', err)
+                alert(`生成${myStyleFilter === 'cartoon' ? '卡通' : '真实'}风格形象失败: ${err instanceof Error ? err.message : '未知错误'}`)
+            } finally {
+                setIsGeneratingStyle(false)
+            }
+        }
+
+        generateAvatarForStyle()
+    }, [myStyleFilter, myAvatar, generatedAvatars])
 
     const filteredPresets = PRESET_AVATARS.filter(p => genderFilter === 'all' || p.gender === genderFilter)
 
@@ -185,25 +237,52 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                             ) : (
                                  <div className="space-y-5 pt-1">
                                     {/* Style Selection */}
-                                    <div className="flex gap-2 p-1 bg-gray-50 rounded-2xl">
-                                        <button 
-                                            onClick={() => setMyStyleFilter('realistic')}
-                                            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                                                myStyleFilter === 'realistic' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'
-                                            }`}
-                                        >
-                                            <User size={14} />
-                                            真实风格
-                                        </button>
-                                        <button 
-                                            onClick={() => setMyStyleFilter('cartoon')}
-                                            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                                                myStyleFilter === 'cartoon' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'
-                                            }`}
-                                        >
-                                            <Sparkles size={14} />
-                                            卡通风格
-                                        </button>
+                                    <div className="space-y-3">
+                                        <div className="flex gap-2 p-1 bg-gray-50 rounded-2xl">
+                                            <button 
+                                                onClick={() => setMyStyleFilter('realistic')}
+                                                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                                                    myStyleFilter === 'realistic' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'
+                                                }`}
+                                            >
+                                                <User size={14} />
+                                                真实风格
+                                            </button>
+                                            <button 
+                                                onClick={() => setMyStyleFilter('cartoon')}
+                                                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                                                    myStyleFilter === 'cartoon' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400'
+                                                }`}
+                                            >
+                                                <Sparkles size={14} />
+                                                卡通风格
+                                            </button>
+                                        </div>
+
+                                        {/* 生成进度条 */}
+                                        <AnimatePresence>
+                                            {isGeneratingStyle && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className="p-3 rounded-xl bg-blue-50 border border-blue-100 overflow-hidden"
+                                                >
+                                                    <div className="flex justify-between items-center mb-1.5">
+                                                        <p className="text-xs font-medium text-blue-700">
+                                                            正在生成{myStyleFilter === 'cartoon' ? '卡通' : '真实'}风格形象...</p>
+                                                    </div>
+                                                    <div className="h-1.5 rounded-full bg-blue-100 overflow-hidden">
+                                                        <motion.div
+                                                            initial={{ width: '0%' }}
+                                                            animate={{ width: '100%' }}
+                                                            transition={{ duration: 8, ease: 'easeInOut' }}
+                                                            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
+                                                        />
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
 
                                     {myAvatar ? (
@@ -212,13 +291,22 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                                                 whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.98 }}
                                                 onClick={() => {
-                                                    onSelectAvatar({ ...myAvatar, style: myStyleFilter })
+                                                    const avatarToUse = generatedAvatars[myStyleFilter] || myAvatar
+                                                    onSelectAvatar({ ...avatarToUse, style: myStyleFilter })
                                                     onClose()
                                                 }}
-                                                className="relative group aspect-[3/4] rounded-2xl overflow-hidden border-2 border-indigo-100 shadow-lg"
+                                                disabled={isGeneratingStyle}
+                                                className="relative group aspect-[3/4] rounded-2xl overflow-hidden border-2 border-indigo-100 shadow-lg disabled:opacity-70"
                                             >
-                                                {myAvatar.type === 'video' ? (
-                                                    <video src={myAvatar.url} className="w-full h-full object-cover" />
+                                                {isGeneratingStyle ? (
+                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 gap-3">
+                                                        <RefreshCw size={24} className="text-indigo-500 animate-spin" />
+                                                        <p className="text-xs font-medium text-gray-600">生成中...</p>
+                                                    </div>
+                                                ) : generatedAvatars[myStyleFilter]?.type === 'video' ? (
+                                                    <video src={generatedAvatars[myStyleFilter]!.url} className="w-full h-full object-cover" />
+                                                ) : generatedAvatars[myStyleFilter] ? (
+                                                    <img src={generatedAvatars[myStyleFilter]!.url} className="w-full h-full object-cover" alt="My Avatar" referrerPolicy="no-referrer" />
                                                 ) : (
                                                     <img src={myAvatar.url} className="w-full h-full object-cover" alt="My Avatar" referrerPolicy="no-referrer" />
                                                 )}
@@ -226,7 +314,8 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                                                     <p className="text-white text-[11px] font-bold truncate">{myAvatar.name}</p>
                                                     <p className="text-white/60 text-[9px]">{myStyleFilter === 'realistic' ? '真实风格' : '卡通风格'}</p>
                                                 </div>
-                                                {currentAvatarUrl === myAvatar.url && (
+                                                {(generatedAvatars[myStyleFilter] && currentAvatarUrl === generatedAvatars[myStyleFilter]!.url) || 
+                                                 (!generatedAvatars[myStyleFilter] && currentAvatarUrl === myAvatar.url) && (
                                                     <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white shadow-lg">
                                                         <Check size={12} />
                                                     </div>

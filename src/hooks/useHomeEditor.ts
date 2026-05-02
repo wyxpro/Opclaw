@@ -238,6 +238,28 @@ export function useHomeEditor(): UseHomeEditorReturn {
     loadFromCloud()
   }, [user])
 
+  // 同步全局用户头像和昵称到个人主页
+  useEffect(() => {
+    if (user) {
+      const needsUpdate = (user.avatar && user.avatar !== currentState.profile.avatar) || 
+                          (user.username && user.username !== currentState.profile.name);
+      
+      if (needsUpdate) {
+        const updatedProfile = {
+          ...currentState.profile,
+          avatar: user.avatar || currentState.profile.avatar,
+          name: user.username || currentState.profile.name
+        };
+        const newState = {
+          ...currentState,
+          profile: updatedProfile
+        };
+        setCurrentState(newState);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      }
+    }
+  }, [user?.avatar, user?.username])
+
   return {
     mode,
     setMode,

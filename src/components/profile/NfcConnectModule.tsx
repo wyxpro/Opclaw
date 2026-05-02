@@ -7,9 +7,10 @@ import { useAuth } from '../../contexts/AuthContext'
 
 interface NfcConnectModuleProps {
   onShowCard: (card: DigitalCard) => void;
+  variant?: 'full' | 'tab';
 }
 
-export default function NfcConnectModule({ onShowCard }: NfcConnectModuleProps) {
+export default function NfcConnectModule({ onShowCard, variant = 'full' }: NfcConnectModuleProps) {
   const [isScanning, setIsScanning] = useState(false)
   const [isNfcSupported, setIsNfcSupported] = useState(true)
   const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle')
@@ -179,24 +180,36 @@ export default function NfcConnectModule({ onShowCard }: NfcConnectModuleProps) 
   return (
     <div className="w-full">
       {/* NFC 配对入口按钮 */}
-      <motion.button
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.08 }}
-        onClick={startNfcPairing}
-        className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform relative overflow-hidden group"
-      >
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/15">
-          <Users size={20} className="text-blue-500" />
-        </div>
-        
-        <div className="flex-1 text-left">
-          <h3 className="font-medium text-text">NFC 互动</h3>
-          <p className="text-xs text-text-muted mt-0.5">近距离配对，交换数字名片</p>
-        </div>
-        
-        <ChevronRight size={18} className="text-text-dim" />
-      </motion.button>
+      {variant === 'full' ? (
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.08 }}
+          onClick={startNfcPairing}
+          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform relative overflow-hidden group"
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/15">
+            <Users size={20} className="text-blue-500" />
+          </div>
+          
+          <div className="flex-1 text-left">
+            <h3 className="font-medium text-text">NFC 互动</h3>
+            <p className="text-xs text-text-muted mt-0.5">近距离配对，交换数字名片</p>
+          </div>
+          
+          <ChevronRight size={18} className="text-text-dim" />
+        </motion.button>
+      ) : (
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={startNfcPairing}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-text-muted hover:text-text-secondary hover:bg-surface/60"
+        >
+          <Users size={16} className="text-blue-500" />
+          <span>NFC 互动</span>
+        </motion.button>
+      )}
 
       {/* 3D 样式支持 */}
       <style>{`

@@ -433,7 +433,7 @@ export default function AICharacter() {
                     <span>{characterStyle === 'cartoon' ? '🎨 卡通' : characterStyle === 'hidden' ? '🚫 隐藏' : '👤 真实'}</span>
                   </motion.button>
 
-                  <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-3">
                     <motion.button
                       onClick={() => setIsHistoryOpen(true)}
                       whileTap={{ scale: 0.95 }}

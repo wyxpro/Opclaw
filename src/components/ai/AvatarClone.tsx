@@ -13,6 +13,7 @@ export interface AvatarModel {
   style: CharacterStyle
   createdAt: number
   isCloned: boolean
+  originalUrl?: string
 }
 
 interface AvatarCloneProps {
@@ -26,6 +27,9 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
   const [uploadedMedia, setUploadedMedia] = useState<{ type: 'image' | 'video', url: string, file: File } | null>(null)
   const [isCloning, setIsCloning] = useState(false)
   const [clonedAvatar, setClonedAvatar] = useState<AvatarModel | null>(existingAvatar || null)
+  const [progress, setProgress] = useState(0)
+  const [progressText, setProgressText] = useState('')
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -73,17 +77,62 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
     })
   }
 
+  // 启动进度动画
+  const startProgressAnimation = () => {
+    setProgress(0)
+    const stages = [
+      { progress: 15, text: '正在分析图片特征...', duration: 1500 },
+      { progress: 40, text: '正在构建人物模型...', duration: 2000 },
+      { progress: 70, text: '正在生成对应风格...', duration: 2500 },
+      { progress: 90, text: '正在优化细节效果...', duration: 1500 },
+      { progress: 95, text: '即将完成...', duration: 1000 }
+    ]
+    
+    let currentStage = 0
+    setProgressText(stages[0].text)
+
+    progressIntervalRef.current = setInterval(() => {
+      if (currentStage < stages.length) {
+        const stage = stages[currentStage]
+        setProgress(stage.progress)
+        setProgressText(stage.text)
+        currentStage++
+      }
+    }, 1500)
+  }
+
+  // 停止进度动画
+  const stopProgressAnimation = (success: boolean) => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current)
+      progressIntervalRef.current = null
+    }
+    
+    if (success) {
+      setProgress(100)
+      setProgressText('生成完成！')
+      setTimeout(() => {
+        setProgress(0)
+        setProgressText('')
+      }, 1000)
+    } else {
+      setProgress(0)
+      setProgressText('')
+    }
+  }
+
   // 克隆形象
   const cloneAvatar = async () => {
     if (!uploadedMedia) return
 
     setIsCloning(true)
+    startProgressAnimation()
     
     try {
       // 1. 获取 base64 图片
       const base64 = await fileToBase64(uploadedMedia.file)
       
-      // 2. 调用克隆服务 (使用 FLUX.2-klein-9B)
+      // 2. 调用克隆服务
       console.log(`Sending image for cloning (${(base64.length / 1024 / 1024).toFixed(2)} MB)...`)
       const result = await avatarCloneService.cloneAvatar({
         imageUrl: base64,
@@ -105,10 +154,12 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
         originalUrl: base64
       }
 
+      stopProgressAnimation(true)
       setClonedAvatar(avatarModel)
       onAvatarCloned(avatarModel)
     } catch (err) {
       console.error('Clone avatar failed:', err)
+      stopProgressAnimation(false)
       alert(`生成形象失败: ${err instanceof Error ? err.message : '未知错误'}`)
     } finally {
       setIsCloning(false)
@@ -461,6 +512,46 @@ export function AvatarClone({ themeConfig, onAvatarCloned, existingAvatar }: Ava
                     </>
                   )}
                 </motion.button>
+
+                {/* 进度条 */}
+                <AnimatePresence>
+                  {isCloning && progress > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-4 p-4 rounded-xl"
+                      style={{ 
+                        background: themeConfig.colors.bgAlt,
+                        border: `1px solid ${themeConfig.colors.border}`
+                      }}
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <p className="text-sm font-medium" style={{ color: themeConfig.colors.text }}>
+                          {progressText}
+                        </p>
+                        <p className="text-sm font-bold" style={{ color: themeConfig.colors.primary }}>
+                          {progress}%
+                        </p>
+                      </div>
+                      <div 
+                        className="h-2 rounded-full overflow-hidden"
+                        style={{ background: themeConfig.colors.border }}
+                      >
+                        <motion.div
+                          initial={{ width: '0%' }}
+                          animate={{ width: `${progress}%` }}
+                          transition={{ duration: 0.3, ease: 'easeOut' }}
+                          className="h-full rounded-full"
+                          style={{ 
+                            background: `linear-gradient(90deg, ${themeConfig.colors.primary}, ${themeConfig.colors.primaryGlow})`,
+                            boxShadow: `0 0 10px ${themeConfig.colors.primary}60`
+                          }}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             )}
             </motion.div>

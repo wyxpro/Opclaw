@@ -61,6 +61,7 @@ export default function Social() {
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [showAboutModal, setShowAboutModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isCardModalReadonly, setIsCardModalReadonly] = useState(false)
   // 认证状态
   const { isAuthenticated, isLoading, user, updateUser } = useAuth()
 
@@ -255,7 +256,10 @@ export default function Social() {
                 </button>
                 {/* 桌面端数字名片入口 */}
                 <button
-                  onClick={() => setShowDesktopCardModal(true)}
+                  onClick={() => {
+                    setIsCardModalReadonly(false)
+                    setShowDesktopCardModal(true)
+                  }}
                   className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 transition-all border-0"
                 >
                   <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center">
@@ -275,43 +279,56 @@ export default function Social() {
           transition={{ delay: 0.1 }}
           className="flex gap-2 mb-6 sm:mb-8 overflow-x-auto no-scrollbar pb-2 items-center"
         >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id
-                  ? 'text-primary'
-                  : 'text-text-muted hover:text-text-secondary'
-                }`}
-            >
-              <tab.icon size={16} />
-              {tab.label}
-              {activeTab === tab.id && (
-                <motion.div
-                  layoutId="socialTab"
-                  className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-xl -z-10"
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+          {tabs.map((tab, index) => (
+            <div key={tab.id} className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id
+                    ? 'text-primary'
+                    : 'text-text-muted hover:text-text-secondary'
+                  }`}
+              >
+                <tab.icon size={16} />
+                {tab.label}
+                {activeTab === tab.id && (
+                  <motion.div
+                    layoutId="socialTab"
+                    className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-xl -z-10"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </button>
+              
+              {index === 0 && (
+                <NfcConnectModule 
+                  variant="tab"
+                  onShowCard={(card) => {
+                    setEditingCard(card)
+                    setIsCardModalReadonly(true)
+                    setShowDesktopCardModal(true)
+                  }}
                 />
               )}
-            </button>
+            </div>
           ))}
+          
           {/* 分隔线 */}
-          <div className="w-px h-6 bg-border/50 mx-1" />
+          <div className="w-px h-6 bg-border/50 mx-1 shrink-0" />
           {/* 系统设置按钮 */}
           <button
             onClick={() => setShowSettingsModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text-secondary hover:bg-surface/60 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text-secondary hover:bg-surface/60 transition-all shrink-0 whitespace-nowrap"
           >
             <Settings size={16} />
-            <span>系统设置</span>
+            <span className="whitespace-nowrap">系统设置</span>
           </button>
           {/* 关于我们按钮 */}
           <button
             onClick={() => setShowAboutModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text-secondary hover:bg-surface/60 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-text-muted hover:text-text-secondary hover:bg-surface/60 transition-all shrink-0 whitespace-nowrap"
           >
             <Info size={16} />
-            <span>关于我们</span>
+            <span className="whitespace-nowrap">关于我们</span>
           </button>
         </motion.div>
 
@@ -347,6 +364,7 @@ export default function Social() {
                 setShowDesktopCardEditModal(true)
               }}
               initialCard={editingCard || undefined}
+              readonly={isCardModalReadonly}
             />
           )}
         </AnimatePresence>
@@ -2191,7 +2209,7 @@ function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { 
           {userProfile.avatar ? (
             <img src={userProfile.avatar} alt="avatar" className="w-full h-full object-cover" />
           ) : (
-            '叶'
+            userProfile.name?.charAt(0) || 'P'
           )}
         </div>
         <div className="flex-1 min-w-0">
@@ -2400,8 +2418,14 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
           onClick={() => onNavigate('social')}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/15">
-            <IdCard size={20} className="text-amber-500" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-border/50 shrink-0">
+            {userProfile.avatar ? (
+              <img src={userProfile.avatar} alt="avatar" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-amber-500/15 text-amber-500 font-bold">
+                {userProfile.name?.charAt(0) || 'P'}
+              </div>
+            )}
           </div>
           <div className="flex-1 text-left">
             <h3 className="font-medium text-text">个人主页</h3>

@@ -195,34 +195,6 @@ export default function Home() {
                 </motion.div>
               </motion.div>
 
-              {/* Stats/Features Footer */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 1 }}
-                className="grid grid-cols-2 md:grid-cols-4 gap-12 border-t pt-16 w-full max-w-4xl mx-auto mb-20"
-                style={{ borderColor: `${themeConfig.colors.border}40` }}
-              >
-                {[
-                  { icon: Zap, text: '毫秒级响应', sub: '领先的架构设计' },
-                  { icon: Shield, text: '端到端加密', sub: '守护数字资产安全' },
-                  { icon: Globe, text: '全端同步', sub: '无缝连接多个设备' },
-                  { icon: Bot, text: '大模型驱动', sub: '深度集成的 AI 能力' },
-                ].map((feature, idx) => (
-                  <div key={idx} className="flex flex-col items-center text-center gap-3 group">
-                    <div 
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 shadow-sm"
-                      style={{ backgroundColor: `${themeConfig.colors.primary}10`, color: themeConfig.colors.primary }}
-                    >
-                      <feature.icon size={22} />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold" style={{ color: themeConfig.colors.text }}>{feature.text}</h4>
-                      <p className="text-[10px] opacity-60 mt-1 font-medium" style={{ color: themeConfig.colors.textMuted }}>{feature.sub}</p>
-                    </div>
-                  </div>
-                ))}
-              </motion.div>
             </div>
           </>
         )}
