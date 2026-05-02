@@ -15,6 +15,7 @@ import { useTheme } from '../hooks/useTheme'
 import { ragEngine } from '../lib/ragEngine'
 import { aiService, type ChatMessage } from '../services/aiService'
 import { ttsService } from '../services/ttsService'
+import { avatarCloneService } from '../services/avatarCloneService'
 import { Upload, History, MoreHorizontal, Sparkles, Bot, Brain } from 'lucide-react'
 import { AvatarSelectionDialog, DEFAULT_AI_AVATAR } from '../components/ai/AvatarSelectionDialog'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
@@ -36,6 +37,7 @@ export default function AICharacter() {
   const [background, setBackground] = useState<string>('cafe')
   const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isAvatarLoading, setIsAvatarLoading] = useState(false)
   const [customAvatar, setCustomAvatar] = useState<any>(DEFAULT_AI_AVATAR)
   // 历史对话状态
   const [sessions, setSessions] = useState<ChatSession[]>([])
@@ -130,8 +132,48 @@ export default function AICharacter() {
 
   // 处理从形象库选择
   const handleAvatarSelect = (avatar: any) => {
+    const prevStyle = customAvatar?.style
     setCustomAvatar(avatar)
-    if (avatar.style) setCharacterStyle(avatar.style as any)
+    if (avatar.style) {
+      setCharacterStyle(avatar.style as any)
+      // 如果选择的是我的分身，且风格发生了变化，触发重绘
+      if (avatar.isCloned && avatar.originalUrl && avatar.style !== prevStyle) {
+        handleStyleSwitch(avatar.style)
+      }
+    }
+  }
+
+  // 处理风格切换
+  const handleStyleSwitch = async (newStyle: CharacterStyle) => {
+    setCharacterStyle(newStyle)
+    
+    // 如果是我的分身且有原始图片，则触发风格重绘
+    if (customAvatar?.isCloned && customAvatar.originalUrl) {
+      setIsAvatarLoading(true)
+      try {
+        const result = await avatarCloneService.cloneAvatar({
+          imageUrl: customAvatar.originalUrl,
+          style: newStyle
+        })
+        
+        if (result.url) {
+          const updatedAvatar = { 
+            ...customAvatar, 
+            url: result.url, 
+            style: newStyle 
+          }
+          setCustomAvatar(updatedAvatar)
+          // 如果是当前正在使用的模型，也更新它
+          if (avatarModel?.id === customAvatar.id) {
+            setAvatarModel(updatedAvatar)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to regenerate style:', err)
+      } finally {
+        setIsAvatarLoading(false)
+      }
+    }
   }
 
   const handleSendMessage = async (content: string, attachments?: Message['attachments']) => {
@@ -273,7 +315,7 @@ export default function AICharacter() {
               <CharacterVoiceUI 
                 style={characterStyle}
                 messages={messages}
-                isLoading={isLoading}
+                isLoading={isLoading || isAvatarLoading}
                 onSendMessage={handleSendMessage}
                 background={background === 'custom' && customBackgroundUrl ? customBackgroundUrl : background}
                 onStyleChange={(newStyle) => setCharacterStyle(newStyle)}
@@ -376,7 +418,10 @@ export default function AICharacter() {
                   </div>
 
                   <motion.button
-                    onClick={() => setCharacterStyle(characterStyle === 'realistic' ? 'cartoon' : characterStyle === 'cartoon' ? 'hidden' : 'realistic')}
+                    onClick={() => {
+                      const nextStyle = characterStyle === 'realistic' ? 'cartoon' : characterStyle === 'cartoon' ? 'hidden' : 'realistic'
+                      handleStyleSwitch(nextStyle)
+                    }}
                     whileTap={{ scale: 0.95 }}
                     className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold transition-all backdrop-blur-md border border-white/20 shadow-lg"
                     style={{

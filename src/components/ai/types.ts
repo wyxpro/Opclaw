@@ -56,6 +56,7 @@ export interface AvatarModel {
   style: CharacterStyle
   createdAt: number
   isCloned: boolean
+  originalUrl?: string
 }
 
 // 数字人配置

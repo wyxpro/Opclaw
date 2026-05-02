@@ -11,6 +11,8 @@ import { aiService } from '../../services/aiService'
 import { sttService } from '../../services/sttService'
 import { ttsService } from '../../services/ttsService'
 import { useTheme } from '../../hooks/useTheme'
+import { triggerHaptic } from '../../lib/utils'
+
 
 interface CharacterVoiceUIProps {
   style: CharacterStyle
@@ -80,6 +82,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
         gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
         oscillator.start(now)
         oscillator.stop(now + 0.4)
+        triggerHaptic('heavy')
       } else if (type === 'end') {
         // 挂断：低沉的下降音
         oscillator.type = 'sine'
@@ -89,6 +92,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
         gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
         oscillator.start(now)
         oscillator.stop(now + 0.4)
+        triggerHaptic('medium')
       } else if (type === 'toggle') {
         // 切换/点击：极短的清脆点按声
         oscillator.type = 'triangle'
@@ -97,6 +101,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
         gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1)
         oscillator.start(now)
         oscillator.stop(now + 0.1)
+        triggerHaptic('light')
       } else if (type === 'pop') {
         // 气泡破裂声
         oscillator.type = 'sine'

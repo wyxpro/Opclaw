@@ -1,17 +1,18 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
-const MODEL_SCOPE_API_KEY = Deno.env.get('MODEL_SCOPE_API_KEY')
+const MODELSCOPE_API_KEY = Deno.env.get('MODELSCOPE_API_KEY')
 const BASE_URL = 'https://api-inference.modelscope.cn/v1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
 serve(async (req) => {
   // Handle CORS
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeaders, status: 200 })
   }
 
   try {
@@ -21,7 +22,7 @@ serve(async (req) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${MODEL_SCOPE_API_KEY}`,
+        'Authorization': `Bearer ${MODELSCOPE_API_KEY}`,
       },
       body: JSON.stringify({
         model: 'MiniMax/MiniMax-M2.5',

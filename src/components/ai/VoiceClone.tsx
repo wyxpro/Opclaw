@@ -363,21 +363,6 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
 
   return (
     <div className="h-full flex flex-col gap-6 overflow-auto pb-10">
-      {/* 标题区域 */}
-      <div className="flex-shrink-0">
-        <motion.h2 
-          className="text-2xl font-bold mb-2 flex items-center gap-2"
-          style={{ color: themeConfig.colors.text }}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <Sparkles className="text-indigo-400" size={24} />
-          声音克隆训练
-        </motion.h2>
-        <p className="text-sm" style={{ color: themeConfig.colors.textMuted }}>
-          通过少量音频录制，即可生成您专属的 AI 声音模型
-        </p>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* 左侧：训练与录制 (8/12) */}
@@ -411,9 +396,6 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
                   >
                     "{trainingText}"
                   </div>
-                  <p className="mt-2 text-[10px]" style={{ color: themeConfig.colors.textMuted }}>
-                    请保持安静并自然朗读
-                  </p>
                 </div>
 
                 {/* 录音区域 */}
@@ -466,7 +448,7 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
 
               {/* 移动端操作栏 */}
               {(recordedAudio || !isRecording) && (
-                <div className="mt-4 pt-4 border-t flex items-center justify-between gap-3" style={{ borderColor: themeConfig.colors.border }}>
+                <div className="mt-4 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     {recordedAudio && (
                       <>
@@ -669,7 +651,7 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
                     value={testText}
                     onChange={(e) => setTestText(e.target.value)}
                     placeholder="输入你想让AI分身说的话..."
-                    className="w-full flex-1 p-4 rounded-xl resize-none focus:outline-none focus:ring-2 transition-all min-h-[120px]"
+                    className="w-full flex-1 p-3 md:p-4 rounded-xl resize-none focus:outline-none focus:ring-2 transition-all md:min-h-[120px] min-h-[80px]"
                     style={{
                       background: themeConfig.colors.bg,
                       border: `1px solid ${themeConfig.colors.border}`,

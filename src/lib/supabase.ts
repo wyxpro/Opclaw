@@ -35,6 +35,9 @@ export function getSupabaseClient(): SupabaseClient {
         upsert: () => Promise.resolve({ data: null, error: null }),
       }),
       rpc: async () => ({ data: null, error: null }),
+      functions: {
+        invoke: async () => ({ data: null, error: new Error('Supabase not configured') }),
+      },
     }
     client = mockClient as unknown as SupabaseClient
     return client
@@ -48,3 +51,5 @@ export function getSupabaseClient(): SupabaseClient {
   })
   return client
 }
+
+export const supabase = getSupabaseClient()

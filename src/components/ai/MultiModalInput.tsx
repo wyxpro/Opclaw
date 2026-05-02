@@ -6,7 +6,9 @@ import {
   Mic, 
   Smile
 } from 'lucide-react'
+import { triggerHaptic } from '../../lib/utils'
 import type { ThemeConfig } from '../../lib/themes'
+
 import type { Message } from './types'
 
 interface MultiModalInputProps {
@@ -72,7 +74,9 @@ export function MultiModalInput({ onSend, themeConfig, disabled }: MultiModalInp
   }
 
   const handleVoiceInput = () => {
+    triggerHaptic('light')
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
       const recognition = new SpeechRecognition()
       
