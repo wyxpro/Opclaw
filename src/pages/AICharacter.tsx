@@ -396,6 +396,7 @@ export default function AICharacter() {
                 completedSteps={completedSteps}
                 onStepChange={handleStepChange}
                 themeConfig={themeConfig}
+                forceWhite={currentStep === 'chat'}
               />
 
               {/* Desktop Controls Area - 紧靠步骤导航器右边 */}
@@ -461,6 +462,7 @@ export default function AICharacter() {
                 completedSteps={completedSteps}
                 onStepChange={handleStepChange}
                 themeConfig={themeConfig}
+                forceWhite={currentStep === 'chat'}
               />
               
               {/* Mobile History Button - 紧靠数字人对话右边 */}

@@ -1099,32 +1099,10 @@ export const wordCloudData = [
 
 // ===== Digital Card Types & Data =====
 
-export interface DigitalCard {
-  id: string
-  title: string
-  subtitle: string
-  name: string
-  title_en: string
-  bio: string
-  avatar: string
-  skills: { name: string; level: number; category: string }[]
-  stats: { label: string; value: string }[]
-  projects: { title: string; description: string; tags: string[]; icon: string; gradient: string }[]
-  socialLinks: { platform: string; username: string }[]
-  milestones: { date: string; title: string; icon: string }[]
-  theme: CardTheme
-  createdAt: number
-  updatedAt: number
-}
+import type { DigitalCard, CardHistory, CardTheme } from '../types/card'
 
-export interface CardHistory {
-  id: string
-  cardId: string
-  previewImage?: string
-  createdAt: number
-}
+export type { DigitalCard, CardHistory, CardTheme }
 
-export type CardTheme = 'blue' | 'purple' | 'green' | 'orange' | 'pink' | 'dark'
 
 export const cardThemes: Record<CardTheme, { name: string; gradient: string; primary: string; secondary: string }> = {
   blue: {

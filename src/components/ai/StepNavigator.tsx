@@ -16,6 +16,7 @@ interface StepNavigatorProps {
   onStepChange: (step: StepType) => void
   themeConfig: ThemeConfig
   compact?: boolean
+  forceWhite?: boolean
 }
 
 const steps: Step[] = [
@@ -41,7 +42,8 @@ export function StepNavigator({
   completedSteps, 
   onStepChange, 
   themeConfig,
-  compact = false
+  compact = false,
+  forceWhite = false
 }: StepNavigatorProps) {
   const currentIndex = steps.findIndex(s => s.id === currentStep)
 
@@ -110,7 +112,9 @@ export function StepNavigator({
                   <span 
                     className="text-sm font-medium whitespace-nowrap"
                     style={{
-                      color: status === 'active' 
+                      color: forceWhite
+                        ? 'white'
+                        : status === 'active' 
                         ? themeConfig.colors.primary 
                         : status === 'completed'
                         ? themeConfig.colors.text
@@ -186,7 +190,9 @@ export function StepNavigator({
                     <span 
                       className="text-xs font-medium whitespace-nowrap transition-colors duration-300 mt-0.5"
                       style={{
-                        color: status === 'active' 
+                        color: forceWhite
+                          ? 'white'
+                          : status === 'active' 
                           ? themeConfig.colors.primary 
                           : status === 'completed'
                           ? themeConfig.colors.text
@@ -273,7 +279,9 @@ export function StepNavigator({
                 <span 
                   className="text-xs font-medium whitespace-nowrap"
                   style={{
-                    color: status === 'active' 
+                    color: forceWhite
+                      ? 'white'
+                      : status === 'active' 
                       ? themeConfig.colors.primary 
                       : status === 'completed'
                       ? themeConfig.colors.text

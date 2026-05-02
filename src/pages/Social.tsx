@@ -16,6 +16,7 @@ import { SettingsModal } from '../components/ui/SettingsModal'
 import ProfileEditModal, { type ProfileData } from '../components/ProfileEditModal'
 import AuthModal from '../components/auth/AuthModal'
 import { ProfileTabContent } from '../components/profile/ProfileTabContent'
+import NfcConnectModule from '../components/profile/NfcConnectModule'
 
 function MobileProfileTabContent({ onBack }: { onBack: () => void }) {
   return (
@@ -2361,6 +2362,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
   const [showVipModal, setShowVipModal] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState('svip')
   const [isVip, setIsVip] = useState(false)
+  const [isCardModalReadonly, setIsCardModalReadonly] = useState(false)
   const { currentTheme, setTheme, themeConfig } = useTheme()
   const navigate = useNavigate()
 
@@ -2383,7 +2385,10 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
         isVip={isVip}
         onVipClick={() => setShowVipModal(true)}
       />
-      <DigitalCardEntry onOpen={() => setShowCardModal(true)} />
+      <DigitalCardEntry onOpen={() => {
+        setIsCardModalReadonly(false)
+        setShowCardModal(true)
+      }} />
 
       {/* 功能菜单列表 */}
       <div className="px-4 mt-4 space-y-2">
@@ -2404,6 +2409,15 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
           </div>
           <ChevronRight size={18} className="text-text-dim" />
         </motion.button>
+
+        {/* NFC 互联模块 - 用户要求新增 */}
+        <NfcConnectModule 
+          onShowCard={(card) => {
+            setEditingCard(card)
+            setIsCardModalReadonly(true)
+            setShowCardModal(true)
+          }} 
+        />
 
         {/* 主题风格选择入口 */}
         <motion.button
@@ -2497,6 +2511,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
               setShowCardEditModal(true)
             }}
             initialCard={editingCard || undefined}
+            readonly={isCardModalReadonly}
           />
         )}
       </AnimatePresence>
@@ -3898,12 +3913,14 @@ function DigitalCardModal({
   onClose,
   onOpenHistory,
   onOpenEdit,
-  initialCard
+  initialCard,
+  readonly = false
 }: {
   onClose: () => void;
   onOpenHistory?: () => void;
   onOpenEdit?: (card: DigitalCard) => void;
   initialCard?: DigitalCard;
+  readonly?: boolean;
 }) {
   const { user } = useAuth()
   const [card, setCard] = useState<DigitalCard>(() => {
@@ -4086,7 +4103,7 @@ function DigitalCardModal({
 
           {/* Actions - 下载、分享、编辑、历史记录 */}
           <div className="p-4 border-t border-border/50 pb-20 md:pb-4">
-            <div className="grid grid-cols-4 gap-3">
+            <div className={`grid ${readonly ? 'grid-cols-2' : 'grid-cols-4'} gap-3`}>
               <button
                 onClick={handleDownload}
                 disabled={isGenerating}
@@ -4102,23 +4119,28 @@ function DigitalCardModal({
                 <Share size={20} />
                 <span className="text-sm font-medium">分享</span>
               </button>
-              <button
-                onClick={() => {
-                  onOpenEdit?.(card)
-                  onClose()
-                }}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-amber-500/10 text-amber-500 active:scale-95 transition-transform"
-              >
-                <Palette size={20} />
-                <span className="text-sm font-medium">编辑</span>
-              </button>
-              <button
-                onClick={() => onOpenHistory?.()}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-rose-500/10 text-rose-500 active:scale-95 transition-transform"
-              >
-                <History size={20} />
-                <span className="text-sm font-medium">历史</span>
-              </button>
+              
+              {!readonly && (
+                <>
+                  <button
+                    onClick={() => {
+                      onOpenEdit?.(card)
+                      onClose()
+                    }}
+                    className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-amber-500/10 text-amber-500 active:scale-95 transition-transform"
+                  >
+                    <Palette size={20} />
+                    <span className="text-sm font-medium">编辑</span>
+                  </button>
+                  <button
+                    onClick={() => onOpenHistory?.()}
+                    className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-rose-500/10 text-rose-500 active:scale-95 transition-transform"
+                  >
+                    <History size={20} />
+                    <span className="text-sm font-medium">历史</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </motion.div>

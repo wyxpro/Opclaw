@@ -157,8 +157,8 @@ export default function Home() {
                   className="text-lg sm:text-xl leading-relaxed mb-12 max-w-2xl mx-auto font-medium opacity-80"
                   style={{ color: themeConfig.colors.textSecondary }}
                 >
-                  整合 AI 分身、资产管理、学习成长与生活点滴。
-                  在这里，每一个比特都承载着您的智慧与热爱。
+                  实现个人IP展示+数字资产管理+AI分身能力赋能的一站式解决方案！
+                  
                 </motion.p>
               </div>
 

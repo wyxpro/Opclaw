@@ -139,7 +139,7 @@ export default function Navbar() {
       >
         <nav className="flex items-center justify-between px-6">
           {/* Left: Logo & TimeWeather - 靠最左端 */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-1">
             {/* Logo - 点击跳转到官网首页 */}
             <a 
               href="/index.html" 
@@ -153,9 +153,11 @@ export default function Navbar() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="text-xl font-bold text-text hidden sm:block">
-                Opclaw
-              </span>
+              <img 
+                src="/vibe_images/opclaw.png" 
+                alt="Opclaw" 
+                className="h-9 w-auto object-contain block"
+              />
             </a>
             {/* Time Widget */}
             <TimeWidget />
