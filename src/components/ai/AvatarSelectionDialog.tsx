@@ -18,17 +18,21 @@ const PRESET_AVATARS: AvatarPreset[] = [
     
     // Females
     { id: 'f1', name: '职场专家', url: '/vibe_images/person/girl/girl1.png', type: 'image', gender: 'female', style: 'realistic' },
-    { id: 'f2', name: '活力少女', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400', type: 'image', gender: 'female', style: 'realistic' },
-    { id: 'f3', name: '文静学姐', url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400', type: 'image', gender: 'female', style: 'realistic' },
-    { id: 'f4', name: '元气卡通', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Lucy', type: 'image', gender: 'female', style: 'cartoon' },
-    { id: 'f5', name: '摩登都会', url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400', type: 'image', gender: 'female', style: 'realistic' },
+    { id: 'f2', name: '元气甜妹', url: '/vibe_images/person/girl/元气甜妹.png', type: 'image', gender: 'female', style: 'realistic' },
+    { id: 'f3', name: '古风女子', url: '/vibe_images/person/girl/古风女子.png', type: 'image', gender: 'female', style: 'realistic' },
+    { id: 'f4', name: '可爱萝莉', url: '/vibe_images/person/girl/可爱萝莉.png', type: 'image', gender: 'female', style: 'cartoon' },
+    { id: 'f5', name: '甜酷辣妹', url: '/vibe_images/person/girl/甜酷辣妹.png', type: 'image', gender: 'female', style: 'realistic' },
+    { id: 'f6', name: '赛博朋克少女', url: '/vibe_images/person/girl/赛博朋克少女.png', type: 'image', gender: 'female', style: 'realistic' },
+    { id: 'f7', name: '韩系女神', url: '/vibe_images/person/girl/韩系女神.png', type: 'image', gender: 'female', style: 'realistic' },
     
     // Males
-    { id: 'm1', name: '商务精英', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400', type: 'image', gender: 'male', style: 'realistic' },
-    { id: 'm2', name: '阳光暖男', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', type: 'image', gender: 'male', style: 'realistic' },
-    { id: 'm3', name: '智慧学者', url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400', type: 'image', gender: 'male', style: 'realistic' },
-    { id: 'm4', name: '硬派克隆', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=Jack', type: 'image', gender: 'male', style: 'cartoon' },
-    { id: 'm5', name: '潮流极客', url: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400', type: 'image', gender: 'male', style: 'realistic' },
+    { id: 'm1', name: '元气少年', url: '/vibe_images/person/boy/元气少年.jpg', type: 'image', gender: 'male', style: 'realistic' },
+    { id: 'm2', name: '国风公子', url: '/vibe_images/person/boy/国风公子.jpg', type: 'image', gender: 'male', style: 'realistic' },
+    { id: 'm3', name: '复古港风', url: '/vibe_images/person/boy/复古港风.jpg', type: 'image', gender: 'male', style: 'realistic' },
+    { id: 'm4', name: '成熟绅士', url: '/vibe_images/person/boy/成熟绅士.jpg', type: 'image', gender: 'male', style: 'realistic' },
+    { id: 'm5', name: '文艺少年', url: '/vibe_images/person/boy/文艺少年.jpg', type: 'image', gender: 'male', style: 'realistic' },
+    { id: 'm6', name: '电竞潮玩少年', url: '/vibe_images/person/boy/电竞潮玩少年.jpg', type: 'image', gender: 'male', style: 'cartoon' },
+    { id: 'm7', name: '街头少年', url: '/vibe_images/person/boy/街头少年.jpg', type: 'image', gender: 'male', style: 'realistic' },
 ]
 
 // 默认AI头像配置
