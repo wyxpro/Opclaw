@@ -11,12 +11,13 @@ import { AvatarClone } from '../components/ai/AvatarClone'
 import { CharacterVoiceUI } from '../components/ai/CharacterVoiceUI'
 import { HistoryDialog, type ChatSession } from '../components/ai/HistoryDialog'
 import { MemoryBankDialog } from '../components/ai/MemoryBankDialog'
+import { SkillsDialog } from '../components/ai/SkillsDialog'
 import { useTheme } from '../hooks/useTheme'
 import { ragEngine } from '../lib/ragEngine'
 import { aiService, type ChatMessage } from '../services/aiService'
 import { ttsService } from '../services/ttsService'
 import { avatarCloneService } from '../services/avatarCloneService'
-import { Upload, History, MoreHorizontal, Sparkles, Bot, Brain } from 'lucide-react'
+import { Upload, History, MoreHorizontal, Sparkles, Bot, Brain, Zap } from 'lucide-react'
 import { AvatarSelectionDialog, DEFAULT_AI_AVATAR } from '../components/ai/AvatarSelectionDialog'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
 
@@ -43,6 +44,7 @@ export default function AICharacter() {
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [isMemoryBankOpen, setIsMemoryBankOpen] = useState(false)
+  const [isSkillsOpen, setIsSkillsOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string>(`session-${Date.now()}`)
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -97,7 +99,7 @@ export default function AICharacter() {
     {
       id: 'welcome-1',
       role: 'assistant',
-      content: 'Hi, 我是你的专属AI分身助手，帮助检索学习、生活、工作相关的内容，进行有趣的对话。Tips：您可以先完成"声音克隆"和"形象复刻"，创建您的数字人！',
+      content: '😊 Hi！我是你的专属AI分身。我可以帮你检索资料、记录生活并进行深度对话。快去完成"声音克隆"和"形象复刻"，创建属于你的数字人吧！',
       timestamp: 1700000000000
     }
   ])
@@ -448,7 +450,15 @@ export default function AICharacter() {
                       className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
                     >
                       <Brain size={16} className="text-indigo-400" />
-                      <span>记忆库</span>
+                      <span>Agent记忆库</span>
+                    </motion.button>
+                    <motion.button
+                      onClick={() => setIsSkillsOpen(true)}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
+                    >
+                      <Zap size={16} className="text-amber-400" />
+                      <span>Skills技能</span>
                     </motion.button>
                   </div>
                 </div>
@@ -498,7 +508,23 @@ export default function AICharacter() {
                       } : {}}
                     >
                       <Brain size={12} />
-                      <span>记忆库</span>
+                      <span>Agent记忆库</span>
+                    </button>
+                    <button 
+                      onClick={() => setIsSkillsOpen(true)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
+                        isMobile && currentStep === 'chat' 
+                          ? 'bg-white/10 border-white/20 text-white shadow-lg' 
+                          : 'hover:opacity-80'
+                      }`}
+                      style={!(isMobile && currentStep === 'chat') ? {
+                        background: themeConfig.colors.surface,
+                        borderColor: themeConfig.colors.border,
+                        color: themeConfig.colors.text
+                      } : {}}
+                    >
+                      <Zap size={12} />
+                      <span>Skills技能</span>
                     </button>
                   </div>
               )}
@@ -522,6 +548,11 @@ export default function AICharacter() {
           isOpen={isMemoryBankOpen}
           onClose={() => setIsMemoryBankOpen(false)}
           sessions={sessions}
+        />
+        {/* Skills Dialog */}
+        <SkillsDialog 
+          isOpen={isSkillsOpen}
+          onClose={() => setIsSkillsOpen(false)}
         />
         {/* Avatar Selection Dialog */}
         <AvatarSelectionDialog 

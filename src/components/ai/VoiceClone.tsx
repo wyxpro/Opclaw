@@ -332,6 +332,14 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: '获取错误信息失败' }))
         console.error('StepFun 合成失败详情:', errorData)
+        // 处理特定错误
+        if (errorData.error?.message?.includes('CER_NOT_PASS') || errorData.error?.code === 'CER_NOT_PASS') {
+          throw new Error('训练文本与录音内容不匹配，请准确朗读训练文本"你好，很高兴认识你！"后重新克隆')
+        }
+        // 处理503服务器不可用错误
+        if (response.status === 503 || errorData.error?.message?.includes('unable to complete your request')) {
+          throw new Error('阶跃服务器暂时繁忙，请稍后再试，或检查网络连接是否正常')
+        }
         throw new Error(errorData.error?.message || errorData.message || '语音合成失败')
       }
 
@@ -499,7 +507,7 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
                   "{trainingText}"
                 </div>
                 <p className="mt-3 text-sm text-center" style={{ color: themeConfig.colors.textMuted }}>
-                  请保持环境安静，用平稳自然的语速朗读以上文本
+                  请保持环境安静，<span className="font-semibold text-orange-500">准确朗读以上文本内容</span>，用平稳自然的语速录制
                 </p>
               </section>
 

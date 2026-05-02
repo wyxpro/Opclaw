@@ -13,7 +13,7 @@ interface StreamingTextProps {
  */
 export const StreamingText: React.FC<StreamingTextProps> = ({ 
   text, 
-  speed = 80, // Slower typing speed to better match voice pace
+  speed = 30, // Default snappy typing speed
   onComplete,
   onUpdate
 }) => {

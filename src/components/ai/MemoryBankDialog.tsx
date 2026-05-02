@@ -203,7 +203,7 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    数字记忆库
+                    Agent记忆库
                     <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-600 text-[10px] font-bold tracking-wider">
                       BETA
                     </span>
