@@ -194,7 +194,7 @@ export default function NfcConnectModule({ onShowCard, variant = 'full' }: NfcCo
           
           <div className="flex-1 text-left">
             <h3 className="font-medium text-text">NFC 互动</h3>
-            <p className="text-xs text-text-muted mt-0.5">近距离配对，交换数字名片</p>
+            <p className="text-xs text-text-muted mt-0.5">配对交换数字名片</p>
           </div>
           
           <ChevronRight size={18} className="text-text-dim" />

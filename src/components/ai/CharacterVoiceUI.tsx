@@ -231,8 +231,8 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
         }}
       />
 
-      {/* 2. 顶部工具栏 - 移动到步骤文字下方 */}
-      <div className="relative z-20 px-6 pt-20 pb-4">
+      {/* 2. 顶部工具栏 - 稍微向上移动一点，保持间距 */}
+      <div className="relative z-20 px-6 pt-24 pb-4">
         <div className="flex items-center justify-start gap-3">
           <motion.button
             onClick={() => setIsAvatarDialogOpen(true)}
@@ -256,12 +256,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
             <motion.button
               onClick={() => onStyleChange(style === 'realistic' ? 'cartoon' : style === 'cartoon' ? 'hidden' : 'realistic')}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all backdrop-blur-md"
-              style={{
-                background: `linear-gradient(135deg, rgba(255, 234, 167, 0.2) 0%, rgba(253, 203, 110, 0.2) 50%)`,
-                border: `1px solid rgba(255, 255, 255, 0.2)`,
-                color: 'white'
-              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg shadow-black/10"
             >
               <span>{style === 'cartoon' ? '🎨 卡通' : style === 'hidden' ? '🚫 隐藏' : '👤 真实'}</span>
             </motion.button>

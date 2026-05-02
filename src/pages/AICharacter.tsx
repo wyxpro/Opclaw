@@ -439,25 +439,25 @@ export default function AICharacter() {
                     <motion.button
                       onClick={() => setIsHistoryOpen(true)}
                       whileTap={{ scale: 0.95 }}
-                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
+                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 backdrop-blur-md transition-all text-white shadow-lg"
                     >
-                      <History size={16} className="text-indigo-400" />
+                      <History size={16} className="text-rose-300" />
                       <span>历史</span>
                     </motion.button>
                     <motion.button
                       onClick={() => setIsMemoryBankOpen(true)}
                       whileTap={{ scale: 0.95 }}
-                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
+                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 backdrop-blur-md transition-all text-white shadow-lg"
                     >
-                      <Brain size={16} className="text-indigo-400" />
+                      <Brain size={16} className="text-indigo-300" />
                       <span>Agent记忆库</span>
                     </motion.button>
                     <motion.button
                       onClick={() => setIsSkillsOpen(true)}
                       whileTap={{ scale: 0.95 }}
-                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
+                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 backdrop-blur-md transition-all text-white shadow-lg"
                     >
-                      <Zap size={16} className="text-amber-400" />
+                      <Zap size={16} className="text-amber-300" />
                       <span>Skills技能</span>
                     </motion.button>
                   </div>
@@ -482,48 +482,48 @@ export default function AICharacter() {
                       onClick={() => setIsHistoryOpen(true)}
                       className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
                         isMobile && currentStep === 'chat' 
-                          ? 'bg-white/10 border-white/20 text-white shadow-lg' 
+                          ? 'bg-rose-500/20 border-rose-500/30 text-white shadow-lg' 
                           : 'hover:opacity-80'
                       }`}
                       style={!(isMobile && currentStep === 'chat') ? {
-                        background: themeConfig.colors.surface,
-                        borderColor: themeConfig.colors.border,
+                        background: 'rgba(244, 63, 94, 0.15)',
+                        borderColor: 'rgba(244, 63, 94, 0.25)',
                         color: themeConfig.colors.text
                       } : {}}
                     >
-                      <History size={12} />
+                      <History size={12} className="text-rose-300" />
                       <span>历史对话</span>
                     </button>
                     <button 
                       onClick={() => setIsMemoryBankOpen(true)}
                       className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
                         isMobile && currentStep === 'chat' 
-                          ? 'bg-white/10 border-white/20 text-white shadow-lg' 
+                          ? 'bg-indigo-500/20 border-indigo-500/30 text-white shadow-lg' 
                           : 'hover:opacity-80'
                       }`}
                       style={!(isMobile && currentStep === 'chat') ? {
-                        background: themeConfig.colors.surface,
-                        borderColor: themeConfig.colors.border,
+                        background: 'rgba(99, 102, 241, 0.15)',
+                        borderColor: 'rgba(99, 102, 241, 0.25)',
                         color: themeConfig.colors.text
                       } : {}}
                     >
-                      <Brain size={12} />
+                      <Brain size={12} className="text-indigo-300" />
                       <span>Agent记忆库</span>
                     </button>
                     <button 
                       onClick={() => setIsSkillsOpen(true)}
                       className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
                         isMobile && currentStep === 'chat' 
-                          ? 'bg-white/10 border-white/20 text-white shadow-lg' 
+                          ? 'bg-amber-500/20 border-amber-500/30 text-white shadow-lg' 
                           : 'hover:opacity-80'
                       }`}
                       style={!(isMobile && currentStep === 'chat') ? {
-                        background: themeConfig.colors.surface,
-                        borderColor: themeConfig.colors.border,
+                        background: 'rgba(245, 158, 11, 0.15)',
+                        borderColor: 'rgba(245, 158, 11, 0.25)',
                         color: themeConfig.colors.text
                       } : {}}
                     >
-                      <Zap size={12} />
+                      <Zap size={12} className="text-amber-300" />
                       <span>Skills技能</span>
                     </button>
                   </div>

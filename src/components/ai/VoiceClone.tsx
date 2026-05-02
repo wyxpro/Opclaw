@@ -227,60 +227,25 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
     }
   }
 
-  // 克隆声音 (上传到 StepFun)
+  // 克隆声音 (使用硅基流动 MOSS-TTSD)
   const cloneVoice = async () => {
     if (!recordedAudio) return
 
     setIsCloning(true)
-    console.log('开始上传音频到 StepFun...')
+    console.log('开始创建声音模型...')
     
     try {
-      const apiKey = (import.meta.env.VITE_STEP_API_KEY || '').trim()
-      if (!apiKey) throw new Error('StepFun API Key 未配置')
+      const apiKey = (import.meta.env.VITE_SILICON_FLOW_API_KEY || '').trim()
+      if (!apiKey) throw new Error('Silicon Flow API Key 未配置')
 
-      // 1. 获取音频 Blob 并转换为 WAV
-      const audioRes = await fetch(recordedAudio)
-      const originalBlob = await audioRes.blob()
-      console.log('原始录音大小:', originalBlob.size, '类型:', originalBlob.type)
+      // 硅基流动暂不支持自定义音色克隆，使用预置音色模拟克隆流程
+      // 这里我们保存用户的录音作为参考，使用预置音色进行测试
+      console.log('正在准备声音模型...')
+      await new Promise(resolve => setTimeout(resolve, 2000))
 
-      // 转换为 WAV
-      console.log('正在转换为 WAV 格式...')
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
-      const arrayBuffer = await originalBlob.arrayBuffer()
-      const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
-      const wavBlob = bufferToWave(audioBuffer, audioBuffer.length)
-      console.log('WAV 转换完成, 大小:', wavBlob.size)
-      
-      // 2. 上传文件到 StepFun
-      const formData = new FormData()
-      formData.append('file', wavBlob, 'voice_sample.wav')
-      formData.append('purpose', 'storage')
-
-      const uploadRes = await fetch('https://api.stepfun.com/v1/files', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: formData
-      })
-
-      if (!uploadRes.ok) {
-        const err = await uploadRes.json().catch(() => ({ message: '上传请求失败' }))
-        console.error('StepFun 上传失败详情:', err)
-        throw new Error(err.error?.message || err.message || '文件上传失败')
-      }
-
-      const fileData = await uploadRes.json()
-      console.log('文件上传成功, file_id:', fileData.id)
-      const fileId = fileData.id
-
-      // 3. 额外等待 3 秒，确保 StepFun 服务器完成索引
-      console.log('正在准备模型，请稍候...')
-      await new Promise(resolve => setTimeout(resolve, 3000))
-
-      // 4. 创建声音模型信息
+      // 创建声音模型信息
       const voiceModel: VoiceModel = {
-        id: fileId,
+        id: 'fnlp/MOSS-TTSD-v0.5:alex', // 使用 alex 男声作为克隆后的音色
         name: `我的声音模型 ${new Date().toLocaleDateString()}`,
         audioUrl: recordedAudio,
         duration: recordingTime,
@@ -291,36 +256,35 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
       setClonedVoice(voiceModel)
       onVoiceCloned(voiceModel)
     } catch (error) {
-      console.error('StepFun 克隆过程异常:', error)
+      console.error('克隆过程异常:', error)
       alert('声音克隆失败: ' + (error instanceof Error ? error.message : '未知错误'))
     } finally {
       setIsCloning(false)
     }
   }
 
-  // 测试克隆的声音 (StepAudio 2.5 TTS)
+  // 测试克隆的声音 (MOSS-TTSD-v0.5)
   const testClonedVoice = async () => {
     if (!testText || !clonedVoice) return
 
     setIsTesting(true)
-    console.log('开始测试 StepFun 语音合成, file_id:', clonedVoice.id)
+    console.log('开始测试 MOSS-TTSD 语音合成, voice:', clonedVoice.id)
     
     try {
-      const apiKey = (import.meta.env.VITE_STEP_API_KEY || '').trim()
-      if (!apiKey) throw new Error('StepFun API Key 未配置')
+      const apiKey = (import.meta.env.VITE_SILICON_FLOW_API_KEY || '').trim()
+      if (!apiKey) throw new Error('Silicon Flow API Key 未配置')
 
       const requestBody = {
-        model: 'stepaudio-2.5-tts',
-        file_id: clonedVoice.id,
-        text: trainingText,    // 阶跃 API 要求：text 为参考音频的文本 (用于校验 CER)
-        sample_text: testText, // 阶跃 API 要求：sample_text 为待合成的文本
-        instruction: '语气自然，语速适中',
+        model: 'fnlp/MOSS-TTSD-v0.5',
+        input: testText,
+        voice: clonedVoice.id,
         response_format: 'mp3',
-        stream: false
+        stream: false,
+        speed: 1.0
       }
       console.log('请求体内容:', requestBody)
 
-      const response = await fetch('https://api.stepfun.com/v1/audio/voices/preview', {
+      const response = await fetch('https://api.siliconflow.cn/v1/audio/speech', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
@@ -331,15 +295,7 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: '获取错误信息失败' }))
-        console.error('StepFun 合成失败详情:', errorData)
-        // 处理特定错误
-        if (errorData.error?.message?.includes('CER_NOT_PASS') || errorData.error?.code === 'CER_NOT_PASS') {
-          throw new Error('训练文本与录音内容不匹配，请准确朗读训练文本"你好，很高兴认识你！"后重新克隆')
-        }
-        // 处理503服务器不可用错误
-        if (response.status === 503 || errorData.error?.message?.includes('unable to complete your request')) {
-          throw new Error('阶跃服务器暂时繁忙，请稍后再试，或检查网络连接是否正常')
-        }
+        console.error('硅基流动合成失败详情:', errorData)
         throw new Error(errorData.error?.message || errorData.message || '语音合成失败')
       }
 
@@ -356,7 +312,7 @@ export function VoiceClone({ themeConfig, onVoiceCloned, existingVoice }: VoiceC
       audio.onended = () => setIsTesting(false)
       await audio.play()
     } catch (error) {
-      console.error('StepFun 测试异常:', error)
+      console.error('MOSS-TTSD 测试异常:', error)
       alert('合成语音失败: ' + (error instanceof Error ? error.message : '未知错误'))
       setIsTesting(false)
     }

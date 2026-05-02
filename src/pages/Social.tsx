@@ -2418,14 +2418,8 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
           onClick={() => onNavigate('social')}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
-          <div className="w-10 h-10 rounded-xl overflow-hidden border border-border/50 shrink-0">
-            {userProfile.avatar ? (
-              <img src={userProfile.avatar} alt="avatar" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-amber-500/15 text-amber-500 font-bold">
-                {userProfile.name?.charAt(0) || 'P'}
-              </div>
-            )}
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/15 shrink-0">
+            <IdCard size={20} className="text-amber-500" />
           </div>
           <div className="flex-1 text-left">
             <h3 className="font-medium text-text">个人主页</h3>
