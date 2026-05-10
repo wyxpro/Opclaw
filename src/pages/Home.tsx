@@ -10,6 +10,7 @@ import {
 import PageTransition from '../components/ui/PageTransition'
 import { useTheme } from '../hooks/useTheme'
 import MobileHome from '../components/home/MobileHome'
+import MatrixBackground from '../components/home/MatrixBackground'
 import { useState, useEffect } from 'react'
 
 export default function Home() {
@@ -120,16 +121,14 @@ export default function Home() {
     <PageTransition>
       <div 
         className="min-h-screen relative overflow-hidden"
-        style={{ backgroundColor: themeConfig.colors.bg }}
+        style={{ backgroundColor: isMobile ? themeConfig.colors.bg : '#050505' }} // Use dark theme for matrix background
       >
         {isMobile ? (
           <MobileHome />
         ) : (
           <>
-            {/* Background Decorations */}
-            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full blur-[150px] opacity-[0.08] pointer-events-none" style={{ backgroundColor: themeConfig.colors.primary }} />
-            <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full blur-[150px] opacity-[0.08] pointer-events-none" style={{ backgroundColor: themeConfig.colors.accent }} />
-            <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full blur-[120px] opacity-[0.05] pointer-events-none" style={{ backgroundColor: themeConfig.colors.rose }} />
+            {/* Dynamic Matrix Background */}
+            <MatrixBackground />
 
             <div className="relative z-10 max-w-7xl mx-auto px-6 py-12 lg:px-8 flex flex-col items-center min-h-screen">
               {/* Hero Section */}
@@ -139,7 +138,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 }}
                   className="text-5xl sm:text-7xl font-black tracking-tight mb-8"
-                  style={{ color: themeConfig.colors.text }}
+                  style={{ color: isMobile ? themeConfig.colors.text : '#fff' }}
                 >
                   重塑您的
                   <span 
@@ -155,7 +154,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
                   className="text-lg sm:text-xl leading-relaxed mb-12 max-w-2xl mx-auto font-medium opacity-80"
-                  style={{ color: themeConfig.colors.textSecondary }}
+                  style={{ color: isMobile ? themeConfig.colors.textSecondary : 'rgba(255, 255, 255, 0.8)' }}
                 >
                   实现个人IP展示+数字资产管理+AI分身能力赋能的一站式解决方案！
                   
@@ -171,27 +170,27 @@ export default function Home() {
               >
                 {/* AI Character - Spans 6 cols */}
                 <motion.div variants={itemVariants} className="col-span-12 md:col-span-6 h-[320px]">
-                  <ModuleCard module={modules[0]} themeConfig={themeConfig} />
+                  <ModuleCard module={modules[0]} themeConfig={themeConfig} isMobile={isMobile} />
                 </motion.div>
 
                 {/* Digital Assets - Spans 6 cols */}
                 <motion.div variants={itemVariants} className="col-span-12 md:col-span-6 h-[320px]">
-                  <ModuleCard module={modules[1]} themeConfig={themeConfig} />
+                  <ModuleCard module={modules[1]} themeConfig={themeConfig} isMobile={isMobile} />
                 </motion.div>
 
                 {/* Learning - Spans 4 cols */}
                 <motion.div variants={itemVariants} className="col-span-12 md:col-span-4 h-[480px]">
-                  <NavigationModuleCard module={modules[2]} themeConfig={themeConfig} />
+                  <NavigationModuleCard module={modules[2]} themeConfig={themeConfig} isMobile={isMobile} />
                 </motion.div>
 
                 {/* Life - Spans 4 cols */}
                 <motion.div variants={itemVariants} className="col-span-12 md:col-span-4 h-[480px]">
-                  <NavigationModuleCard module={modules[3]} themeConfig={themeConfig} />
+                  <NavigationModuleCard module={modules[3]} themeConfig={themeConfig} isMobile={isMobile} />
                 </motion.div>
 
                 {/* Work - Spans 4 cols */}
                 <motion.div variants={itemVariants} className="col-span-12 md:col-span-4 h-[480px]">
-                  <NavigationModuleCard module={modules[4]} themeConfig={themeConfig} />
+                  <NavigationModuleCard module={modules[4]} themeConfig={themeConfig} isMobile={isMobile} />
                 </motion.div>
               </motion.div>
 
@@ -203,15 +202,15 @@ export default function Home() {
   )
 }
 
-function ModuleCard({ module, themeConfig }: { module: any; themeConfig: any }) {
+function ModuleCard({ module, themeConfig, isMobile }: { module: any; themeConfig: any; isMobile: boolean }) {
   return (
     <Link to={module.path} className="block group h-full">
       <div 
-        className="relative h-full p-8 rounded-[2.5rem] overflow-hidden transition-all duration-500 transform group-hover:-translate-y-2 group-hover:shadow-2xl"
+        className="relative h-full p-8 rounded-[2.5rem] overflow-hidden transition-all duration-500 transform group-hover:-translate-y-2 group-hover:shadow-2xl backdrop-blur-md"
         style={{ 
-          backgroundColor: themeConfig.colors.surface,
-          border: `1px solid ${themeConfig.colors.border}`,
-          boxShadow: `0 10px 30px -5px ${themeConfig.colors.shadow || 'rgba(0,0,0,0.05)'}`
+          backgroundColor: isMobile ? themeConfig.colors.surface : 'rgba(10, 15, 20, 0.4)',
+          border: `1px solid ${isMobile ? themeConfig.colors.border : 'rgba(0, 255, 204, 0.15)'}`,
+          boxShadow: isMobile ? `0 10px 30px -5px ${themeConfig.colors.shadow || 'rgba(0,0,0,0.05)'}` : '0 10px 30px -5px rgba(0, 0, 0, 0.5)'
         }}
       >
         {/* Background Gradient Layer */}
@@ -234,14 +233,14 @@ function ModuleCard({ module, themeConfig }: { module: any; themeConfig: any }) 
           
           <h3 
             className="text-3xl font-black mb-4 transition-colors duration-300"
-            style={{ color: themeConfig.colors.text }}
+            style={{ color: isMobile ? themeConfig.colors.text : '#fff' }}
           >
             {module.title}
           </h3>
           
           <p 
             className="text-base font-medium leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity duration-300 max-w-[80%]"
-            style={{ color: themeConfig.colors.textSecondary }}
+            style={{ color: isMobile ? themeConfig.colors.textSecondary : 'rgba(255, 255, 255, 0.7)' }}
           >
             {module.description}
           </p>
@@ -260,16 +259,16 @@ function ModuleCard({ module, themeConfig }: { module: any; themeConfig: any }) 
   )
 }
 
-function NavigationModuleCard({ module, themeConfig }: { module: any; themeConfig: any }) {
+function NavigationModuleCard({ module, themeConfig, isMobile }: { module: any; themeConfig: any; isMobile: boolean }) {
   const navigate = useNavigate()
 
   return (
     <div 
-      className="relative h-full rounded-[2.5rem] overflow-hidden transition-all duration-500 border group"
+      className="relative h-full rounded-[2.5rem] overflow-hidden transition-all duration-500 border group backdrop-blur-md"
       style={{ 
-        backgroundColor: themeConfig.colors.surface,
-        borderColor: themeConfig.colors.border,
-        boxShadow: `0 10px 30px -5px ${themeConfig.colors.shadow || 'rgba(0,0,0,0.05)'}`
+        backgroundColor: isMobile ? themeConfig.colors.surface : 'rgba(10, 15, 20, 0.4)',
+        borderColor: isMobile ? themeConfig.colors.border : 'rgba(0, 255, 204, 0.15)',
+        boxShadow: isMobile ? `0 10px 30px -5px ${themeConfig.colors.shadow || 'rgba(0,0,0,0.05)'}` : '0 10px 30px -5px rgba(0, 0, 0, 0.5)'
       }}
     >
       {/* Background Glow */}
@@ -288,14 +287,14 @@ function NavigationModuleCard({ module, themeConfig }: { module: any; themeConfi
           <Link 
             to={module.path}
             className="p-2 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-white/10"
-            style={{ color: themeConfig.colors.textMuted }}
+            style={{ color: isMobile ? themeConfig.colors.textMuted : 'rgba(255,255,255,0.5)' }}
           >
             <ArrowRight size={20} />
           </Link>
         </div>
 
-        <h3 className="text-2xl font-black mb-2" style={{ color: themeConfig.colors.text }}>{module.title}</h3>
-        <p className="text-xs font-medium opacity-60 mb-8" style={{ color: themeConfig.colors.textMuted }}>{module.description}</p>
+        <h3 className="text-2xl font-black mb-2" style={{ color: isMobile ? themeConfig.colors.text : '#fff' }}>{module.title}</h3>
+        <p className="text-xs font-medium opacity-60 mb-8" style={{ color: isMobile ? themeConfig.colors.textMuted : 'rgba(255,255,255,0.6)' }}>{module.description}</p>
 
         <div className={`flex-grow space-y-2 ${module.features.length > 4 ? 'grid grid-cols-2 gap-2 space-y-0' : ''}`}>
           {module.features.map((feature: any, idx: number) => (
@@ -304,8 +303,8 @@ function NavigationModuleCard({ module, themeConfig }: { module: any; themeConfi
               onClick={() => navigate(feature.path)}
               className={`w-full flex items-center justify-between p-2.5 rounded-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group/item ${module.features.length > 4 ? 'p-2' : ''}`}
               style={{ 
-                backgroundColor: `${themeConfig.colors.bgAlt}80`,
-                border: `1px solid ${themeConfig.colors.border}`
+                backgroundColor: isMobile ? `${themeConfig.colors.bgAlt}80` : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${isMobile ? themeConfig.colors.border : 'rgba(255,255,255,0.05)'}`
               }}
             >
               <div className="flex items-center gap-2">
@@ -315,14 +314,14 @@ function NavigationModuleCard({ module, themeConfig }: { module: any; themeConfi
                 >
                   <feature.icon size={14} />
                 </div>
-                <span className={`text-xs font-bold ${module.features.length > 4 ? 'text-[10px]' : ''}`} style={{ color: themeConfig.colors.textSecondary }}>{feature.label}</span>
+                <span className={`text-xs font-bold ${module.features.length > 4 ? 'text-[10px]' : ''}`} style={{ color: isMobile ? themeConfig.colors.textSecondary : 'rgba(255,255,255,0.8)' }}>{feature.label}</span>
               </div>
               <ChevronRight size={12} className="opacity-0 group-hover/item:opacity-100 -translate-x-1 group-hover/item:translate-x-0 transition-all duration-300" style={{ color: module.color }} />
             </button>
           ))}
         </div>
 
-        <div className="mt-6 pt-4 border-t border-dashed" style={{ borderColor: themeConfig.colors.border }}>
+        <div className="mt-6 pt-4 border-t border-dashed" style={{ borderColor: isMobile ? themeConfig.colors.border : 'rgba(255,255,255,0.1)' }}>
           <Link 
             to={module.path}
             className="text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 transition-opacity hover:opacity-100"
