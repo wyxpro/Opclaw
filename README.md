@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌈 Opclaw — 全能数字资产与AI分身助手
+# 🌈 Opclaw — 全能数字资产与AI数字人分身助手
 
 [![React](https://img.shields.io/badge/React-19.2.0-61DAFB?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?logo=typescript)](https://www.typescriptlang.org/)
