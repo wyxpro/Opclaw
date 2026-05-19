@@ -1,5 +1,3 @@
-<img width="2551" height="1349" alt="image" src="https://github.com/user-attachments/assets/f0f444a5-4634-4a11-b424-41146bf861b2" /><div align="center">
-
 # 🌈 Opclaw — 全能数字资产与AI数字人分身助手
 
 [![React](https://img.shields.io/badge/React-19.2.0-61DAFB?logo=react)](https://react.dev/)
