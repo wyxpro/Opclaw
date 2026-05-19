@@ -1,4 +1,4 @@
-<div align="center">
+<img width="2551" height="1349" alt="image" src="https://github.com/user-attachments/assets/f0f444a5-4634-4a11-b424-41146bf861b2" /><div align="center">
 
 # 🌈 Opclaw — 全能数字资产与AI数字人分身助手
 
@@ -14,6 +14,7 @@
 ---
 
 ## 📋 项目简介
+![Uploading image.png…]()
 
 **Opclaw** 是一款面向 **OPC 超级个体**（One Person Company）的现代化全栈 Web 应用，基于 **React 19 + TypeScript + Vite 7** 构建，完美适配 PC 与移动端。项目融合 **个人主页（简历）**、**学习空间（知识库/RAG 问答）**、**工作助手（电商/新媒体/百宝箱）**、**生活记录（朋友圈/旅行/恋爱记录等 7+ 功能）**、**AI 数字人分身** 于一体，支持 **5 种主题** 一键切换，致力于打造高颜值、可扩展的个人数字宇宙——实现 **个人 IP 展示 + 数字资产管理 + AI 数字人分身赋能** 的一站式解决方案。
 
