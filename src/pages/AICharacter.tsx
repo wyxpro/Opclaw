@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import PageTransition from '../components/ui/PageTransition'
 import { Character3D } from '../components/ai/Character3D'
 import { BackgroundCustomizer } from '../components/ai/BackgroundCustomizer'
@@ -17,8 +17,9 @@ import { ragEngine } from '../lib/ragEngine'
 import { aiService, type ChatMessage } from '../services/aiService'
 import { ttsService } from '../services/ttsService'
 import { avatarCloneService } from '../services/avatarCloneService'
-import { Upload, History, MoreHorizontal, Sparkles, Bot, Brain, Zap } from 'lucide-react'
+import { Upload, History, MoreHorizontal, Sparkles, Bot, Brain, Zap, Share2 } from 'lucide-react'
 import { AvatarSelectionDialog, DEFAULT_AI_AVATAR } from '../components/ai/AvatarSelectionDialog'
+import { ShareDialog } from '../components/ai/ShareDialog'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
 
 export default function AICharacter() {
@@ -48,6 +49,8 @@ export default function AICharacter() {
   const [currentSessionId, setCurrentSessionId] = useState<string>(`session-${Date.now()}`)
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const [isShareOpen, setIsShareOpen] = useState(false)
+  const [shareToast, setShareToast] = useState<string | null>(null)
 
     // 加载历史记录及已克隆的模型
     useEffect(() => {
@@ -75,11 +78,69 @@ export default function AICharacter() {
         } catch (e) { console.error(e) }
       }
       
+      
       // 无论是否有克隆形象，打开界面时默认使用第一个预设形象
-      setCustomAvatar(DEFAULT_AI_AVATAR)
+      const params = new URLSearchParams(window.location.search)
+      const hasShareId = params.has('shareId')
+      if (!hasShareId) {
+        setCustomAvatar(DEFAULT_AI_AVATAR)
+      }
 
       return () => window.removeEventListener('resize', checkMobile)
     }, [])
+
+  // 解析分享链接并恢复数字人配置
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const shareId = params.get('shareId')
+    if (shareId) {
+      let sharedConfig: any = null
+      if (shareId.startsWith('data_')) {
+        try {
+          let base64 = shareId.substring(5)
+            .replace(/-/g, '+')
+            .replace(/_/g, '/')
+          while (base64.length % 4) {
+            base64 += '='
+          }
+          const jsonStr = decodeURIComponent(escape(atob(base64)))
+          sharedConfig = JSON.parse(jsonStr)
+        } catch (e) {
+          console.error('Failed to parse shareId base64 from URL:', e)
+        }
+      } else {
+        try {
+          const shares = JSON.parse(localStorage.getItem('ai_character_shares') || '{}')
+          sharedConfig = shares[shareId]
+        } catch (e) {
+          console.error('Failed to read shareId from localStorage:', e)
+        }
+      }
+
+      if (sharedConfig) {
+        if (sharedConfig.voiceModel) {
+          setVoiceModel(sharedConfig.voiceModel)
+          localStorage.setItem('ai_cloned_voice', JSON.stringify(sharedConfig.voiceModel))
+        }
+        if (sharedConfig.avatarModel) {
+          setAvatarModel(sharedConfig.avatarModel)
+          localStorage.setItem('ai_cloned_avatar', JSON.stringify(sharedConfig.avatarModel))
+        }
+        if (sharedConfig.customAvatar) {
+          setCustomAvatar(sharedConfig.customAvatar)
+        }
+        if (sharedConfig.characterStyle) {
+          setCharacterStyle(sharedConfig.characterStyle)
+        }
+        if (sharedConfig.background) {
+          setBackground(sharedConfig.background)
+        }
+        
+        setShareToast(`已成功加载来自「${sharedConfig.profile?.name || '用户'}」分享的数字人配置！`)
+        setTimeout(() => setShareToast(null), 5000)
+      }
+    }
+  }, [])
 
   // 持久化保存数据
   useEffect(() => {
@@ -467,6 +528,14 @@ export default function AICharacter() {
                       <Zap size={16} className="text-amber-300" />
                       <span>Skills技能</span>
                     </motion.button>
+                    <motion.button
+                      onClick={() => setIsShareOpen(true)}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-indigo-500/25 hover:bg-indigo-500/35 border border-indigo-400/40 backdrop-blur-md transition-all text-white shadow-[0_8px_20px_rgba(99,102,241,0.2),_inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_24px_rgba(99,102,241,0.35),_inset_0_1px_1px_rgba(255,255,255,0.4)]"
+                    >
+                      <Share2 size={16} className="text-indigo-200" />
+                      <span>分享分身</span>
+                    </motion.button>
                   </div>
                 </div>
               )}
@@ -533,6 +602,22 @@ export default function AICharacter() {
                       <Zap size={12} className="text-amber-300" />
                       <span>Skills技能</span>
                     </button>
+                    <button 
+                      onClick={() => setIsShareOpen(true)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_8px_20px_rgba(99,102,241,0.25),_inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_24px_rgba(99,102,241,0.4),_inset_0_1px_1px_rgba(255,255,255,0.4)] ${
+                        isMobile && currentStep === 'chat' 
+                          ? 'bg-indigo-500/25 border-indigo-400/40 text-white' 
+                          : 'hover:opacity-80'
+                      }`}
+                      style={!(isMobile && currentStep === 'chat') ? {
+                        background: 'rgba(99, 102, 241, 0.25)',
+                        borderColor: 'rgba(99, 102, 241, 0.40)',
+                        color: themeConfig.colors.text
+                      } : {}}
+                    >
+                      <Share2 size={12} className="text-indigo-300" />
+                      <span>分享分身</span>
+                    </button>
                   </div>
               )}
             </div>
@@ -573,6 +658,30 @@ export default function AICharacter() {
             setIsAvatarDialogOpen(false)
           }}
         />
+        {/* Share Dialog */}
+        <ShareDialog 
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          voiceModel={voiceModel}
+          avatarModel={avatarModel}
+          characterStyle={characterStyle}
+          background={background}
+          customAvatar={customAvatar}
+        />
+        {/* Share Load Toast */}
+        <AnimatePresence>
+          {shareToast && (
+            <motion.div
+              initial={{ opacity: 0, y: -50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -50, scale: 0.9 }}
+              className="fixed top-20 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-full bg-indigo-600/90 text-white font-bold text-sm shadow-xl backdrop-blur-md flex items-center gap-2 border border-indigo-400/20"
+            >
+              <Sparkles size={16} className="text-indigo-200 animate-spin" />
+              <span>{shareToast}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </PageTransition>
   )
