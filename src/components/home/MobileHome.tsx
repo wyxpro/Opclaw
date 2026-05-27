@@ -156,17 +156,17 @@ export default function MobileHome() {
             >
               <Link to={item.path} className="block">
                 <div className="relative rounded-[2rem] overflow-hidden bg-surface border border-border shadow-lg group">
-                  <div className="w-full aspect-[16/10] overflow-hidden relative">
+                  <div className="w-full aspect-[2/1] overflow-hidden relative">
                     <img src={item.image} alt={item.subtitle} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   </div>
-                  <div className="p-4 flex items-center justify-between">
+                  <div className="py-2.5 px-3.5 flex items-center justify-between">
                     <div>
                       <span className="text-[9px] text-text-dim font-black uppercase tracking-widest block mb-0.5">{item.title}</span>
-                      <h4 className="text-[13px] font-black text-text">{item.subtitle}</h4>
+                      <h4 className="text-[12px] font-black text-text">{item.subtitle}</h4>
                     </div>
-                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-md`}>
-                      <ArrowRight size={14} />
+                    <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-md`}>
+                      <ArrowRight size={12} />
                     </div>
                   </div>
                 </div>

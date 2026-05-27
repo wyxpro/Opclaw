@@ -326,7 +326,7 @@ export function HeroSection({ profile, showResume = false, onToggleResume, onOpe
     <section
       ref={containerRef}
       className="relative min-h-screen flex items-start justify-center overflow-hidden print:overflow-visible"
-      style={{ background: themeConfig.colors.bg, paddingTop: isMobile ? '60px' : '80px' }}
+      style={{ background: themeConfig.colors.bg, paddingTop: '0px' }}
     >
       {/* 动态网格背景 */}
       <div className="no-print">
@@ -352,13 +352,16 @@ export function HeroSection({ profile, showResume = false, onToggleResume, onOpe
         }}
       />
 
-      {/* 模式切换按钮组 - 放置在左上角 */}
+      {/* 页面内容容器（控制最大宽度和两边留白） */}
+      <div className="relative w-full max-w-[1380px] mx-auto px-6 min-h-[calc(100vh-120px)] flex flex-col justify-center py-12 md:py-16">
+
+        {/* 模式切换按钮组 - 放置在左上角 */}
       {onToggleResume && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="absolute top-4 left-4 md:top-6 md:left-6 z-20"
+          className="absolute top-6 left-6 z-20"
         >
           <div 
             className="flex items-center p-1 rounded-xl backdrop-blur-md"
@@ -602,14 +605,13 @@ export function HeroSection({ profile, showResume = false, onToggleResume, onOpe
         </motion.div>
       )}
 
-      {/* 主要内容 */}
       <motion.div
-        className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20"
+        className="relative z-10 w-full py-20"
         style={{ y: motionTextY, opacity }}
       >
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-20 max-w-[1100px] mx-auto">
           {/* 左侧：头像和个人信息 */}
-          <div className="flex flex-col items-center lg:items-center lg:pl-12 text-center lg:text-left">
+          <div className="flex flex-col items-center lg:items-center text-center">
             {/* 头像 */}
             <AnimatedSection delay={0}>
               <Floating amplitude={8} duration={4}>
@@ -1040,6 +1042,7 @@ export function HeroSection({ profile, showResume = false, onToggleResume, onOpe
           </div>
         </div>
       </motion.div>
+      </div>
 
       {/* 底部渐变过渡 */}
       <div

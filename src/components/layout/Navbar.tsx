@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Wallet, Users, Menu, X, Palette, Sparkles, Bot } from 'lucide-react'
+import { Home, Wallet, Users, Menu, X, Palette, Sparkles, Bot, IdCard } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { useAuth } from '../../contexts/AuthContext'
 import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
@@ -16,6 +16,7 @@ const navItems = [
   // 资产菜单 - 移动端显示，PC 端隐藏
   { path: '/ai-character', label: '🤖 AI 分身', icon: Bot },
   { path: '/assets', label: '💎 资产', icon: Wallet, isMobileOnly: true },
+  { path: '/profile', label: '👤 个人主页', icon: IdCard, isPcOnly: true },
   { path: '/social', label: '👤 我的', icon: Users },
 ]
 
@@ -174,6 +175,7 @@ export default function Navbar() {
                     <NavLink
                       key={item.path}
                       to={item.path}
+                      onClick={item.path === '/profile' ? handleSocialClick : undefined}
                       className={({ isActive }) =>
                         `relative px-4 py-2.5 rounded-xl text-base font-semibold transition-all duration-200 ${
                           isActive

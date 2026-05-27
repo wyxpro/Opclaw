@@ -830,10 +830,10 @@ export function HobbiesSection({
 
   return (
     <section 
-      className="py-12 px-4 sm:px-6 lg:px-8" 
+      className="py-12 px-6" 
       style={{ background: themeConfig.colors.bg }}
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1380px] mx-auto">
         {/* 标题区域 */}
         <AnimatedSection className="text-center mb-12">
           <h2

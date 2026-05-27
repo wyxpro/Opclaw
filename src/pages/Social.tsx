@@ -50,7 +50,7 @@ const platformIcons: Record<string, typeof Github> = {
 
 export default function Social() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<TabId>('social')
+  const [activeTab, setActiveTab] = useState<TabId>('danmaku')
   const [mobileView, setMobileView] = useState<'menu' | TabId | 'laboratory'>('menu')
   const [showDesktopCardModal, setShowDesktopCardModal] = useState(false)
   const [showDesktopVipModal, setShowDesktopVipModal] = useState(false)
@@ -279,7 +279,7 @@ export default function Social() {
           transition={{ delay: 0.1 }}
           className="flex gap-2 mb-6 sm:mb-8 overflow-x-auto no-scrollbar pb-2 items-center"
         >
-          {tabs.map((tab, index) => (
+          {tabs.filter(tab => tab.id !== 'social').map((tab) => (
             <div key={tab.id} className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => setActiveTab(tab.id)}
@@ -298,17 +298,6 @@ export default function Social() {
                   />
                 )}
               </button>
-              
-              {index === 0 && (
-                <NfcConnectModule 
-                  variant="tab"
-                  onShowCard={(card) => {
-                    setEditingCard(card)
-                    setIsCardModalReadonly(true)
-                    setShowDesktopCardModal(true)
-                  }}
-                />
-              )}
             </div>
           ))}
           
@@ -3858,7 +3847,7 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
 /* ===== Digital Card Components ===== */
 
 // 简单的雷达图组件
-function SimpleRadarChart({ skills, theme }: { skills: { name: string; level: number }[], theme: { primary: string; secondary: string } }) {
+export function SimpleRadarChart({ skills, theme }: { skills: { name: string; level: number }[], theme: { primary: string; secondary: string } }) {
   const size = 120
   const center = size / 2
   const radius = 45
@@ -3927,7 +3916,7 @@ function SimpleRadarChart({ skills, theme }: { skills: { name: string; level: nu
 }
 
 // 数字名片弹窗
-function DigitalCardModal({
+export function DigitalCardModal({
   onClose,
   onOpenHistory,
   onOpenEdit,
@@ -4169,7 +4158,7 @@ function DigitalCardModal({
 }
 
 // 名片编辑弹窗
-function DigitalCardEditModal({
+export function DigitalCardEditModal({
   card,
   onSave,
   onClose
@@ -4333,7 +4322,7 @@ function DigitalCardEditModal({
 }
 
 // 历史记录弹窗
-function CardHistoryModal({ onClose }: { onClose: () => void }) {
+export function CardHistoryModal({ onClose }: { onClose: () => void }) {
   const [history, setHistory] = useState(() => getHistoryList())
 
   const handleDelete = (historyId: string) => {
@@ -4444,7 +4433,7 @@ function CardHistoryModal({ onClose }: { onClose: () => void }) {
 }
 
 // 会员订阅弹窗组件
-function MembershipModal({
+export function MembershipModal({
   onClose,
   selectedPlan,
   onSelectPlan,
@@ -4651,7 +4640,7 @@ function MembershipModal({
 }
 
 // 关于我们弹窗
-function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { themeConfig } = useTheme()
   const [showFeedback, setShowFeedback] = useState(true)
   const [feedback, setFeedback] = useState('')
