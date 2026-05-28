@@ -73,6 +73,18 @@ export default function Life() {
     }
   }, [location, tabParam, viewParam])
 
+  // 监听 URL 查询参数变化并更新对应的标签和视图
+  useEffect(() => {
+    const validTabs: TabId[] = ['travel', 'love', 'moments', 'music', 'movies', 'sports', 'games']
+    if (tabParam && validTabs.includes(tabParam as TabId)) {
+      setActiveTab(tabParam as TabId)
+    }
+    const validViews = ['main', 'album', 'wish', 'blessing']
+    if (viewParam && validViews.includes(viewParam)) {
+      setLoveView(viewParam as any)
+    }
+  }, [tabParam, viewParam])
+
   // 如果处于子页面，显示子页面
   if (loveView !== 'main' && activeTab === 'love') {
     const handleBack = () => setLoveView('main')

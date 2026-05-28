@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import type { Variants } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { 
   Bot, Wallet, GraduationCap, Heart, Briefcase, 
@@ -61,6 +62,20 @@ export default function Home() {
       ]
     },
     {
+      id: 'work',
+      title: '工作助手',
+      description: '提升职场效率，打造专业化的工作台。',
+      icon: Briefcase,
+      path: '/work',
+      color: themeConfig.colors.accent,
+      gradient: 'from-amber-500 to-orange-600',
+      features: [
+        { label: '电商运营', icon: ShoppingCart, path: '/work?tab=ecommerce' },
+        { label: '新媒体运营', icon: PenTool, path: '/work?tab=media' },
+        { label: '百宝箱', icon: Box, path: '/work?tab=bookmarks' },
+      ]
+    },
+    {
       id: 'life',
       title: '生活记录',
       description: '珍藏生活点滴，记录每一个值得铭记的瞬间。',
@@ -79,23 +94,9 @@ export default function Home() {
         { label: '电影收藏', icon: Film, path: '/life?tab=movies' },
       ]
     },
-    {
-      id: 'work',
-      title: '工作助手',
-      description: '提升职场效率，打造专业化的工作台。',
-      icon: Briefcase,
-      path: '/work',
-      color: themeConfig.colors.accent,
-      gradient: 'from-amber-500 to-orange-600',
-      features: [
-        { label: '电商运营', icon: ShoppingCart, path: '/work?tab=ecommerce' },
-        { label: '新媒体运营', icon: PenTool, path: '/work?tab=media' },
-        { label: '百宝箱', icon: Box, path: '/work?tab=bookmarks' },
-      ]
-    },
   ]
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -105,7 +106,7 @@ export default function Home() {
     },
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,

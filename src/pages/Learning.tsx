@@ -75,6 +75,22 @@ export default function Learning() {
     }
   }, [location, viewParam, showResumeParam])
 
+  // 监听 URL 查询参数变化并更新对应的页面视图
+  useEffect(() => {
+    if (viewParam === 'skilltree') {
+      setViewMode('skilltree')
+      setShowResume(false)
+    } else if (viewParam === 'knowledge') {
+      setViewMode('knowledge')
+      setShowResume(false)
+    }
+    if (showResumeParam === 'true') {
+      setShowResume(true)
+    } else if (showResumeParam === 'false') {
+      setShowResume(false)
+    }
+  }, [viewParam, showResumeParam])
+
   // Minimum and maximum width for AI sidebar
   const MIN_SIDEBAR_WIDTH = 320
   const MAX_SIDEBAR_WIDTH = 600

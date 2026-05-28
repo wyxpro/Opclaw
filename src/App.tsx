@@ -6,6 +6,7 @@ import { SettingsProvider } from './contexts/SettingsContext'
 import { AuthProvider } from './contexts/AuthContext'
 import Navbar from './components/layout/Navbar'
 import StarCursor from './components/ui/StarCursor'
+import MusicPlayer from './components/ui/MusicPlayer'
 import Home from './pages/Home'
 import Assets from './pages/Assets'
 import Learning from './pages/Learning'
@@ -49,6 +50,7 @@ function AppContent() {
           </Routes>
         </AnimatePresence>
       </main>
+      <MusicPlayer />
     </div>
   )
 }

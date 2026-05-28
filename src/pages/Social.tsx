@@ -6,9 +6,9 @@ import {
   Send, Github, Edit3, Twitter, Play, MessageSquare, Zap, Award,
   X, Trash2, Edit2, Calendar, ChevronRight, ArrowLeft,
   IdCard, Download, Share, History, Palette, Loader2, Plus, Star,
-  Crown, Check, CreditCard, Shield, Settings, Info, FlaskConical,
+  Crown, Check, CreditCard, Shield, Settings, Info, FlaskConical, LogOut,
   Rocket, Brain, Eye, Smartphone, Database, Layers, Wifi, Beaker,
-  Sparkles, Heart, Music, Youtube, Instagram
+  Sparkles, Heart, Music, Youtube, Instagram, Copy, QrCode
 } from 'lucide-react'
 import PageTransition from '../components/ui/PageTransition'
 import { ThemeSelectorPanel } from '../components/ui/ThemeSwitcher'
@@ -28,11 +28,12 @@ function MobileProfileTabContent({ onBack }: { onBack: () => void }) {
 
 import { useTheme } from '../hooks/useTheme'
 import { useAuth } from '../contexts/AuthContext'
-import { friendLinks, danmakuMessages, socialAccounts, generateDigitalCard, cardThemes, type DigitalCard, type CardTheme, presetAvatars } from '../data/mock'
+import { friendLinks, danmakuMessages, generateDigitalCard, cardThemes, type DigitalCard, type CardTheme, presetAvatars } from '../data/mock'
 import { generateCardImage, downloadImage, saveToHistory, getHistoryList, deleteHistoryItem, wechatShare, formatRelativeTime } from '../lib/cardUtils'
 
 const tabs = [
   { id: 'social', label: '个人主页', icon: IdCard },
+  { id: 'matrix', label: '自媒体矩阵', icon: Share2 },
   { id: 'danmaku', label: '留言墙', icon: MessageCircle },
   { id: 'laboratory', label: '实验室', icon: FlaskConical },
 ] as const
@@ -50,7 +51,7 @@ const platformIcons: Record<string, typeof Github> = {
 
 export default function Social() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<TabId>('danmaku')
+  const [activeTab, setActiveTab] = useState<TabId>('matrix')
   const [mobileView, setMobileView] = useState<'menu' | TabId | 'laboratory'>('menu')
   const [showDesktopCardModal, setShowDesktopCardModal] = useState(false)
   const [showDesktopVipModal, setShowDesktopVipModal] = useState(false)
@@ -63,7 +64,7 @@ export default function Social() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isCardModalReadonly, setIsCardModalReadonly] = useState(false)
   // 认证状态
-  const { isAuthenticated, isLoading, user, updateUser } = useAuth()
+  const { isAuthenticated, isLoading, user, updateUser, logout } = useAuth()
 
   // 未登录时自动显示登录弹窗（等待 AuthContext 加载完成）
   useEffect(() => {
@@ -319,12 +320,32 @@ export default function Social() {
             <Info size={16} />
             <span className="whitespace-nowrap">关于我们</span>
           </button>
+
+          {isAuthenticated && (
+            <>
+              {/* 分隔线 */}
+              <div className="w-px h-6 bg-border/50 mx-1 shrink-0" />
+              {/* 退出登录按钮 */}
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 transition-all shrink-0 whitespace-nowrap"
+              >
+                <LogOut size={16} />
+                <span className="whitespace-nowrap">退出登录</span>
+              </button>
+            </>
+          )}
         </motion.div>
 
         <AnimatePresence mode="sync">
           {activeTab === 'danmaku' && (
             <motion.div key="danmaku" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
               <DanmakuWall />
+            </motion.div>
+          )}
+          {activeTab === 'matrix' && (
+            <motion.div key="matrix" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+              <SocialMatrix />
             </motion.div>
           )}
           {activeTab === 'social' && (
@@ -412,6 +433,8 @@ export default function Social() {
             />
           ) : mobileView === 'danmaku' ? (
             <MobileDanmakuWall key="danmaku" onBack={() => setMobileView('menu')} />
+          ) : mobileView === 'matrix' ? (
+            <MobileSocialMatrix key="matrix" onBack={() => setMobileView('menu')} />
           ) : mobileView === 'social' ? (
             <MobileProfileTabContent key="social" onBack={() => setMobileView('menu')} />
           ) : null}
@@ -422,6 +445,8 @@ export default function Social() {
       <SettingsModal
         isOpen={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
+        onOpenAbout={() => setShowAboutModal(true)}
+        onOpenLaboratory={() => navigate('/laboratory')}
       />
 
       {/* 关于我们弹窗 */}
@@ -745,6 +770,575 @@ const stickerColors = [
   { bg: '#e0f2fe', border: '#7dd3fc', text: '#0369a1' }, // 浅蓝
   { bg: '#fdf4ff', border: '#e879f9', text: '#86198f' }, // 粉紫
 ]
+
+/* ===== 自媒体矩阵数据与组件 ===== */
+
+const matrixPlatforms = [
+  {
+    id: 'douyin',
+    name: '抖音',
+    username: '@晓叶的数字空间',
+    platformId: 'dy_xiaoye99',
+    followers: '25.6W',
+    likes: '120.4W',
+    description: '分享前端黑科技、创意动效与智能体应用开发。',
+    themeColor: '#fe2c55',
+    secondaryColor: '#25f4ee',
+    gradient: 'linear-gradient(135deg, rgba(22, 24, 35, 0.9) 0%, rgba(37, 244, 238, 0.15) 100%)',
+    url: 'https://www.douyin.com',
+    qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://www.douyin.com',
+    badge: '优质创作者'
+  },
+  {
+    id: 'xiaohongshu',
+    name: '小红书',
+    username: '晓叶的极简主义',
+    platformId: '9527110',
+    followers: '12.8W',
+    likes: '45.2W',
+    description: '探索极致的数码搭配、独立开发日记与生活美学。',
+    themeColor: '#ff2442',
+    secondaryColor: '#ff6b81',
+    gradient: 'linear-gradient(135deg, rgba(255, 36, 66, 0.9) 0%, rgba(255, 107, 129, 0.15) 100%)',
+    url: 'https://www.xiaohongshu.com',
+    qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://www.xiaohongshu.com',
+    badge: '生活Vlog博主'
+  },
+  {
+    id: 'bilibili',
+    name: '哔哩哔哩',
+    username: '叶子的代码空间',
+    platformId: 'UID: 48392019',
+    followers: '8.6W',
+    likes: '32.1W',
+    description: '发布3D前端交互引擎开发、手把手智能体开发实战系列视频。',
+    themeColor: '#fb7299',
+    secondaryColor: '#ff9db5',
+    gradient: 'linear-gradient(135deg, rgba(251, 114, 153, 0.9) 0%, rgba(255, 154, 158, 0.15) 100%)',
+    url: 'https://www.bilibili.com',
+    qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://www.bilibili.com',
+    badge: '知名UP主'
+  },
+  {
+    id: 'wechat',
+    name: '微信公众号',
+    username: '叶子技术周刊',
+    platformId: '微信号: yezi_tech',
+    followers: '3.2W',
+    likes: '——',
+    description: '深度技术沉淀与一人公司商业模式思考，每周五早8点推送。',
+    themeColor: '#07c160',
+    secondaryColor: '#2ae67c',
+    gradient: 'linear-gradient(135deg, rgba(7, 193, 96, 0.9) 0%, rgba(16, 185, 129, 0.15) 100%)',
+    url: '#',
+    qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://mp.weixin.qq.com',
+    badge: '原创技术精选'
+  },
+  {
+    id: 'qq',
+    name: 'QQ 交流群',
+    username: '超级个体交流群',
+    platformId: '群号: 783920192',
+    followers: '1.2K',
+    likes: '——',
+    description: '与数字游民及AI探索者共同交流、资源共享和前沿资讯共享。',
+    themeColor: '#12b7f5',
+    secondaryColor: '#5cd5ff',
+    gradient: 'linear-gradient(135deg, rgba(18, 183, 245, 0.9) 0%, rgba(96, 165, 250, 0.15) 100%)',
+    url: 'https://im.qq.com',
+    qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://im.qq.com',
+    badge: '活跃社群'
+  }
+]
+
+function PlatformIcon({ platform, className = "w-5 h-5" }: { platform: string; className?: string }) {
+  if (platform === 'douyin') {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.62 2.89 2.89 0 0 1 2.31-4.5 2.92 2.92 0 0 1 .6.06V9.39a6.29 6.29 0 0 0-.6-.03 6.34 6.34 0 0 0-6.35 6.35 6.35 6.35 0 0 0 10.8 4.49 6.27 6.27 0 0 0 1.74-4.49v-6.9a8.22 8.22 0 0 0 4.17 1.35V6.69z"/>
+      </svg>
+    )
+  }
+  if (platform === 'xiaohongshu') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M12 21a9.004 9.004 0 0 0 8.716-6.747A7.5 7.5 0 0 0 12 3a7.5 7.5 0 0 0-8.717 11.253A9.004 9.004 0 0 0 12 21z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    )
+  }
+  if (platform === 'bilibili') {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <path d="M17.81 2.24l-1.57 1.57a10.05 10.05 0 0 1 3.42 4.19H4.34a10.05 10.05 0 0 1 3.42-4.19L6.19 2.24 7.6 1l2.4 2.4h4L16.4 1l1.41 1.24zM3 10h18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2zm3 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm12 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+      </svg>
+    )
+  }
+  if (platform === 'wechat') {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <path d="M8.5 16.5c0-.14.03-.27.04-.4A6.196 6.196 0 0 1 7 16c-1.38 0-2.63.41-3.66 1.09l-2.09-.64.65 2.02C1 19.34 1 20.16 1 21c0 2.21 2.24 4 5 4a6.45 6.45 0 0 0 2.25-.4l2.1.65-.65-2.02c1.38-.9 2.3-2.3 2.3-3.83 0-1.07-.46-2.03-1.2-2.76.08-.05.15-.09.2-.14zm8-10.5C11.14 6 7 9.58 7 14c0 4.42 4.14 8 9.5 8 .89 0 1.76-.1 2.58-.29l3.02.94-.94-2.92C23.03 18.25 24 16.23 24 14c0-4.42-4.14-8-9.5-8z" />
+      </svg>
+    )
+  }
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+    </svg>
+  )
+}
+
+function SocialMatrix() {
+  const { currentTheme, themeConfig } = useTheme()
+  const isCyber = currentTheme === 'cyber'
+  const [activeQrPlatform, setActiveQrPlatform] = useState<typeof matrixPlatforms[number] | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedId(id)
+    setTimeout(() => setCopiedId(null), 1500)
+  }
+
+  return (
+    <div className="space-y-6 max-w-6xl mx-auto px-1 py-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`p-6 rounded-2xl border ${
+          isCyber 
+            ? 'bg-surface/60 border-primary/30 shadow-[0_0_20px_rgba(0,212,255,0.15)]' 
+            : 'bg-card border-border shadow-card'
+        }`}
+      >
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h2 className="text-xl font-extrabold text-text flex items-center gap-2">
+              <span className="text-primary"><Share2 size={22} className="animate-pulse" /></span>
+              全网自媒体矩阵
+            </h2>
+            <p className="text-sm text-text-muted mt-1.5 max-w-xl leading-relaxed">
+              多平台同步更新，致力于分享最前沿的前端技术、3D引擎实战、AI应用开发经验以及数字化生活的探索之旅。欢迎关注订阅！
+            </p>
+          </div>
+          <div className="flex gap-8 items-center bg-bg-alt/50 p-4 rounded-xl border border-border/40 shrink-0">
+            <div className="text-center">
+              <span className="text-xs text-text-muted font-semibold block mb-0.5">全网粉丝总量</span>
+              <span className="text-2xl font-black text-primary">51.4W+</span>
+            </div>
+            <div className="w-px h-8 bg-border" />
+            <div className="text-center">
+              <span className="text-xs text-text-muted font-semibold block mb-0.5">获赞与支持</span>
+              <span className="text-2xl font-black text-accent">201.2W+</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {matrixPlatforms.map((platform, idx) => (
+          <motion.div
+            key={platform.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05 }}
+            className={`group rounded-2xl border p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:-translate-y-1.5 ${
+              isCyber 
+                ? 'bg-surface/50 border-primary/20 hover:border-primary/50 shadow-sm hover:shadow-[0_8px_30px_rgba(139,92,246,0.15)]' 
+                : 'bg-card border-border hover:border-primary/30 shadow-card hover:shadow-card-hover'
+            }`}
+          >
+            <div 
+              className="absolute top-0 right-0 w-24 h-24 blur-3xl opacity-0 group-hover:opacity-30 transition-opacity pointer-events-none"
+              style={{ background: platform.themeColor }}
+            />
+
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md transition-transform group-hover:scale-105"
+                    style={{ background: platform.themeColor }}
+                  >
+                    <PlatformIcon platform={platform.id} />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-text text-base">{platform.name}</h3>
+                    <div className="text-[10px] text-text-muted mt-0.5 font-medium flex items-center gap-1">
+                      <span>{platform.platformId}</span>
+                      <button 
+                        onClick={() => handleCopy(platform.platformId.replace(/ID:\s*|群号:\s*|微信号:\s*/g, ''), `${platform.id}-id`)}
+                        className="text-primary hover:underline ml-1"
+                      >
+                        {copiedId === `${platform.id}-id` ? '已复制' : '复制'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {platform.badge && (
+                  <span 
+                    className="text-[10px] px-2 py-0.5 rounded-full font-bold border"
+                    style={{ 
+                      borderColor: `${platform.themeColor}30`, 
+                      background: `${platform.themeColor}10`, 
+                      color: platform.themeColor 
+                    }}
+                  >
+                    {platform.badge}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex gap-4 items-center bg-bg-alt/40 p-2.5 rounded-xl border border-border/30 mb-3.5">
+                <div className="flex-1 text-center">
+                  <span className="text-[10px] text-text-muted block mb-0.5">订阅/粉丝</span>
+                  <span className="text-sm font-black text-text">{platform.followers}</span>
+                </div>
+                <div className="w-px h-5 bg-border/50" />
+                <div className="flex-1 text-center">
+                  <span className="text-[10px] text-text-muted block mb-0.5">获赞数</span>
+                  <span className="text-sm font-black text-text">{platform.likes}</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-text-muted leading-relaxed mb-5 min-h-[36px]">
+                {platform.description}
+              </p>
+            </div>
+
+            <div className="flex gap-2.5 mt-auto pt-3 border-t border-border/40">
+              <button
+                onClick={() => setActiveQrPlatform(platform)}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border transition-all ${
+                  isCyber
+                    ? 'border-primary/30 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary'
+                    : 'border-border hover:border-primary hover:bg-primary/5 text-text-secondary hover:text-primary'
+                }`}
+              >
+                <QrCode size={13} />
+                扫码关注
+              </button>
+              {platform.url !== '#' ? (
+                <a
+                  href={platform.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-[0.98]"
+                  style={{ background: platform.themeColor }}
+                >
+                  <ExternalLink size={13} />
+                  访问主页
+                </a>
+              ) : (
+                <button
+                  onClick={() => handleCopy(platform.username, `${platform.id}-link`)}
+                  className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-[0.98]"
+                  style={{ background: platform.themeColor }}
+                >
+                  <Copy size={13} />
+                  {copiedId === `${platform.id}-link` ? '已复制' : '复制账号'}
+                </button>
+              )}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {activeQrPlatform && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveQrPlatform(null)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full max-w-sm rounded-2xl border p-6 text-center shadow-2xl relative overflow-hidden ${
+                isCyber 
+                  ? 'bg-surface/95 border-primary/40 backdrop-blur-xl' 
+                  : 'bg-card border-border'
+              }`}
+            >
+              <button 
+                onClick={() => setActiveQrPlatform(null)}
+                className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-surface/50 text-text-muted hover:text-text transition-all"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="flex flex-col items-center">
+                <div 
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md mb-3"
+                  style={{ background: activeQrPlatform.themeColor }}
+                >
+                  <PlatformIcon platform={activeQrPlatform.id} className="w-6 h-6" />
+                </div>
+                <h3 className="font-extrabold text-text text-lg">{activeQrPlatform.name}</h3>
+                <p className="text-xs text-text-muted mt-1">{activeQrPlatform.username}</p>
+
+                <div className="relative my-6 p-4 rounded-2xl bg-white shadow-inner group border border-border-light">
+                  <img 
+                    src={activeQrPlatform.qrCode} 
+                    alt={`${activeQrPlatform.name} 二维码`} 
+                    className="w-44 h-44 object-contain"
+                  />
+                  <div className="absolute left-4 right-4 h-[2px] bg-primary animate-pulse top-4 shadow-[0_0_8px_var(--color-primary)] pointer-events-none" 
+                       style={{
+                         animation: 'float 2s ease-in-out infinite'
+                       }}
+                  />
+                </div>
+
+                <p className="text-xs text-text-muted px-4 leading-relaxed mb-6">
+                  微信或对应平台 APP 扫描二维码，即可关注并接收最新动态更新。
+                </p>
+
+                <div className="flex gap-2.5 w-full">
+                  <button
+                    onClick={() => handleCopy(activeQrPlatform.url === '#' ? activeQrPlatform.username : activeQrPlatform.url, 'modal-copy')}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white shadow-md active:scale-95 transition-all"
+                    style={{ background: activeQrPlatform.themeColor }}
+                  >
+                    {copiedId === 'modal-copy' ? '复制成功！' : activeQrPlatform.url === '#' ? '复制平台账号' : '复制主页链接'}
+                  </button>
+                  <button
+                    onClick={() => setActiveQrPlatform(null)}
+                    className="px-4 py-2.5 rounded-xl text-sm font-bold border border-border text-text-secondary hover:bg-surface-alt/50 transition-all"
+                  >
+                    返回
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
+  const { currentTheme, themeConfig } = useTheme()
+  const isCyber = currentTheme === 'cyber'
+  const [activeQrPlatform, setActiveQrPlatform] = useState<typeof matrixPlatforms[number] | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedId(id)
+    setTimeout(() => setCopiedId(null), 1500)
+  }
+
+  return (
+    <div className="relative min-h-screen bg-bg pb-24 overflow-y-auto flex flex-col">
+      <div className="flex items-center gap-3 p-4 border-b border-border/50 bg-surface shrink-0">
+        <button onClick={onBack} className="p-2 -ml-2 rounded-xl text-text-muted hover:bg-surface-alt/50 active:scale-90 transition-all">
+          <ArrowLeft size={20} />
+        </button>
+        <h2 className="font-extrabold text-base text-text">自媒体矩阵</h2>
+      </div>
+
+      <div className="p-4 space-y-5 flex-1 overflow-y-auto">
+        <div 
+          className={`p-4.5 rounded-2xl border ${
+            isCyber 
+              ? 'bg-surface/60 border-primary/30 shadow-[0_0_20px_rgba(0,212,255,0.15)]' 
+              : 'bg-card border-border shadow-card'
+          }`}
+        >
+          <h3 className="text-sm font-extrabold text-text flex items-center gap-1.5">
+            <Share2 size={16} className="text-primary" />
+            全网自媒体矩阵
+          </h3>
+          <p className="text-xs text-text-muted mt-1.5 leading-relaxed">
+            多平台同步更新，致力于分享最前沿的前端开发、AI智能体技术与数字化生活的探索成果。
+          </p>
+          <div className="grid grid-cols-2 gap-4 bg-bg-alt/50 p-3 rounded-xl border border-border/40 mt-3.5">
+            <div className="text-center">
+              <span className="text-[10px] text-text-muted block mb-0.5">全网粉丝总量</span>
+              <span className="text-lg font-black text-primary">51.4W+</span>
+            </div>
+            <div className="text-center border-l border-border/50">
+              <span className="text-[10px] text-text-muted block mb-0.5">获赞与支持</span>
+              <span className="text-lg font-black text-accent">201.2W+</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {matrixPlatforms.map((platform) => (
+            <div
+              key={platform.id}
+              className={`rounded-2xl border p-3 flex flex-col justify-between relative overflow-hidden ${
+                isCyber 
+                  ? 'bg-surface/50 border-primary/20' 
+                  : 'bg-card border-border shadow-card'
+              }`}
+            >
+              <div>
+                <div className="flex flex-col gap-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm shrink-0"
+                      style={{ background: platform.themeColor }}
+                    >
+                      <PlatformIcon platform={platform.id} className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="font-extrabold text-text text-xs truncate">{platform.name}</h4>
+                      <div className="text-[9px] text-text-muted mt-0.5 flex items-center gap-1">
+                        <span className="truncate max-w-[50px] sm:max-w-[80px]">{platform.platformId}</span>
+                        <button 
+                          onClick={() => handleCopy(platform.platformId.replace(/ID:\s*|群号:\s*|微信号:\s*/g, ''), `${platform.id}-id`)}
+                          className="text-primary font-bold hover:underline shrink-0"
+                        >
+                          {copiedId === `${platform.id}-id` ? '已复' : '复制'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  {platform.badge && (
+                    <span 
+                      className="self-start text-[8px] px-1.5 py-0.5 rounded-full font-bold border shrink-0"
+                      style={{ 
+                        borderColor: `${platform.themeColor}30`, 
+                        background: `${platform.themeColor}10`, 
+                        color: platform.themeColor 
+                      }}
+                    >
+                      {platform.badge}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex gap-1.5 items-center bg-bg-alt/40 px-2 py-1 rounded-lg border border-border/30 mb-2.5 text-center">
+                  <div className="flex-1 min-w-0">
+                    <span className="text-[8px] text-text-muted block">订阅/粉丝</span>
+                    <span className="text-[10px] font-black text-text block mt-0.5">{platform.followers}</span>
+                  </div>
+                  <div className="w-px h-3 bg-border/50 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-[8px] text-text-muted block">获赞数</span>
+                    <span className="text-[10px] font-black text-text block mt-0.5">{platform.likes}</span>
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-text-muted leading-relaxed mb-3 line-clamp-2 min-h-[30px]">
+                  {platform.description}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-1.5 pt-2.5 border-t border-border/20 mt-auto">
+                <button
+                  onClick={() => setActiveQrPlatform(platform)}
+                  className={`w-full py-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 border transition-all ${
+                    isCyber
+                      ? 'border-primary/30 bg-primary/5 text-primary'
+                      : 'border-border text-text-secondary hover:bg-bg-alt'
+                  }`}
+                >
+                  <QrCode size={10} />
+                  扫码关注
+                </button>
+                {platform.url !== '#' ? (
+                  <a
+                    href={platform.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-1.5 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-1 active:scale-[0.98] transition-all"
+                    style={{ background: platform.themeColor }}
+                  >
+                    <ExternalLink size={10} />
+                    访问主页
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => handleCopy(platform.username, `${platform.id}-link`)}
+                    className="w-full py-1.5 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-1 active:scale-[0.98] transition-all"
+                    style={{ background: platform.themeColor }}
+                  >
+                    <Copy size={10} />
+                    {copiedId === `${platform.id}-link` ? '已复制' : '复制账号'}
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {activeQrPlatform && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveQrPlatform(null)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full max-w-[280px] rounded-2xl border p-4.5 text-center shadow-2xl relative overflow-hidden ${
+                isCyber 
+                  ? 'bg-surface/95 border-primary/40 backdrop-blur-xl' 
+                  : 'bg-card border-border'
+              }`}
+            >
+              <button 
+                onClick={() => setActiveQrPlatform(null)}
+                className="absolute top-3 right-3 p-1 rounded-lg hover:bg-surface/50 text-text-muted hover:text-text"
+              >
+                <X size={16} />
+              </button>
+
+              <div className="flex flex-col items-center">
+                <div 
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm mb-2"
+                  style={{ background: activeQrPlatform.themeColor }}
+                >
+                  <PlatformIcon platform={activeQrPlatform.id} className="w-5 h-5" />
+                </div>
+                <h4 className="font-extrabold text-text text-sm">{activeQrPlatform.name}</h4>
+                <p className="text-[10px] text-text-muted mt-0.5">{activeQrPlatform.username}</p>
+
+                <div className="relative my-4 p-3 rounded-xl bg-white shadow-inner border border-border-light">
+                  <img 
+                    src={activeQrPlatform.qrCode} 
+                    alt={`${activeQrPlatform.name} 二维码`} 
+                    className="w-32 h-32 object-contain"
+                  />
+                </div>
+
+                <p className="text-[9px] text-text-muted px-2 leading-relaxed mb-4">
+                  长按保存或扫描二维码以关注我们。
+                </p>
+
+                <div className="flex gap-2 w-full">
+                  <button
+                    onClick={() => handleCopy(activeQrPlatform.url === '#' ? activeQrPlatform.username : activeQrPlatform.url, 'modal-copy')}
+                    className="flex-1 py-2 rounded-lg text-xs font-bold text-white shadow-sm"
+                    style={{ background: activeQrPlatform.themeColor }}
+                  >
+                    {copiedId === 'modal-copy' ? '已复制！' : activeQrPlatform.url === '#' ? '复制账号' : '复制链接'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 
 function DanmakuWall() {
   const [newMessage, setNewMessage] = useState('')
@@ -1545,276 +2139,6 @@ function GrowthTimeline() {
   )
 }
 
-/* ===== Social Media Matrix - 2列布局，支持增删改 ===== */
-function SocialMatrix() {
-  const [accounts, setAccounts] = useState(socialAccounts)
-  const [selectedAccount, setSelectedAccount] = useState<typeof socialAccounts[0] | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
-  const [isAdding, setIsAdding] = useState(false)
-  const [showModal, setShowModal] = useState(false)
-  const [editForm, setEditForm] = useState({
-    platform: '',
-    username: '',
-    url: '',
-    followers: '',
-    icon: 'github',
-    color: '#3b82f6'
-  })
-
-  const handleAdd = () => {
-    setIsAdding(true)
-    setIsEditing(false)
-    setSelectedAccount(null)
-    setEditForm({ platform: '', username: '', url: '', followers: '', icon: 'github', color: '#3b82f6' })
-    setShowModal(true)
-  }
-
-  const handleEdit = (account: typeof socialAccounts[0]) => {
-    setSelectedAccount(account)
-    setIsEditing(true)
-    setIsAdding(false)
-    setEditForm({
-      platform: account.platform,
-      username: account.username,
-      url: account.url,
-      followers: account.followers,
-      icon: account.icon,
-      color: account.color
-    })
-    setShowModal(true)
-  }
-
-  const handleDelete = (platform: string) => {
-    if (confirm('确定要删除这个平台吗？')) {
-      setAccounts(prev => prev.filter(a => a.platform !== platform))
-    }
-  }
-
-  const handleSave = () => {
-    if (!editForm.platform.trim() || !editForm.url.trim()) return
-
-    if (isAdding) {
-      const newAccount = {
-        ...editForm,
-        followers: editForm.followers || '0'
-      }
-      setAccounts(prev => [...prev, newAccount])
-    } else if (selectedAccount) {
-      setAccounts(prev => prev.map(a =>
-        a.platform === selectedAccount.platform
-          ? { ...a, ...editForm, followers: editForm.followers || a.followers }
-          : a
-      ))
-    }
-    closeModal()
-  }
-
-  const closeModal = () => {
-    setShowModal(false)
-    setSelectedAccount(null)
-    setIsEditing(false)
-    setIsAdding(false)
-  }
-
-  const openAccountDetail = (account: typeof socialAccounts[0]) => {
-    setSelectedAccount(account)
-    setIsEditing(false)
-    setIsAdding(false)
-    setShowModal(true)
-  }
-
-  return (
-    <div>
-      {/* 添加按钮 */}
-      <div className="mb-6">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleAdd}
-          className="px-5 py-3 rounded-xl bg-primary text-white font-medium flex items-center gap-2 hover:bg-primary-dim transition-colors"
-        >
-          <Plus size={20} />
-          新增平台
-        </motion.button>
-      </div>
-
-      {/* 2列网格布局 */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
-        {accounts.map((account, index) => {
-          const Icon = platformIcons[account.icon] || ExternalLink
-          return (
-            <motion.div
-              key={account.platform}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              onClick={() => openAccountDetail(account)}
-              className="glass-card p-5 group cursor-pointer hover:border-primary/30 transition-all"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
-                  style={{ background: `${account.color}22` }}
-                >
-                  <Icon size={22} style={{ color: account.color }} />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-text text-sm">{account.platform}</h3>
-                  <p className="text-xs text-text-muted">{account.username}</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xl font-bold text-text">{account.followers}</p>
-                  <p className="text-xs text-text-muted">粉丝</p>
-                </div>
-                <div className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all group-hover:bg-primary/20 group-hover:text-primary text-text-muted bg-surface border border-border">
-                  查看详情 →
-                </div>
-              </div>
-            </motion.div>
-          )
-        })}
-      </div>
-
-      {/* 详情/编辑弹窗 */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={closeModal}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-surface rounded-2xl p-6 w-full max-w-md"
-              onClick={e => e.stopPropagation()}
-            >
-              {isEditing || isAdding ? (
-                // 编辑/添加表单
-                <>
-                  <h3 className="text-xl font-semibold mb-4">{isAdding ? '新增平台' : '编辑平台'}</h3>
-                  <div className="space-y-4">
-                    <input
-                      type="text"
-                      placeholder="平台名称"
-                      value={editForm.platform}
-                      onChange={e => setEditForm({ ...editForm, platform: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-bg border border-border text-sm"
-                    />
-                    <input
-                      type="text"
-                      placeholder="用户名"
-                      value={editForm.username}
-                      onChange={e => setEditForm({ ...editForm, username: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-bg border border-border text-sm"
-                    />
-                    <input
-                      type="text"
-                      placeholder="网址"
-                      value={editForm.url}
-                      onChange={e => setEditForm({ ...editForm, url: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-bg border border-border text-sm"
-                    />
-                    <input
-                      type="text"
-                      placeholder="粉丝数"
-                      value={editForm.followers}
-                      onChange={e => setEditForm({ ...editForm, followers: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-bg border border-border text-sm"
-                    />
-                    <select
-                      value={editForm.icon}
-                      onChange={e => setEditForm({ ...editForm, icon: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-bg border border-border text-sm"
-                    >
-                      <option value="github">GitHub</option>
-                      <option value="twitter">Twitter</option>
-                      <option value="edit">博客</option>
-                      <option value="play">视频</option>
-                      <option value="message">社区</option>
-                      <option value="zap">其他</option>
-                    </select>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-text-muted">颜色:</span>
-                      <input
-                        type="color"
-                        value={editForm.color}
-                        onChange={e => setEditForm({ ...editForm, color: e.target.value })}
-                        className="w-12 h-10 rounded-lg cursor-pointer"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-3 mt-6">
-                    <button
-                      onClick={closeModal}
-                      className="flex-1 py-3 rounded-xl bg-surface border border-border text-sm font-medium"
-                    >
-                      取消
-                    </button>
-                    <button
-                      onClick={handleSave}
-                      className="flex-1 py-3 rounded-xl bg-primary text-white text-sm font-medium"
-                    >
-                      保存
-                    </button>
-                  </div>
-                </>
-              ) : selectedAccount ? (
-                // 详情展示
-                <>
-                  <div className="flex items-center gap-4 mb-6">
-                    <div
-                      className="w-16 h-16 rounded-xl flex items-center justify-center"
-                      style={{ background: `${selectedAccount.color}22` }}
-                    >
-                      {(() => {
-                        const Icon = platformIcons[selectedAccount.icon] || ExternalLink
-                        return <Icon size={28} style={{ color: selectedAccount.color }} />
-                      })()}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold">{selectedAccount.platform}</h3>
-                      <p className="text-sm text-text-muted">{selectedAccount.username}</p>
-                      <p className="text-lg font-bold text-text mt-1">{selectedAccount.followers} 粉丝</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <a
-                      href={selectedAccount.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 py-3 rounded-xl bg-primary text-white text-sm font-medium text-center"
-                    >
-                      访问主页
-                    </a>
-                    <button
-                      onClick={() => handleEdit(selectedAccount)}
-                      className="py-3 px-6 rounded-xl bg-surface border border-border text-sm font-medium"
-                    >
-                      编辑
-                    </button>
-                    <button
-                      onClick={() => handleDelete(selectedAccount.platform)}
-                      className="py-3 px-6 rounded-xl bg-rose/10 text-rose text-sm font-medium"
-                    >
-                      删除
-                    </button>
-                  </div>
-                </>
-              ) : null}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
 // 实验室内容组件 - 桌面端标签页内嵌
 function LaboratoryContent() {
   const { themeConfig } = useTheme()
@@ -2174,11 +2498,10 @@ const labPlansData = [
 // 移动端菜单项配置
 const mobileMenuItems = [
   { id: 'danmaku' as const, label: '留言墙', description: '留下你的足迹和祝福', icon: MessageCircle, color: '#ec4899' },
-  { id: 'laboratory' as const, label: '实验室', description: '技术实验与开发计划', icon: FlaskConical, color: '#8b5cf6' },
 ]
 
 // 移动端顶部用户信息组件
-function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { userProfile: ProfileData; onEdit: () => void; isVip?: boolean; onVipClick?: () => void }) {
+function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick, onThemeClick }: { userProfile: ProfileData; onEdit: () => void; isVip?: boolean; onVipClick?: () => void; onThemeClick?: () => void }) {
   return (
     <div
       className="relative px-4 pt-12 pb-8 rounded-b-3xl overflow-hidden z-0"
@@ -2202,7 +2525,7 @@ function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { 
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-bold text-white drop-shadow-md">{userProfile.name}</h2>
             <button
               onClick={onVipClick}
@@ -2244,6 +2567,15 @@ function MobileUserHeader({ userProfile, onEdit, isVip = false, onVipClick }: { 
               className="p-1.5 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors ml-1.5 backdrop-blur-md shadow-lg border border-white/10"
             >
               <Edit2 size={14} />
+            </button>
+
+            {/* 主题风格按钮 - 移至此行且使用好看的渐变色 */}
+            <button
+              onClick={onThemeClick}
+              className="px-2.5 py-1 rounded-md text-white text-[10px] font-bold transition-all hover:scale-105 flex items-center gap-1 shadow-md bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 border border-purple-400/20 backdrop-blur-md ml-1"
+            >
+              <Palette size={10} className="text-white" />
+              主题风格
             </button>
           </div>
         </div>
@@ -2372,6 +2704,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
   const [isCardModalReadonly, setIsCardModalReadonly] = useState(false)
   const { currentTheme, setTheme, themeConfig } = useTheme()
   const navigate = useNavigate()
+  const { isAuthenticated, logout } = useAuth()
 
   // 处理支付成功
   const handlePaymentSuccess = () => {
@@ -2391,6 +2724,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
         onEdit={onEditProfile}
         isVip={isVip}
         onVipClick={() => setShowVipModal(true)}
+        onThemeClick={() => setShowThemePanel(true)}
       />
       <DigitalCardEntry onOpen={() => {
         setIsCardModalReadonly(false)
@@ -2417,6 +2751,24 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
           <ChevronRight size={18} className="text-text-dim" />
         </motion.button>
 
+        {/* 自媒体矩阵入口 - 用户要求放在个人主页和NFC之间 */}
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 1 * 0.05 }}
+          onClick={() => onNavigate('matrix')}
+          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-sky-500/15 shrink-0">
+            <Share2 size={20} className="text-sky-500" />
+          </div>
+          <div className="flex-1 text-left">
+            <h3 className="font-medium text-text">自媒体矩阵</h3>
+            <p className="text-xs text-text-muted mt-0.5">一键触达各大社交平台</p>
+          </div>
+          <ChevronRight size={18} className="text-text-dim" />
+        </motion.button>
+
         {/* NFC 互联模块 - 用户要求新增 */}
         <NfcConnectModule 
           onShowCard={(card) => {
@@ -2426,35 +2778,17 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
           }} 
         />
 
-        {/* 主题风格选择入口 */}
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 1 * 0.05 }}
-          onClick={() => setShowThemePanel(true)}
-          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
-        >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-            <Star size={20} className="text-purple-500" />
-          </div>
-          <div className="flex-1 text-left">
-            <h3 className="font-medium text-text">主题风格</h3>
-            <p className="text-xs text-text-muted mt-0.5">切换界面主题样式</p>
-          </div>
-          <ChevronRight size={18} className="text-text-dim" />
-        </motion.button>
-
         {mobileMenuItems.map((item, index) => (
           <motion.button
             key={item.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: (index + 2) * 0.05 }}
-            onClick={() => item.id === 'laboratory' ? navigate('/laboratory') : onNavigate(item.id)}
+            onClick={() => onNavigate(item.id)}
             className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
           >
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
               style={{ background: `${item.color}15` }}
             >
               <item.icon size={20} style={{ color: item.color }} />
@@ -2475,7 +2809,7 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
           onClick={() => onOpenSettings()}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
         >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/15">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/15 shrink-0">
             <Settings size={20} className="text-blue-500" />
           </div>
           <div className="flex-1 text-left">
@@ -2485,23 +2819,24 @@ function MobileMenu({ onNavigate, userProfile, onEditProfile, onOpenSettings, on
           <ChevronRight size={18} className="text-text-dim" />
         </motion.button>
 
-        {/* 关于我们入口 - 放在最下面 */}
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: (mobileMenuItems.length + 3) * 0.05 }}
-          onClick={() => onOpenAbout()}
-          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
-        >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/15">
-            <Info size={20} className="text-purple-500" />
-          </div>
-          <div className="flex-1 text-left">
-            <h3 className="font-medium text-text">关于我们</h3>
-            <p className="text-xs text-text-muted mt-0.5">开发者信息与反馈</p>
-          </div>
-          <ChevronRight size={18} className="text-text-dim" />
-        </motion.button>
+        {isAuthenticated && (
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: (mobileMenuItems.length + 3) * 0.05 }}
+            onClick={logout}
+            className="w-full flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border/50 active:scale-[0.98] transition-transform"
+          >
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-500/15 shrink-0">
+              <LogOut size={20} className="text-rose-500" />
+            </div>
+            <div className="flex-1 text-left">
+              <h3 className="font-medium text-rose-500">退出登录</h3>
+              <p className="text-xs text-rose-500/70 mt-0.5">退出当前登录账号</p>
+            </div>
+            <ChevronRight size={18} className="text-rose-500/70" />
+          </motion.button>
+        )}
       </div>
 
       {/* 数字名片弹窗 */}
@@ -3481,361 +3816,6 @@ function MobileGrowthTimeline({ onBack }: { onBack: () => void }) {
                   </>
                 ) : null}
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  )
-}
-
-// 移动端自媒体矩阵页面
-function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
-  const [accounts, setAccounts] = useState(socialAccounts)
-  const [selectedAccount, setSelectedAccount] = useState<typeof socialAccounts[0] | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
-  const [isAdding, setIsAdding] = useState(false)
-  const [showModal, setShowModal] = useState(false)
-  const [editForm, setEditForm] = useState({
-    platform: '',
-    username: '',
-    url: '',
-    followers: '',
-    icon: 'github',
-    color: '#3b82f6'
-  })
-
-  const handleAdd = () => {
-    setIsAdding(true)
-    setIsEditing(false)
-    setEditForm({ platform: '', username: '', url: '', followers: '', icon: 'github', color: '#3b82f6' })
-    setShowModal(true)
-  }
-
-  const handleEdit = (account: typeof socialAccounts[0]) => {
-    setSelectedAccount(account)
-    setIsEditing(true)
-    setIsAdding(false)
-    setEditForm({
-      platform: account.platform,
-      username: account.username,
-      url: account.url,
-      followers: account.followers,
-      icon: account.icon,
-      color: account.color
-    })
-    setShowModal(true)
-  }
-
-  const handleDelete = (platform: string) => {
-    if (confirm('确定要删除这个平台吗？')) {
-      setAccounts(prev => prev.filter(a => a.platform !== platform))
-      setSelectedAccount(null)
-    }
-  }
-
-  const handleSave = () => {
-    if (!editForm.platform.trim() || !editForm.url.trim()) return
-
-    if (isAdding) {
-      const newAccount = {
-        ...editForm,
-        followers: editForm.followers || '0'
-      }
-      setAccounts(prev => [...prev, newAccount])
-    } else if (selectedAccount) {
-      setAccounts(prev => prev.map(a =>
-        a.platform === selectedAccount.platform
-          ? { ...a, ...editForm, followers: editForm.followers || a.followers }
-          : a
-      ))
-    }
-    closeModal()
-  }
-
-  const closeModal = () => {
-    setShowModal(false)
-    setSelectedAccount(null)
-    setIsEditing(false)
-    setIsAdding(false)
-  }
-
-  const openAccountDetail = (account: typeof socialAccounts[0]) => {
-    setSelectedAccount(account)
-    setIsEditing(false)
-    setIsAdding(false)
-    setShowModal(true)
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      className="min-h-screen bg-bg"
-    >
-      <MobilePageHeader title="自媒体矩阵" onBack={onBack} />
-
-
-      {/* 添加按钮 */}
-      <div className="px-4 pt-4">
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          onClick={handleAdd}
-          className="w-full py-3 rounded-xl bg-primary text-white font-medium flex items-center justify-center gap-2"
-        >
-          <Plus size={20} />
-          新增平台
-        </motion.button>
-      </div>
-
-      {/* 2列网格布局 */}
-      <div className="p-4 grid grid-cols-2 gap-3">
-        {accounts.map((account, index) => {
-          const Icon = platformIcons[account.icon] || ExternalLink
-          return (
-            <motion.div
-              key={account.platform}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.03 }}
-              onClick={() => openAccountDetail(account)}
-              className="glass-card p-3 active:scale-[0.98] transition-transform cursor-pointer"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: `${account.color}22` }}
-                >
-                  <Icon size={20} style={{ color: account.color }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-text text-sm truncate">{account.platform}</h3>
-                  <p className="text-xs text-text-muted truncate">{account.username}</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <p className="text-base font-bold text-text">{account.followers}</p>
-                <p className="text-xs text-text-muted">粉丝</p>
-              </div>
-            </motion.div>
-          )
-        })}
-      </div>
-
-      {/* 3D 旋转魔方展示 - 移动至内容下方 */}
-      <div className="flex justify-center py-10 overflow-hidden perspective-1000">
-        <style>{`
-          .perspective-1000 { perspective: 1000px; }
-          .cube-container {
-            width: 120px;
-            height: 120px;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: rotateCube 15s infinite linear;
-          }
-          @keyframes rotateCube {
-            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
-          }
-          .cube-face {
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px);
-            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 20px;
-          }
-          .face-front  { transform: translateZ(60px); }
-          .face-back   { transform: rotateY(180deg) translateZ(60px); }
-          .face-top    { transform: rotateX(90deg) translateZ(60px); }
-          .face-bottom { transform: rotateX(-90deg) translateZ(60px); }
-          .face-left   { transform: rotateY(-90deg) translateZ(60px); }
-          .face-right  { transform: rotateY(90deg) translateZ(60px); }
-        `}</style>
-
-        <div className="cube-container">
-          {/* 前: 微信 */}
-          <div className="cube-face face-front" style={{ backgroundColor: 'rgba(7, 193, 96, 0.3)' }}>
-            <div className="flex flex-col items-center">
-              <MessageSquare size={40} className="text-[#07c160] drop-shadow-[0_0_8px_rgba(7,193,96,0.6)]" />
-              <span className="text-[10px] mt-1 font-bold">微信</span>
-            </div>
-          </div>
-          {/* 后: QQ */}
-          <div className="cube-face face-back" style={{ backgroundColor: 'rgba(18, 183, 245, 0.3)' }}>
-            <div className="flex flex-col items-center">
-              <MessageCircle size={40} className="text-[#12b7f5] drop-shadow-[0_0_8px_rgba(18,183,245,0.6)]" />
-              <span className="text-[10px] mt-1 font-bold">QQ</span>
-            </div>
-          </div>
-          {/* 上: 抖音 */}
-          <div className="cube-face face-top" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-            <div className="flex flex-col items-center">
-              <Music size={40} className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
-              <span className="text-[10px] mt-1 font-bold">抖音</span>
-            </div>
-          </div>
-          {/* 下: 小红书 */}
-          <div className="cube-face face-bottom" style={{ backgroundColor: 'rgba(255, 36, 66, 0.3)' }}>
-            <div className="flex flex-col items-center">
-              <Heart size={40} className="text-[#ff2442] drop-shadow-[0_0_8px_rgba(255,36,66,0.6)]" />
-              <span className="text-[10px] mt-1 font-bold">小红书</span>
-            </div>
-          </div>
-          {/* 左: B站 */}
-          <div className="cube-face face-left" style={{ backgroundColor: 'rgba(251, 114, 153, 0.3)' }}>
-            <div className="flex flex-col items-center">
-              <Play size={40} className="text-[#fb7299] drop-shadow-[0_0_8px_rgba(251,114,153,0.6)]" />
-              <span className="text-[10px] mt-1 font-bold">Bilibili</span>
-            </div>
-          </div>
-          {/* 右: 微博 */}
-          <div className="cube-face face-right" style={{ backgroundColor: 'rgba(230, 22, 45, 0.3)' }}>
-            <div className="flex flex-col items-center">
-              <Zap size={40} className="text-[#e6162d] drop-shadow-[0_0_8px_rgba(230,22,45,0.6)]" />
-              <span className="text-[10px] mt-1 font-bold">微博</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 详情/编辑弹窗 */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={closeModal}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-surface rounded-2xl p-5 w-full max-w-sm"
-              onClick={e => e.stopPropagation()}
-            >
-              {isEditing || isAdding ? (
-                // 编辑/添加表单
-                <>
-                  <h3 className="text-lg font-semibold mb-4">{isAdding ? '新增平台' : '编辑平台'}</h3>
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      placeholder="平台名称"
-                      value={editForm.platform}
-                      onChange={e => setEditForm({ ...editForm, platform: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg border border-border text-sm"
-                    />
-                    <input
-                      type="text"
-                      placeholder="用户名"
-                      value={editForm.username}
-                      onChange={e => setEditForm({ ...editForm, username: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg border border-border text-sm"
-                    />
-                    <input
-                      type="text"
-                      placeholder="网址"
-                      value={editForm.url}
-                      onChange={e => setEditForm({ ...editForm, url: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg border border-border text-sm"
-                    />
-                    <input
-                      type="text"
-                      placeholder="粉丝数"
-                      value={editForm.followers}
-                      onChange={e => setEditForm({ ...editForm, followers: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg border border-border text-sm"
-                    />
-                    <select
-                      value={editForm.icon}
-                      onChange={e => setEditForm({ ...editForm, icon: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg border border-border text-sm"
-                    >
-                      <option value="github">GitHub</option>
-                      <option value="twitter">Twitter</option>
-                      <option value="edit">博客</option>
-                      <option value="play">视频</option>
-                      <option value="message">社区</option>
-                      <option value="zap">其他</option>
-                    </select>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-text-muted">颜色:</span>
-                      <input
-                        type="color"
-                        value={editForm.color}
-                        onChange={e => setEditForm({ ...editForm, color: e.target.value })}
-                        className="w-10 h-9 rounded-lg cursor-pointer"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-3 mt-5">
-                    <button
-                      onClick={closeModal}
-                      className="flex-1 py-2.5 rounded-xl bg-surface border border-border text-sm font-medium"
-                    >
-                      取消
-                    </button>
-                    <button
-                      onClick={handleSave}
-                      className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-medium"
-                    >
-                      保存
-                    </button>
-                  </div>
-                </>
-              ) : (
-                // 详情展示
-                <>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center"
-                      style={{ background: `${selectedAccount!.color}22` }}
-                    >
-                      {(() => {
-                        const Icon = platformIcons[selectedAccount!.icon] || ExternalLink
-                        return <Icon size={24} style={{ color: selectedAccount!.color }} />
-                      })()}
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold">{selectedAccount!.platform}</h3>
-                      <p className="text-sm text-text-muted">{selectedAccount!.username}</p>
-                      <p className="text-base font-bold text-text mt-0.5">{selectedAccount!.followers} 粉丝</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <a
-                      href={selectedAccount!.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-medium text-center"
-                    >
-                      访问主页
-                    </a>
-                    <button
-                      onClick={() => handleEdit(selectedAccount!)}
-                      className="py-2.5 px-4 rounded-xl bg-surface border border-border text-sm font-medium"
-                    >
-                      编辑
-                    </button>
-                    <button
-                      onClick={() => handleDelete(selectedAccount!.platform)}
-                      className="py-2.5 px-4 rounded-xl bg-rose/10 text-rose text-sm font-medium"
-                    >
-                      删除
-                    </button>
-                  </div>
-                </>
-              )}
             </motion.div>
           </motion.div>
         )}

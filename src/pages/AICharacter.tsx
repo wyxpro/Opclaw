@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageTransition from '../components/ui/PageTransition'
 import { Character3D } from '../components/ai/Character3D'
@@ -29,6 +30,19 @@ export default function AICharacter() {
   // 步骤导航状态
   const [currentStep, setCurrentStep] = useState<StepType>('chat')
   const [completedSteps, setCompletedSteps] = useState<StepType[]>([])
+
+  const [searchParams] = useSearchParams()
+  const tabParam = searchParams.get('tab')
+
+  useEffect(() => {
+    if (tabParam === 'voice') {
+      setCurrentStep('voice-clone')
+    } else if (tabParam === 'avatar') {
+      setCurrentStep('avatar-clone')
+    } else if (tabParam === 'chat') {
+      setCurrentStep('chat')
+    }
+  }, [tabParam])
   
   // 数字人配置
   const [voiceModel, setVoiceModel] = useState<VoiceModel | null>(null)

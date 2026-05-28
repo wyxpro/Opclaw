@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Palette, X, Check, Share2, Rocket, Download, Share, History, Loader2, IdCard, Trash2, Sparkles, Eye, Edit3, Undo2, Redo2, RotateCcw } from 'lucide-react'
 
@@ -58,6 +59,17 @@ export function ProfileTabContent({ onBack }: { onBack?: () => void }) {
     resetToDefault
   } = useHomeEditor()
   const [showResume, setShowResume] = useState(false)
+
+  const [searchParams] = useSearchParams()
+  const tabParam = searchParams.get('tab')
+
+  useEffect(() => {
+    if (tabParam === 'resume') {
+      setShowResume(true)
+    } else {
+      setShowResume(false)
+    }
+  }, [tabParam])
   const [showThemeModal, setShowThemeModal] = useState(false)
   const [showCardModal, setShowCardModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   PenTool, ShoppingCart, Plus, Bookmark,
@@ -7,7 +7,7 @@ import {
   Trash2, Link as LinkIcon, BarChart3, Search, Filter, X, Check, XCircle,
   Upload, Star, ChevronDown, Clock, CheckCircle, Truck
 } from 'lucide-react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useLocation } from 'react-router-dom'
 import PageTransition from '../components/ui/PageTransition'
 import { useTheme } from '../hooks/useTheme'
 import { TreasureBox } from '../components/entertainment/EntertainmentModules'
@@ -1823,15 +1823,29 @@ function EcommerceModule() {
 export default function Work() {
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
+  const location = useLocation()
 
-  // 根据 URL 参数确定当前标签，默认为 media
+  // 根据 URL 参数确定当前标签，默认为 bookmarks (百宝箱)
   const getInitialTab = (): TabId => {
     if (tabParam === 'ecommerce') return 'ecommerce'
     if (tabParam === 'bookmarks') return 'bookmarks'
+    if (tabParam === 'media') return 'media'
     return 'bookmarks'
   }
 
   const [activeTab, setActiveTab] = useState<TabId>(getInitialTab)
+
+  useEffect(() => {
+    if (tabParam === 'ecommerce' || tabParam === 'bookmarks' || tabParam === 'media') {
+      setActiveTab(tabParam)
+    }
+  }, [tabParam])
+
+  useEffect(() => {
+    if (location.pathname === '/work' && !tabParam) {
+      setActiveTab('bookmarks')
+    }
+  }, [location.pathname, tabParam])
 
   return (
     <PageTransition>

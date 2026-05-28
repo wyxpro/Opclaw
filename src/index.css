@@ -55,6 +55,7 @@
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-slide-left: slide-left 30s linear infinite;
   --animate-danmaku: danmaku 12s linear forwards;
+  --animate-spin-slow: spin 20s linear infinite;
 }
 
 /* Keyframes */

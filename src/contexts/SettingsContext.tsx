@@ -16,6 +16,9 @@ interface SettingsContextType {
   // 自动播放
   autoPlayEnabled: boolean
   setAutoPlayEnabled: (enabled: boolean) => void
+  // 音乐播放器
+  musicPlayerEnabled: boolean
+  setMusicPlayerEnabled: (enabled: boolean) => void
 }
 
 export const SettingsContext = createContext<SettingsContextType | undefined>(undefined)
@@ -66,6 +69,15 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     return false
   })
 
+  // 音乐播放器 - 默认开启
+  const [musicPlayerEnabled, setMusicPlayerEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('musicPlayerEnabled')
+      return saved !== null ? saved === 'true' : true
+    }
+    return true
+  })
+
   // 持久化鼠标特效设置
   useEffect(() => {
     localStorage.setItem('cursorEffectEnabled', String(cursorEffectEnabled))
@@ -91,6 +103,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('autoPlayEnabled', String(autoPlayEnabled))
   }, [autoPlayEnabled])
 
+  // 持久化音乐播放器设置
+  useEffect(() => {
+    localStorage.setItem('musicPlayerEnabled', String(musicPlayerEnabled))
+  }, [musicPlayerEnabled])
+
   return (
     <SettingsContext.Provider
       value={{
@@ -104,6 +121,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setSoundEnabled,
         autoPlayEnabled,
         setAutoPlayEnabled,
+        musicPlayerEnabled,
+        setMusicPlayerEnabled,
       }}
     >
       {children}

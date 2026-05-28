@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  X, MousePointer2, Shield, Bell, Volume2, LogOut
+  X, MousePointer2, Shield, Bell, Volume2, LogOut, Music, FlaskConical, Info, ChevronRight
 } from 'lucide-react'
 import { useSettings } from '../../hooks/useSettings'
 import { useTheme } from '../../hooks/useTheme'
@@ -9,14 +9,17 @@ import { useAuth } from '../../contexts/AuthContext'
 interface SettingsModalProps {
   isOpen: boolean
   onClose: () => void
+  onOpenAbout?: () => void
+  onOpenLaboratory?: () => void
 }
 
-export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+export function SettingsModal({ isOpen, onClose, onOpenAbout, onOpenLaboratory }: SettingsModalProps) {
   const { 
     cursorEffectEnabled, setCursorEffectEnabled,
     privacyMode, setPrivacyMode,
     notificationsEnabled, setNotificationsEnabled,
-    soundEnabled, setSoundEnabled
+    soundEnabled, setSoundEnabled,
+    musicPlayerEnabled, setMusicPlayerEnabled
   } = useSettings()
   const { themeConfig } = useTheme()
   const { isAuthenticated, logout } = useAuth()
@@ -62,6 +65,15 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       description: '开启/关闭界面音效',
       value: soundEnabled,
       onChange: setSoundEnabled,
+      type: 'toggle' as const,
+    },
+    {
+      id: 'musicPlayer',
+      icon: Music,
+      title: '音乐播放器',
+      description: '开启/关闭悬浮音乐播放器小组件',
+      value: musicPlayerEnabled,
+      onChange: setMusicPlayerEnabled,
       type: 'toggle' as const,
     },
   ]
@@ -180,56 +192,70 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         </button>
                       </motion.div>
                     ))}
-                  </div>
-                </div>
 
-                {/* Account Section */}
-                {isAuthenticated && (
-                  <div className="mb-6">
-                    <h3 
-                      className="text-sm font-medium mb-3 px-1"
-                      style={{ color: themeConfig.colors.textMuted }}
-                    >
-                      账号管理
-                    </h3>
+                    {/* 实验室 - 移动端显示 */}
                     <motion.button
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      onClick={handleLogout}
-                      className="w-full flex items-center justify-between p-4 rounded-xl transition-all hover:opacity-80"
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        onClose()
+                        if (onOpenLaboratory) onOpenLaboratory()
+                      }}
+                      className="md:hidden w-full flex items-center justify-between p-4 rounded-xl transition-all"
                       style={{
-                        background: `${themeConfig.colors.rose}15`,
-                        border: `1px solid ${themeConfig.colors.rose}30`,
+                        background: themeConfig.colors.surface,
+                        border: `1px solid ${themeConfig.colors.border}`,
                       }}
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className="w-10 h-10 rounded-lg flex items-center justify-center"
+                          className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
                           style={{
-                            background: `${themeConfig.colors.rose}20`,
-                            color: themeConfig.colors.rose,
+                            background: 'rgba(139, 92, 246, 0.1)',
+                            color: '#8b5cf6',
                           }}
                         >
-                          <LogOut size={20} />
+                          <FlaskConical size={20} />
                         </div>
                         <div className="text-left">
-                          <h3 
-                            className="font-medium"
-                            style={{ color: themeConfig.colors.rose }}
-                          >
-                            退出登录
-                          </h3>
-                          <p 
-                            className="text-sm"
-                            style={{ color: themeConfig.colors.textMuted }}
-                          >
-                            退出当前账号
-                          </p>
+                          <h3 className="font-medium" style={{ color: themeConfig.colors.text }}>实验室</h3>
+                          <p className="text-xs mt-0.5" style={{ color: themeConfig.colors.textMuted }}>技术实验与开发计划</p>
                         </div>
                       </div>
+                      <ChevronRight size={18} style={{ color: themeConfig.colors.textMuted }} />
+                    </motion.button>
+
+                    {/* 关于我们 - 移动端显示 */}
+                    <motion.button
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        onClose()
+                        if (onOpenAbout) onOpenAbout()
+                      }}
+                      className="md:hidden w-full flex items-center justify-between p-4 rounded-xl transition-all"
+                      style={{
+                        background: themeConfig.colors.surface,
+                        border: `1px solid ${themeConfig.colors.border}`,
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                          style={{
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            color: '#3b82f6',
+                          }}
+                        >
+                          <Info size={20} />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="font-medium" style={{ color: themeConfig.colors.text }}>关于我们</h3>
+                          <p className="text-xs mt-0.5" style={{ color: themeConfig.colors.textMuted }}>开发者信息与反馈</p>
+                        </div>
+                      </div>
+                      <ChevronRight size={18} style={{ color: themeConfig.colors.textMuted }} />
                     </motion.button>
                   </div>
-                )}
+                </div>
 
                 {/* Footer */}
                 <div className="pt-4 border-t" style={{ borderColor: themeConfig.colors.border }}>

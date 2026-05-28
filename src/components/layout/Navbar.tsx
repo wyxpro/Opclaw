@@ -1,22 +1,92 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Wallet, Users, Menu, X, Palette, Sparkles, Bot, IdCard } from 'lucide-react'
+import { Home, Wallet, Users, Menu, X, Palette, Sparkles, Bot, Diamond, ChevronDown } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { useAuth } from '../../contexts/AuthContext'
 import { ThemeSelectorPanel } from '../ui/ThemeSwitcher'
 import AuthModal from '../auth/AuthModal'
 
-const navItems = [
+interface NavSubItem {
+  path: string
+  label: string
+}
+
+interface NavItem {
+  path: string
+  defaultPath?: string
+  label: string
+  icon: any
+  isPcOnly?: boolean
+  isMobileOnly?: boolean
+  subItems?: NavSubItem[]
+}
+
+const navItems: NavItem[] = [
   { path: '/', label: '🏠 首页', icon: Home },
   // PC 端专属菜单项
-  { path: '/learning', label: '📚 学习空间', icon: null, isPcOnly: true },
-  { path: '/life', label: '🌈 生活记录', icon: null, isPcOnly: true },
-  { path: '/work', label: '📺 工作助手', icon: null, isPcOnly: true },
-  // 资产菜单 - 移动端显示，PC 端隐藏
-  { path: '/ai-character', label: '🤖 AI 分身', icon: Bot },
+  {
+    path: '/learning',
+    defaultPath: '/learning?view=knowledge',
+    label: '📚 学习空间',
+    icon: null,
+    isPcOnly: true,
+    subItems: [
+      { path: '/learning?view=knowledge', label: '📖 知识库' },
+      { path: '/learning?view=skilltree', label: '🌿 技能树' },
+    ]
+  },
+  {
+    path: '/work',
+    defaultPath: '/work?tab=bookmarks',
+    label: '📺 工作助手',
+    icon: null,
+    isPcOnly: true,
+    subItems: [
+      { path: '/work?tab=bookmarks', label: '📦 百宝箱' },
+      { path: '/work?tab=ecommerce', label: '🛍️ 电商运营' },
+      { path: '/work?tab=media', label: '✍️ 新媒体' },
+    ]
+  },
+  {
+    path: '/life',
+    defaultPath: '/life?tab=love',
+    label: '🌈 生活记录',
+    icon: null,
+    isPcOnly: true,
+    subItems: [
+      { path: '/life?tab=love', label: '❤️ 恋爱记录' },
+      { path: '/life?tab=travel', label: '📸 旅拍相册' },
+      { path: '/life?tab=moments', label: '💬 朋友圈' },
+      { path: '/life?tab=music', label: '🎵 音乐盒' },
+      { path: '/life?tab=movies', label: '🎬 收藏电影' },
+      { path: '/life?tab=sports', label: '🏋️ 运动' },
+      { path: '/life?tab=games', label: '🎮 游戏' },
+    ]
+  },
+  {
+    path: '/ai-character',
+    defaultPath: '/ai-character?tab=chat',
+    label: '🤖 AI 分身',
+    icon: Bot,
+    subItems: [
+      { path: '/ai-character?tab=voice', label: '🎤 声音克隆' },
+      { path: '/ai-character?tab=avatar', label: '👤 形象复刻' },
+      { path: '/ai-character?tab=chat', label: '💬 数字人对话' },
+    ]
+  },
   { path: '/assets', label: '💎 资产', icon: Wallet, isMobileOnly: true },
-  { path: '/profile', label: '👤 个人主页', icon: IdCard, isPcOnly: true },
+  {
+    path: '/profile',
+    defaultPath: '/profile?tab=ip',
+    label: '💎 个人主页',
+    icon: Diamond,
+    isPcOnly: true,
+    subItems: [
+      { path: '/profile?tab=ip', label: '🏠 IP主页' },
+      { path: '/profile?tab=resume', label: '📄 在线简历' },
+    ]
+  },
   { path: '/social', label: '👤 我的', icon: Users },
 ]
 
@@ -102,6 +172,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const location = useLocation()
   const { themeConfig } = useTheme()
   const { isAuthenticated } = useAuth()
@@ -110,6 +181,13 @@ export default function Navbar() {
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // 点击外部关闭下拉菜单
+  useEffect(() => {
+    const closeDropdowns = () => setActiveDropdown(null)
+    document.addEventListener('click', closeDropdowns)
+    return () => document.removeEventListener('click', closeDropdowns)
   }, [])
 
   // 使用 requestAnimationFrame 避免同步 setState
@@ -126,6 +204,36 @@ export default function Navbar() {
       e.preventDefault()
       setShowAuthModal(true)
     }
+  }
+
+  // 检查子路径是否被激活
+  const isLinkActive = (path: string) => {
+    const pathPart = path.split('?')[0]
+    const searchPart = path.split('?')[1] || ''
+    
+    if (location.pathname !== pathPart) return false
+    
+    if (searchPart) {
+      const searchParams = new URLSearchParams(searchPart)
+      const currentParams = new URLSearchParams(location.search)
+      let match = true
+      searchParams.forEach((value, key) => {
+        if (currentParams.get(key) !== value) {
+          match = false
+        }
+      })
+      return match
+    }
+    return true
+  }
+
+  // 检查某个大分类下是否有子项正处于激活状态
+  const isCategoryActive = (item: NavItem) => {
+    if (item.path === '/') return location.pathname === '/'
+    if (item.subItems) {
+      return item.subItems.some((sub) => isLinkActive(sub.path))
+    }
+    return location.pathname === item.path
   }
 
   return (
@@ -169,37 +277,91 @@ export default function Navbar() {
             {navItems
               .filter(item => !item.isMobileOnly) // PC 端过滤掉移动端专属项
               .map((item) => {
-                // PC 端专属菜单项 - 使用 NavLink 以支持选中状态
-                if (item.isPcOnly) {
+                const hasSubItems = !!item.subItems
+                const isActive = isCategoryActive(item)
+                
+                if (hasSubItems) {
                   return (
-                    <NavLink
-                      key={item.path}
-                      to={item.path}
-                      onClick={item.path === '/profile' ? handleSocialClick : undefined}
-                      className={({ isActive }) =>
-                        `relative px-4 py-2.5 rounded-xl text-base font-semibold transition-all duration-200 ${
+                    <div 
+                      key={item.path} 
+                      className="relative"
+                      onMouseEnter={() => setActiveDropdown(item.label)}
+                      onMouseLeave={() => setActiveDropdown(null)}
+                    >
+                      <NavLink
+                        to={item.defaultPath || item.path}
+                        onClick={(e) => {
+                          const targetPath = item.defaultPath || item.path
+                          if (targetPath.includes('/profile') || targetPath.includes('/social')) {
+                            handleSocialClick(e)
+                          }
+                          setActiveDropdown(null)
+                        }}
+                        className={`relative flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-base font-semibold transition-all duration-200 cursor-pointer ${
                           isActive
                             ? 'text-primary'
                             : 'text-text-secondary hover:text-text hover:bg-surface/60'
-                        }`
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          {item.label}
-                          {isActive && (
-                            <motion.div
-                              layoutId="activeTab"
-                              className="absolute inset-0 rounded-lg bg-primary/10 border border-primary/20"
-                              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                            />
-                          )}
-                        </>
-                      )}
-                    </NavLink>
-                  );
+                        }`}
+                      >
+                        {item.label}
+                        <ChevronDown 
+                          size={14} 
+                          className={`transition-transform duration-200 ${
+                            activeDropdown === item.label ? 'rotate-180 text-primary' : 'text-text-muted group-hover:text-text'
+                          }`}
+                        />
+                        {isActive && !activeDropdown && (
+                          <motion.div
+                            layoutId="activeTab"
+                            className="absolute inset-0 rounded-lg bg-primary/10 border border-primary/20 -z-10"
+                            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                          />
+                        )}
+                      </NavLink>
+                      
+                      <AnimatePresence>
+                        {activeDropdown === item.label && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute top-full left-0 mt-1 min-w-[160px] rounded-xl z-50 flex flex-col gap-0.5 overflow-hidden shadow-xl"
+                            style={{
+                              background: themeConfig.glassEffect.background,
+                              border: themeConfig.glassEffect.border,
+                              backdropFilter: themeConfig.glassEffect.backdropBlur,
+                              WebkitBackdropFilter: themeConfig.glassEffect.backdropBlur,
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {item.subItems!.map((subItem) => {
+                              const isSubActive = isLinkActive(subItem.path)
+                              return (
+                                <NavLink
+                                  key={subItem.path}
+                                  to={subItem.path}
+                                  onClick={(e) => {
+                                    if (subItem.path.includes('/profile') || subItem.path.includes('/social')) {
+                                      handleSocialClick(e)
+                                    }
+                                    setActiveDropdown(null)
+                                  }}
+                                  className={`px-4 py-2 text-sm font-semibold transition-all flex items-center hover:bg-primary/10 hover:text-primary ${
+                                    isSubActive ? 'text-primary bg-primary/5' : 'text-text-secondary'
+                                  }`}
+                                >
+                                  {subItem.label}
+                                </NavLink>
+                              )
+                            })}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )
                 }
-                
+
                 // 普通导航项
                 return (
                   <NavLink
@@ -207,21 +369,21 @@ export default function Navbar() {
                     to={item.path}
                     end={item.path === '/'}
                     onClick={item.path === '/social' ? handleSocialClick : undefined}
-                    className={({ isActive }) =>
+                    className={({ isActive: isLinkActive }) =>
                       `relative px-5 py-2.5 rounded-xl text-base font-semibold transition-all duration-200 ${
-                        isActive
+                        isLinkActive
                           ? 'text-primary'
                           : 'text-text-secondary hover:text-text hover:bg-surface/60'
                       }`
                     }
                   >
-                    {({ isActive }) => (
+                    {({ isActive: isLinkActive }) => (
                       <>
                         {item.label}
-                        {isActive && (
+                        {isLinkActive && (
                           <motion.div
                             layoutId="activeTab"
-                            className="absolute inset-0 rounded-lg bg-primary/10 border border-primary/20"
+                            className="absolute inset-0 rounded-lg bg-primary/10 border border-primary/20 -z-10"
                             transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                           />
                         )}
