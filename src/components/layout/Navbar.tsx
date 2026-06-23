@@ -23,8 +23,30 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { path: '/', label: '🏠 首页', icon: Home },
+  { path: '/', label: '🏠 首页', icon: Home, isMobileOnly: true },
   // PC 端专属菜单项
+  {
+    path: '/',
+    defaultPath: '/?tab=ip',
+    label: '💎 首页',
+    icon: Diamond,
+    isPcOnly: true,
+    subItems: [
+      { path: '/?tab=ip', label: '🏠 IP主页' },
+      { path: '/?tab=resume', label: '📄 在线简历' },
+    ]
+  },
+  {
+    path: '/ai-character',
+    defaultPath: '/ai-character?tab=chat',
+    label: '🤖 AI 分身',
+    icon: Bot,
+    subItems: [
+      { path: '/ai-character?tab=voice', label: '🎤 声音克隆' },
+      { path: '/ai-character?tab=avatar', label: '👤 形象复刻' },
+      { path: '/ai-character?tab=chat', label: '💬 数字人对话' },
+    ]
+  },
   {
     path: '/learning',
     defaultPath: '/learning?view=knowledge',
@@ -64,29 +86,7 @@ const navItems: NavItem[] = [
       { path: '/life?tab=games', label: '🎮 游戏' },
     ]
   },
-  {
-    path: '/ai-character',
-    defaultPath: '/ai-character?tab=chat',
-    label: '🤖 AI 分身',
-    icon: Bot,
-    subItems: [
-      { path: '/ai-character?tab=voice', label: '🎤 声音克隆' },
-      { path: '/ai-character?tab=avatar', label: '👤 形象复刻' },
-      { path: '/ai-character?tab=chat', label: '💬 数字人对话' },
-    ]
-  },
   { path: '/assets', label: '💎 资产', icon: Wallet, isMobileOnly: true },
-  {
-    path: '/profile',
-    defaultPath: '/profile?tab=ip',
-    label: '💎 个人主页',
-    icon: Diamond,
-    isPcOnly: true,
-    subItems: [
-      { path: '/profile?tab=ip', label: '🏠 IP主页' },
-      { path: '/profile?tab=resume', label: '📄 在线简历' },
-    ]
-  },
   { path: '/social', label: '👤 我的', icon: Users },
 ]
 
@@ -218,7 +218,14 @@ export default function Navbar() {
       const currentParams = new URLSearchParams(location.search)
       let match = true
       searchParams.forEach((value, key) => {
-        if (currentParams.get(key) !== value) {
+        const currentVal = currentParams.get(key)
+        if (currentVal !== value) {
+          // 特殊处理默认 Tab/View 的激活状态
+          if (key === 'tab' && !currentVal && value === 'ip') return
+          if (key === 'view' && !currentVal && value === 'knowledge') return
+          if (key === 'tab' && !currentVal && value === 'bookmarks') return
+          if (key === 'tab' && !currentVal && value === 'love') return
+          if (key === 'tab' && !currentVal && value === 'chat') return
           match = false
         }
       })
@@ -292,7 +299,7 @@ export default function Navbar() {
                         to={item.defaultPath || item.path}
                         onClick={(e) => {
                           const targetPath = item.defaultPath || item.path
-                          if (targetPath.includes('/profile') || targetPath.includes('/social')) {
+                          if (targetPath.includes('/social')) {
                             handleSocialClick(e)
                           }
                           setActiveDropdown(null)
@@ -342,7 +349,7 @@ export default function Navbar() {
                                   key={subItem.path}
                                   to={subItem.path}
                                   onClick={(e) => {
-                                    if (subItem.path.includes('/profile') || subItem.path.includes('/social')) {
+                                    if (subItem.path.includes('/social')) {
                                       handleSocialClick(e)
                                     }
                                     setActiveDropdown(null)

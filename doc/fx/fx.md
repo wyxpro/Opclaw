@@ -10,7 +10,7 @@ Opclaw 目前是一个处于中后期开发阶段的 **OPC (One Person Company) 
 
 *   **前端**：React 19 + Vite 7 + TS + Tailwind CSS 4 + Framer Motion (动画) + Three.js/R3F (3D 交互)。
 *   **后端**：Supabase BaaS (提供身份认证、部分用户 Profile 表存储、文件存储)。
-*   **AI服务**：自研轻量级前端 RAG 引擎 + 基于 ModelScope 部署的 MiniMax-M2.5 对话大模型 + 基于 SiliconFlow 的 SenseVoiceSmall (语音识别)、MOSS-TTSD (语音合成) 和 Kolors (形象生成)。
+*   **AI服务**：自研轻量级前端 RAG 引擎 + 基于九章云极部署的 deepseek-v4-pro 对话大模型 + 基于 SiliconFlow 的 SenseVoiceSmall (语音识别)、MOSS-TTSD (语音合成) 和 Kolors (形象生成)。
 
 ### 核心亮点
 1.  **3D 交互分身**：利用 WebGL 并在前端集成 TTS/ASR，达成了声音克隆、形象生成到 3D 实时对话的引导式闭环。

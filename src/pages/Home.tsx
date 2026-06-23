@@ -13,11 +13,12 @@ import { useTheme } from '../hooks/useTheme'
 import MobileHome from '../components/home/MobileHome'
 import MatrixBackground from '../components/home/MatrixBackground'
 import { useState, useEffect } from 'react'
+import Profile from './Profile'
 
 export default function Home() {
   const { themeConfig } = useTheme()
   const navigate = useNavigate()
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -25,6 +26,10 @@ export default function Home() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  if (!isMobile) {
+    return <Profile />
+  }
 
   const modules = [
     {

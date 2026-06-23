@@ -65,29 +65,29 @@ ${context}
   },
 
   /**
-   * Call the MiniMax API (via ModelScope) with Streaming
+   * Call the DeepSeek API (via Cloud Proxy) with Streaming
    */
   async streamChat(messages: ChatMessage[], onChunk: (chunk: string) => void) {
     try {
-      const apiKey = import.meta.env.VITE_MODEL_SCOPE_API_KEY
+      const apiKey = import.meta.env.VITE_DEEPSEEK_PROXY_KEY
+      const proxyUrl = import.meta.env.VITE_DEEPSEEK_PROXY_URL || '/api/innoreation/v1/proxy'
       
       if (!apiKey) {
-        await this.simulateStreaming('⚠️ 抱歉，我检测到 API Key 尚未配置。请在 .env 文件中设置 VITE_MODEL_SCOPE_API_KEY 以开启真实的 AI 分身对话功能。', onChunk)
+        await this.simulateStreaming('⚠️ 抱歉，我检测到 API Key 尚未配置。请在 .env 文件中设置 VITE_DEEPSEEK_PROXY_KEY 以开启真实的 AI 分身对话功能。', onChunk)
         return
       }
 
-      const response = await fetch('https://api-inference.modelscope.cn/v1/chat/completions', {
+      const response = await fetch(`${proxyUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
+          'X-Proxy-Key': apiKey,
         },
         body: JSON.stringify({
-          model: 'MiniMax/MiniMax-M2.5',
+          model: 'deepseek-v4-pro',
           messages: messages,
           stream: true,
-          temperature: 0.6,
-          max_tokens: 1024
+          temperature: 0.7,
         }),
       })
 

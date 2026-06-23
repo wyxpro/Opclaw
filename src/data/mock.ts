@@ -947,6 +947,7 @@ export interface CompetitorData {
     aesthetics: number
     performance: number
     extensibility: number
+    security: number
   }
   color: string
 }
@@ -954,17 +955,17 @@ export interface CompetitorData {
 export const competitorData: CompetitorData[] = [
   {
     name: 'Notion',
-    scores: { functionality: 90, usability: 85, aesthetics: 82, performance: 78, extensibility: 95 },
+    scores: { functionality: 90, usability: 80, aesthetics: 75, performance: 70, extensibility: 85, security: 88 },
     color: '#3b82f6',
   },
   {
     name: '个人博客',
-    scores: { functionality: 50, usability: 75, aesthetics: 70, performance: 85, extensibility: 40 },
+    scores: { functionality: 45, usability: 85, aesthetics: 70, performance: 90, extensibility: 35, security: 55 },
     color: '#10b981',
   },
   {
     name: 'Opclaw',
-    scores: { functionality: 95, usability: 92, aesthetics: 96, performance: 94, extensibility: 90 },
+    scores: { functionality: 88, usability: 92, aesthetics: 95, performance: 86, extensibility: 80, security: 84 },
     color: '#8b5cf6',
   },
 ]
@@ -975,6 +976,7 @@ export const comparisonDimensions = [
   { key: 'aesthetics', name: '美观度', fullMark: 100 },
   { key: 'performance', name: '性能', fullMark: 100 },
   { key: 'extensibility', name: '扩展性', fullMark: 100 },
+  { key: 'security', name: '安全性', fullMark: 100 },
 ]
 
 export interface Testimonial {
