@@ -7,7 +7,7 @@ export interface ChatMessage {
 }
 
 /**
- * AI Service to handle RAG and Chat logic using MiniMax-M2.5
+ * AI Service to handle RAG and Chat logic using deepseek-v4-pro
  */
 export const aiService = {
   /**

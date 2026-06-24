@@ -15,6 +15,15 @@ export default defineConfig(({ mode }) => {
       __SB_URL__: JSON.stringify(env.VITE_SUPABASE_URL || ''),
       __SB_ANON__: JSON.stringify(env.VITE_SUPABASE_ANON_KEY || ''),
     },
+    server: {
+      proxy: {
+        '/api/innoreation/v1/proxy': {
+          target: 'https://mangdream.com',
+          changeOrigin: true,
+          secure: false,
+        }
+      }
+    },
     build: {
       rollupOptions: {
         input: {

@@ -1,0 +1,42 @@
+Testing https://codingplan.alayanew.com/v1/chat/completions with headers ['Authorization'] ...
+  Status Code: 401
+  Body: {"error":{"message":"Ч (request id: 2026062322492295766833028470527)","type":"alaya_code_error"}}
+--------------------------------------------------
+Testing https://codingplan.alayanew.com/v1/chat/completions with headers ['X-Proxy-Key'] ...
+  Status Code: 401
+  Body: {"error":{"message":"δṩ (request id: 2026062322492469955722083205748)","type":"alaya_code_error"}}
+--------------------------------------------------
+Testing https://codingplan.alayanew.com/chat/completions with headers ['Authorization'] ...
+  Status Code: 200
+  Body: <!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Alaya NeW</title>
+<script>window.publicPath = window.__INJECT
+--------------------------------------------------
+Testing https://codingplan.alayanew.com/chat/completions with headers ['X-Proxy-Key'] ...
+  Status Code: 200
+  Body: <!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Alaya NeW</title>
+<script>window.publicPath = window.__INJECT
+--------------------------------------------------
+Testing https://codingplan.alayanew.com/api/innoreation/v1/proxy/chat/completions with headers ['Authorization'] ...
+  Status Code: 404
+  Body: {"error":{"message":"Invalid URL (POST /api/innoreation/v1/proxy/chat/completions)","type":"invalid_request_error","param":"","code":""}}
+--------------------------------------------------
+Testing https://codingplan.alayanew.com/api/innoreation/v1/proxy/chat/completions with headers ['X-Proxy-Key'] ...
+  Status Code: 404
+  Body: {"error":{"message":"Invalid URL (POST /api/innoreation/v1/proxy/chat/completions)","type":"invalid_request_error","param":"","code":""}}
+--------------------------------------------------
+Testing https://codingplan.alayanew.com/api/innoreation/v1/proxy with headers ['Authorization'] ...
+  Status Code: 404
+  Body: {"error":{"message":"Invalid URL (POST /api/innoreation/v1/proxy)","type":"invalid_request_error","param":"","code":""}}
+--------------------------------------------------
+Testing https://codingplan.alayanew.com/api/innoreation/v1/proxy with headers ['X-Proxy-Key'] ...
+  Status Code: 404
+  Body: {"error":{"message":"Invalid URL (POST /api/innoreation/v1/proxy)","type":"invalid_request_error","param":"","code":""}}
+--------------------------------------------------
