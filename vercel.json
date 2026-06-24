@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/innoreation/v1/proxy/:path*",
-      "destination": "https://mangdream.com/api/innoreation/v1/proxy/:path*"
+      "source": "/api/innoreation/v1/proxy/chat/completions",
+      "destination": "/api/proxy"
     },
     {
       "source": "/(.*)",
