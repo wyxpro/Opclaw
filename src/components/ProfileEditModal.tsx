@@ -61,7 +61,7 @@ export default function ProfileEditModal({ isOpen, onClose, initialData, onSave 
       showToast('图片上传成功')
     } catch (error: any) {
       setUploadError(`上传失败: ${error.message || '未知错误'}`)
-      showToast('图片上传失败', 'error')
+      showToast('图片上传失败')
     }
     event.target.value = ''
   }, [uploadType])

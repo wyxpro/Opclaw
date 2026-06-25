@@ -2,19 +2,9 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Upload, Camera, User, Check, RefreshCw, Sparkles, Image, Video, Box, Trash2, EyeOff, Palette, UserCircle } from 'lucide-react'
 import type { ThemeConfig } from '../../lib/themes'
-import type { CharacterStyle } from './types'
+import type { CharacterStyle, AvatarModel } from './types'
 import { avatarCloneService } from '../../services/avatarCloneService'
-
-export interface AvatarModel {
-  id: string
-  name: string
-  type: 'image' | 'video' | '3d'
-  url: string
-  style: CharacterStyle
-  createdAt: number
-  isCloned: boolean
-  originalUrl?: string
-}
+export type { AvatarModel }
 
 interface AvatarCloneProps {
   themeConfig: ThemeConfig

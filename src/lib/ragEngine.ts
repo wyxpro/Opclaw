@@ -188,6 +188,30 @@ export class RAGEngine {
 简介: ${personalInfo.bio}
 所在地: ${personalInfo.location}`
   }
+
+  // 基于知识库和常见意图生成回复
+  public generateResponse(query: string): string {
+    const context = this.search(query, 2)
+    if (context) {
+      return `关于您问的“${query}”，我在您的个人知识库中找到了相关记录：\n\n${context}\n\n您可以问我更多细节！`
+    }
+    
+    const lower = query.toLowerCase()
+    if (lower.includes('你好') || lower.includes('hi') || lower.includes('hello')) {
+      return '你好！我是你的 AI 分身。我可以帮你检索个人资料、学习笔记、旅行纪念，并在社区中自动互动。有什么想聊的吗？'
+    }
+    if (lower.includes('你是谁') || lower.includes('身份') || lower.includes('介绍')) {
+      return `我是 ${personalInfo.name} 的专属 AI 数字分身。我学习了您的个人信息（${personalInfo.title}）、旅行足迹和技能树，可以协助您管理个人站点。`
+    }
+    if (lower.includes('技能') || lower.includes('擅长') || lower.includes('会什么')) {
+      return `您擅长以下领域：\n1. AI 对话交互 与 Prompt 工程\n2. 前端开发 (React / WebGL)\n3. 全栈工程与 API 部署\n\n您可以随时让我帮您润色代码或梳理知识点！`
+    }
+    if (lower.includes('旅行') || lower.includes('去过') || lower.includes('地方')) {
+      return '您曾经去过多个美丽的城市，包括杭州、北京和重庆。在旅行足迹中，我们记录了各地的旅游攻略和美食体验。想了解哪一次的旅行故事？'
+    }
+    
+    return `收到您的消息：“${query}”。虽然我的知识库中暂时没有直接匹配的条目，但我会继续学习并完善。您可以继续补充您的日常动态和文章！`
+  }
 }
 
 export const ragEngine = new RAGEngine()

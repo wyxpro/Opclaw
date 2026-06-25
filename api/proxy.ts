@@ -9,13 +9,18 @@ export default async function handler(req: Request) {
 
   try {
     const body = await req.json()
-    const apiKey = process.env.VITE_DEEPSEEK_PROXY_KEY || process.env.DEEPSEEK_PROXY_KEY
+    let apiKey = process.env.VITE_DEEPSEEK_PROXY_KEY || process.env.DEEPSEEK_PROXY_KEY
+
+    // Fallback to client header if server environment variable is missing or invalid
+    if (!apiKey || apiKey === 'undefined' || apiKey === 'null') {
+      apiKey = req.headers.get('X-Proxy-Key') || req.headers.get('x-proxy-key') || ''
+    }
 
     if (!apiKey) {
       return new Response(
         JSON.stringify({
           error: {
-            message: 'VITE_DEEPSEEK_PROXY_KEY is not configured on Vercel environment variables.',
+            message: 'API Key (X-Proxy-Key) is not configured on Vercel environment variables and not provided in headers.',
             type: 'configuration_error'
           }
         }),
@@ -67,7 +72,9 @@ export default async function handler(req: Request) {
       JSON.stringify({
         error: {
           message: error.message || 'Internal Server Error',
-          type: 'api_error'
+          type: 'api_error',
+          name: error.name || 'UnknownError',
+          stack: error.stack || ''
         }
       }),
       {

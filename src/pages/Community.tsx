@@ -16,7 +16,8 @@ import {
   personalProfile, 
   skillCategories, 
   portfolioItems,
-  moduleEntries
+  moduleEntries,
+  contactConfig
 } from '../data/profile'
 
 export default function Community() {
@@ -44,7 +45,7 @@ export default function Community() {
         <ModulesSection modules={moduleEntries} />
 
         {/* Contact Section - 联系区域 */}
-        <ContactSection />
+        <ContactSection config={contactConfig} />
 
         {/* Footer */}
         <footer 

@@ -383,7 +383,7 @@ const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
               style={{ 
                 background: themeConfig.colors.surface,
                 border: `1px solid ${themeConfig.colors.border}`,
-                boxShadow: themeConfig.glassEffect.boxShadow
+                boxShadow: themeConfig.shadows.card
               }}
             >
               <div className="flex flex-row gap-4 items-stretch">
@@ -488,7 +488,7 @@ const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
                 style={{ 
                   background: themeConfig.colors.surface,
                   border: `1px solid ${themeConfig.colors.border}`,
-                  boxShadow: themeConfig.glassEffect.boxShadow
+                  boxShadow: themeConfig.shadows.card
                 }}
               >
                 <div className="flex items-center gap-2 mb-4">
@@ -518,7 +518,7 @@ const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
                 style={{ 
                   background: themeConfig.colors.surface,
                   border: `1px solid ${themeConfig.colors.border}`,
-                  boxShadow: themeConfig.glassEffect.boxShadow
+                  boxShadow: themeConfig.shadows.card
                 }}
               >
                 <div className="flex items-center justify-between mb-6">
@@ -654,7 +654,7 @@ const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
             style={{ 
               background: themeConfig.colors.surface,
               border: `1px solid ${themeConfig.colors.border}`,
-              boxShadow: themeConfig.glassEffect.boxShadow
+              boxShadow: themeConfig.shadows.card
             }}
           >
             <div className="flex items-center gap-2 mb-6">
@@ -691,7 +691,7 @@ const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
                       background: themeConfig.colors.bg,
                       border: `1px solid ${themeConfig.colors.border}`,
                       color: themeConfig.colors.text,
-                      ringColor: themeConfig.colors.primary
+                      outlineColor: themeConfig.colors.primary
                     }}
                   />
                 </div>

@@ -47,13 +47,13 @@ export function ChinaMap({
         return
       }
 
-      const map = new window.AMap.Map(mapContainerRef.current, {
+      const map = new window.AMap.Map(mapContainerRef.current as HTMLDivElement, {
         zoom: 4,
         center: [105, 34],
         viewMode: '2D',
         mapStyle: mapStyle,
         resizeEnable: true,
-      })
+      } as any)
 
       map.on('complete', () => {
         setIsMapLoaded(true)
