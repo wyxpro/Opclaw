@@ -1,4 +1,7 @@
 import type { VoiceModel } from '../components/ai/types'
+import { Live2dManager } from '../lib/live2d/live2dManager'
+import { convertMp3ArrayBufferToWavArrayBuffer } from '../lib/audioUtils'
+import { useSentioTtsStore } from '../lib/sentioStore'
 
 /**
  * Service to handle Text-to-Speech (TTS) using Silicon Flow API
@@ -7,12 +10,35 @@ import type { VoiceModel } from '../components/ai/types'
 export class TTSService {
   private audio: HTMLAudioElement | null = null
   private isPlaying: boolean = false
+  private live2dAudioInterval: any = null
 
   /**
    * Convert text to speech and play it
    */
-  async speak(text: string, voiceModel?: VoiceModel | null, onStart?: () => void, onEnd?: () => void): Promise<void> {
-    const apiKey = import.meta.env.VITE_SILICON_FLOW_API_KEY
+  async speak(
+    text: string, 
+    voiceModel?: VoiceModel | null, 
+    onStart?: () => void, 
+    onEnd?: () => void,
+    isLive2dActive?: boolean
+  ): Promise<void> {
+    const ttsStore = useSentioTtsStore.getState()
+    
+    let apiKey = import.meta.env.VITE_SILICON_FLOW_API_KEY || import.meta.env.VITE_SILICONFLOW_API_KEY
+    let baseUrl = 'https://api.siliconflow.cn/v1'
+    let model = 'fnlp/MOSS-TTSD-v0.5'
+
+    const customBaseUrl = ttsStore.settings?.base_url
+    const isUrlValid = typeof customBaseUrl === 'string' && (customBaseUrl.startsWith('http://') || customBaseUrl.startsWith('https://'))
+
+    if (ttsStore.settings?.api_key && isUrlValid) {
+      apiKey = ttsStore.settings.api_key
+      baseUrl = ttsStore.settings.base_url
+      model = ttsStore.settings.model || 'fnlp/MOSS-TTSD-v0.5'
+    } else if (ttsStore.enable && ttsStore.engine !== 'default') {
+      model = ttsStore.engine
+    }
+
     if (!apiKey) {
       console.error('Silicon Flow API Key not found')
       return
@@ -27,7 +53,7 @@ export class TTSService {
       if (!cleanText) return
 
       const requestBody: any = {
-        model: 'fnlp/MOSS-TTSD-v0.5',
+        model: model,
         input: cleanText,
         response_format: 'mp3',
         stream: false,
@@ -58,7 +84,12 @@ export class TTSService {
       }
 
 
-      const response = await fetch('https://api.siliconflow.cn/v1/audio/speech', {
+      let requestUrl = baseUrl
+      if (!requestUrl.endsWith('/audio/speech')) {
+        requestUrl = requestUrl.replace(/\/$/, '') + '/audio/speech'
+      }
+
+      const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
@@ -74,24 +105,48 @@ export class TTSService {
       }
 
       const audioBlob = await response.blob()
-      const audioUrl = URL.createObjectURL(audioBlob)
-      
-      this.audio = new Audio(audioUrl)
-      this.isPlaying = true
-      if (onStart) onStart()
 
-      this.audio.onended = () => {
-        this.isPlaying = false
-        if (onEnd) onEnd()
-        URL.revokeObjectURL(audioUrl)
+      if (isLive2dActive) {
+        // =============== LIVE2D 口型同步核心适配 ===============
+        const mp3ArrayBuffer = await audioBlob.arrayBuffer();
+        // 1. 将 MP3 转为 WAV PCM 格式以进行振幅解析
+        const wavArrayBuffer = await convertMp3ArrayBufferToWavArrayBuffer(mp3ArrayBuffer);
+        
+        // 2. 将音频载入 Live2D 口型队列
+        Live2dManager.getInstance().pushAudioQueue(wavArrayBuffer);
+        
+        this.isPlaying = true;
+        if (onStart) onStart();
+
+        // 3. 定时检测 Live2D 播放器状态以模拟 onEnd 事件
+        this.live2dAudioInterval = setInterval(() => {
+          if (!Live2dManager.getInstance().isAudioPlaying()) {
+            clearInterval(this.live2dAudioInterval);
+            this.isPlaying = false;
+            if (onEnd) onEnd();
+          }
+        }, 150);
+
+      } else {
+        // =============== 标准多媒体播放路径 ===============
+        const audioUrl = URL.createObjectURL(audioBlob)
+        this.audio = new Audio(audioUrl)
+        this.isPlaying = true
+        if (onStart) onStart()
+
+        this.audio.onended = () => {
+          this.isPlaying = false
+          if (onEnd) onEnd()
+          URL.revokeObjectURL(audioUrl)
+        }
+
+        this.audio.onerror = () => {
+          this.isPlaying = false
+          if (onEnd) onEnd()
+        }
+
+        await this.audio.play()
       }
-
-      this.audio.onerror = () => {
-        this.isPlaying = false
-        if (onEnd) onEnd()
-      }
-
-      await this.audio.play()
     } catch (error) {
       console.error('TTS Error:', error)
       this.isPlaying = false
@@ -103,14 +158,21 @@ export class TTSService {
    * Stop current playback
    */
   stop(): void {
+    // 停止 Live2D 音频播放
+    Live2dManager.getInstance().stopAudio();
+    if (this.live2dAudioInterval) {
+      clearInterval(this.live2dAudioInterval);
+      this.live2dAudioInterval = null;
+    }
+
     if (this.audio) {
       this.audio.pause()
       this.audio.currentTime = 0
       this.audio.onended = null
       this.audio.onerror = null
       this.audio = null
-      this.isPlaying = false
     }
+    this.isPlaying = false
   }
 
   /**

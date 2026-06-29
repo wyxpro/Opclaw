@@ -8,15 +8,29 @@ export interface AvatarPreset {
     id: string
     name: string
     url: string
-    type: 'image' | 'video'
-    gender: 'male' | 'female'
+    type: 'image' | 'video' | 'live2d'
+    gender: 'male' | 'female' | 'live2d'
     style: CharacterStyle
+    modelName?: string
+    modelPath?: string
 }
 
+const LIVE2D_PRESETS: AvatarPreset[] = [
+  { id: 'l2d-hiyori', name: 'Hiyori (Live2D)', url: '/sentio/characters/free/Hiyori/Hiyori.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Hiyori', modelPath: '/sentio/characters/free/Hiyori/Hiyori.model3.json' },
+  { id: 'l2d-harugreeter', name: 'Haru Greeter (Live2D)', url: '/sentio/characters/free/HaruGreeter/HaruGreeter.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'HaruGreeter', modelPath: '/sentio/characters/free/HaruGreeter/HaruGreeter.model3.json' },
+  { id: 'l2d-haru', name: 'Haru (Live2D)', url: '/sentio/characters/free/Haru/Haru.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Haru', modelPath: '/sentio/characters/free/Haru/Haru.model3.json' },
+  { id: 'l2d-mao', name: 'Mao (Live2D)', url: '/sentio/characters/free/Mao/Mao.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Mao', modelPath: '/sentio/characters/free/Mao/Mao.model3.json' },
+  { id: 'l2d-rice', name: 'Rice (Live2D)', url: '/sentio/characters/free/Rice/Rice.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Rice', modelPath: '/sentio/characters/free/Rice/Rice.model3.json' },
+  { id: 'l2d-chitose', name: 'Chitose (Live2D)', url: '/sentio/characters/free/Chitose/Chitose.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Chitose', modelPath: '/sentio/characters/free/Chitose/Chitose.model3.json' },
+  { id: 'l2d-epsilon', name: 'Epsilon (Live2D)', url: '/sentio/characters/free/Epsilon/Epsilon.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Epsilon', modelPath: '/sentio/characters/free/Epsilon/Epsilon.model3.json' },
+  { id: 'l2d-hibiki', name: 'Hibiki (Live2D)', url: '/sentio/characters/free/Hibiki/Hibiki.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Hibiki', modelPath: '/sentio/characters/free/Hibiki/Hibiki.model3.json' },
+  { id: 'l2d-izumi', name: 'Izumi (Live2D)', url: '/sentio/characters/free/Izumi/Izumi.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Izumi', modelPath: '/sentio/characters/free/Izumi/Izumi.model3.json' },
+  { id: 'l2d-kei', name: 'Kei (Live2D)', url: '/sentio/characters/free/Kei/Kei.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Kei', modelPath: '/sentio/characters/free/Kei/Kei.model3.json' },
+  { id: 'l2d-shizuku', name: 'Shizuku (Live2D)', url: '/sentio/characters/free/Shizuku/Shizuku.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Shizuku', modelPath: '/sentio/characters/free/Shizuku/Shizuku.model3.json' },
+  { id: 'l2d-tsumiki', name: 'Tsumiki (Live2D)', url: '/sentio/characters/free/Tsumiki/Tsumiki.png', type: 'live2d', gender: 'live2d', style: 'cartoon', modelName: 'Tsumiki', modelPath: '/sentio/characters/free/Tsumiki/Tsumiki.model3.json' }
+]
+
 const PRESET_AVATARS: AvatarPreset[] = [
-    // Default AI Avatar
-    { id: 'default-ai', name: 'AI数字人', url: '/vibe_images/person/girl/girl.png', type: 'image', gender: 'female', style: 'realistic' },
-    
     // Females
     { id: 'f1', name: '职场专家', url: '/vibe_images/person/girl/girl1.png', type: 'image', gender: 'female', style: 'realistic' },
     { id: 'f2', name: '元气甜妹', url: '/vibe_images/person/girl/元气甜妹.png', type: 'image', gender: 'female', style: 'realistic' },
@@ -36,13 +50,15 @@ const PRESET_AVATARS: AvatarPreset[] = [
     { id: 'm7', name: '街头少年', url: '/vibe_images/person/boy/街头少年.jpg', type: 'image', gender: 'male', style: 'realistic' },
 ]
 
-// 默认AI头像配置
+// 默认AI头像配置为 Hiyori Live2D
 export const DEFAULT_AI_AVATAR: AvatarModel = {
-    id: 'default-ai',
-    name: 'AI数字人',
-    type: 'image',
-    url: '/vibe_images/person/girl/girl.png',
-    style: 'realistic',
+    id: 'l2d-hiyori',
+    name: 'Hiyori (Live2D)',
+    type: 'live2d',
+    url: '/sentio/characters/free/Hiyori/Hiyori.png',
+    style: 'cartoon',
+    modelName: 'Hiyori',
+    modelPath: '/sentio/characters/free/Hiyori/Hiyori.model3.json',
     createdAt: Date.now(),
     isCloned: false
 }
@@ -58,7 +74,7 @@ interface AvatarSelectionDialogProps {
 
 export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvatar, currentAvatarUrl, onGoToClone }: AvatarSelectionDialogProps) {
     const [activeTab, setActiveTab] = useState<'presets' | 'my'>('presets')
-    const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all')
+    const [genderFilter, setGenderFilter] = useState<'all' | 'live2d' | 'male' | 'female'>('all')
     const [myStyleFilter, setMyStyleFilter] = useState<CharacterStyle>(myAvatar?.style || 'realistic')
     const [isGeneratingStyle, setIsGeneratingStyle] = useState(false)
     
@@ -193,7 +209,12 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
 
 
 
-    const filteredPresets = PRESET_AVATARS.filter(p => genderFilter === 'all' || p.gender === genderFilter)
+    const filteredPresets = (() => {
+        if (genderFilter === 'live2d') return LIVE2D_PRESETS
+        if (genderFilter === 'female') return PRESET_AVATARS.filter(p => p.gender === 'female')
+        if (genderFilter === 'male') return PRESET_AVATARS.filter(p => p.gender === 'male')
+        return [...LIVE2D_PRESETS, ...PRESET_AVATARS]
+    })()
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -263,7 +284,7 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                                 <div className="space-y-4">
                                     {/* Gender Filter */}
                                     <div className="flex gap-2">
-                                        {['all', 'female', 'male'].map((g) => (
+                                        {['all', 'live2d', 'female', 'male'].map((g) => (
                                             <button
                                                 key={g}
                                                 onClick={() => setGenderFilter(g as any)}
@@ -271,7 +292,7 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                                                     genderFilter === g ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-white border-gray-100 text-gray-400'
                                                 }`}
                                             >
-                                                {g === 'all' ? '全部' : g === 'female' ? '女生' : '男生'}
+                                                {g === 'all' ? '全部' : g === 'live2d' ? 'Live2D卡通' : g === 'female' ? '女生' : '男生'}
                                             </button>
                                         ))}
                                     </div>
@@ -282,7 +303,13 @@ export function AvatarSelectionDialog({ isOpen, onClose, onSelectAvatar, myAvata
                                             <button
                                                 key={p.id}
                                                 onClick={() => {
-                                                    onSelectAvatar({ type: p.type, url: p.url, style: p.style })
+                                                    onSelectAvatar({ 
+                                                        type: p.type, 
+                                                        url: p.url, 
+                                                        style: p.style,
+                                                        modelName: 'modelName' in p ? p.modelName : undefined,
+                                                        modelPath: 'modelPath' in p ? p.modelPath : undefined
+                                                    })
                                                     onClose()
                                                 }}
                                                 className={`group relative flex flex-col p-1.5 rounded-xl border-2 transition-all ${

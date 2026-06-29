@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '../lib/supabase'
 import { ragEngine } from '../lib/ragEngine'
+import { useSentioAgentStore } from '../lib/sentioStore'
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
@@ -69,22 +70,55 @@ ${context}
    */
   async streamChat(messages: ChatMessage[], onChunk: (chunk: string) => void) {
     try {
-      const apiKey = import.meta.env.VITE_DEEPSEEK_PROXY_KEY
-      const proxyUrl = import.meta.env.VITE_DEEPSEEK_PROXY_URL || '/api/innoreation/v1/proxy'
+      const agentStore = useSentioAgentStore.getState()
       
-      if (!apiKey) {
+      let apiKey = import.meta.env.VITE_DEEPSEEK_PROXY_KEY
+      let proxyUrl = import.meta.env.VITE_DEEPSEEK_PROXY_URL || '/api/innoreation/v1/proxy'
+      let selectedModel = 'deepseek-v4-pro'
+      let isCustomAgent = false
+
+      const customBaseUrl = agentStore.settings?.base_url
+      const isUrlValid = typeof customBaseUrl === 'string' && (customBaseUrl.startsWith('http://') || customBaseUrl.startsWith('https://'))
+
+      if (agentStore.settings?.api_key && isUrlValid) {
+        apiKey = agentStore.settings.api_key
+        proxyUrl = agentStore.settings.base_url
+        selectedModel = agentStore.settings.model || 'deepseek-chat'
+        isCustomAgent = true
+      } else {
+        selectedModel = (agentStore.enable && agentStore.engine !== 'default') 
+          ? agentStore.engine 
+          : 'deepseek-v4-pro'
+      }
+
+      if (!apiKey && !isCustomAgent) {
         await this.simulateStreaming('⚠️ 抱歉，我检测到 API Key 尚未配置。请在 .env 文件中设置 VITE_DEEPSEEK_PROXY_KEY 以开启真实的 AI 分身对话功能。', onChunk)
         return
       }
 
-      const response = await fetch(`${proxyUrl}/chat/completions`, {
+      let requestUrl = proxyUrl
+      if (isCustomAgent) {
+        if (!requestUrl.endsWith('/chat/completions')) {
+          requestUrl = requestUrl.replace(/\/$/, '') + '/chat/completions'
+        }
+      } else {
+        requestUrl = `${proxyUrl}/chat/completions`
+      }
+
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
+      if (isCustomAgent) {
+        headers['Authorization'] = `Bearer ${apiKey}`
+      } else {
+        headers['X-Proxy-Key'] = apiKey
+      }
+
+      const response = await fetch(requestUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Proxy-Key': apiKey,
-        },
+        headers,
         body: JSON.stringify({
-          model: 'deepseek-v4-pro',
+          model: selectedModel,
           messages: messages,
           stream: true,
           temperature: 0.7,

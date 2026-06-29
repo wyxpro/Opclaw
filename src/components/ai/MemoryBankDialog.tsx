@@ -19,29 +19,24 @@ const INDICATORS = [
   { name: '世界观', key: 'worldview', icon: <Compass className="w-4 h-4" />, desc: '价值观、观点立场、人生哲学等', color: '#3b82f6' }, // blue-500
 ]
 
-export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
-  isOpen,
-  onClose,
-  sessions
+export const MemoryBankContent: React.FC<{ sessions: ChatSession[]; isDark?: boolean }> = ({
+  sessions,
+  isDark = false
 }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(true)
 
   useEffect(() => {
-    if (isOpen) {
-      setIsAnalyzing(true)
-      const timer = setTimeout(() => {
-        setIsAnalyzing(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  }, [isOpen])
+    setIsAnalyzing(true)
+    const timer = setTimeout(() => {
+      setIsAnalyzing(false)
+    }, 1200)
+    return () => clearTimeout(timer)
+  }, [sessions])
 
-  // Simulate data based on session count to show "progressive" accuracy
   const analysisData = useMemo(() => {
     const messageCount = sessions.reduce((acc, curr) => acc + curr.messages.length, 0)
-    const baseValue = Math.min(40 + messageCount * 2, 85) // Max out at 85 for base
+    const baseValue = Math.min(40 + messageCount * 2, 85)
     
-    // Slight random variations based on message count hash-like logic
     return {
       tone: Math.min(baseValue + (messageCount % 10), 95),
       habit: Math.min(baseValue + (messageCount % 7), 92),
@@ -57,10 +52,10 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
     color: ['#6366f1'],
     tooltip: {
       trigger: 'item',
-      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-      borderColor: '#e2e8f0',
+      backgroundColor: isDark ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+      borderColor: isDark ? '#334155' : '#e2e8f0',
       textStyle: {
-        color: '#1e293b'
+        color: isDark ? '#f8fafc' : '#1e293b'
       }
     },
     radar: {
@@ -70,7 +65,7 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
       splitNumber: 4,
       shape: 'polygon',
       axisName: {
-        color: '#64748b',
+        color: isDark ? '#94a3b8' : '#64748b',
         fontSize: 11,
         fontWeight: 500,
         formatter: (name: string) => {
@@ -83,7 +78,7 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
         },
         rich: {
           n: {
-            color: '#64748b',
+            color: isDark ? '#94a3b8' : '#64748b',
             fontSize: 11,
             align: 'center'
           },
@@ -98,19 +93,21 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
       },
       splitArea: {
         areaStyle: {
-          color: ['rgba(99, 102, 241, 0.02)', 'rgba(99, 102, 241, 0.05)', 'rgba(99, 102, 241, 0.08)', 'rgba(99, 102, 241, 0.11)'].reverse(),
+          color: isDark 
+            ? ['rgba(99, 102, 241, 0.01)', 'rgba(99, 102, 241, 0.03)', 'rgba(99, 102, 241, 0.05)', 'rgba(99, 102, 241, 0.07)'].reverse()
+            : ['rgba(99, 102, 241, 0.02)', 'rgba(99, 102, 241, 0.05)', 'rgba(99, 102, 241, 0.08)', 'rgba(99, 102, 241, 0.11)'].reverse(),
           shadowColor: 'rgba(0, 0, 0, 0.02)',
           shadowBlur: 10
         }
       },
       axisLine: {
         lineStyle: {
-          color: 'rgba(99, 102, 241, 0.2)'
+          color: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.2)'
         }
       },
       splitLine: {
         lineStyle: {
-          color: 'rgba(99, 102, 241, 0.2)'
+          color: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.2)'
         }
       }
     },
@@ -144,7 +141,7 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
               color: '#6366f1'
             },
             label: {
-              show: false // We show it in axisName formatter instead
+              show: false
             }
           }
         ]
@@ -152,7 +149,6 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
     ]
   }
 
-  // Generate descriptions based on analysis values
   const getDescriptions = () => {
     const isDetailed = sessions.length > 3
     return {
@@ -167,11 +163,152 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
 
   const descriptions = getDescriptions()
 
+  if (isAnalyzing) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center">
+        <motion.div
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 relative ${isDark ? 'bg-indigo-950/50' : 'bg-indigo-50'}`}
+        >
+          <Sparkles className="w-8 h-8 text-indigo-500" />
+          <motion.div 
+            className="absolute inset-0 rounded-full border-4 border-indigo-500/20"
+            animate={{ scale: [1, 1.5], opacity: [1, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+        </motion.div>
+        <h4 className={`font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-gray-800'}`}>正在重构数字画像...</h4>
+        <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>深入解析语言习惯与思维模式</p>
+      </div>
+    )
+  }
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-4"
+    >
+      {/* Radar Chart Section + AI Analysis Section */}
+      <div className="flex flex-col sm:flex-row gap-4 items-stretch">
+        {/* Radar Chart */}
+        <div className={`flex-[1.2] rounded-2xl p-4 shadow-sm border relative overflow-hidden flex flex-col justify-center ${
+          isDark ? 'bg-slate-950/40 border-slate-800' : 'bg-white border-gray-100'
+        }`}>
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-100/10 to-purple-100/10 rounded-bl-full -z-10" />
+          <div className="text-center mb-1">
+            <h4 className={`font-bold text-xs sm:text-sm ${isDark ? 'text-slate-200' : 'text-gray-800'}`}>认知结构模型</h4>
+            <p className="text-[9px] text-gray-400">数据持续进化</p>
+          </div>
+          <div className="h-[220px] sm:h-[260px] w-full">
+            <ReactECharts 
+              option={radarOption} 
+              style={{ height: '100%', width: '100%' }}
+              opts={{ renderer: 'svg' }}
+            />
+          </div>
+        </div>
+
+        {/* AI Analysis Feedback */}
+        <div className="flex-1 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+            <div className="absolute top-2 right-2 w-12 h-12 rounded-full bg-white blur-xl" />
+          </div>
+          
+          <div className="flex items-center gap-1.5 mb-3 relative z-10">
+            <Sparkles size={14} className="text-indigo-200" />
+            <h4 className="font-bold text-xs sm:text-sm">AI 建议</h4>
+          </div>
+
+          <div className="space-y-2 flex-1 relative z-10 overflow-y-auto no-scrollbar">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/10">
+              <p className="text-[10px] sm:text-xs leading-relaxed">
+                <span className="font-bold text-indigo-200">💡 沟通:</span> 表达严谨，建议多些感性。
+              </p>
+            </div>
+            
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/10">
+              <p className="text-[10px] sm:text-xs leading-relaxed">
+                <span className="font-bold text-purple-200">🚀 优势:</span> 逻辑能力强 (85+)。
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/10">
+              <p className="text-[10px] sm:text-xs leading-relaxed">
+                <span className="font-bold text-pink-200">🎯 建议:</span> 目标拆解执行。
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[9px] text-white/60 relative z-10">
+            <span>可信度: 92%</span>
+            <div className="flex gap-0.5">
+              {['⭐', '⭐', '⭐', '⭐', '⭐'].map((s, i) => <span key={i}>{s}</span>)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Indicators List Section */}
+      <div className="space-y-3">
+        <h4 className={`font-bold text-xs sm:text-sm flex items-center gap-2 px-1 ${isDark ? 'text-slate-300' : 'text-gray-800'}`}>
+          <Activity size={14} className="text-indigo-500" />
+          特征解析报告
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {INDICATORS.map((indicator, index) => {
+            const score = analysisData[indicator.key as keyof typeof analysisData]
+            return (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                key={indicator.key} 
+                className={`rounded-2xl p-4 border shadow-sm transition-shadow group ${
+                  isDark ? 'bg-slate-950/20 border-slate-800/80 hover:bg-slate-950/40' : 'bg-white border-gray-100 hover:shadow-md'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div 
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105"
+                    style={{ backgroundColor: `${indicator.color}15`, color: indicator.color }}
+                  >
+                    {indicator.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h5 className={`font-bold text-xs ${isDark ? 'text-slate-200' : 'text-gray-800'}`}>{indicator.name}</h5>
+                      <span className="text-[10px] font-bold" style={{ color: indicator.color }}>
+                        {score} / 100
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mb-1.5 line-clamp-1">{indicator.desc}</p>
+                    <div className={`p-2 rounded-lg border ${isDark ? 'bg-slate-950/40 border-slate-800/60' : 'bg-slate-50 border-slate-100'}`}>
+                      <p className={`text-[11px] leading-relaxed ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+                        {descriptions[indicator.key as keyof typeof descriptions]}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
+  isOpen,
+  onClose,
+  sessions
+}) => {
   return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-0 sm:p-4 pb-8 md:pb-0">
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -180,26 +317,18 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"
           />
 
-          {/* Dialog Container */}
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="relative w-full max-w-2xl bg-white sm:rounded-3xl rounded-t-[32px] overflow-hidden flex flex-col max-h-[90vh] shadow-[0_-10px_50px_rgba(0,0,0,0.1)] mb-4 sm:mb-0"
+            className="relative w-full max-w-3xl bg-white sm:rounded-3xl rounded-t-[32px] overflow-hidden flex flex-col max-h-[90vh] shadow-[0_-10px_50px_rgba(0,0,0,0.1)] mb-4 sm:mb-0"
           >
             {/* Header */}
             <div className="px-6 py-5 flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-indigo-50/50 to-purple-50/50">
               <div className="flex items-center gap-3">
                 <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
                   <Brain size={20} />
-                  {isAnalyzing && (
-                    <motion.div 
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-0 rounded-xl border-2 border-dashed border-white/30"
-                    />
-                  )}
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -208,7 +337,7 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
                       BETA
                     </span>
                   </h3>
-                  <p className="text-xs text-gray-500 font-medium">基于 {sessions.length} 段对话深度分析</p>
+                  <p className="text-xs text-gray-500 font-medium">基于 {sessions.length} 段对话深度 analysis</p>
                 </div>
               </div>
               <button 
@@ -220,132 +349,8 @@ export const MemoryBankDialog: React.FC<MemoryBankDialogProps> = ({
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto min-h-0 bg-slate-50/30">
-              {isAnalyzing ? (
-                <div className="py-24 flex flex-col items-center justify-center">
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-6 relative"
-                  >
-                    <Sparkles className="w-10 h-10 text-indigo-500" />
-                    <motion.div 
-                      className="absolute inset-0 rounded-full border-4 border-indigo-500/20"
-                      animate={{ scale: [1, 1.5], opacity: [1, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    />
-                  </motion.div>
-                  <h4 className="text-gray-800 font-bold mb-2">正在重构数字画像...</h4>
-                  <p className="text-sm text-gray-500">深入解析语言习惯与思维模式</p>
-                </div>
-              ) : (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="p-3 sm:p-6"
-                >
-                  {/* Radar Chart Section + AI Analysis Section - Side by Side even on Mobile */}
-                  <div className="flex flex-row gap-3 mb-4 items-stretch">
-                    {/* Radar Chart */}
-                    <div className="flex-[1.2] bg-white rounded-2xl p-2 sm:p-5 shadow-sm border border-gray-100 relative overflow-hidden flex flex-col justify-center">
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-100/30 to-purple-100/30 rounded-bl-full -z-10" />
-                      <div className="text-center mb-1">
-                        <h4 className="font-bold text-gray-800 text-[13px] sm:text-lg">认知结构模型</h4>
-                        <p className="text-[9px] sm:text-[11px] text-gray-400">数据持续进化</p>
-                      </div>
-                      <div className="h-[180px] sm:h-[280px] w-full">
-                        <ReactECharts 
-                          option={radarOption} 
-                          style={{ height: '100%', width: '100%' }}
-                          opts={{ renderer: 'svg' }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* AI Analysis Feedback */}
-                    <div className="flex-1 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-3 sm:p-5 text-white shadow-lg relative overflow-hidden flex flex-col">
-                      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                        <div className="absolute top-2 right-2 w-12 h-12 rounded-full bg-white blur-xl" />
-                      </div>
-                      
-                      <div className="flex items-center gap-1.5 mb-2 sm:mb-4 relative z-10">
-                        <Sparkles size={14} className="text-indigo-200" />
-                        <h4 className="font-bold text-[12px] sm:text-base">AI 建议</h4>
-                      </div>
-
-                      <div className="space-y-2 flex-1 relative z-10 overflow-y-auto no-scrollbar">
-                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/10">
-                          <p className="text-[10px] sm:text-[13px] leading-tight sm:leading-relaxed">
-                            <span className="font-bold text-indigo-200">💡 沟通:</span> 表达严谨，建议多些感性。
-                          </p>
-                        </div>
-                        
-                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/10">
-                          <p className="text-[10px] sm:text-[13px] leading-tight sm:leading-relaxed">
-                            <span className="font-bold text-purple-200">🚀 优势:</span> 逻辑能力强(85+)。
-                          </p>
-                        </div>
-
-                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/10">
-                          <p className="text-[10px] sm:text-[13px] leading-tight sm:leading-relaxed">
-                            <span className="font-bold text-pink-200">🎯 建议:</span> 目标拆解执行。
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-2 pt-2 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between text-[8px] sm:text-[11px] text-white/60 relative z-10 gap-1">
-                        <span>可信度: 92%</span>
-                        <div className="flex gap-0.5">
-                          {['⭐', '⭐', '⭐', '⭐', '⭐'].map((s, i) => <span key={i}>{s}</span>)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Indicators List Section */}
-                  <div className="space-y-3">
-                    <h4 className="font-bold text-gray-800 mb-4 px-1 flex items-center gap-2">
-                      <Activity size={16} className="text-indigo-500" />
-                      特征解析报告
-                    </h4>
-                    {INDICATORS.map((indicator, index) => {
-                      const score = analysisData[indicator.key as keyof typeof analysisData]
-                      return (
-                        <motion.div 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          key={indicator.key} 
-                          className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow group"
-                        >
-                          <div className="flex items-start gap-4">
-                            <div 
-                              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
-                              style={{ backgroundColor: `${indicator.color}15`, color: indicator.color }}
-                            >
-                              {indicator.icon}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between mb-1">
-                                <h5 className="font-bold text-gray-800">{indicator.name}</h5>
-                                <span className="text-xs font-bold" style={{ color: indicator.color }}>
-                                  {score} / 100
-                                </span>
-                              </div>
-                              <p className="text-xs text-gray-400 mb-2">{indicator.desc}</p>
-                              <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                                <p className="text-sm text-gray-600 leading-relaxed">
-                                  {descriptions[indicator.key as keyof typeof descriptions]}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )
-                    })}
-                  </div>
-                </motion.div>
-              )}
+            <div className="flex-1 overflow-y-auto min-h-0 bg-slate-50/30 p-6">
+              <MemoryBankContent sessions={sessions} isDark={false} />
             </div>
           </motion.div>
         </div>

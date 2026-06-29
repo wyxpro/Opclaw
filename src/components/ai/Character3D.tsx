@@ -4,6 +4,8 @@ import { Upload, Video, Box, Image as ImageIcon } from 'lucide-react'
 import type { CharacterStyle } from './types'
 import type { Message } from './types'
 import { BackgroundCustomizer } from './BackgroundCustomizer'
+import { Live2DCanvas } from './Live2DCanvas'
+import { DEFAULT_AI_AVATAR } from './AvatarSelectionDialog'
 
 interface Character3DProps {
   style: CharacterStyle
@@ -12,7 +14,13 @@ interface Character3DProps {
   onStyleChange?: (style: CharacterStyle) => void
   onBackgroundChange?: (background: string) => void
   isMobileVoiceUI?: boolean
-  customAvatar?: { type: 'image' | 'video' | 'custom', url: string, style?: string } | null
+  customAvatar?: { 
+    type: 'image' | 'video' | 'custom' | 'live2d', 
+    url: string, 
+    style?: string,
+    modelName?: string,
+    modelPath?: string
+  } | null
   isSpeaking?: boolean
 }
 
@@ -200,75 +208,84 @@ export function Character3D({
 
   return (
     <div className="h-full w-full relative overflow-hidden" style={getBackgroundStyle()}>
-      {customMedia?.type === 'video' && (
-        <div className="absolute inset-0 w-full h-full">
-          <video
-            ref={videoRef}
-            src={customMedia.url}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-contain"
-          />
-        </div>
-      )}
-
-      {!customMedia && style !== 'hidden' && (
-        <div className={`absolute inset-0 flex items-center justify-center p-4 ${isMobileVoiceUI ? '-top-38 h-full' : ''}`}>
-          {/* Always show custom avatar if URL is available, otherwise show style-based default */}
-          {(customAvatar?.url || style === 'realistic') ? (
-            <motion.div
-              className="relative w-40 h-60 md:w-60 md:h-[22rem] lg:w-64 lg:h-[26rem] rounded-[40px] md:rounded-[48px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] border-4 border-white/10 md:-mt-30 lg:-mt-34"
-              animate={{
-                y: bodyAnimation.breathing ? [0, -10, 0] : 0,
-                ...getExpressionAnimation()
-              }}
-              transition={{ y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
-            >
-              {customAvatar?.type === 'video' ? (
-                <video 
-                  src={customAvatar.url} 
-                  autoPlay 
-                  loop 
-                  muted 
-                  playsInline 
-                  className="w-full h-full object-cover select-none" 
-                />
-              ) : (
-                <img 
-                  src={customAvatar?.url || "/vibe_images/person/girl/girl.png"} 
-                  alt="AI Character" 
-                  className="w-full h-full object-cover select-none"
-                  referrerPolicy="no-referrer"
-                />
-              )}
-              {isSpeaking && (
-                <motion.div 
-                  className="absolute top-[35%] left-1/2 -translate-x-1/2 w-8 bg-white/20 blur-md rounded-full pointer-events-none"
-                  animate={{ height: [2, 10, 2], opacity: [0.3, 0.6, 0.3] }}
-                  transition={{ duration: 0.15, repeat: Infinity }}
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-white/10 pointer-events-none" />
-            </motion.div>
-          ) : (
-            <motion.div
-              className="relative w-36 h-52 md:w-48 md:h-72 lg:w-56 lg:h-84 rounded-3xl md:-mt-30 lg:-mt-34"
-              style={getCharacterStyle()}
-              animate={{
-                y: bodyAnimation.breathing ? [0, -8, 0] : 0,
-                rotateX: headRotation.x,
-                rotateY: headRotation.y,
-                ...getExpressionAnimation()
-              }}
-              transition={{ y: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
-            >
-              <div className="absolute top-8 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-white border-4 border-white shadow-xl" />
-              <div className="absolute top-40 left-1/2 -translate-x-1/2 w-28 h-36 rounded-3xl bg-blue-500" />
-            </motion.div>
+      {(customAvatar?.type === 'live2d' || style === 'cartoon') ? (
+        <Live2DCanvas 
+          currentAvatar={(customAvatar?.type === 'live2d' ? customAvatar : DEFAULT_AI_AVATAR) as any} 
+          isSpeaking={externalIsSpeaking || false} 
+        />
+      ) : (
+        <>
+          {customMedia?.type === 'video' && (
+            <div className="absolute inset-0 w-full h-full">
+              <video
+                ref={videoRef}
+                src={customMedia.url}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+            </div>
           )}
-        </div>
+
+          {!customMedia && style !== 'hidden' && (
+            <div className={`absolute inset-0 flex items-center justify-center p-4 ${isMobileVoiceUI ? '-top-38 h-full' : ''}`}>
+              {/* Always show custom avatar if URL is available, otherwise show style-based default */}
+              {(customAvatar?.url || style === 'realistic') ? (
+                <motion.div
+                  className="relative w-40 h-60 md:w-60 md:h-[22rem] lg:w-64 lg:h-[26rem] rounded-[40px] md:rounded-[48px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] border-4 border-white/10 md:-mt-30 lg:-mt-34"
+                  animate={{
+                    y: bodyAnimation.breathing ? [0, -10, 0] : 0,
+                    ...getExpressionAnimation()
+                  }}
+                  transition={{ y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
+                >
+                  {customAvatar?.type === 'video' ? (
+                    <video 
+                      src={customAvatar.url} 
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline 
+                      className="w-full h-full object-cover select-none" 
+                    />
+                  ) : (
+                    <img 
+                      src={customAvatar?.url || "/vibe_images/person/girl/girl.png"} 
+                      alt="AI Character" 
+                      className="w-full h-full object-cover select-none"
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
+                  {isSpeaking && (
+                    <motion.div 
+                      className="absolute top-[35%] left-1/2 -translate-x-1/2 w-8 bg-white/20 blur-md rounded-full pointer-events-none"
+                      animate={{ height: [2, 10, 2], opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 0.15, repeat: Infinity }}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-white/10 pointer-events-none" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  className="relative w-36 h-52 md:w-48 md:h-72 lg:w-56 lg:h-84 rounded-3xl md:-mt-30 lg:-mt-34"
+                  style={getCharacterStyle()}
+                  animate={{
+                    y: bodyAnimation.breathing ? [0, -8, 0] : 0,
+                    rotateX: headRotation.x,
+                    rotateY: headRotation.y,
+                    ...getExpressionAnimation()
+                  }}
+                  transition={{ y: { duration: 3, repeat: Infinity, ease: "easeInOut" } }}
+                >
+                  <div className="absolute top-8 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-white border-4 border-white shadow-xl" />
+                  <div className="absolute top-40 left-1/2 -translate-x-1/2 w-28 h-36 rounded-3xl bg-blue-500" />
+                </motion.div>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       {/* 状态指示器 - 移动到历史记录按钮下面 */}

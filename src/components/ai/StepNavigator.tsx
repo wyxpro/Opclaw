@@ -234,7 +234,7 @@ export function StepNavigator({
       </div>
 
       {/* 移动端 - 紧凑横向布局（带连接线） */}
-      <div className="md:hidden flex items-center justify-center py-2" style={{ gap: '0' }}>
+      <div className="md:hidden flex items-center justify-start py-2" style={{ gap: '0' }}>
         {steps.map((step, index) => {
           const status = getStepStatus(step.id)
           const isLast = index === steps.length - 1

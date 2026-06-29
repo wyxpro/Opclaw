@@ -31,7 +31,8 @@
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",
     "tailwind-merge": "^3.4.1",
-    "three": "^0.183.1"
+    "three": "^0.183.1",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@amap/amap-jsapi-types": "^0.0.15",

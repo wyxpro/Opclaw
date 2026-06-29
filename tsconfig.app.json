@@ -22,7 +22,13 @@
     "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@framework/*": ["src/lib/live2d/Framework/src/*"],
+      "@live2dCore/*": ["src/lib/live2d/Core/*"]
+    }
   },
   "include": ["src"]
 }

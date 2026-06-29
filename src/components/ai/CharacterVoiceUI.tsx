@@ -231,38 +231,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
         }}
       />
 
-      {/* 2. 顶部工具栏 - 稍微向上移动一点，保持间距 */}
-      <div className="relative z-20 px-6 pt-24 pb-4">
-        <div className="flex items-center justify-start gap-3">
-          <motion.button
-            onClick={() => setIsAvatarDialogOpen(true)}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg shadow-black/10"
-          >
-            <Bot size={13} className="text-indigo-400" />
-            <span>形象选择</span>
-          </motion.button>
 
-          {onBackgroundChange && (
-            <div className="flex items-center bg-white/10 rounded-full border border-white/20 backdrop-blur-md">
-              <BackgroundCustomizer 
-                currentBackground={background}
-                onBackgroundChange={onBackgroundChange}
-              />
-            </div>
-          )}
-
-          {onStyleChange && (
-            <motion.button
-              onClick={() => onStyleChange(style === 'realistic' ? 'cartoon' : style === 'cartoon' ? 'hidden' : 'realistic')}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg shadow-black/10"
-            >
-              <span>{style === 'cartoon' ? '🎨 卡通' : style === 'hidden' ? '🚫 隐藏' : '👤 真实'}</span>
-            </motion.button>
-          )}
-        </div>
-      </div>
 
       {/* 4. 对话区域 - 加载全部消息 */}
       <div 

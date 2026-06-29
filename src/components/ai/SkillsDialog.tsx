@@ -8,12 +8,6 @@ import {
   Award, BookOpen, Star, Network, ChevronRight, ChevronDown,
   Sparkles, Shield, User, Briefcase, GraduationCap
 } from 'lucide-react'
-import { useTheme } from '../../hooks/useTheme'
-
-interface SkillsDialogProps {
-  isOpen: boolean
-  onClose: () => void
-}
 
 // --- Data Types ---
 interface SkillNode {
@@ -66,7 +60,7 @@ function RadarChart({ dimensions }: { dimensions: { name: string; score: number;
 
   return (
     <div className="flex flex-col items-center w-full">
-      <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-auto max-w-[240px] overflow-visible">
+      <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-auto max-w-[200px] overflow-visible">
         <defs>
           <radialGradient id="skillRadarGradient" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.5" />
@@ -104,17 +98,17 @@ function RadarChart({ dimensions }: { dimensions: { name: string; score: number;
           const labelPos = getPoint(index, 125, 100)
           return (
             <g key={index}>
-              <circle cx={point.x} cy={point.y} r="3.5" fill={dimensions[index].color} stroke="white" strokeWidth="1.5" className="shadow-lg" />
+              <circle cx={point.x} cy={point.y} r="3" fill={dimensions[index].color} stroke="white" strokeWidth="1" className="shadow-lg" />
               <text
                 x={labelPos.x}
                 y={labelPos.y}
                 textAnchor="middle"
                 dominantBaseline="middle"
                 className="font-bold"
-                style={{ fontSize: '9px' }}
+                style={{ fontSize: '8px' }}
               >
-                <tspan x={labelPos.x} dy="-4" fill="rgba(255,255,255,0.7)">{dimensions[index].name}</tspan>
-                <tspan x={labelPos.x} dy="10" fill={dimensions[index].color} className="text-[8px]">{dimensions[index].score}</tspan>
+                <tspan x={labelPos.x} dy="-4" fill="rgba(255,255,255,0.6)">{dimensions[index].name}</tspan>
+                <tspan x={labelPos.x} dy="9" fill={dimensions[index].color} className="text-[7px]">{dimensions[index].score}</tspan>
               </text>
             </g>
           )
@@ -233,18 +227,15 @@ function SkillTreeNode({ node, depth = 0 }: { node: SkillNode; depth?: number })
   )
 }
 
-// --- Main Dialog Component ---
-export const SkillsDialog: React.FC<SkillsDialogProps> = ({ isOpen, onClose }) => {
-  const { themeConfig } = useTheme()
+// --- Reusable Skills Content ---
+export const SkillsContent: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(true)
 
   useEffect(() => {
-    if (isOpen) {
-      setIsAnalyzing(true)
-      const timer = setTimeout(() => setIsAnalyzing(false), 1200)
-      return () => clearTimeout(timer)
-    }
-  }, [isOpen])
+    setIsAnalyzing(true)
+    const timer = setTimeout(() => setIsAnalyzing(false), 1200)
+    return () => clearTimeout(timer)
+  }, [])
 
   const skillCategories: SkillCategory[] = useMemo(() => [
     {
@@ -294,6 +285,145 @@ export const SkillsDialog: React.FC<SkillsDialogProps> = ({ isOpen, onClose }) =
     { name: '综合素质', score: 84, color: '#06b6d4' },
   ]
 
+  if (isAnalyzing) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center text-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+          className="w-16 h-16 rounded-full border-2 border-dashed border-amber-500/50 flex items-center justify-center mb-6"
+        >
+          <Sparkles className="w-8 h-8 text-amber-400" />
+        </motion.div>
+        <h4 className="text-white font-bold mb-2">正在同步跨模块技能数据...</h4>
+        <p className="text-xs text-white/40 px-6">从学习空间、工作助手及生活记录中提取特征</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Top Section: Radar & Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Radar Chart */}
+        <div className="md:col-span-1 bg-white/5 rounded-2xl p-4 border border-white/10 flex flex-col items-center justify-center">
+          <h4 className="text-xs font-bold text-white/80 mb-3 flex items-center gap-2 self-start w-full">
+            <Activity size={14} className="text-amber-400" />
+            技能均衡度
+          </h4>
+          <RadarChart dimensions={radarDimensions} />
+          <div className="mt-4 grid grid-cols-2 gap-2 w-full">
+            {radarDimensions.slice(0, 4).map(dim => (
+              <div key={dim.name} className="flex items-center gap-2 text-[10px] text-white/40 bg-white/5 p-1.5 rounded-lg">
+                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: dim.color }} />
+                <span className="truncate">{dim.name}</span>
+                <span className="ml-auto font-bold text-white/60">{dim.score}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats & 3D */}
+        <div className="md:col-span-2 space-y-4">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[
+              { label: '总技能数', value: '42', icon: Target, color: '#8b5cf6' },
+              { label: '已精通', value: '12', icon: Trophy, color: '#10b981' },
+              { label: '学习中', value: '8', icon: Clock, color: '#f59e0b' },
+              { label: '超越用户', value: '85%', icon: Award, color: '#3b82f6' },
+            ].map((stat, i) => (
+              <div key={i} className="bg-white/5 rounded-xl p-2.5 border border-white/10">
+                <stat.icon size={14} style={{ color: stat.color }} className="mb-1.5" />
+                <div className="text-lg font-bold text-white">{stat.value}</div>
+                <div className="text-[9px] text-white/40 uppercase tracking-wider">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+          
+          {/* 3D Visual */}
+          <KnowledgeGraph />
+
+          {/* AI Summary */}
+          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl p-4 border border-amber-500/20 relative overflow-hidden">
+            <div className="flex items-start gap-3 relative z-10">
+              <div className="p-2 rounded-lg bg-amber-500/20 shrink-0">
+                <Sparkles size={14} className="text-amber-400" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-amber-400 mb-1">能力诊断报告</h4>
+                <p className="text-[11px] text-white/70 leading-relaxed">
+                  你在<span className="text-white font-medium">技术创新</span>和<span className="text-white font-medium">跨领域学习</span>方面表现卓越。建议在接下来的周期中，结合工作助手中的项目需求，加强对<span className="text-white font-medium">系统架构</span>的深度探索，当前你的学习进度已领先 85% 的同类用户。
+                </p>
+              </div>
+            </div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl rounded-full" />
+          </div>
+        </div>
+      </div>
+
+      {/* Skills Categorization & Tree */}
+      <div className="space-y-3">
+        <h4 className="text-xs font-bold text-white/80 flex items-center gap-2">
+          <BookOpen size={14} className="text-amber-400" />
+          技能体系架构
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {skillCategories.map(category => (
+            <div key={category.id} className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-white/5">
+                <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${category.color}20`, color: category.color }}>
+                  {category.icon}
+                </div>
+                <h5 className="text-xs font-bold text-white/90">{category.name}</h5>
+              </div>
+              <div className="space-y-1">
+                {category.skills.map(skill => (
+                  <SkillTreeNode key={skill.id} node={skill} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Source Breakdown */}
+      <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+        <h4 className="text-xs font-bold text-white/80 mb-3">数据溯源分析</h4>
+        <div className="space-y-2">
+          {[
+            { name: '学习空间', desc: '提取自 AI 对话记录及 3 篇核心知识库文档', value: 92, icon: Brain },
+            { name: '工作助手', desc: '根据 5 个近期项目及工作经历自动识别', value: 85, icon: Briefcase },
+            { name: '生活记录', desc: '识别出 3 项长期坚持的兴趣爱好与特长', value: 76, icon: Star },
+          ].map((source, i) => (
+            <div key={i} className="flex items-center gap-3 group">
+              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/40 group-hover:text-amber-400 transition-colors border border-white/10 shrink-0">
+                <source.icon size={16} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[11px] font-bold text-white/80">{source.name}</span>
+                  <span className="text-[9px] text-white/40">贡献度 {source.value}%</span>
+                </div>
+                <p className="text-[9px] text-white/40 truncate">{source.desc}</p>
+              </div>
+              <div className="w-16 h-1 bg-white/5 rounded-full overflow-hidden shrink-0">
+                <div className="h-full bg-amber-500/50" style={{ width: `${source.value}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface SkillsDialogProps {
+  isOpen: boolean
+  onClose: () => void
+}
+
+export const SkillsDialog: React.FC<SkillsDialogProps> = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -337,134 +467,8 @@ export const SkillsDialog: React.FC<SkillsDialogProps> = ({ isOpen, onClose }) =
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-              {isAnalyzing ? (
-                <div className="py-32 flex flex-col items-center justify-center text-center">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="w-20 h-20 rounded-full border-2 border-dashed border-amber-500/50 flex items-center justify-center mb-6"
-                  >
-                    <Sparkles className="w-10 h-10 text-amber-400" />
-                  </motion.div>
-                  <h4 className="text-white font-bold mb-2">正在同步跨模块技能数据...</h4>
-                  <p className="text-sm text-white/40 px-6">从学习空间、工作助手及生活记录中提取特征</p>
-                </div>
-              ) : (
-                <div className="p-6 space-y-6">
-                  {/* Top Section: Radar & Stats */}
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Radar Chart */}
-                    <div className="lg:col-span-1 bg-white/5 rounded-2xl p-5 border border-white/10 flex flex-col items-center justify-center">
-                      <h4 className="text-sm font-bold text-white/80 mb-4 flex items-center gap-2 self-start w-full">
-                        <Activity size={14} className="text-amber-400" />
-                        技能均衡度
-                      </h4>
-                      <RadarChart dimensions={radarDimensions} />
-                      <div className="mt-4 grid grid-cols-2 gap-2 w-full">
-                        {radarDimensions.slice(0, 4).map(dim => (
-                          <div key={dim.name} className="flex items-center gap-2 text-[10px] text-white/40 bg-white/5 p-1.5 rounded-lg">
-                            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: dim.color }} />
-                            <span className="truncate">{dim.name}</span>
-                            <span className="ml-auto font-bold text-white/60">{dim.score}%</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Stats & 3D */}
-                    <div className="lg:col-span-2 space-y-4">
-                      {/* Stats Cards */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {[
-                          { label: '总技能数', value: '42', icon: Target, color: '#8b5cf6' },
-                          { label: '已精通', value: '12', icon: Trophy, color: '#10b981' },
-                          { label: '学习中', value: '8', icon: Clock, color: '#f59e0b' },
-                          { label: '超越用户', value: '85%', icon: Award, color: '#3b82f6' },
-                        ].map((stat, i) => (
-                          <div key={i} className="bg-white/5 rounded-xl p-3 border border-white/10">
-                            <stat.icon size={16} style={{ color: stat.color }} className="mb-2" />
-                            <div className="text-xl font-bold text-white">{stat.value}</div>
-                            <div className="text-[10px] text-white/40 uppercase tracking-wider">{stat.label}</div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* 3D Visual */}
-                      <KnowledgeGraph />
-
-                      {/* AI Summary */}
-                      <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl p-4 border border-amber-500/20 relative overflow-hidden">
-                        <div className="flex items-start gap-3 relative z-10">
-                          <div className="p-2 rounded-lg bg-amber-500/20">
-                            <Sparkles size={16} className="text-amber-400" />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-bold text-amber-400 mb-1">能力诊断报告</h4>
-                            <p className="text-xs text-white/70 leading-relaxed">
-                              你在<span className="text-white font-medium">技术创新</span>和<span className="text-white font-medium">跨领域学习</span>方面表现卓越。建议在接下来的周期中，结合工作助手中的项目需求，加强对<span className="text-white font-medium">系统架构</span>的深度探索，当前你的学习进度已领先 85% 的同类用户。
-                            </p>
-                          </div>
-                        </div>
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl rounded-full" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Skills Categorization & Tree */}
-                  <div className="space-y-4">
-                    <h4 className="text-sm font-bold text-white/80 flex items-center gap-2">
-                      <BookOpen size={16} className="text-amber-400" />
-                      技能体系架构
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {skillCategories.map(category => (
-                        <div key={category.id} className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/5">
-                            <div className="p-2 rounded-lg" style={{ backgroundColor: `${category.color}20`, color: category.color }}>
-                              {category.icon}
-                            </div>
-                            <h5 className="font-bold text-white/90">{category.name}</h5>
-                          </div>
-                          <div className="space-y-1">
-                            {category.skills.map(skill => (
-                              <SkillTreeNode key={skill.id} node={skill} />
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Source Breakdown */}
-                  <div className="bg-white/5 rounded-2xl p-5 border border-white/10">
-                    <h4 className="text-sm font-bold text-white/80 mb-4">数据溯源分析</h4>
-                    <div className="space-y-3">
-                      {[
-                        { name: '学习空间', desc: '提取自 AI 对话记录及 3 篇核心知识库文档', value: 92, icon: Brain },
-                        { name: '工作助手', desc: '根据 5 个近期项目及工作经历自动识别', value: 85, icon: Briefcase },
-                        { name: '生活记录', desc: '识别出 3 项长期坚持的兴趣爱好与特长', value: 76, icon: Star },
-                      ].map((source, i) => (
-                        <div key={i} className="flex items-center gap-4 group">
-                          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 group-hover:text-amber-400 transition-colors border border-white/10">
-                            <source.icon size={20} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-bold text-white/80">{source.name}</span>
-                              <span className="text-[10px] text-white/40">贡献度 {source.value}%</span>
-                            </div>
-                            <p className="text-[10px] text-white/40 truncate">{source.desc}</p>
-                          </div>
-                          <div className="w-16 h-1 bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-amber-500/50" style={{ width: `${source.value}%` }} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+              <SkillsContent />
             </div>
 
             {/* Footer */}

@@ -1,3 +1,5 @@
+import { useSentioAsrStore } from '../lib/sentioStore'
+
 /**
  * Service to handle Speech-to-Text (STT) using Silicon Flow API (SenseVoiceSmall)
  */
@@ -53,22 +55,45 @@ export class STTService {
   }
 
   /**
-   * Transcribe audio blob using Silicon Flow API
+   * Transcribe audio blob using Silicon Flow API or Third Party configurations
    */
   async transcribe(audioBlob: Blob): Promise<string> {
-    const apiKey = import.meta.env.VITE_SILICON_FLOW_API_KEY
+    const asrStore = useSentioAsrStore.getState()
+    
+    let apiKey = import.meta.env.VITE_SILICON_FLOW_API_KEY
+    let baseUrl = 'https://api.siliconflow.cn/v1'
+    let model = 'FunAudioLLM/SenseVoiceSmall'
+
+    const customBaseUrl = asrStore.settings?.base_url
+    const isUrlValid = typeof customBaseUrl === 'string' && (customBaseUrl.startsWith('http://') || customBaseUrl.startsWith('https://'))
+
+    if (asrStore.settings?.api_key && isUrlValid) {
+      apiKey = asrStore.settings.api_key
+      baseUrl = asrStore.settings.base_url
+      model = asrStore.settings.model || 'whisper-1'
+    } else if (asrStore.enable && asrStore.engine !== 'default') {
+      if (asrStore.engine === 'whisper-1') {
+        model = 'whisper-1'
+      } else {
+        model = asrStore.engine
+      }
+    }
+
     if (!apiKey) {
-      throw new Error('Silicon Flow API Key not found')
+      throw new Error('ASR API Key not found')
     }
 
     const formData = new FormData()
-    // Silicon Flow often prefers .wav or .mp3, but SenseVoiceSmall is quite flexible.
-    // Webm is the default for most browsers' MediaRecorder.
     formData.append('file', audioBlob, 'record.webm')
-    formData.append('model', 'FunAudioLLM/SenseVoiceSmall')
+    formData.append('model', model)
+
+    let requestUrl = baseUrl
+    if (!requestUrl.endsWith('/audio/transcriptions')) {
+      requestUrl = requestUrl.replace(/\/$/, '') + '/audio/transcriptions'
+    }
 
     try {
-      const response = await fetch('https://api.siliconflow.cn/v1/audio/transcriptions', {
+      const response = await fetch(requestUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,

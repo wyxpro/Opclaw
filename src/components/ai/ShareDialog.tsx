@@ -47,6 +47,18 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
   const [downloading, setDownloading] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
   const [qrCodeUrl, setQrCodeUrl] = useState('')
+  const [activeSection, setActiveSection] = useState<'poster' | 'embed'>('poster')
+  const [copyState, setCopyState] = useState<{ [key: string]: boolean }>({})
+
+  const handleCopyText = async (text: string, key: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopyState(prev => ({ ...prev, [key]: true }))
+      setTimeout(() => setCopyState(prev => ({ ...prev, [key]: false })), 2000)
+    } catch (e) {
+      console.error('Copy failed:', e)
+    }
+  }
 
   // Template state
   const [currentTemplate, setCurrentTemplate] = useState<TemplateType>('cartoon')
@@ -394,261 +406,396 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               </button>
             </div>
 
-            {/* Template Selector */}
-            <div className="px-6 py-4 border-b border-white/5 bg-white/5 relative z-10">
-              <p className="text-xs text-white/70 mb-2.5 font-bold flex items-center gap-1.5">
-                <Sparkles size={12} className="text-indigo-300" />
-                选择分享卡片样式模板：
-              </p>
-              <div className="grid grid-cols-5 gap-2">
-                {templates.map((tpl) => (
-                  <button
-                    key={tpl.id}
-                    onClick={() => setCurrentTemplate(tpl.id as TemplateType)}
-                    className={`flex flex-col items-center justify-center p-1.5 rounded-2xl border text-center transition-all ${
-                      currentTemplate === tpl.id 
-                        ? 'border-indigo-400 bg-indigo-500/25 shadow-[0_0_15px_rgba(99,102,241,0.3)]' 
-                        : 'border-white/5 bg-white/5 hover:bg-white/10'
-                    }`}
-                  >
-                    <div className={`w-8 h-8 rounded-full ${tpl.swatchBg} flex items-center justify-center text-xs font-bold shadow-inner mb-1 border border-white/10 shrink-0`}>
-                      {tpl.icon}
-                    </div>
-                    <span className="text-[10px] font-bold text-white/90">{tpl.name}</span>
-                  </button>
-                ))}
-              </div>
+            {/* Tab Selector */}
+            <div className="flex border-b border-white/10 bg-white/5 relative z-10 px-6">
+              <button
+                onClick={() => setActiveSection('poster')}
+                className={`flex-1 py-3 text-center text-xs font-bold transition-all border-b-2 ${
+                  activeSection === 'poster'
+                    ? 'border-indigo-500 text-white'
+                    : 'border-transparent text-white/50 hover:text-white/80'
+                }`}
+              >
+                生成分享海报
+              </button>
+              <button
+                onClick={() => setActiveSection('embed')}
+                className={`flex-1 py-3 text-center text-xs font-bold transition-all border-b-2 ${
+                  activeSection === 'embed'
+                    ? 'border-indigo-500 text-white'
+                    : 'border-transparent text-white/50 hover:text-white/80'
+                }`}
+              >
+                嵌入到网页 (Iframe/Scripts)
+              </button>
             </div>
 
-            {/* Scrollable Container for Card Preview + Action Buttons */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[calc(80vh-170px)] custom-scrollbar relative z-10">
-              
-              {/* --- The Sharing Card Canvas (#share-card-content) --- */}
-              <div 
-                ref={cardRef}
-                id="share-card-content"
-                className={s.wrapper}
-                style={{ contentVisibility: 'auto' }}
-              >
-                {/* Background Textures / Glows based on templates */}
-                {currentTemplate === 'cyber' && (
-                  <>
-                    <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-                    <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-                    <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #a855f7 1px, transparent 1px), linear-gradient(to bottom, #00d4ff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-                  </>
-                )}
-                {currentTemplate === 'minimal' && (
-                  <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1.2px, transparent 1.2px)', backgroundSize: '16px 16px' }} />
-                )}
-                {currentTemplate === 'artistic' && (
-                  <>
-                    <div className="absolute -top-32 -left-32 w-72 h-72 bg-gradient-to-br from-pink-300/15 to-orange-300/15 rounded-full blur-3xl pointer-events-none" />
-                    <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-gradient-to-br from-yellow-200/15 to-rose-300/15 rounded-full blur-3xl pointer-events-none" />
-                  </>
-                )}
-                {currentTemplate === 'cartoon' && (
-                  <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fb7185 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }} />
-                )}
-                {currentTemplate === 'retro' && (
-                  <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} />
-                )}
-
-                {/* Card Title Header */}
-                <div className="flex flex-col gap-3 relative z-10">
-                  <div className="flex items-center justify-between">
-                    <span className={s.badge}>
-                      <Sparkles size={10} className="animate-pulse" />
-                      MY DIGITAL CLONE · 数字人分身
-                    </span>
-                    <span className="text-[9px] text-inherit opacity-30 uppercase tracking-widest font-mono">OPCLAW LINK</span>
+            {activeSection === 'poster' ? (
+              <>
+                {/* Template Selector */}
+                <div className="px-6 py-4 border-b border-white/5 bg-white/5 relative z-10">
+                  <p className="text-xs text-white/70 mb-2.5 font-bold flex items-center gap-1.5">
+                    <Sparkles size={12} className="text-indigo-300" />
+                    选择分享卡片样式模板：
+                  </p>
+                  <div className="grid grid-cols-5 gap-2">
+                    {templates.map((tpl) => (
+                      <button
+                        key={tpl.id}
+                        onClick={() => setCurrentTemplate(tpl.id as TemplateType)}
+                        className={`flex flex-col items-center justify-center p-1.5 rounded-2xl border text-center transition-all ${
+                          currentTemplate === tpl.id 
+                            ? 'border-indigo-400 bg-indigo-500/25 shadow-[0_0_15px_rgba(99,102,241,0.3)]' 
+                            : 'border-white/5 bg-white/5 hover:bg-white/10'
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full ${tpl.swatchBg} flex items-center justify-center text-xs font-bold shadow-inner mb-1 border border-white/10 shrink-0`}>
+                          {tpl.icon}
+                        </div>
+                        <span className="text-[10px] font-bold text-white/90">{tpl.name}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Card Main Columns (Details on left, Digital Human Portrait on right) */}
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 relative z-10">
+                {/* Scrollable Container for Card Preview + Action Buttons */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[calc(80vh-170px)] custom-scrollbar relative z-10">
                   
-                  {/* Left Column: User details, DNA & Skill Matrix (7 cols on desktop) */}
-                  <div className="sm:col-span-7 flex flex-col justify-between gap-4">
-                    
-                    {/* Basic Info with Avatar to the Left of Nickname */}
-                    <div className="flex flex-col gap-2.5">
-                      <div className="flex items-center gap-3 text-left">
-                        {/* User Setting Avatar (Left) */}
-                        <div className={s.avatar}>
-                          <img 
-                            src={profile.avatar} 
-                            alt="User Profile Avatar" 
-                            className="w-full h-full object-cover"
-                            crossOrigin="anonymous"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3'
-                            }}
-                          />
-                        </div>
-                        {/* Name & Title */}
-                        <div className="min-w-0 flex-1">
-                          <h4 className={s.name}>{profile.name}</h4>
-                          <p className={s.title}>{profile.title}</p>
-                        </div>
-                      </div>
-                      <p className={`${s.bio} text-left`}>{profile.bio}</p>
-                    </div>
+                  {/* --- The Sharing Card Canvas (#share-card-content) --- */}
+                  <div 
+                    ref={cardRef}
+                    id="share-card-content"
+                    className={s.wrapper}
+                    style={{ contentVisibility: 'auto' }}
+                  >
+                    {/* Background Textures / Glows based on templates */}
+                    {currentTemplate === 'cyber' && (
+                      <>
+                        <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+                        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+                        <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #a855f7 1px, transparent 1px), linear-gradient(to bottom, #00d4ff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                      </>
+                    )}
+                    {currentTemplate === 'minimal' && (
+                      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1.2px, transparent 1.2px)', backgroundSize: '16px 16px' }} />
+                    )}
+                    {currentTemplate === 'artistic' && (
+                      <>
+                        <div className="absolute -top-32 -left-32 w-72 h-72 bg-gradient-to-br from-pink-300/15 to-orange-300/15 rounded-full blur-3xl pointer-events-none" />
+                        <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-gradient-to-br from-yellow-200/15 to-rose-300/15 rounded-full blur-3xl pointer-events-none" />
+                      </>
+                    )}
+                    {currentTemplate === 'cartoon' && (
+                      <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fb7185 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }} />
+                    )}
+                    {currentTemplate === 'retro' && (
+                      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} />
+                    )}
 
-                    {/* Character Clone DNA */}
-                    <div className="space-y-2 text-left">
-                      <h5 className={s.sectionHeader}>
-                        <Bot size={11} className={s.iconColor} />
-                        数字人克隆基因
-                      </h5>
-                      <div className="grid grid-cols-1 gap-2">
-                        {/* Voice DNA */}
-                        <div className={s.dnaBox}>
-                          <Mic size={12} className={s.iconColor} />
-                          <span className={s.dnaValue}>
-                            <span className="opacity-50">声线: </span>{voiceName}
-                          </span>
-                        </div>
-                        {/* Avatar DNA */}
-                        <div className={s.dnaBox}>
-                          <User size={12} className={s.iconColor} />
-                          <span className={s.dnaValue}>
-                            <span className="opacity-50">形象: </span>{avatarName}
-                          </span>
-                        </div>
+                    {/* Card Title Header */}
+                    <div className="flex flex-col gap-3 relative z-10">
+                      <div className="flex items-center justify-between">
+                        <span className={s.badge}>
+                          <Sparkles size={10} className="animate-pulse" />
+                          MY DIGITAL CLONE · 数字人分身
+                        </span>
+                        <span className="text-[9px] text-inherit opacity-30 uppercase tracking-widest font-mono">OPCLAW LINK</span>
                       </div>
                     </div>
 
-                    {/* Skill Matrix */}
-                    <div className="space-y-2 text-left">
-                      <h5 className={s.sectionHeader}>
-                        <Zap size={11} className={s.iconColor} />
-                        核心技能矩阵
-                      </h5>
-                      <div className="space-y-2">
-                        {skills.map((skill, index) => (
-                          <div key={index} className="space-y-1">
-                            <div className="flex justify-between text-[10px] font-medium">
-                              <span className={s.skillText}>{skill.name}</span>
-                              <span className={s.skillVal}>{skill.level}%</span>
+                    {/* Card Main Columns (Details on left, Digital Human Portrait on right) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 relative z-10">
+                      
+                      {/* Left Column: User details, DNA & Skill Matrix (7 cols on desktop) */}
+                      <div className="sm:col-span-7 flex flex-col justify-between gap-4">
+                        
+                        {/* Basic Info with Avatar to the Left of Nickname */}
+                        <div className="flex flex-col gap-2.5">
+                          <div className="flex items-center gap-3 text-left">
+                            {/* User Setting Avatar (Left) */}
+                            <div className={s.avatar}>
+                              <img 
+                                src={profile.avatar} 
+                                alt="User Profile Avatar" 
+                                className="w-full h-full object-cover"
+                                crossOrigin="anonymous"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = 'https://tse2.mm.bing.net/th/id/OIP.JXixrtqu6-SGuc8H2zyFogHaHa?rs=1&pid=ImgDetMain&o=7&rm=3'
+                                }}
+                              />
                             </div>
-                            <div className={s.skillTrack}>
-                              {currentTemplate === 'cartoon' ? (
-                                <motion.div
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${skill.level}%` }}
-                                  transition={{ duration: 1, ease: 'easeOut' }}
-                                  className={`h-full ${index === 0 ? 'bg-pink-400' : index === 1 ? 'bg-sky-400' : 'bg-yellow-400'}`}
-                                />
-                              ) : (
-                                <motion.div
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${skill.level}%` }}
-                                  transition={{ duration: 1, ease: 'easeOut' }}
-                                  className={`${s.skillFill} ${currentTemplate === 'minimal' || currentTemplate === 'retro' ? '' : `bg-gradient-to-r ${skill.color}`}`}
-                                />
-                              )}
+                            {/* Name & Title */}
+                            <div className="min-w-0 flex-1">
+                              <h4 className={s.name}>{profile.name}</h4>
+                              <p className={s.title}>{profile.title}</p>
                             </div>
                           </div>
-                        ))}
+                          <p className={`${s.bio} text-left`}>{profile.bio}</p>
+                        </div>
+
+                        {/* Character Clone DNA */}
+                        <div className="space-y-2 text-left">
+                          <h5 className={s.sectionHeader}>
+                            <Bot size={11} className={s.iconColor} />
+                            数字人克隆基因
+                          </h5>
+                          <div className="grid grid-cols-1 gap-2">
+                            {/* Voice DNA */}
+                            <div className={s.dnaBox}>
+                              <Mic size={12} className={s.iconColor} />
+                              <span className={s.dnaValue}>
+                                <span className="opacity-50">声线: </span>{voiceName}
+                              </span>
+                            </div>
+                            {/* Avatar DNA */}
+                            <div className={s.dnaBox}>
+                              <User size={12} className={s.iconColor} />
+                              <span className={s.dnaValue}>
+                                <span className="opacity-50">形象: </span>{avatarName}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Skill Matrix */}
+                        <div className="space-y-2 text-left">
+                          <h5 className={s.sectionHeader}>
+                            <Zap size={11} className={s.iconColor} />
+                            核心技能矩阵
+                          </h5>
+                          <div className="space-y-2">
+                            {skills.map((skill, index) => (
+                              <div key={index} className="space-y-1">
+                                <div className="flex justify-between text-[10px] font-medium">
+                                  <span className={s.skillText}>{skill.name}</span>
+                                  <span className={s.skillVal}>{skill.level}%</span>
+                                </div>
+                                <div className={s.skillTrack}>
+                                  {currentTemplate === 'cartoon' ? (
+                                    <motion.div
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${skill.level}%` }}
+                                      transition={{ duration: 1, ease: 'easeOut' }}
+                                      className={`h-full ${index === 0 ? 'bg-pink-400' : index === 1 ? 'bg-sky-400' : 'bg-yellow-400'}`}
+                                    />
+                                  ) : (
+                                    <motion.div
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${skill.level}%` }}
+                                      transition={{ duration: 1, ease: 'easeOut' }}
+                                      className={`${s.skillFill} ${currentTemplate === 'minimal' || currentTemplate === 'retro' ? '' : `bg-gradient-to-r ${skill.color}`}`}
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
                       </div>
+
+                      {/* Right Column: 3D/2D Digital Human Portrait on the right of bio (5 cols on desktop) */}
+                      <div className="sm:col-span-5 flex flex-col items-center justify-center">
+                        <motion.div 
+                          animate={{ y: [0, -6, 0] }}
+                          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                          className={s.portraitContainer}
+                        >
+                          {/* Portrait Badge */}
+                          <span className={s.portraitBadge}>
+                            {currentTemplate === 'cyber' ? '● 3D ONLINE' : 'AI DIGITAL CLONE'}
+                          </span>
+                          
+                          {/* Portrait Image (Using current customized avatar) */}
+                          <img 
+                            src={avatarUrl} 
+                            alt="AI 3D Clone representation" 
+                            className="w-full h-full object-cover select-none pointer-events-none"
+                            crossOrigin="anonymous"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/vibe_images/person/girl/girl.png'
+                            }}
+                            referrerPolicy="no-referrer"
+                          />
+
+                          {/* Portrait Caption Overlay */}
+                          <div className={s.portraitCaptionClass}>
+                            {s.portraitCaption}
+                          </div>
+                        </motion.div>
+                      </div>
+
                     </div>
 
-                  </div>
+                    {/* Card Divider */}
+                    <div className={s.divider} />
 
-                  {/* Right Column: 3D/2D Digital Human Portrait on the right of bio (5 cols on desktop) */}
-                  <div className="sm:col-span-5 flex flex-col items-center justify-center">
-                    <motion.div 
-                      animate={{ y: [0, -6, 0] }}
-                      transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                      className={s.portraitContainer}
-                    >
-                      {/* Portrait Badge */}
-                      <span className={s.portraitBadge}>
-                        {currentTemplate === 'cyber' ? '● 3D ONLINE' : 'AI DIGITAL CLONE'}
-                      </span>
-                      
-                      {/* Portrait Image (Using current customized avatar) */}
-                      <img 
-                        src={avatarUrl} 
-                        alt="AI 3D Clone representation" 
-                        className="w-full h-full object-cover select-none pointer-events-none"
-                        crossOrigin="anonymous"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/vibe_images/person/girl/girl.png'
-                        }}
-                        referrerPolicy="no-referrer"
-                      />
-
-                      {/* Portrait Caption Overlay */}
-                      <div className={s.portraitCaptionClass}>
-                        {s.portraitCaption}
+                    {/* Card Footer: QR Code & Prompt */}
+                    <div className="flex items-center justify-between gap-4 mt-1 relative z-10">
+                      <div className="space-y-1 flex-1 text-left">
+                        <h6 className={s.footerTitle}>与我的 AI 专属对话</h6>
+                        <p className={s.footerDesc}>
+                          长按或扫描右侧二维码，即可直接进入我的专属数字人界面，体验定制 of 音色、形象及知识库对话。
+                        </p>
                       </div>
-                    </motion.div>
+                      
+                      {/* QR Code Container */}
+                      <div className={s.qrContainer}>
+                        {qrCodeUrl ? (
+                          <img 
+                            src={qrCodeUrl} 
+                            alt="QR Code" 
+                            className="w-full h-full object-contain" 
+                            crossOrigin="anonymous"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-slate-100 animate-pulse rounded-lg" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons below card */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
+                      onClick={handleCopyLink}
+                      className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all"
+                    >
+                      {copied ? (
+                        <>
+                          <Check size={16} className="text-emerald-400" />
+                          <span className="text-emerald-400">链接已复制</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={16} className="text-white/70" />
+                          <span>复制专属链接</span>
+                        </>
+                      )}
+                    </motion.button>
+
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
+                      onClick={handleDownloadCard}
+                      disabled={downloading}
+                      className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Download size={16} />
+                      <span>{downloading ? '生成海报中...' : '保存为分享海报'}</span>
+                    </motion.button>
                   </div>
 
                 </div>
-
-                {/* Card Divider */}
-                <div className={s.divider} />
-
-                {/* Card Footer: QR Code & Prompt */}
-                <div className="flex items-center justify-between gap-4 mt-1 relative z-10">
-                  <div className="space-y-1 flex-1 text-left">
-                    <h6 className={s.footerTitle}>与我的 AI 专属对话</h6>
-                    <p className={s.footerDesc}>
-                      长按或扫描右侧二维码，即可直接进入我的专属数字人界面，体验定制的音色、形象及知识库对话。
-                    </p>
-                  </div>
+              </>
+            ) : (
+              <div className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[calc(80vh-170px)] custom-scrollbar relative z-10">
+                {/* Embed Content */}
+                <div className="space-y-5 text-left text-white font-sans">
                   
-                  {/* QR Code Container */}
-                  <div className={s.qrContainer}>
-                    {qrCodeUrl ? (
-                      <img 
-                        src={qrCodeUrl} 
-                        alt="QR Code" 
-                        className="w-full h-full object-contain" 
-                        crossOrigin="anonymous"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-slate-100 animate-pulse rounded-lg" />
-                    )}
+                  {/* 1. Share Link Section */}
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-bold text-slate-350">分享链接</label>
+                      <button 
+                        onClick={() => handleCopyText(shareUrl, 'link')}
+                        className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                      >
+                        {copyState['link'] ? (
+                          <>
+                            <Check size={12} className="text-emerald-400" />
+                            <span className="text-emerald-400">已复制</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={12} />
+                            <span>复制链接</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <input 
+                      type="text" 
+                      readOnly 
+                      value={shareUrl}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 outline-none select-all"
+                    />
                   </div>
+
+                  {/* 2. Iframe Embed Section */}
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <label className="text-xs font-bold text-slate-350">嵌入到网页 (Iframe)</label>
+                        <p className="text-[10px] text-white/50 mt-0.5">将以下 iframe 嵌入到你的网站中的目标位置</p>
+                      </div>
+                      <button 
+                        onClick={() => handleCopyText(`<iframe src="${shareUrl}" style="width: 100%; height: 100%; min-height: 700px" frameborder="0" allow="microphone"></iframe>`, 'iframe')}
+                        className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                      >
+                        {copyState['iframe'] ? (
+                          <>
+                            <Check size={12} className="text-emerald-400" />
+                            <span className="text-emerald-400">已复制</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={12} />
+                            <span>复制代码</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <textarea 
+                      readOnly 
+                      value={`<iframe src="${shareUrl}" style="width: 100%; height: 100%; min-height: 700px" frameborder="0" allow="microphone"></iframe>`}
+                      rows={4}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 outline-none font-mono resize-none select-all"
+                    />
+                  </div>
+
+                  {/* 3. Script Embed Section */}
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <label className="text-xs font-bold text-slate-350">嵌入脚本 (Scripts)</label>
+                        <p className="text-[10px] text-white/50 mt-0.5">将以下代码嵌入到你的网站中，在页面右下角显示浮动气泡对话窗口</p>
+                      </div>
+                      <button 
+                        onClick={() => handleCopyText(`<script>\n  window.sentioConfig = {\n    baseUrl: "${window.location.origin}",\n    appId: "${shareUrl.split('shareId=')[1] || '1e7bafbb-e514-4e52-bb10-cb4b7917fa27'}",\n    dynamicScript: true\n  };\n</script>\n<script src="${window.location.origin}/sentio/embed.js"></script>`, 'script')}
+                        className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                      >
+                        {copyState['script'] ? (
+                          <>
+                            <Check size={12} className="text-emerald-400" />
+                            <span className="text-emerald-400">已复制</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={12} />
+                            <span>复制脚本</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <textarea 
+                      readOnly 
+                      value={`<script>
+  window.sentioConfig = {
+    baseUrl: "${window.location.origin}",
+    appId: "${shareUrl.split('shareId=')[1] || '1e7bafbb-e514-4e52-bb10-cb4b7917fa27'}",
+    dynamicScript: true
+  };
+</script>
+<script src="${window.location.origin}/sentio/embed.js"></script>`}
+                      rows={8}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white/80 outline-none font-mono resize-none select-all"
+                    />
+                  </div>
+
                 </div>
               </div>
-
-              {/* Action Buttons below card */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handleCopyLink}
-                  className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all"
-                >
-                  {copied ? (
-                    <>
-                      <Check size={16} className="text-emerald-400" />
-                      <span className="text-emerald-400">链接已复制</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={16} className="text-white/70" />
-                      <span>复制专属链接</span>
-                    </>
-                  )}
-                </motion.button>
-
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handleDownloadCard}
-                  disabled={downloading}
-                  className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Download size={16} />
-                  <span>{downloading ? '生成海报中...' : '保存为分享海报'}</span>
-                </motion.button>
-              </div>
-
-            </div>
+            )}
 
             {/* Modal Footer Info */}
             <div className="px-6 py-3.5 border-t border-white/10 bg-white/5 flex items-center justify-center text-center relative z-10">

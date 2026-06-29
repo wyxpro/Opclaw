@@ -11,16 +11,15 @@ import { VoiceClone } from '../components/ai/VoiceClone'
 import { AvatarClone } from '../components/ai/AvatarClone'
 import { CharacterVoiceUI } from '../components/ai/CharacterVoiceUI'
 import { HistoryDialog, type ChatSession } from '../components/ai/HistoryDialog'
-import { MemoryBankDialog } from '../components/ai/MemoryBankDialog'
-import { SkillsDialog } from '../components/ai/SkillsDialog'
 import { useTheme } from '../hooks/useTheme'
 import { ragEngine } from '../lib/ragEngine'
 import { aiService, type ChatMessage } from '../services/aiService'
 import { ttsService } from '../services/ttsService'
 import { avatarCloneService } from '../services/avatarCloneService'
-import { Upload, History, MoreHorizontal, Sparkles, Bot, Brain, Zap, Share2 } from 'lucide-react'
+import { Upload, History, MoreHorizontal, Sparkles, Bot, Brain, Zap, Share2, Settings } from 'lucide-react'
 import { AvatarSelectionDialog, DEFAULT_AI_AVATAR } from '../components/ai/AvatarSelectionDialog'
 import { ShareDialog } from '../components/ai/ShareDialog'
+import { CharacterConfigDialog } from '../components/ai/CharacterConfigDialog'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
 
 export default function AICharacter() {
@@ -58,12 +57,11 @@ export default function AICharacter() {
   // 历史对话状态
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
-  const [isMemoryBankOpen, setIsMemoryBankOpen] = useState(false)
-  const [isSkillsOpen, setIsSkillsOpen] = useState(false)
   const [currentSessionId, setCurrentSessionId] = useState<string>(`session-${Date.now()}`)
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
+  const [isConfigOpen, setIsConfigOpen] = useState(false)
   const [shareToast, setShareToast] = useState<string | null>(null)
 
     // 加载历史记录及已克隆的模型
@@ -313,7 +311,8 @@ export default function AICharacter() {
           fullContent, 
           voiceModel,
           () => setIsSpeaking(true), 
-          () => setIsSpeaking(false)
+          () => setIsSpeaking(false),
+          customAvatar?.type === 'live2d'
         )
       }
 
@@ -487,6 +486,15 @@ export default function AICharacter() {
               {currentStep === 'chat' && (
                 <div className="flex items-center gap-3 flex-shrink-0 whitespace-nowrap ml-4">
                   <motion.button
+                    onClick={() => setIsConfigOpen(true)}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-teal-500/25 hover:bg-teal-500/35 border border-teal-400/40 backdrop-blur-md transition-all text-white shadow-[0_8px_20px_rgba(20,184,166,0.2),_inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_24px_rgba(20,184,166,0.35),_inset_0_1px_1px_rgba(255,255,255,0.4)]"
+                  >
+                    <Settings size={16} className="text-teal-200" />
+                    <span>数字人配置</span>
+                  </motion.button>
+
+                  <motion.button
                     onClick={() => setIsAvatarDialogOpen(true)}
                     whileTap={{ scale: 0.95 }}
                     className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-white shadow-lg"
@@ -527,22 +535,6 @@ export default function AICharacter() {
                       <span>历史</span>
                     </motion.button>
                     <motion.button
-                      onClick={() => setIsMemoryBankOpen(true)}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 backdrop-blur-md transition-all text-white shadow-lg"
-                    >
-                      <Brain size={16} className="text-indigo-300" />
-                      <span>Agent记忆库</span>
-                    </motion.button>
-                    <motion.button
-                      onClick={() => setIsSkillsOpen(true)}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 backdrop-blur-md transition-all text-white shadow-lg"
-                    >
-                      <Zap size={16} className="text-amber-300" />
-                      <span>Skills技能</span>
-                    </motion.button>
-                    <motion.button
                       onClick={() => setIsShareOpen(true)}
                       whileTap={{ scale: 0.95 }}
                       className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-bold bg-indigo-500/25 hover:bg-indigo-500/35 border border-indigo-400/40 backdrop-blur-md transition-all text-white shadow-[0_8px_20px_rgba(99,102,241,0.2),_inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_24px_rgba(99,102,241,0.35),_inset_0_1px_1px_rgba(255,255,255,0.4)]"
@@ -555,84 +547,77 @@ export default function AICharacter() {
               )}
             </div>
 
-            {/* Mobile: StepNavigator + History Button */}
-            <div className="md:hidden flex items-center gap-2">
-              <StepNavigator 
-                currentStep={currentStep}
-                completedSteps={completedSteps}
-                onStepChange={handleStepChange}
-                themeConfig={themeConfig}
-                forceWhite={currentStep === 'chat'}
-              />
-              
-              {/* Mobile History Button - 紧靠数字人对话右边 */}
-              {currentStep === 'chat' && (
-                  <div className="flex flex-col gap-1.5 ml-2">
+            {/* Mobile Layout: Left Column (StepNavigator, Avatar Selection, Background, Style Switcher) & Right Column (Config, History, Share) */}
+            <div className="md:hidden flex items-start justify-between w-full mt-1 px-2 relative min-h-[165px]">
+              {/* Left Column */}
+              <div className="flex flex-col items-start gap-2.5 z-[60] pt-1">
+                <StepNavigator 
+                  currentStep={currentStep}
+                  completedSteps={completedSteps}
+                  onStepChange={handleStepChange}
+                  themeConfig={themeConfig}
+                  forceWhite={currentStep === 'chat'}
+                />
+                
+                {currentStep === 'chat' && (
+                  <div className="flex flex-col items-start gap-1.5">
                     <button 
-                      onClick={() => setIsHistoryOpen(true)}
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
-                        isMobile && currentStep === 'chat' 
-                          ? 'bg-rose-500/20 border-rose-500/30 text-white shadow-lg' 
-                          : 'hover:opacity-80'
-                      }`}
-                      style={!(isMobile && currentStep === 'chat') ? {
-                        background: 'rgba(244, 63, 94, 0.15)',
-                        borderColor: 'rgba(244, 63, 94, 0.25)',
-                        color: themeConfig.colors.text
-                      } : {}}
+                      onClick={() => setIsAvatarDialogOpen(true)}
+                      className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 border border-white/20 backdrop-blur-md text-white shadow-lg active:scale-95 transition-all"
                     >
-                      <History size={12} className="text-rose-300" />
-                      <span>历史对话</span>
+                      <Bot size={13} className="text-indigo-300" />
+                      <span>形象选择</span>
                     </button>
-                    <button 
-                      onClick={() => setIsMemoryBankOpen(true)}
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
-                        isMobile && currentStep === 'chat' 
-                          ? 'bg-indigo-500/20 border-indigo-500/30 text-white shadow-lg' 
-                          : 'hover:opacity-80'
-                      }`}
-                      style={!(isMobile && currentStep === 'chat') ? {
-                        background: 'rgba(99, 102, 241, 0.15)',
-                        borderColor: 'rgba(99, 102, 241, 0.25)',
-                        color: themeConfig.colors.text
-                      } : {}}
+                    <div className="flex items-center bg-white/10 rounded-full border border-white/20 backdrop-blur-md shadow-lg scale-90 origin-left">
+                      <BackgroundCustomizer 
+                        currentBackground={background}
+                        onBackgroundChange={(newBg) => setBackground(newBg)}
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        const nextStyle = characterStyle === 'realistic' ? 'cartoon' : characterStyle === 'cartoon' ? 'hidden' : 'realistic'
+                        handleStyleSwitch(nextStyle)
+                      }}
+                      className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all backdrop-blur-md border border-white/20 shadow-lg active:scale-95 text-white"
+                      style={{
+                        background: `linear-gradient(135deg, rgba(255, 234, 167, 0.2) 0%, rgba(253, 203, 110, 0.2) 50%)`
+                      }}
                     >
-                      <Brain size={12} className="text-indigo-300" />
-                      <span>Agent记忆库</span>
-                    </button>
-                    <button 
-                      onClick={() => setIsSkillsOpen(true)}
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_4px_12px_rgba(0,0,0,0.05)] ${
-                        isMobile && currentStep === 'chat' 
-                          ? 'bg-amber-500/20 border-amber-500/30 text-white shadow-lg' 
-                          : 'hover:opacity-80'
-                      }`}
-                      style={!(isMobile && currentStep === 'chat') ? {
-                        background: 'rgba(245, 158, 11, 0.15)',
-                        borderColor: 'rgba(245, 158, 11, 0.25)',
-                        color: themeConfig.colors.text
-                      } : {}}
-                    >
-                      <Zap size={12} className="text-amber-300" />
-                      <span>Skills技能</span>
-                    </button>
-                    <button 
-                      onClick={() => setIsShareOpen(true)}
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full backdrop-blur-md border text-[11px] font-semibold transition-all active:scale-95 shadow-[0_8px_20px_rgba(99,102,241,0.25),_inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_24px_rgba(99,102,241,0.4),_inset_0_1px_1px_rgba(255,255,255,0.4)] ${
-                        isMobile && currentStep === 'chat' 
-                          ? 'bg-indigo-500/25 border-indigo-400/40 text-white' 
-                          : 'hover:opacity-80'
-                      }`}
-                      style={!(isMobile && currentStep === 'chat') ? {
-                        background: 'rgba(99, 102, 241, 0.25)',
-                        borderColor: 'rgba(99, 102, 241, 0.40)',
-                        color: themeConfig.colors.text
-                      } : {}}
-                    >
-                      <Share2 size={12} className="text-indigo-300" />
-                      <span>分享分身</span>
+                      <span>{characterStyle === 'cartoon' ? '🎨 卡通' : characterStyle === 'hidden' ? '🚫 隐藏' : '👤 真实'}</span>
                     </button>
                   </div>
+                )}
+              </div>
+              
+              {/* Right Column */}
+              {currentStep === 'chat' && (
+                <div className="flex flex-col items-end gap-1.5 z-[60] pt-1">
+                  <button 
+                    onClick={() => setIsConfigOpen(true)}
+                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-teal-500/20 border border-teal-500/30 text-teal-200 backdrop-blur-md active:scale-95 transition-all"
+                    title="数字人配置"
+                  >
+                    <Settings size={13} />
+                    <span>数字人配置</span>
+                  </button>
+                  <button 
+                    onClick={() => setIsHistoryOpen(true)}
+                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-rose-500/20 border border-rose-500/30 text-rose-200 backdrop-blur-md active:scale-95 transition-all"
+                    title="历史对话"
+                  >
+                    <History size={13} />
+                    <span>历史对话</span>
+                  </button>
+                  <button 
+                    onClick={() => setIsShareOpen(true)}
+                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-indigo-500/20 border border-indigo-500/30 text-indigo-200 backdrop-blur-md active:scale-95 transition-all"
+                    title="分享分身"
+                  >
+                    <Share2 size={13} />
+                    <span>分享分身</span>
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -648,17 +633,6 @@ export default function AICharacter() {
           sessions={sessions}
           onSelectSession={handleSelectSession}
           onDeleteSession={handleDeleteSession}
-        />
-        {/* Memory Bank Dialog */}
-        <MemoryBankDialog 
-          isOpen={isMemoryBankOpen}
-          onClose={() => setIsMemoryBankOpen(false)}
-          sessions={sessions}
-        />
-        {/* Skills Dialog */}
-        <SkillsDialog 
-          isOpen={isSkillsOpen}
-          onClose={() => setIsSkillsOpen(false)}
         />
         {/* Avatar Selection Dialog */}
         <AvatarSelectionDialog 
@@ -681,6 +655,12 @@ export default function AICharacter() {
           characterStyle={characterStyle}
           background={background}
           customAvatar={customAvatar}
+        />
+        {/* Character Config Dialog */}
+        <CharacterConfigDialog 
+          isOpen={isConfigOpen}
+          onClose={() => setIsConfigOpen(false)}
+          sessions={sessions}
         />
         {/* Share Load Toast */}
         <AnimatePresence>
