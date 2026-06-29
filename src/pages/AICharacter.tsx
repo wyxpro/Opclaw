@@ -49,7 +49,7 @@ export default function AICharacter() {
   
   // 对话界面状态
   const [characterStyle, setCharacterStyle] = useState<CharacterStyle>('realistic')
-  const [background, setBackground] = useState<string>('cafe')
+  const [background, setBackground] = useState<string>('library')
   const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [isAvatarLoading, setIsAvatarLoading] = useState(false)

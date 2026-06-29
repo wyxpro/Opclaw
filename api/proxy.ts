@@ -1,6 +1,4 @@
-export const config = {
-  runtime: 'edge',
-}
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 export default async function handler(req: Request) {
   if (req.method !== 'POST') {

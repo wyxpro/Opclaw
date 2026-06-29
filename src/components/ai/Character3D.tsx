@@ -288,34 +288,7 @@ export function Character3D({
         </>
       )}
 
-      {/* 状态指示器 - 移动到历史记录按钮下面 */}
-      <AnimatePresence>
-        <div className="absolute top-16 right-4 flex flex-col gap-2 items-end z-20">
-          {expression !== 'neutral' && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, x: 20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.8, x: 20 }}
-              className="px-3 py-1.5 rounded-full text-xs font-medium bg-white shadow-lg text-gray-800"
-            >
-              {expression === 'happy' && '😊 开心'}
-              {expression === 'thinking' && '🤔 思考中'}
-              {expression === 'listening' && '👂 倾听中'}
-              {expression === 'surprised' && '😲 惊讶'}
-            </motion.div>
-          )}
-          {isSpeaking && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, x: 20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.8, x: 20 }}
-              className="px-3 py-1.5 rounded-full text-xs font-medium bg-green-500 text-white shadow-lg"
-            >
-              🗣️ 语音播放中
-            </motion.div>
-          )}
-        </div>
-      </AnimatePresence>
+
     </div>
   )
 }

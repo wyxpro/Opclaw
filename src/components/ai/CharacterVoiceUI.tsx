@@ -37,7 +37,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
   messages,
   isLoading,
   onSendMessage,
-  background = 'cafe',
+  background = 'library',
   characterName = '小梦',
   onStyleChange,
   onBackgroundChange,
