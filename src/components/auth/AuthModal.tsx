@@ -544,61 +544,24 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                       )}
                     </button>
                     
-                    {/* 游客一键登录按钮 - 深度优化透明版 */}
+                    {/* 游客一键登录按钮 */}
                     <button
                       onClick={handleGuestLogin}
                       disabled={isAnyLoading}
-                      className="group w-full h-[52px] rounded-full font-black text-white flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50 disabled:hover:scale-100 overflow-hidden relative shadow-xl"
+                      className="w-full py-3.5 rounded-full font-semibold text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
                       style={{
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        outline: 'none',
-                        padding: 0,
+                        background: 'linear-gradient(135deg, #4ade80 0%, #10b981 100%)',
+                        boxShadow: '0 4px 20px -5px rgba(74, 222, 128, 0.4)',
+                        border: 'none'
                       }}
                     >
-                      {/* 核心动态彩虹背景层 */}
-                      <motion.div
-                        className="absolute inset-0 pointer-events-none"
-                        style={{
-                          background: 'linear-gradient(115deg, #ff2400, #e81d1d, #e8b71d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3)',
-                          backgroundSize: '300% 300%',
-                        }}
-                        animate={{
-                          backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                        }}
-                        transition={{
-                          duration: 8,
-                          repeat: Infinity,
-                          ease: "linear"
-                        }}
-                      />
-                      
-                      {/* 增强质感的覆盖层 */}
-                      <div className="absolute inset-0 bg-black/10 pointer-events-none" />
-                      
-                      {/* 流动扫光 */}
-                      <motion.div
-                        className="absolute inset-0 opacity-0 group-hover:opacity-40 pointer-events-none"
-                        style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)' }}
-                        animate={{
-                          left: ['-100%', '200%'],
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      />
-                      
                       {isGuestLoading ? (
-                        <Loader2 size={20} className="animate-spin text-white z-10" />
+                        <Loader2 size={20} className="animate-spin" />
                       ) : (
-                        <div className="flex items-center gap-2 z-10">
-                          <Zap size={20} className="text-white fill-white animate-pulse" />
-                          <span className="tracking-[0.2em] text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
-                            游客一键登录
-                          </span>
-                        </div>
+                        <>
+                          <Zap size={18} className="fill-current" />
+                          游客一键登录
+                        </>
                       )}
                     </button>
                   </div>

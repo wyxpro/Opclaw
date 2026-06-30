@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  X, Edit3, Eye, FileText, Download, Home, Share2
+  X, Edit3, Eye, FileText, Download, Home, Share2, Sparkles
 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../../../hooks/useTheme'
 import { useResume } from './useResume'
 import { ResumePreview } from './ResumePreview'
@@ -16,6 +17,7 @@ interface OnlineResumeProps {
 
 export function OnlineResume({ isOpen, onClose }: OnlineResumeProps) {
   const { themeConfig } = useTheme()
+  const navigate = useNavigate()
   const { 
     resumeData, 
     isLoading, 
@@ -111,6 +113,16 @@ export function OnlineResume({ isOpen, onClose }: OnlineResumeProps) {
                   <FileText size={16} />
                   <span className="hidden sm:inline">简历</span>
                 </button>
+                <button
+                  onClick={() => navigate('/resume-templates')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all hover:opacity-85"
+                  style={{ 
+                    color: themeConfig.colors.textMuted,
+                  }}
+                >
+                  <Sparkles size={16} />
+                  <span className="hidden sm:inline">模版</span>
+                </button>
               </div>
 
               <div className="hidden sm:block">
@@ -200,7 +212,11 @@ export function OnlineResume({ isOpen, onClose }: OnlineResumeProps) {
           <div className="flex-1 overflow-hidden">
             {mode === 'preview' ? (
               <div className="h-full overflow-y-auto">
-                <ResumePreview data={resumeData} themeConfig={themeConfig} />
+                <ResumePreview 
+                  data={resumeData} 
+                  themeConfig={themeConfig} 
+                  templateId={localStorage.getItem('opclaw-resume-template') || 'minimal'} 
+                />
               </div>
             ) : (
               <ResumeEditor

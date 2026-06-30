@@ -34,6 +34,7 @@ const navItems: NavItem[] = [
     subItems: [
       { path: '/?tab=ip', label: '🏠 IP主页' },
       { path: '/?tab=resume', label: '📄 在线简历' },
+      { path: '/resume-templates', label: '📋 简历模版' },
     ]
   },
   {

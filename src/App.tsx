@@ -11,12 +11,14 @@ import Home from './pages/Home'
 import Assets from './pages/Assets'
 import Learning from './pages/Learning'
 import Life from './pages/Life'
-import Social from './pages/Social'
-import Profile from './pages/Profile'
 import AICharacter from './pages/AICharacter'
+import Profile from './pages/Profile'
 import Community from './pages/Community'
+import Social from './pages/Social'
 import Laboratory from './pages/Laboratory'
 import Work from './pages/Work'
+import ResumeTemplates from './pages/ResumeTemplates'
+import ResumeBuilder from './pages/ResumeBuilder'
 
 function AppContent() {
   const location = useLocation()
@@ -47,6 +49,8 @@ function AppContent() {
             <Route path="/social" element={<Social />} />
             <Route path="/laboratory" element={<Laboratory />} />
             <Route path="/work" element={<Work />} />
+            <Route path="/resume-templates" element={<ResumeTemplates />} />
+            <Route path="/resume-builder" element={<ResumeBuilder />} />
           </Routes>
         </AnimatePresence>
       </main>

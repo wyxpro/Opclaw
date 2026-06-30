@@ -288,6 +288,7 @@ const socialIcons: Record<string, { icon: React.ComponentType<{ size?: number; c
 
 export function HeroSection({ profile, showResume = false, onToggleResume, onOpenCardModal, isEditMode = false, onUpdateProfile, mode = 'preview', onModeChange, onDownloadPDF, canUndo, canRedo, onUndo, onRedo, onResetToDefault, onBack }: HeroSectionProps) {
   const { themeConfig, currentTheme } = useTheme()
+  const navigate = useNavigate()
   const containerRef = useRef<HTMLDivElement>(null)
   const isMobile = useIsMobile()
   const fileInputRef = useRef<HTMLInputElement>(null)

@@ -64,6 +64,7 @@ export default function Home() {
         { label: '知识库', icon: BookOpen, path: '/learning?view=knowledge' },
         { label: 'AI 助手', icon: Brain, path: '/learning' },
         { label: '在线简历', icon: FileText, path: '/learning' },
+        { label: '简历模版', icon: FileText, path: '/resume-templates' },
       ]
     },
     {
