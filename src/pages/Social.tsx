@@ -117,6 +117,146 @@ export default function Social() {
   const [showProfileEditModal, setShowProfileEditModal] = useState(false)
   const { currentTheme } = useTheme()
 
+  // 自媒体平台状态
+  const [platforms, setPlatforms] = useState<any[]>(() => {
+    try {
+      const stored = localStorage.getItem('opclaw_social_matrix')
+      if (stored) return JSON.parse(stored)
+    } catch (e) {
+      console.error(e)
+    }
+    return matrixPlatforms
+  })
+
+  // 当登录状态变化时，若无本地存储则默认初始化粉丝与获赞为0
+  useEffect(() => {
+    if (isAuthenticated) {
+      const stored = localStorage.getItem('opclaw_social_matrix')
+      if (!stored) {
+        const defaultPlatforms = matrixPlatforms.map(p => ({
+          ...p,
+          followers: '0',
+          likes: '0'
+        }))
+        setPlatforms(defaultPlatforms)
+        localStorage.setItem('opclaw_social_matrix', JSON.stringify(defaultPlatforms))
+      }
+    } else {
+      const stored = localStorage.getItem('opclaw_social_matrix')
+      if (!stored) {
+        setPlatforms(matrixPlatforms)
+      }
+    }
+  }, [isAuthenticated])
+
+  const [editingPlatform, setEditingPlatform] = useState<any | null>(null)
+  const [isAddingPlatform, setIsAddingPlatform] = useState(false)
+  const [showMatrixModal, setShowMatrixModal] = useState(false)
+
+  const [matrixForm, setMatrixForm] = useState({
+    id: '',
+    name: '',
+    username: '',
+    platformId: '',
+    followers: '0',
+    likes: '0',
+    description: '',
+    themeColor: '#8b5cf6',
+    badge: '',
+    url: '#',
+    qrCode: ''
+  })
+
+  useEffect(() => {
+    if (editingPlatform) {
+      setMatrixForm({
+        id: editingPlatform.id,
+        name: editingPlatform.name,
+        username: editingPlatform.username,
+        platformId: editingPlatform.platformId,
+        followers: editingPlatform.followers || '0',
+        likes: editingPlatform.likes || '0',
+        description: editingPlatform.description || '',
+        themeColor: editingPlatform.themeColor || '#8b5cf6',
+        badge: editingPlatform.badge || '',
+        url: editingPlatform.url || '#',
+        qrCode: editingPlatform.qrCode || ''
+      })
+    } else {
+      setMatrixForm({
+        id: '',
+        name: '',
+        username: '',
+        platformId: '',
+        followers: '0',
+        likes: '0',
+        description: '',
+        themeColor: '#8b5cf6',
+        badge: '',
+        url: '#',
+        qrCode: ''
+      })
+    }
+  }, [editingPlatform, isAddingPlatform])
+
+  const handleEditPlatform = (platform: any) => {
+    setEditingPlatform(platform)
+    setIsAddingPlatform(false)
+    setShowMatrixModal(true)
+  }
+
+  const handleAddPlatform = () => {
+    setEditingPlatform(null)
+    setIsAddingPlatform(true)
+    setShowMatrixModal(true)
+  }
+
+  const handleSavePlatform = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!matrixForm.name.trim()) return
+
+    let updatedList = [...platforms]
+    const platformKey = matrixForm.id || `custom-${Date.now()}`
+    
+    let qrCodeUrl = matrixForm.qrCode
+    if (matrixForm.url && matrixForm.url !== '#' && !qrCodeUrl) {
+      qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(matrixForm.url)}`
+    }
+
+    const platformData = {
+      id: matrixForm.id ? matrixForm.id : platformKey,
+      name: matrixForm.name,
+      username: matrixForm.username || matrixForm.name,
+      platformId: matrixForm.platformId,
+      followers: matrixForm.followers,
+      likes: matrixForm.likes,
+      description: matrixForm.description,
+      themeColor: matrixForm.themeColor,
+      badge: matrixForm.badge,
+      url: matrixForm.url,
+      qrCode: qrCodeUrl,
+      gradient: `linear-gradient(135deg, ${matrixForm.themeColor}dd 0%, rgba(96, 165, 250, 0.15) 100%)`
+    }
+
+    if (matrixForm.id) {
+      updatedList = platforms.map(p => p.id === matrixForm.id ? platformData : p)
+    } else {
+      updatedList.push(platformData)
+    }
+
+    setPlatforms(updatedList)
+    localStorage.setItem('opclaw_social_matrix', JSON.stringify(updatedList))
+    setShowMatrixModal(false)
+  }
+
+  const handleDeletePlatform = (id: string) => {
+    const updatedList = platforms.filter(p => p.id !== id)
+    setPlatforms(updatedList)
+    localStorage.setItem('opclaw_social_matrix', JSON.stringify(updatedList))
+    setShowMatrixModal(false)
+  }
+
+
   // 当认证状态变化时更新用户资料
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -345,7 +485,12 @@ export default function Social() {
           )}
           {activeTab === 'matrix' && (
             <motion.div key="matrix" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-              <SocialMatrix />
+              <SocialMatrix 
+                platforms={platforms} 
+                isAuthenticated={isAuthenticated} 
+                onEditPlatform={handleEditPlatform} 
+                onAddPlatform={handleAddPlatform} 
+              />
             </motion.div>
           )}
           {activeTab === 'social' && (
@@ -434,7 +579,14 @@ export default function Social() {
           ) : mobileView === 'danmaku' ? (
             <MobileDanmakuWall key="danmaku" onBack={() => setMobileView('menu')} />
           ) : mobileView === 'matrix' ? (
-            <MobileSocialMatrix key="matrix" onBack={() => setMobileView('menu')} />
+            <MobileSocialMatrix 
+              key="matrix" 
+              platforms={platforms} 
+              isAuthenticated={isAuthenticated} 
+              onEditPlatform={handleEditPlatform} 
+              onAddPlatform={handleAddPlatform} 
+              onBack={() => setMobileView('menu')} 
+            />
           ) : mobileView === 'social' ? (
             <MobileProfileTabContent key="social" onBack={() => setMobileView('menu')} />
           ) : null}
@@ -448,6 +600,178 @@ export default function Social() {
         onOpenAbout={() => setShowAboutModal(true)}
         onOpenLaboratory={() => navigate('/laboratory')}
       />
+
+      {/* 自媒体矩阵平台 编辑/新增 弹窗 */}
+      <AnimatePresence>
+        {showMatrixModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4"
+            onClick={() => setShowMatrixModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full max-w-lg rounded-2xl border p-6 shadow-2xl relative overflow-hidden max-h-[90vh] overflow-y-auto ${
+                currentTheme === 'cyber'
+                  ? 'bg-surface/95 border-primary/40 backdrop-blur-xl text-text'
+                  : 'bg-card border-border text-text'
+              }`}
+            >
+              <button
+                onClick={() => setShowMatrixModal(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-surface/50 text-text-muted hover:text-text transition-all"
+              >
+                <X size={18} />
+              </button>
+
+              <h3 className="text-lg font-bold mb-4">
+                {isAddingPlatform ? '新增自媒体平台' : '修改平台信息'}
+              </h3>
+
+              <form onSubmit={handleSavePlatform} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-text-muted mb-1">平台名称</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="如：抖音、哔哩哔哩"
+                    value={matrixForm.name}
+                    onChange={(e) => setMatrixForm({ ...matrixForm, name: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl border border-border bg-bg-alt/40 text-sm focus:outline-none focus:border-primary transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-text-muted mb-1">昵称 / 账号名</label>
+                    <input
+                      type="text"
+                      placeholder="如：@叶子的代码空间"
+                      value={matrixForm.username}
+                      onChange={(e) => setMatrixForm({ ...matrixForm, username: e.target.value })}
+                      className="w-full px-3.5 py-2 rounded-xl border border-border bg-bg-alt/40 text-sm focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-text-muted mb-1">平台 ID / 账号</label>
+                    <input
+                      type="text"
+                      placeholder="如：UID: 48392019"
+                      value={matrixForm.platformId}
+                      onChange={(e) => setMatrixForm({ ...matrixForm, platformId: e.target.value })}
+                      className="w-full px-3.5 py-2 rounded-xl border border-border bg-bg-alt/40 text-sm focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-text-muted mb-1">订阅/粉丝数</label>
+                    <input
+                      type="text"
+                      placeholder="如：25.6W 或 0"
+                      value={matrixForm.followers}
+                      onChange={(e) => setMatrixForm({ ...matrixForm, followers: e.target.value })}
+                      className="w-full px-3.5 py-2 rounded-xl border border-border bg-bg-alt/40 text-sm focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-text-muted mb-1">获赞数</label>
+                    <input
+                      type="text"
+                      placeholder="如：120.4W 或 0"
+                      value={matrixForm.likes}
+                      onChange={(e) => setMatrixForm({ ...matrixForm, likes: e.target.value })}
+                      className="w-full px-3.5 py-2 rounded-xl border border-border bg-bg-alt/40 text-sm focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-text-muted mb-1">平台主页链接</label>
+                  <input
+                    type="text"
+                    placeholder="如：https://space.bilibili.com/... (无则填#)"
+                    value={matrixForm.url}
+                    onChange={(e) => setMatrixForm({ ...matrixForm, url: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl border border-border bg-bg-alt/40 text-sm focus:outline-none focus:border-primary transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-text-muted mb-1">平台主题色</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={matrixForm.themeColor}
+                        onChange={(e) => setMatrixForm({ ...matrixForm, themeColor: e.target.value })}
+                        className="w-10 h-9 rounded-lg border border-border cursor-pointer overflow-hidden p-0 bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={matrixForm.themeColor}
+                        onChange={(e) => setMatrixForm({ ...matrixForm, themeColor: e.target.value })}
+                        className="w-full px-2 py-1.5 rounded-lg border border-border bg-bg-alt/40 text-xs focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-text-muted mb-1">专属标签 (选填)</label>
+                    <input
+                      type="text"
+                      placeholder="如：知名UP主"
+                      value={matrixForm.badge}
+                      onChange={(e) => setMatrixForm({ ...matrixForm, badge: e.target.value })}
+                      className="w-full px-3.5 py-2 rounded-xl border border-border bg-bg-alt/40 text-sm focus:outline-none focus:border-primary transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-text-muted mb-1">描述信息</label>
+                  <textarea
+                    placeholder="请输入关于这个平台的描述信息..."
+                    value={matrixForm.description}
+                    onChange={(e) => setMatrixForm({ ...matrixForm, description: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl border border-border bg-bg-alt/40 text-sm focus:outline-none focus:border-primary transition-all h-20 resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-3 border-t border-border/40 justify-end">
+                  {!isAddingPlatform && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeletePlatform(matrixForm.id)}
+                      className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-xl text-sm font-semibold transition-all mr-auto"
+                    >
+                      删除平台
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowMatrixModal(false)}
+                    className="px-4 py-2 border border-border hover:bg-bg-alt/50 rounded-xl text-sm font-semibold transition-all"
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-xl text-sm font-semibold transition-all shadow-md"
+                  >
+                    保存
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 关于我们弹窗 */}
       <AboutModal
@@ -888,10 +1212,17 @@ function PlatformIcon({ platform, className = "w-5 h-5" }: { platform: string; c
   )
 }
 
-function SocialMatrix() {
+interface SocialMatrixProps {
+  platforms: any[]
+  isAuthenticated: boolean
+  onEditPlatform: (platform: any) => void
+  onAddPlatform: () => void
+}
+
+function SocialMatrix({ platforms, isAuthenticated, onEditPlatform, onAddPlatform }: SocialMatrixProps) {
   const { currentTheme, themeConfig } = useTheme()
   const isCyber = currentTheme === 'cyber'
-  const [activeQrPlatform, setActiveQrPlatform] = useState<typeof matrixPlatforms[number] | null>(null)
+  const [activeQrPlatform, setActiveQrPlatform] = useState<any | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const handleCopy = (text: string, id: string) => {
@@ -899,6 +1230,29 @@ function SocialMatrix() {
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 1500)
   }
+
+  const parseNumber = (val: string): number => {
+    if (!val) return 0
+    const clean = val.toString().trim().toUpperCase()
+    if (clean.endsWith('W')) {
+      return parseFloat(clean.replace('W', '')) * 10000
+    }
+    if (clean.endsWith('K')) {
+      return parseFloat(clean.replace('K', '')) * 1000
+    }
+    const parsed = parseFloat(clean)
+    return isNaN(parsed) ? 0 : parsed
+  }
+
+  const formatNumber = (num: number): string => {
+    if (num >= 10000) {
+      return (num / 10000).toFixed(1) + 'W+'
+    }
+    return num.toString()
+  }
+
+  const totalFollowers = platforms.reduce((sum, p) => sum + parseNumber(p.followers), 0)
+  const totalLikes = platforms.reduce((sum, p) => sum + parseNumber(p.likes), 0)
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto px-1 py-4">
@@ -921,22 +1275,33 @@ function SocialMatrix() {
               多平台同步更新，致力于分享最前沿的前端技术、3D引擎实战、AI应用开发经验以及数字化生活的探索之旅。欢迎关注订阅！
             </p>
           </div>
-          <div className="flex gap-8 items-center bg-bg-alt/50 p-4 rounded-xl border border-border/40 shrink-0">
-            <div className="text-center">
-              <span className="text-xs text-text-muted font-semibold block mb-0.5">全网粉丝总量</span>
-              <span className="text-2xl font-black text-primary">51.4W+</span>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex gap-8 items-center bg-bg-alt/50 p-4 rounded-xl border border-border/40 shrink-0">
+              <div className="text-center">
+                <span className="text-xs text-text-muted font-semibold block mb-0.5">全网粉丝总量</span>
+                <span className="text-2xl font-black text-primary">{formatNumber(totalFollowers)}</span>
+              </div>
+              <div className="w-px h-8 bg-border" />
+              <div className="text-center">
+                <span className="text-xs text-text-muted font-semibold block mb-0.5">获赞与支持</span>
+                <span className="text-2xl font-black text-accent">{formatNumber(totalLikes)}</span>
+              </div>
             </div>
-            <div className="w-px h-8 bg-border" />
-            <div className="text-center">
-              <span className="text-xs text-text-muted font-semibold block mb-0.5">获赞与支持</span>
-              <span className="text-2xl font-black text-accent">201.2W+</span>
-            </div>
+            {isAuthenticated && (
+              <button
+                onClick={onAddPlatform}
+                className="flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-bold text-white bg-primary hover:bg-primary/95 transition-all shadow-md shrink-0 active:scale-[0.98]"
+              >
+                <Plus size={16} />
+                新增平台
+              </button>
+            )}
           </div>
         </div>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {matrixPlatforms.map((platform, idx) => (
+        {platforms.map((platform, idx) => (
           <motion.div
             key={platform.id}
             initial={{ opacity: 0, y: 20 }}
@@ -975,18 +1340,32 @@ function SocialMatrix() {
                     </div>
                   </div>
                 </div>
-                {platform.badge && (
-                  <span 
-                    className="text-[10px] px-2 py-0.5 rounded-full font-bold border"
-                    style={{ 
-                      borderColor: `${platform.themeColor}30`, 
-                      background: `${platform.themeColor}10`, 
-                      color: platform.themeColor 
-                    }}
-                  >
-                    {platform.badge}
-                  </span>
-                )}
+                <div className="flex items-center gap-1.5">
+                  {platform.badge && (
+                    <span 
+                      className="text-[10px] px-2 py-0.5 rounded-full font-bold border"
+                      style={{ 
+                        borderColor: `${platform.themeColor}30`, 
+                        background: `${platform.themeColor}10`, 
+                        color: platform.themeColor 
+                      }}
+                    >
+                      {platform.badge}
+                    </span>
+                  )}
+                  {isAuthenticated && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditPlatform(platform);
+                      }}
+                      className="p-1.5 rounded-lg bg-surface-alt hover:bg-primary/10 text-text-muted hover:text-primary transition-all border border-border/40 hover:border-primary/20 shrink-0"
+                      title="编辑平台"
+                    >
+                      <Edit2 size={13} />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-4 items-center bg-bg-alt/40 p-2.5 rounded-xl border border-border/30 mb-3.5">
@@ -1122,10 +1501,18 @@ function SocialMatrix() {
   )
 }
 
-function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
+interface MobileSocialMatrixProps {
+  platforms: any[]
+  isAuthenticated: boolean
+  onEditPlatform: (platform: any) => void
+  onAddPlatform: () => void
+  onBack: () => void
+}
+
+function MobileSocialMatrix({ platforms, isAuthenticated, onEditPlatform, onAddPlatform, onBack }: MobileSocialMatrixProps) {
   const { currentTheme, themeConfig } = useTheme()
   const isCyber = currentTheme === 'cyber'
-  const [activeQrPlatform, setActiveQrPlatform] = useState<typeof matrixPlatforms[number] | null>(null)
+  const [activeQrPlatform, setActiveQrPlatform] = useState<any | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const handleCopy = (text: string, id: string) => {
@@ -1134,6 +1521,29 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
     setTimeout(() => setCopiedId(null), 1500)
   }
 
+  const parseNumber = (val: string): number => {
+    if (!val) return 0
+    const clean = val.toString().trim().toUpperCase()
+    if (clean.endsWith('W')) {
+      return parseFloat(clean.replace('W', '')) * 10000
+    }
+    if (clean.endsWith('K')) {
+      return parseFloat(clean.replace('K', '')) * 1000
+    }
+    const parsed = parseFloat(clean)
+    return isNaN(parsed) ? 0 : parsed
+  }
+
+  const formatNumber = (num: number): string => {
+    if (num >= 10000) {
+      return (num / 10000).toFixed(1) + 'W+'
+    }
+    return num.toString()
+  }
+
+  const totalFollowers = platforms.reduce((sum, p) => sum + parseNumber(p.followers), 0)
+  const totalLikes = platforms.reduce((sum, p) => sum + parseNumber(p.likes), 0)
+
   return (
     <div className="relative min-h-screen bg-bg pb-24 overflow-y-auto flex flex-col">
       <div className="flex items-center gap-3 p-4 border-b border-border/50 bg-surface shrink-0">
@@ -1141,6 +1551,15 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
           <ArrowLeft size={20} />
         </button>
         <h2 className="font-extrabold text-base text-text">自媒体矩阵</h2>
+        {isAuthenticated && (
+          <button
+            onClick={onAddPlatform}
+            className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-primary hover:bg-primary/95 transition-all shadow-sm active:scale-[0.98]"
+          >
+            <Plus size={12} />
+            新增
+          </button>
+        )}
       </div>
 
       <div className="p-4 space-y-5 flex-1 overflow-y-auto">
@@ -1161,17 +1580,17 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
           <div className="grid grid-cols-2 gap-4 bg-bg-alt/50 p-3 rounded-xl border border-border/40 mt-3.5">
             <div className="text-center">
               <span className="text-[10px] text-text-muted block mb-0.5">全网粉丝总量</span>
-              <span className="text-lg font-black text-primary">51.4W+</span>
+              <span className="text-lg font-black text-primary">{formatNumber(totalFollowers)}</span>
             </div>
             <div className="text-center border-l border-border/50">
               <span className="text-[10px] text-text-muted block mb-0.5">获赞与支持</span>
-              <span className="text-lg font-black text-accent">201.2W+</span>
+              <span className="text-lg font-black text-accent">{formatNumber(totalLikes)}</span>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          {matrixPlatforms.map((platform) => (
+          {platforms.map((platform) => (
             <div
               key={platform.id}
               className={`rounded-2xl border p-3 flex flex-col justify-between relative overflow-hidden ${
@@ -1182,38 +1601,53 @@ function MobileSocialMatrix({ onBack }: { onBack: () => void }) {
             >
               <div>
                 <div className="flex flex-col gap-2 mb-3">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm shrink-0"
-                      style={{ background: platform.themeColor }}
-                    >
-                      <PlatformIcon platform={platform.id} className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="font-extrabold text-text text-xs truncate">{platform.name}</h4>
-                      <div className="text-[9px] text-text-muted mt-0.5 flex items-center gap-1">
-                        <span className="truncate max-w-[50px] sm:max-w-[80px]">{platform.platformId}</span>
-                        <button 
-                          onClick={() => handleCopy(platform.platformId.replace(/ID:\s*|群号:\s*|微信号:\s*/g, ''), `${platform.id}-id`)}
-                          className="text-primary font-bold hover:underline shrink-0"
-                        >
-                          {copiedId === `${platform.id}-id` ? '已复' : '复制'}
-                        </button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div 
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm shrink-0"
+                        style={{ background: platform.themeColor }}
+                      >
+                        <PlatformIcon platform={platform.id} className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-extrabold text-text text-xs truncate">{platform.name}</h4>
+                        <div className="text-[9px] text-text-muted mt-0.5 flex items-center gap-1">
+                          <span className="truncate max-w-[50px] sm:max-w-[80px]">{platform.platformId}</span>
+                        </div>
                       </div>
                     </div>
+                    {isAuthenticated && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditPlatform(platform);
+                        }}
+                        className="p-1 rounded bg-surface border border-border/50 text-text-muted hover:text-primary transition-all shrink-0"
+                      >
+                        <Edit2 size={11} />
+                      </button>
+                    )}
                   </div>
-                  {platform.badge && (
-                    <span 
-                      className="self-start text-[8px] px-1.5 py-0.5 rounded-full font-bold border shrink-0"
-                      style={{ 
-                        borderColor: `${platform.themeColor}30`, 
-                        background: `${platform.themeColor}10`, 
-                        color: platform.themeColor 
-                      }}
+                  <div className="flex items-center gap-1">
+                    <button 
+                      onClick={() => handleCopy(platform.platformId.replace(/ID:\s*|群号:\s*|微信号:\s*/g, ''), `${platform.id}-id`)}
+                      className="text-primary font-bold hover:underline shrink-0 text-[9px]"
                     >
-                      {platform.badge}
-                    </span>
-                  )}
+                      {copiedId === `${platform.id}-id` ? '已复' : '复制ID'}
+                    </button>
+                    {platform.badge && (
+                      <span 
+                        className="text-[8px] px-1.5 py-0.5 rounded-full font-bold border shrink-0 scale-90 origin-left"
+                        style={{ 
+                          borderColor: `${platform.themeColor}30`, 
+                          background: `${platform.themeColor}10`, 
+                          color: platform.themeColor 
+                        }}
+                      >
+                        {platform.badge}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex gap-1.5 items-center bg-bg-alt/40 px-2 py-1 rounded-lg border border-border/30 mb-2.5 text-center">

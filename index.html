@@ -28,6 +28,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
       tailwind.config = {
         theme: {
@@ -343,12 +344,20 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-image: url("/vibe_images/bg.png");
-        background-size: cover;
-        background-position: center top;
-        background-repeat: no-repeat;
+        background-color: #030303;
         transition: transform 0.3s ease-out;
         will-change: transform;
+      }
+      #hero-section .btn-secondary {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #ffffff !important;
+        backdrop-filter: blur(10px);
+      }
+      #hero-section .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.18) !important;
+        border-color: rgba(139, 92, 246, 0.5) !important;
+        color: #ffffff !important;
       }
 
       /* 点击波纹效果 - 优化版 */
@@ -1078,13 +1087,13 @@
             <span class="gradient-text">Opclaw</span>
           </h1>
           <p
-            class="hero-tagline text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900 mb-4 animate-fade-in-up delay-100"
+            class="hero-tagline text-2xl sm:text-3xl lg:text-4xl font-semibold text-white mb-4 animate-fade-in-up delay-100"
             style="opacity: 0"
           >
             OPC超级个体-全能数字资产与AI分身助手
           </p>
           <p
-            class="text-lg text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in-up delay-200"
+            class="text-lg text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in-up delay-200"
             style="opacity: 0"
           ></p>
           <div
@@ -1092,19 +1101,19 @@
             style="opacity: 0"
           >
             <span
-              class="px-4 py-1.5 rounded-full text-sm font-medium bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-600 hover:border-violet-300 hover:shadow-lg hover:shadow-violet-100 transition-all cursor-default"
+              class="px-4 py-1.5 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm border border-white/10 text-gray-200 hover:border-violet-400 hover:bg-white/20 transition-all cursor-default"
               >一人公司</span
             >
             <span
-              class="px-4 py-1.5 rounded-full text-sm font-medium bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-600 hover:border-violet-300 hover:shadow-lg hover:shadow-violet-100 transition-all cursor-default"
+              class="px-4 py-1.5 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm border border-white/10 text-gray-200 hover:border-violet-400 hover:bg-white/20 transition-all cursor-default"
               >AI创业者</span
             >
             <span
-              class="px-4 py-1.5 rounded-full text-sm font-medium bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-600 hover:border-violet-300 hover:shadow-lg hover:shadow-violet-100 transition-all cursor-default"
+              class="px-4 py-1.5 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm border border-white/10 text-gray-200 hover:border-violet-400 hover:bg-white/20 transition-all cursor-default"
               >自媒体博主</span
             >
             <span
-              class="hidden sm:inline-block px-4 py-1.5 rounded-full text-sm font-medium bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-600 hover:border-violet-300 hover:shadow-lg hover:shadow-violet-100 transition-all cursor-default"
+              class="hidden sm:inline-block px-4 py-1.5 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm border border-white/10 text-gray-200 hover:border-violet-400 hover:bg-white/20 transition-all cursor-default"
               >职场达人</span
             >
           </div>
@@ -4184,112 +4193,135 @@
       });
 
       // 进度条动画已在CSS中处理，无需额外JavaScript
+      // Initialize Three.js on #hero-canvas
       const canvas = document.getElementById("hero-canvas");
-      const ctx = canvas.getContext("2d");
-      let animationId,
-        particles = [];
-      function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+      let renderer, scene, camera, solidMesh, wireMesh, group, animationId;
+      let targetRotationX = 0, targetRotationY = 0;
+
+      function initThree() {
+        renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 10;
+
+        group = new THREE.Group();
+        scene.add(group);
+
+        // Torus knot geometry - 3D mathematical shape
+        const geometry = new THREE.TorusKnotGeometry(1.6, 0.52, 120, 16, 2, 3);
+
+        // Material 1: Solid glassmorphic inner core
+        const solidMaterial = new THREE.MeshPhysicalMaterial({
+          color: 0x8b5cf6,
+          roughness: 0.1,
+          metalness: 0.8,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.1,
+          transmission: 0.6, // Glass effect
+          opacity: 0.45,
+          transparent: true,
+          side: THREE.DoubleSide
+        });
+
+        // Material 2: Glowing neon outer wireframe
+        const wireMaterial = new THREE.MeshNormalMaterial({
+          wireframe: true,
+          transparent: true,
+          opacity: 0.75,
+          side: THREE.DoubleSide
+        });
+
+        solidMesh = new THREE.Mesh(geometry, solidMaterial);
+        wireMesh = new THREE.Mesh(geometry, wireMaterial);
+
+        group.add(solidMesh);
+        group.add(wireMesh);
+
+        // Add beautiful lighting for 3D reflections
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight(0x8b5cf6, 2, 50);
+        pointLight1.position.set(5, 5, 5);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0x00d4ff, 2, 50);
+        pointLight2.position.set(-5, -5, 5);
+        scene.add(pointLight2);
+
+        // Resize initial scale
+        adjustScale();
       }
-      function createParticles() {
-        particles = [];
-        const colors = ["#8b5cf6", "#ec4899", "#06b6d4", "#f59e0b", "#10b981"];
-        for (let i = 0; i < 50; i++) {
-          particles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 0.5,
-            vy: (Math.random() - 0.5) * 0.5,
-            size: Math.random() * 3 + 1,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            alpha: Math.random() * 0.5 + 0.2,
-          });
+
+      function adjustScale() {
+        if (!group) return;
+        const width = window.innerWidth;
+        if (width < 768) {
+          group.scale.set(0.6, 0.6, 0.6);
+        } else {
+          group.scale.set(1.0, 1.0, 1.0);
         }
       }
-      function drawGradientOrbs(time) {
-        const orbs = [
-          {
-            x: canvas.width * 0.2,
-            y: canvas.height * 0.3,
-            color: "#8b5cf6",
-            size: 300,
-          },
-          {
-            x: canvas.width * 0.8,
-            y: canvas.height * 0.7,
-            color: "#ec4899",
-            size: 250,
-          },
-          {
-            x: canvas.width * 0.5,
-            y: canvas.height * 0.5,
-            color: "#06b6d4",
-            size: 200,
-          },
-        ];
-        orbs.forEach((orb, index) => {
-          const offsetX = Math.sin(time * 0.001 + index) * 50,
-            offsetY = Math.cos(time * 0.001 + index) * 50;
-          const gradient = ctx.createRadialGradient(
-            orb.x + offsetX,
-            orb.y + offsetY,
-            0,
-            orb.x + offsetX,
-            orb.y + offsetY,
-            orb.size,
-          );
-          gradient.addColorStop(0, orb.color + "20");
-          gradient.addColorStop(0.5, orb.color + "10");
-          gradient.addColorStop(1, "transparent");
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        });
+
+      function resizeCanvas() {
+        if (!renderer || !camera) return;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        adjustScale();
       }
-      function drawParticles() {
-        particles.forEach((p) => {
-          p.x += p.vx;
-          p.y += p.vy;
-          if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-          if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fillStyle =
-            p.color +
-            Math.floor(p.alpha * 255)
-              .toString(16)
-              .padStart(2, "0");
-          ctx.fill();
-        });
-        particles.forEach((p1, i) => {
-          particles.slice(i + 1).forEach((p2) => {
-            const dx = p1.x - p2.x,
-              dy = p1.y - p2.y,
-              dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 150) {
-              ctx.beginPath();
-              ctx.moveTo(p1.x, p1.y);
-              ctx.lineTo(p2.x, p2.y);
-              ctx.strokeStyle = `rgba(139, 92, 246, ${0.1 * (1 - dist / 150)})`;
-              ctx.lineWidth = 0.5;
-              ctx.stroke();
-            }
-          });
-        });
-      }
+
       function animate(time) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawGradientOrbs(time);
-        drawParticles();
+        if (group) {
+          // Mouse interaction rotation
+          group.rotation.x += (targetRotationX - group.rotation.x) * 0.05;
+          group.rotation.y += (targetRotationY - group.rotation.y) * 0.05;
+          
+          // Continuous gentle spinning
+          group.rotation.z += 0.003;
+
+          // Subtle organic pulsing
+          const pulse = 1.0 + Math.sin(time * 0.0025) * 0.03;
+          solidMesh.scale.set(pulse, pulse, pulse);
+          wireMesh.scale.set(pulse * 1.01, pulse * 1.01, pulse * 1.01);
+        }
+
+        renderer.render(scene, camera);
         animationId = requestAnimationFrame(animate);
       }
-      resizeCanvas();
-      createParticles();
-      animationId = requestAnimationFrame(animate);
-      window.addEventListener("resize", () => {
+
+      try {
+        initThree();
         resizeCanvas();
-        createParticles();
+        animationId = requestAnimationFrame(animate);
+      } catch (e) {
+        console.error("Three.js initialization failed:", e);
+      }
+
+      window.addEventListener("resize", resizeCanvas);
+
+      window.addEventListener("mousemove", (e) => {
+        const mouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+        const mouseY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+        targetRotationX = mouseY * 0.6;
+        targetRotationY = mouseX * 0.6;
       });
+
+      window.addEventListener("touchmove", (e) => {
+        if (e.touches.length > 0) {
+          const touch = e.touches[0];
+          const mouseX = (touch.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+          const mouseY = (touch.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+          targetRotationX = mouseY * 0.6;
+          targetRotationY = mouseX * 0.6;
+        }
+      }, { passive: true });
       const wordCloudData = [
         { text: "All in ai", weight: 10, color: "#8b5cf6" },
         { text: "技能树", weight: 8, color: "#ec4899" },
@@ -4499,8 +4531,10 @@
         document.addEventListener("visibilitychange", () => {
           if (document.hidden) {
             cancelAnimationFrame(animationFrameId);
+            cancelAnimationFrame(animationId);
           } else {
             animateParallax();
+            animationId = requestAnimationFrame(animate);
           }
         });
       }
