@@ -340,14 +340,19 @@
       /* Hero背景样式 */
       .hero-background {
         position: absolute;
-        top: 72px; /* 导航栏高度 */
+        top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: #030303;
+        background-image: url("/vibe_images/bg.png");
+        background-size: cover;
+        background-position: center top;
+        background-repeat: no-repeat;
         transition: transform 0.3s ease-out;
         will-change: transform;
+        overflow: hidden;
       }
+
       #hero-section .btn-secondary {
         background: rgba(255, 255, 255, 0.08) !important;
         border: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -359,6 +364,7 @@
         border-color: rgba(139, 92, 246, 0.5) !important;
         color: #ffffff !important;
       }
+
 
       /* 点击波纹效果 - 优化版 */
       .click-ripple {
@@ -534,6 +540,7 @@
         position: absolute;
         inset: 0;
         pointer-events: none;
+        z-index: 1;
       }
       .floating-icon {
         position: absolute;
@@ -1042,11 +1049,6 @@
             >对比</a
           >
           <a
-            href="#testimonials"
-            class="px-4 py-3 rounded-lg text-lg font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
-            >评价</a
-          >
-          <a
             href="#pricing"
             class="px-4 py-3 rounded-lg text-lg font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
             >价格</a
@@ -1061,23 +1063,9 @@
     >
       <!-- 底层背景图片 -->
       <div class="hero-background" id="hero-bg"></div>
-
-      <!-- 鼠标光晕效果 -->
       <div class="mouse-glow" id="mouse-glow"></div>
 
-      <!-- 网格覆盖层 -->
-      <div
-        class="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style="
-          background-image:
-            linear-gradient(rgba(139, 92, 246, 0.5) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(139, 92, 246, 0.5) 1px, transparent 1px);
-          background-size: 80px 80px;
-        "
-      ></div>
-
-      <!-- 粒子效果画布 -->
-      <canvas id="hero-canvas"></canvas>
+      <!-- 鼠标光晕效果 -->
 
       <div class="relative z-10 mx-auto max-w-6xl px-6 text-center">
         <div class="animate-fade-in-up" style="opacity: 0">
@@ -4193,135 +4181,7 @@
       });
 
       // 进度条动画已在CSS中处理，无需额外JavaScript
-      // Initialize Three.js on #hero-canvas
-      const canvas = document.getElementById("hero-canvas");
-      let renderer, scene, camera, solidMesh, wireMesh, group, animationId;
-      let targetRotationX = 0, targetRotationY = 0;
-
-      function initThree() {
-        renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setSize(window.innerWidth, window.innerHeight);
-
-        scene = new THREE.Scene();
-
-        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.z = 10;
-
-        group = new THREE.Group();
-        scene.add(group);
-
-        // Torus knot geometry - 3D mathematical shape
-        const geometry = new THREE.TorusKnotGeometry(1.6, 0.52, 120, 16, 2, 3);
-
-        // Material 1: Solid glassmorphic inner core
-        const solidMaterial = new THREE.MeshPhysicalMaterial({
-          color: 0x8b5cf6,
-          roughness: 0.1,
-          metalness: 0.8,
-          clearcoat: 1.0,
-          clearcoatRoughness: 0.1,
-          transmission: 0.6, // Glass effect
-          opacity: 0.45,
-          transparent: true,
-          side: THREE.DoubleSide
-        });
-
-        // Material 2: Glowing neon outer wireframe
-        const wireMaterial = new THREE.MeshNormalMaterial({
-          wireframe: true,
-          transparent: true,
-          opacity: 0.75,
-          side: THREE.DoubleSide
-        });
-
-        solidMesh = new THREE.Mesh(geometry, solidMaterial);
-        wireMesh = new THREE.Mesh(geometry, wireMaterial);
-
-        group.add(solidMesh);
-        group.add(wireMesh);
-
-        // Add beautiful lighting for 3D reflections
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        scene.add(ambientLight);
-
-        const pointLight1 = new THREE.PointLight(0x8b5cf6, 2, 50);
-        pointLight1.position.set(5, 5, 5);
-        scene.add(pointLight1);
-
-        const pointLight2 = new THREE.PointLight(0x00d4ff, 2, 50);
-        pointLight2.position.set(-5, -5, 5);
-        scene.add(pointLight2);
-
-        // Resize initial scale
-        adjustScale();
-      }
-
-      function adjustScale() {
-        if (!group) return;
-        const width = window.innerWidth;
-        if (width < 768) {
-          group.scale.set(0.6, 0.6, 0.6);
-        } else {
-          group.scale.set(1.0, 1.0, 1.0);
-        }
-      }
-
-      function resizeCanvas() {
-        if (!renderer || !camera) return;
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        renderer.setSize(width, height);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-        adjustScale();
-      }
-
-      function animate(time) {
-        if (group) {
-          // Mouse interaction rotation
-          group.rotation.x += (targetRotationX - group.rotation.x) * 0.05;
-          group.rotation.y += (targetRotationY - group.rotation.y) * 0.05;
-          
-          // Continuous gentle spinning
-          group.rotation.z += 0.003;
-
-          // Subtle organic pulsing
-          const pulse = 1.0 + Math.sin(time * 0.0025) * 0.03;
-          solidMesh.scale.set(pulse, pulse, pulse);
-          wireMesh.scale.set(pulse * 1.01, pulse * 1.01, pulse * 1.01);
-        }
-
-        renderer.render(scene, camera);
-        animationId = requestAnimationFrame(animate);
-      }
-
-      try {
-        initThree();
-        resizeCanvas();
-        animationId = requestAnimationFrame(animate);
-      } catch (e) {
-        console.error("Three.js initialization failed:", e);
-      }
-
-      window.addEventListener("resize", resizeCanvas);
-
-      window.addEventListener("mousemove", (e) => {
-        const mouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
-        const mouseY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
-        targetRotationX = mouseY * 0.6;
-        targetRotationY = mouseX * 0.6;
-      });
-
-      window.addEventListener("touchmove", (e) => {
-        if (e.touches.length > 0) {
-          const touch = e.touches[0];
-          const mouseX = (touch.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
-          const mouseY = (touch.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
-          targetRotationX = mouseY * 0.6;
-          targetRotationY = mouseX * 0.6;
-        }
-      }, { passive: true });
+      // Three.js 3D background removed as requested
       const wordCloudData = [
         { text: "All in ai", weight: 10, color: "#8b5cf6" },
         { text: "技能树", weight: 8, color: "#ec4899" },

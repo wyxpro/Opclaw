@@ -114,7 +114,10 @@ export function OnlineResume({ isOpen, onClose }: OnlineResumeProps) {
                   <span className="hidden sm:inline">简历</span>
                 </button>
                 <button
-                  onClick={() => navigate('/resume-templates')}
+                  onClick={() => {
+                    onClose()
+                    navigate('/resume-templates')
+                  }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all hover:opacity-85"
                   style={{ 
                     color: themeConfig.colors.textMuted,

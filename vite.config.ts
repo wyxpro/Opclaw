@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
       __SB_ANON__: JSON.stringify(env.VITE_SUPABASE_ANON_KEY || ''),
     },
     server: {
+      port: 5177,
       proxy: {
         '/api/innoreation/v1/proxy': {
           target: 'https://mangdream.com',

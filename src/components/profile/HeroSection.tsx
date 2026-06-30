@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
 import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon, Share2, Upload, Eye, Edit3, Download, Undo2, Redo2, RotateCcw, ArrowLeft } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../../hooks/useTheme'
 import type { PersonalProfile } from '../../types/profile'
 import { AnimatedSection, Floating } from './AnimatedSection'
@@ -286,12 +287,47 @@ const socialIcons: Record<string, { icon: React.ComponentType<{ size?: number; c
   website: { icon: LinkIcon, color: '#4F46E5' }
 }
 
-export function HeroSection({ profile, showResume = false, onToggleResume, onOpenCardModal, isEditMode = false, onUpdateProfile, mode = 'preview', onModeChange, onDownloadPDF, canUndo, canRedo, onUndo, onRedo, onResetToDefault, onBack }: HeroSectionProps) {
-  const { themeConfig, currentTheme } = useTheme()
+export function HeroSection({ profile: rawProfile, showResume = false, onToggleResume, onOpenCardModal, isEditMode = false, onUpdateProfile, mode = 'preview', onModeChange, onDownloadPDF, canUndo, canRedo, onUndo, onRedo, onResetToDefault, onBack }: HeroSectionProps) {
+  const { themeConfig: rawThemeConfig, currentTheme } = useTheme()
   const navigate = useNavigate()
   const containerRef = useRef<HTMLDivElement>(null)
   const isMobile = useIsMobile()
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // 100% 安全防崩溃数据处理
+  const profile = {
+    name: '',
+    title: '',
+    bio: '',
+    avatar: '',
+    location: '',
+    email: '',
+    socialLinks: [],
+    achievements: [],
+    stats: { yearsOfExperience: 0, projectsCompleted: 0, happyClients: 0, awards: 0 },
+    ...rawProfile
+  }
+
+  const themeConfig = {
+    ...rawThemeConfig,
+    colors: rawThemeConfig?.colors || {
+      primary: '#8b5cf6',
+      accent: '#00d4ff',
+      primaryGlow: '#8b5cf6',
+      bg: '#0a051b',
+      surface: '#120b2e',
+      border: '#23154c',
+      text: '#ffffff',
+      textSecondary: '#a78bfa',
+      textMuted: '#7c5dfa',
+      textDim: '#5c45b8'
+    },
+    glassEffect: rawThemeConfig?.glassEffect || {
+      background: 'rgba(255, 255, 255, 0.05)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      backdropBlur: 'blur(10px)'
+    }
+  }
   
   // 为极简主题设置专门的头像边框颜色（科技感配色）
   const avatarBorderColor = currentTheme === 'minimal' ? '#0ea5e9' : themeConfig.colors.primary // 极致科幻蓝
