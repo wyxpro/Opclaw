@@ -469,7 +469,15 @@ export default function Navbar() {
               key={item.path}
               to={item.path}
               end={item.path === '/'}
-              onClick={item.path === '/social' && !isAuthenticated ? (e) => { e.preventDefault(); setShowAuthModal(true); } : undefined}
+              onClick={(e) => {
+                if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                  navigator.vibrate(15);
+                }
+                if (item.path === '/social' && !isAuthenticated) {
+                  e.preventDefault();
+                  setShowAuthModal(true);
+                }
+              }}
               className={({ isActive }) =>
                 `relative flex flex-col items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
                   isActive

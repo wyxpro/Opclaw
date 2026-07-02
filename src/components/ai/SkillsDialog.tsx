@@ -27,7 +27,7 @@ interface SkillCategory {
 }
 
 // --- Radar Chart Component ---
-function RadarChart({ dimensions }: { dimensions: { name: string; score: number; color: string }[] }) {
+function RadarChart({ dimensions, isDark = true }: { dimensions: { name: string; score: number; color: string }[]; isDark?: boolean }) {
   const size = 200
   const center = size / 2
   const radius = 60
@@ -74,11 +74,11 @@ function RadarChart({ dimensions }: { dimensions: { name: string; score: number;
         
         {/* Grid and Axes */}
         {gridLines.map((points, i) => (
-          <polygon key={i} points={points} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
+          <polygon key={i} points={points} fill="none" stroke={isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"} strokeWidth="0.5" />
         ))}
         {dimensions.map((_, index) => {
           const end = getPoint(index, 100, 100)
-          return <line key={index} x1={center} y1={center} x2={end.x} y2={end.y} stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
+          return <line key={index} x1={center} y1={center} x2={end.x} y2={end.y} stroke={isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"} strokeWidth="0.5" />
         })}
 
         {/* Data Area Path */}
@@ -107,7 +107,7 @@ function RadarChart({ dimensions }: { dimensions: { name: string; score: number;
                 className="font-bold"
                 style={{ fontSize: '8px' }}
               >
-                <tspan x={labelPos.x} dy="-4" fill="rgba(255,255,255,0.6)">{dimensions[index].name}</tspan>
+                <tspan x={labelPos.x} dy="-4" fill={isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)"}>{dimensions[index].name}</tspan>
                 <tspan x={labelPos.x} dy="9" fill={dimensions[index].color} className="text-[7px]">{dimensions[index].score}</tspan>
               </text>
             </g>
@@ -148,9 +148,9 @@ function KnowledgeNode({ node }: { node: any }) {
   )
 }
 
-function KnowledgeGraph() {
+function KnowledgeGraph({ isDark = true }: { isDark?: boolean }) {
   return (
-    <div className="w-full h-[180px] rounded-xl overflow-hidden bg-white/5 border border-white/10 relative">
+    <div className={`w-full h-[180px] rounded-xl overflow-hidden relative ${isDark ? 'bg-white/5 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
       <Canvas camera={{ position: [0, 0, 8] }}>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
@@ -161,7 +161,7 @@ function KnowledgeGraph() {
           <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
         </Suspense>
       </Canvas>
-      <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[10px] text-white/60">
+      <div className={`absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-full backdrop-blur-md border text-[10px] ${isDark ? 'bg-white/5 border-white/10 text-white/60' : 'bg-white/80 border-slate-200 text-slate-600'}`}>
         <Network size={10} />
         <span>3D 技能图谱</span>
       </div>
@@ -170,7 +170,7 @@ function KnowledgeGraph() {
 }
 
 // --- Skill Tree Components ---
-function SkillTreeNode({ node, depth = 0 }: { node: SkillNode; depth?: number }) {
+function SkillTreeNode({ node, depth = 0, isDark = true }: { node: SkillNode; depth?: number; isDark?: boolean }) {
   const [expanded, setExpanded] = useState(depth < 1)
   const hasChildren = node.children && node.children.length > 0
 
@@ -184,23 +184,23 @@ function SkillTreeNode({ node, depth = 0 }: { node: SkillNode; depth?: number })
   return (
     <div className="relative">
       <div 
-        className="flex items-center gap-2 py-2 px-2 hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+        className={`flex items-center gap-2 py-2 px-2 rounded-lg transition-colors cursor-pointer ${isDark ? 'hover:bg-white/5' : 'hover:bg-slate-100'}`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         onClick={() => hasChildren && setExpanded(!expanded)}
       >
         <div className="w-4 h-4 flex items-center justify-center">
           {hasChildren ? (
-            expanded ? <ChevronDown size={14} className="text-white/40" /> : <ChevronRight size={14} className="text-white/40" />
+            expanded ? <ChevronDown size={14} className={isDark ? "text-white/40" : "text-slate-400"} /> : <ChevronRight size={14} className={isDark ? "text-white/40" : "text-slate-400"} />
           ) : (
-            <div className="w-1 h-1 rounded-full bg-white/20" />
+            <div className={`w-1 h-1 rounded-full ${isDark ? 'bg-white/20' : 'bg-slate-300'}`} />
           )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-white/90">{node.name}</span>
-            <span className="text-[10px] font-bold text-white/40">{node.level}%</span>
+            <span className={`text-sm font-medium ${isDark ? 'text-white/90' : 'text-slate-800'}`}>{node.name}</span>
+            <span className={`text-[10px] font-bold ${isDark ? 'text-white/40' : 'text-slate-400'}`}>{node.level}%</span>
           </div>
-          <div className="mt-1 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+          <div className={`mt-1 h-1 w-full rounded-full overflow-hidden ${isDark ? 'bg-white/5' : 'bg-slate-200'}`}>
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${node.level}%` }}
@@ -218,7 +218,7 @@ function SkillTreeNode({ node, depth = 0 }: { node: SkillNode; depth?: number })
             className="overflow-hidden"
           >
             {node.children!.map(child => (
-              <SkillTreeNode key={child.id} node={child} depth={depth + 1} />
+              <SkillTreeNode key={child.id} node={child} depth={depth + 1} isDark={isDark} />
             ))}
           </motion.div>
         )}
@@ -228,7 +228,7 @@ function SkillTreeNode({ node, depth = 0 }: { node: SkillNode; depth?: number })
 }
 
 // --- Reusable Skills Content ---
-export const SkillsContent: React.FC = () => {
+export const SkillsContent: React.FC<{ isDark?: boolean }> = ({ isDark = true }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(true)
 
   useEffect(() => {
@@ -291,12 +291,12 @@ export const SkillsContent: React.FC = () => {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 rounded-full border-2 border-dashed border-amber-500/50 flex items-center justify-center mb-6"
+          className={`w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center mb-6 ${isDark ? 'border-amber-500/50' : 'border-amber-500/35'}`}
         >
-          <Sparkles className="w-8 h-8 text-amber-400" />
+          <Sparkles className="w-8 h-8 text-amber-500" />
         </motion.div>
-        <h4 className="text-white font-bold mb-2">正在同步跨模块技能数据...</h4>
-        <p className="text-xs text-white/40 px-6">从学习空间、工作助手及生活记录中提取特征</p>
+        <h4 className={`font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>正在同步跨模块技能数据...</h4>
+        <p className={`text-xs px-6 ${isDark ? 'text-white/40' : 'text-slate-400'}`}>从学习空间、工作助手及生活记录中提取特征</p>
       </div>
     )
   }
@@ -306,18 +306,18 @@ export const SkillsContent: React.FC = () => {
       {/* Top Section: Radar & Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Radar Chart */}
-        <div className="md:col-span-1 bg-white/5 rounded-2xl p-4 border border-white/10 flex flex-col items-center justify-center">
-          <h4 className="text-xs font-bold text-white/80 mb-3 flex items-center gap-2 self-start w-full">
-            <Activity size={14} className="text-amber-400" />
+        <div className={`rounded-2xl p-4 border flex flex-col items-center justify-center ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
+          <h4 className={`text-xs font-bold mb-3 flex items-center gap-2 self-start w-full ${isDark ? 'text-white/80' : 'text-slate-700'}`}>
+            <Activity size={14} className="text-amber-500" />
             技能均衡度
           </h4>
-          <RadarChart dimensions={radarDimensions} />
+          <RadarChart dimensions={radarDimensions} isDark={isDark} />
           <div className="mt-4 grid grid-cols-2 gap-2 w-full">
             {radarDimensions.slice(0, 4).map(dim => (
-              <div key={dim.name} className="flex items-center gap-2 text-[10px] text-white/40 bg-white/5 p-1.5 rounded-lg">
+              <div key={dim.name} className={`flex items-center gap-2 text-[10px] p-1.5 rounded-lg ${isDark ? 'text-white/40 bg-white/5' : 'text-slate-500 bg-white border border-slate-100'}`}>
                 <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: dim.color }} />
                 <span className="truncate">{dim.name}</span>
-                <span className="ml-auto font-bold text-white/60">{dim.score}%</span>
+                <span className={`ml-auto font-bold ${isDark ? 'text-white/60' : 'text-slate-700'}`}>{dim.score}%</span>
               </div>
             ))}
           </div>
@@ -333,27 +333,27 @@ export const SkillsContent: React.FC = () => {
               { label: '学习中', value: '8', icon: Clock, color: '#f59e0b' },
               { label: '超越用户', value: '85%', icon: Award, color: '#3b82f6' },
             ].map((stat, i) => (
-              <div key={i} className="bg-white/5 rounded-xl p-2.5 border border-white/10">
+              <div key={i} className={`rounded-xl p-2.5 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
                 <stat.icon size={14} style={{ color: stat.color }} className="mb-1.5" />
-                <div className="text-lg font-bold text-white">{stat.value}</div>
-                <div className="text-[9px] text-white/40 uppercase tracking-wider">{stat.label}</div>
+                <div className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{stat.value}</div>
+                <div className={`text-[9px] uppercase tracking-wider ${isDark ? 'text-white/40' : 'text-slate-400'}`}>{stat.label}</div>
               </div>
             ))}
           </div>
           
           {/* 3D Visual */}
-          <KnowledgeGraph />
+          <KnowledgeGraph isDark={isDark} />
 
           {/* AI Summary */}
-          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl p-4 border border-amber-500/20 relative overflow-hidden">
+          <div className={`rounded-2xl p-4 border relative overflow-hidden bg-gradient-to-r ${isDark ? 'from-amber-500/10 to-orange-500/10 border-amber-500/20' : 'from-amber-50/50 to-orange-50/50 border-amber-100'}`}>
             <div className="flex items-start gap-3 relative z-10">
               <div className="p-2 rounded-lg bg-amber-500/20 shrink-0">
-                <Sparkles size={14} className="text-amber-400" />
+                <Sparkles size={14} className="text-amber-505" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-amber-400 mb-1">能力诊断报告</h4>
-                <p className="text-[11px] text-white/70 leading-relaxed">
-                  你在<span className="text-white font-medium">技术创新</span>和<span className="text-white font-medium">跨领域学习</span>方面表现卓越。建议在接下来的周期中，结合工作助手中的项目需求，加强对<span className="text-white font-medium">系统架构</span>的深度探索，当前你的学习进度已领先 85% 的同类用户。
+                <h4 className="text-xs font-bold text-amber-600 mb-1">能力诊断报告</h4>
+                <p className={`text-[11px] leading-relaxed ${isDark ? 'text-white/70' : 'text-slate-600'}`}>
+                  你在<span className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>技术创新</span>和<span className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>跨领域学习</span>方面表现卓越。建议在接下来的周期中，结合工作助手中的项目需求，加强对<span className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>系统架构</span>的深度探索，当前你的学习进度已领先 85% 的同类用户。
                 </p>
               </div>
             </div>
@@ -364,22 +364,22 @@ export const SkillsContent: React.FC = () => {
 
       {/* Skills Categorization & Tree */}
       <div className="space-y-3">
-        <h4 className="text-xs font-bold text-white/80 flex items-center gap-2">
-          <BookOpen size={14} className="text-amber-400" />
+        <h4 className={`text-xs font-bold flex items-center gap-2 ${isDark ? 'text-white/80' : 'text-slate-700'}`}>
+          <BookOpen size={14} className="text-amber-500" />
           技能体系架构
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {skillCategories.map(category => (
-            <div key={category.id} className="bg-white/5 rounded-2xl p-4 border border-white/10">
-              <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-white/5">
+            <div key={category.id} className={`rounded-2xl p-4 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
+              <div className={`flex items-center gap-2 mb-3 pb-2.5 border-b ${isDark ? 'border-white/5' : 'border-b border-slate-200'}`}>
                 <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${category.color}20`, color: category.color }}>
                   {category.icon}
                 </div>
-                <h5 className="text-xs font-bold text-white/90">{category.name}</h5>
+                <h5 className={`text-xs font-bold ${isDark ? 'text-white/90' : 'text-slate-800'}`}>{category.name}</h5>
               </div>
               <div className="space-y-1">
                 {category.skills.map(skill => (
-                  <SkillTreeNode key={skill.id} node={skill} />
+                  <SkillTreeNode key={skill.id} node={skill} isDark={isDark} />
                 ))}
               </div>
             </div>
@@ -388,8 +388,8 @@ export const SkillsContent: React.FC = () => {
       </div>
 
       {/* Source Breakdown */}
-      <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-        <h4 className="text-xs font-bold text-white/80 mb-3">数据溯源分析</h4>
+      <div className={`rounded-2xl p-4 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
+        <h4 className={`text-xs font-bold mb-3 ${isDark ? 'text-white/80' : 'text-slate-700'}`}>数据溯源分析</h4>
         <div className="space-y-2">
           {[
             { name: '学习空间', desc: '提取自 AI 对话记录及 3 篇核心知识库文档', value: 92, icon: Brain },
@@ -397,17 +397,17 @@ export const SkillsContent: React.FC = () => {
             { name: '生活记录', desc: '识别出 3 项长期坚持的兴趣爱好与特长', value: 76, icon: Star },
           ].map((source, i) => (
             <div key={i} className="flex items-center gap-3 group">
-              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/40 group-hover:text-amber-400 transition-colors border border-white/10 shrink-0">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center border shrink-0 transition-colors ${isDark ? 'bg-white/5 text-white/40 group-hover:text-amber-400 border-white/10' : 'bg-white text-slate-400 group-hover:text-amber-500 border-slate-200'}`}>
                 <source.icon size={16} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[11px] font-bold text-white/80">{source.name}</span>
-                  <span className="text-[9px] text-white/40">贡献度 {source.value}%</span>
+                  <span className={`text-[11px] font-bold ${isDark ? 'text-white/80' : 'text-slate-700'}`}>{source.name}</span>
+                  <span className={`text-[9px] ${isDark ? 'text-white/40' : 'text-slate-400'}`}>贡献度 {source.value}%</span>
                 </div>
-                <p className="text-[9px] text-white/40 truncate">{source.desc}</p>
+                <p className={`text-[9px] truncate ${isDark ? 'text-white/40' : 'text-slate-455'}`}>{source.desc}</p>
               </div>
-              <div className="w-16 h-1 bg-white/5 rounded-full overflow-hidden shrink-0">
+              <div className={`w-16 h-1 rounded-full overflow-hidden shrink-0 ${isDark ? 'bg-white/5' : 'bg-slate-200'}`}>
                 <div className="h-full bg-amber-500/50" style={{ width: `${source.value}%` }} />
               </div>
             </div>

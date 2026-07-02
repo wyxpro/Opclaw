@@ -44,11 +44,11 @@ graph TD
         end
     end
 
-    subgraph CloudAPI ["云端大模型与计算层 (SiliconFlow / DeepSeek / Cloud)"]
+    subgraph CloudAPI ["云端大模型与计算层 (SiliconFlow / ModelScope / StepFun)"]
         DeepSeek["DeepSeek-V3 / v4-pro<br>(对话推理与多任务润色)"]:::model
         SenseVoice["SenseVoiceSmall<br>(超快速、多语种语音识别)"]:::model
         MossTTS["MOSS-TTSD-v0.5<br>(零样本克隆 TTS 合成)"]:::model
-        Kolors["Kwai-Kolors/Kolors<br>(文生图 / 垫图风格化)"]:::model
+        FluxKlein["FLUX.2-klein-9B<br>(ModelScope 人像风格化克隆)"]:::model
     end
 
     subgraph Output ["输出层 (Outputs & Interactions)"]
@@ -82,7 +82,7 @@ graph TD
     MossTTS --> |生成合成音频流| OutVoice
     MossTTS --> |音频数据| LipSync
     
-    Kolors --> |生成风格化头像 URL| OutVisual
+    FluxKlein --> |生成风格化头像 URL| OutVisual
     
     %% 3D驱动关联
     LipSync --> Renderer3D
@@ -119,7 +119,7 @@ graph TD
 
 | 功能场景 | 对应推荐AI模型 | 云端API服务商 / 端点 | 核心请求参数配置 | 调用价格 / 运行成本 (估算) |
 | :--- | :--- | :--- | :--- | :--- |
-| **人像卡通/写实风格化克隆** | Kwai-Kolors/Kolors | SiliconFlow 平台<br>`/v1/images/generations` | `image_size: "1024x1024"`<br>`guidance_scale: 7.5`<br>`num_inference_steps: 20` | 单张生成成本：**¥0.06 / 张** |
+| **人像卡通/写实风格化克隆** | FLUX.2-klein-9B | ModelScope 社区<br>`/v1/images/generations` | `model: "black-forest-labs/FLUX.2-klein-9B"`<br>`X-ModelScope-Async-Mode: true` | 单张生成：**ModelScope 免费额度 / 极低成本** |
 | **3D数字人建模与实时驱动** | Ready Player Me (3D形象)<br>+ Live2D Audio SDK (口型) | RPM Web SDK + 本地音频解析算法<br>(双端静默加载) | `bodyType: "halfbody"`<br>`pose: "pose-relaxed"`<br>`mouthOpenness` 振幅映射 | 3D 模型资产生成免费；<br>本地口型同步算法零云端成本 |
 
 > [!NOTE]

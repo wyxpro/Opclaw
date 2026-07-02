@@ -22,6 +22,70 @@ import { ShareDialog } from '../components/ai/ShareDialog'
 import { CharacterConfigDialog } from '../components/ai/CharacterConfigDialog'
 import type { Message, CharacterStyle, StepType, VoiceModel, AvatarModel } from '../components/ai/types'
 
+// 根据形象选择配对的稳定音色，保证同一个形象始终保持同一种音色，默认且女性形象均为女声，男性形象为男声
+function getVoiceForAvatar(avatar: any): { id: string; name: string } {
+  if (!avatar) {
+    return { id: 'fnlp/MOSS-TTSD-v0.5:anna', name: '温柔女生' };
+  }
+  
+  const avatarId = avatar.id || '';
+  
+  switch (avatarId) {
+    // 女生预设
+    case 'f1': // 职场专家
+      return { id: 'fnlp/MOSS-TTSD-v0.5:anna', name: '职场专家音色' };
+    case 'f2': // 元气甜妹
+      return { id: 'fnlp/MOSS-TTSD-v0.5:elena', name: '元气甜妹音色' };
+    case 'f3': // 古风女子
+      return { id: 'fnlp/MOSS-TTSD-v0.5:anna', name: '古风女子音色' };
+    case 'f4': // 可爱萝莉
+      return { id: 'fnlp/MOSS-TTSD-v0.5:elena', name: '可爱萝莉音色' };
+    case 'f5': // 甜酷辣妹
+      return { id: 'fnlp/MOSS-TTSD-v0.5:anna', name: '甜酷辣妹音色' };
+    case 'f6': // 赛博朋克少女
+      return { id: 'fnlp/MOSS-TTSD-v0.5:elena', name: '赛博朋克少女音色' };
+    case 'f7': // 韩系女神
+      return { id: 'fnlp/MOSS-TTSD-v0.5:anna', name: '韩系女神音色' };
+
+    // 男生预设
+    case 'm1':
+    case 'm2':
+    case 'm3':
+    case 'm4':
+    case 'm5':
+    case 'm6':
+    case 'm7':
+      return { id: 'fnlp/MOSS-TTSD-v0.5:brian', name: '磁性男生' };
+
+    // Live2D Presets
+    case 'l2d-hiyori':
+      return { id: 'fnlp/MOSS-TTSD-v0.5:anna', name: 'Hiyori音色' };
+    case 'l2d-harugreeter':
+      return { id: 'fnlp/MOSS-TTSD-v0.5:elena', name: 'HaruGreeter音色' };
+    case 'l2d-haru':
+      return { id: 'fnlp/MOSS-TTSD-v0.5:anna', name: 'Haru音色' };
+    case 'l2d-shizuku':
+      return { id: 'fnlp/MOSS-TTSD-v0.5:elena', name: 'Shizuku音色' };
+    case 'l2d-tsumiki':
+      return { id: 'fnlp/MOSS-TTSD-v0.5:anna', name: 'Tsumiki音色' };
+    case 'l2d-rice':
+      return { id: 'fnlp/MOSS-TTSD-v0.5:elena', name: 'Rice音色' };
+    case 'l2d-chitose':
+      return { id: 'fnlp/MOSS-TTSD-v0.5:anna', name: 'Chitose音色' };
+
+    case 'l2d-mao':
+    case 'l2d-epsilon':
+    case 'l2d-hibiki':
+    case 'l2d-izumi':
+    case 'l2d-kei':
+      return { id: 'fnlp/MOSS-TTSD-v0.5:brian', name: '磁性男生' };
+
+    default:
+      // 默认使用女声以符合 "确保说话人是女生的声音" 需求
+      return { id: 'fnlp/MOSS-TTSD-v0.5:anna', name: '默认女声' };
+  }
+}
+
 export default function AICharacter() {
   const { themeConfig } = useTheme()
   const [isMobile, setIsMobile] = useState(false)
@@ -307,9 +371,25 @@ export default function AICharacter() {
       
       // 5. 自动播放语音回复 (使用 SiliconFlow TTS)
       if (fullContent) {
+        // 根据当前形象 (customAvatar) 决定发音音色，确保声音与形象绑定且在对话中保持一致
+        let activeVoice: VoiceModel | null = null;
+        if (customAvatar?.isCloned && voiceModel?.isCloned) {
+          activeVoice = voiceModel;
+        } else {
+          const matchedVoice = getVoiceForAvatar(customAvatar);
+          activeVoice = {
+            id: matchedVoice.id,
+            name: matchedVoice.name,
+            audioUrl: '',
+            duration: 0,
+            createdAt: Date.now(),
+            isCloned: false
+          };
+        }
+
         ttsService.speak(
           fullContent, 
-          voiceModel,
+          activeVoice,
           () => setIsSpeaking(true), 
           () => setIsSpeaking(false),
           customAvatar?.type === 'live2d'

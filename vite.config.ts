@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_SILICONFLOW_API_KEY': JSON.stringify(env.VITE_SILICONFLOW_API_KEY || ''),
       'import.meta.env.VITE_DEEPSEEK_PROXY_KEY': JSON.stringify(env.VITE_DEEPSEEK_PROXY_KEY || ''),
       'import.meta.env.VITE_DEEPSEEK_PROXY_URL': JSON.stringify(env.VITE_DEEPSEEK_PROXY_URL || ''),
+      'import.meta.env.VITE_MODEL_SCOPE_API_KEY': JSON.stringify(env.VITE_MODEL_SCOPE_API_KEY || ''),
       __SB_URL__: JSON.stringify(env.VITE_SUPABASE_URL || ''),
       __SB_ANON__: JSON.stringify(env.VITE_SUPABASE_ANON_KEY || ''),
     },
@@ -36,6 +37,12 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path.replace(/^\/api\/stepfun/, '')
+        },
+        '/api/modelscope': {
+          target: 'https://api-inference.modelscope.cn',
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api\/modelscope/, '')
         }
       }
     },

@@ -9,6 +9,10 @@
       "destination": "https://api.stepfun.com/$1"
     },
     {
+      "source": "/api/modelscope/(.*)",
+      "destination": "https://api-inference.modelscope.cn/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
