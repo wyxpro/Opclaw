@@ -138,7 +138,7 @@ export function Character3D({
   const getBackgroundStyle = () => {
     if (customMedia?.type === 'video') return {}
     
-    if (background && background.startsWith('http')) {
+    if (background && (background.startsWith('http') || background.startsWith('data:') || background.startsWith('blob:'))) {
       return { 
         backgroundImage: `url(${background})`,
         backgroundSize: 'cover',

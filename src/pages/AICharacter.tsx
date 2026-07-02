@@ -587,6 +587,8 @@ export default function AICharacter() {
                     <BackgroundCustomizer 
                       currentBackground={background}
                       onBackgroundChange={(newBg) => setBackground(newBg)}
+                      onCustomImageUpload={setCustomBackgroundUrl}
+                      customBackgroundUrl={customBackgroundUrl}
                     />
                   </div>
 
@@ -628,7 +630,7 @@ export default function AICharacter() {
             </div>
 
             {/* Mobile Layout: Left Column (StepNavigator, Avatar Selection, Background, Style Switcher) & Right Column (Config, History, Share) */}
-            <div className="md:hidden flex items-start justify-between w-full mt-1 px-2 relative min-h-[165px]">
+            <div className={`md:hidden flex items-start justify-between w-full mt-1 px-2 relative ${currentStep === 'chat' ? 'min-h-[165px]' : ''}`}>
               {/* Left Column */}
               <div className="flex flex-col items-start gap-2.5 z-[60] pt-1">
                 <StepNavigator 
@@ -652,6 +654,8 @@ export default function AICharacter() {
                       <BackgroundCustomizer 
                         currentBackground={background}
                         onBackgroundChange={(newBg) => setBackground(newBg)}
+                        onCustomImageUpload={setCustomBackgroundUrl}
+                        customBackgroundUrl={customBackgroundUrl}
                       />
                     </div>
                     <button

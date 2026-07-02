@@ -87,19 +87,27 @@ interface BackgroundCustomizerProps {
   currentBackground: BackgroundType
   onBackgroundChange: (background: BackgroundType) => void
   onCustomImageUpload?: (imageUrl: string) => void
+  customBackgroundUrl?: string
 }
 
 export function BackgroundCustomizer({ 
   currentBackground, 
   onBackgroundChange,
-  onCustomImageUpload
+  onCustomImageUpload,
+  customBackgroundUrl
 }: BackgroundCustomizerProps) {
   const { themeConfig } = useTheme()
   const [isOpen, setIsOpen] = useState(false)
-  const [customImage, setCustomImage] = useState<string | null>(null)
+  const [customImage, setCustomImage] = useState<string | null>(customBackgroundUrl || null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isMobileUI, setIsMobileUI] = useState(false)
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('mobile')
+
+  useEffect(() => {
+    if (customBackgroundUrl) {
+      setCustomImage(customBackgroundUrl)
+    }
+  }, [customBackgroundUrl])
 
   useEffect(() => {
     const handleResize = () => {

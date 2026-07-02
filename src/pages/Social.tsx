@@ -2576,75 +2576,14 @@ function GrowthTimeline() {
 // 实验室内容组件 - 桌面端标签页内嵌
 function LaboratoryContent() {
   const { themeConfig } = useTheme()
-  const [activeTab, setActiveTab] = useState<'timeline' | 'plans'>('timeline')
 
   return (
     <div className="py-6">
-      {/* 标签切换 */}
-      <div className="flex gap-2 p-1 rounded-xl mb-6" style={{ background: themeConfig.colors.surface }}>
-        <button
-          onClick={() => setActiveTab('timeline')}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
-          style={{
-            background: activeTab === 'timeline' ? themeConfig.colors.bg : 'transparent',
-            color: activeTab === 'timeline' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
-          }}
-        >
-          <Clock size={16} />
-          历史时间轴
-        </button>
-        <button
-          onClick={() => setActiveTab('plans')}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
-          style={{
-            background: activeTab === 'plans' ? themeConfig.colors.bg : 'transparent',
-            color: activeTab === 'plans' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
-          }}
-        >
-          <Rocket size={16} />
-          未来计划
-        </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {labPlansData.map((plan, index) => (
+          <LabPlanCard key={plan.id} plan={plan} index={index} />
+        ))}
       </div>
-
-      {/* 内容区域 */}
-      <AnimatePresence mode="wait">
-        {activeTab === 'timeline' ? (
-          <motion.div
-            key="timeline"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="relative">
-              {/* 中央时间轴线 */}
-              <div
-                className="absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2"
-                style={{ background: `linear-gradient(to bottom, #8b5cf630, #ec489930)` }}
-              />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 relative">
-                {labTimelineData.map((item, index) => (
-                  <LabTimelineItem key={item.id} item={item} index={index} />
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="plans"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {labPlansData.map((plan, index) => (
-                <LabPlanCard key={plan.id} plan={plan} index={index} />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }

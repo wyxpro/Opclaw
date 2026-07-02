@@ -18,6 +18,7 @@ interface ResumeTemplate {
   tags: string[]
   gradient: string
   previewColor: string
+  image: string
 }
 
 const templates: ResumeTemplate[] = [
@@ -29,7 +30,8 @@ const templates: ResumeTemplate[] = [
     description: '干净利落的极简设计，突出核心信息，适合大多数行业',
     tags: ['通用', '清爽', '极简'],
     gradient: 'from-slate-650 to-slate-800',
-    previewColor: '#ffffff'
+    previewColor: '#ffffff',
+    image: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=500&auto=format&fit=crop&q=80'
   },
   {
     id: 'business',
@@ -39,7 +41,8 @@ const templates: ResumeTemplate[] = [
     description: '沉稳大气的商务风格，彰显专业气质，适合金融/法律/咨询/管理',
     tags: ['专业', '稳重', '双栏'],
     gradient: 'from-blue-700 to-blue-900',
-    previewColor: '#ffffff'
+    previewColor: '#ffffff',
+    image: 'https://images.unsplash.com/photo-1626379616459-b2ce1d9decbc?w=500&auto=format&fit=crop&q=80'
   },
   {
     id: 'creative',
@@ -49,7 +52,8 @@ const templates: ResumeTemplate[] = [
     description: '个性鲜明的创意设计，展现独特魅力，适合设计/互联网/媒体/艺术',
     tags: ['个性', '艺术', '极客'],
     gradient: 'from-purple-600 to-pink-600',
-    previewColor: '#090d16'
+    previewColor: '#090d16',
+    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=80'
   },
   {
     id: 'campus',
@@ -59,7 +63,8 @@ const templates: ResumeTemplate[] = [
     description: '青春活力的校园风格，突出学习经历与活动，适合应届毕业生',
     tags: ['应届', '活力', '高颜值'],
     gradient: 'from-emerald-500 to-teal-600',
-    previewColor: '#f0fdf4'
+    previewColor: '#f0fdf4',
+    image: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=500&auto=format&fit=crop&q=80'
   }
 ]
 
@@ -311,10 +316,7 @@ export default function ResumeTemplates() {
                   {/* Miniature Card Preview Wrapper */}
                   <div className="aspect-[3/4] relative overflow-hidden bg-slate-50 border-b flex items-center justify-center p-3 sm:p-4" style={{ borderColor: themeConfig.colors.border }}>
                     <div className="w-full h-full rounded-xl overflow-hidden shadow-sm border border-slate-200 group-hover:scale-102 transition-transform duration-500">
-                      {template.id === 'minimal' && <MinimalCardPreview />}
-                      {template.id === 'business' && <BusinessCardPreview />}
-                      {template.id === 'creative' && <CreativeCardPreview />}
-                      {template.id === 'campus' && <CampusCardPreview />}
+                      <img src={template.image} alt={template.name} className="w-full h-full object-cover" />
                     </div>
 
                     {/* Hover Actions Overlay */}

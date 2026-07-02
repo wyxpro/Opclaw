@@ -12,24 +12,25 @@
 ---
 
 ## 📋 项目简介
+
 <img width="2529" height="1302" alt="image" src="https://github.com/user-attachments/assets/36ee8fe9-317e-430a-b53f-7da63134656c" />
 
 **Opclaw** 是一款面向 **OPC 超级个体**（One Person Company）的现代化全栈 Web 应用，基于 **React 19 + TypeScript + Vite 7** 构建，完美适配 PC 与移动端。项目融合 **个人主页（简历）**、**学习空间（知识库/RAG 问答）**、**工作助手（电商/新媒体/百宝箱）**、**生活记录（朋友圈/旅行/恋爱记录等 7+ 功能）**、**AI 数字人分身** 于一体，支持 **5 种主题** 一键切换，致力于打造高颜值、可扩展的个人数字宇宙——实现 **个人 IP 展示 + 数字资产管理 + AI 数字人分身赋能** 的一站式解决方案。
 
 ### ✨ 核心亮点
 
-| 特性 | 描述 |
-|---|---|
-| 🎨 **5 套主题系统** | 极简 / 赛博 / 艺术 / 童趣 / 复古，通过 CSS 变量 + React Context 实现全局实时切换 |
-| 🤖 **AI 分身系统** | 声音克隆 → 形象复刻 → 3D 角色对话的三步引导式创建流程 |
-| 📱 **响应式设计** | 桌面端顶部导航 + 移动端底部 Tab 导航，完美适配双端体验 |
-| ✨ **流畅动画** | 基于 Framer Motion 实现页面过渡、微交互、布局动画 |
-| 🔐 **Supabase 后端** | 用户认证 + 数据持久化 + 文件存储 + RLS 行级安全 |
-| ⚡ **极速构建** | Vite 7.3 HMR 热更新 + 多入口构建支持 |
-| 🧠 **RAG 智能引擎** | 自研关键词检索 + 多模式回复生成（推荐/教程/百科/通用） |
-| 🃏 **数字名片生成** | html2canvas 导出 + 微信分享 + 历史记录管理 |
-| 🌟 **星光鼠标特效** | 跟随鼠标的粒子拖尾动画，可在设置中开关 |
-| 🖨️ **打印/PDF 导出** | 针对简历等页面优化了打印样式 |
+| 特性                        | 描述                                                                             |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| 🎨**5 套主题系统**    | 极简 / 赛博 / 艺术 / 童趣 / 复古，通过 CSS 变量 + React Context 实现全局实时切换 |
+| 🤖**AI 分身系统**     | 声音克隆 → 形象复刻 → 3D 角色对话的三步引导式创建流程                          |
+| 📱**响应式设计**      | 桌面端顶部导航 + 移动端底部 Tab 导航，完美适配双端体验                           |
+| ✨**流畅动画**        | 基于 Framer Motion 实现页面过渡、微交互、布局动画                                |
+| 🔐**Supabase 后端**   | 用户认证 + 数据持久化 + 文件存储 + RLS 行级安全                                  |
+| ⚡**极速构建**        | Vite 7.3 HMR 热更新 + 多入口构建支持                                             |
+| 🧠**RAG 智能引擎**    | 自研关键词检索 + 多模式回复生成（推荐/教程/百科/通用）                           |
+| 🃏**数字名片生成**    | html2canvas 导出 + 微信分享 + 历史记录管理                                       |
+| 🌟**星光鼠标特效**    | 跟随鼠标的粒子拖尾动画，可在设置中开关                                           |
+| 🖨️**打印/PDF 导出** | 针对简历等页面优化了打印样式                                                     |
 
 ---
 
@@ -37,42 +38,41 @@
 
 ### 🖥️ 前端核心
 
-| 技术 | 版本 | 用途 |
-|---|---|---|
-| [React](https://react.dev/) | 19.2.0 | UI 框架（函数组件 + Hooks） |
-| [React Router](https://reactrouter.com/) | 7.13.0 | Hash 路由管理 + 页面跳转 |
-| [TypeScript](https://www.typescriptlang.org/) | 5.9.3 | 静态类型检查，提升代码可维护性 |
-| [Tailwind CSS](https://tailwindcss.com/) | 4.1.18 | 原子化 CSS 框架（v4 Vite 插件模式） |
+| 技术                                           | 版本    | 用途                                       |
+| ---------------------------------------------- | ------- | ------------------------------------------ |
+| [React](https://react.dev/)                     | 19.2.0  | UI 框架（函数组件 + Hooks）                |
+| [React Router](https://reactrouter.com/)        | 7.13.0  | Hash 路由管理 + 页面跳转                   |
+| [TypeScript](https://www.typescriptlang.org/)   | 5.9.3   | 静态类型检查，提升代码可维护性             |
+| [Tailwind CSS](https://tailwindcss.com/)        | 4.1.18  | 原子化 CSS 框架（v4 Vite 插件模式）        |
 | [Framer Motion](https://www.framer.com/motion/) | 12.34.1 | 声明式动画引擎（页面过渡/微交互/布局动画） |
-| [Lucide React](https://lucide.dev/) | 0.574.0 | 图标库（1000+ SVG 图标） |
-| [Vite](https://vitejs.dev/) | 7.3.1 | 下一代构建工具（ESM + HMR + Rollup） |
+| [Lucide React](https://lucide.dev/)             | 0.574.0 | 图标库（1000+ SVG 图标）                   |
+| [Vite](https://vitejs.dev/)                     | 7.3.1   | 下一代构建工具（ESM + HMR + Rollup）       |
 
 ### ☁️ 后端 & 部署
 
-| 技术 | 版本 | 用途 |
-|---|---|---|
-| [Supabase](https://supabase.com/) | 2.46.1 | BaaS（PostgreSQL + Auth + Storage + RPC） |
-| [Vercel](https://vercel.com/) | — | 免费静态站点部署 + CDN 加速 |
-| ESLint | 9.39.1 | 代码规范检查（React Hooks 规则 + Refresh） |
-
+| 技术                             | 版本   | 用途                                       |
+| -------------------------------- | ------ | ------------------------------------------ |
+| [Supabase](https://supabase.com/) | 2.46.1 | BaaS（PostgreSQL + Auth + Storage + RPC）  |
+| [Vercel](https://vercel.com/)     | —     | 免费静态站点部署 + CDN 加速                |
+| ESLint                           | 9.39.1 | 代码规范检查（React Hooks 规则 + Refresh） |
 
 ### 🤖 AI & 3D
 
-| 技术 | 版本 | 用途 |
-|---|---|---|
-| [Three.js](https://threejs.org/) | 0.183.1 | WebGL 3D 渲染引擎 |
-| [@react-three/fiber](https://docs.pmnd.rs/react-three-fiber) | 9.5.0 | React 声明式 Three.js 渲染器 |
-| [@react-three/drei](https://github.com/pmndrs/drei) | 10.7.7 | Three.js 辅助工具集（OrbitControls 等） |
-| RAG Engine（自研） | — | 关键词提取 + TF-IDF 相似度匹配 + 模板回复 |
+| 技术                                                        | 版本    | 用途                                      |
+| ----------------------------------------------------------- | ------- | ----------------------------------------- |
+| [Three.js](https://threejs.org/)                             | 0.183.1 | WebGL 3D 渲染引擎                         |
+| [@react-three/fiber](https://docs.pmnd.rs/react-three-fiber) | 9.5.0   | React 声明式 Three.js 渲染器              |
+| [@react-three/drei](https://github.com/pmndrs/drei)          | 10.7.7  | Three.js 辅助工具集（OrbitControls 等）   |
+| RAG Engine（自研）                                          | —      | 关键词提取 + TF-IDF 相似度匹配 + 模板回复 |
 
 ### 📊 数据可视化 & 编辑器
 
-| 技术 | 版本 | 用途 |
-|---|---|---|
-| [ECharts](https://echarts.apache.org/) | 6.0.0 | 图表引擎（折线/柱状/饼图/雷达图） |
-| [echarts-for-react](https://github.com/hustcc/echarts-for-react) | 3.0.6 | ECharts React 封装组件 |
-| [Tiptap](https://tiptap.dev/) | 3.20.0 | 富文本编辑器（图片/链接/占位符扩展） |
-| [html2canvas](https://html2canvas.hertzen.com/) | 1.4.1 | DOM 截图，用于数字名片图片生成 |
+| 技术                                                            | 版本   | 用途                                 |
+| --------------------------------------------------------------- | ------ | ------------------------------------ |
+| [ECharts](https://echarts.apache.org/)                           | 6.0.0  | 图表引擎（折线/柱状/饼图/雷达图）    |
+| [echarts-for-react](https://github.com/hustcc/echarts-for-react) | 3.0.6  | ECharts React 封装组件               |
+| [Tiptap](https://tiptap.dev/)                                    | 3.20.0 | 富文本编辑器（图片/链接/占位符扩展） |
+| [html2canvas](https://html2canvas.hertzen.com/)                  | 1.4.1  | DOM 截图，用于数字名片图片生成       |
 
 ---
 
@@ -94,19 +94,22 @@ Opclaw/
 │
 ├── 📁 src/                        # ======= 源代码 ========================
 │   ├── 📄 main.tsx                # 应用启动入口（StrictMode + HashRouter + 加载遮罩移除）
-│   ├── 📄 App.tsx                 # 根组件：三层 Provider 嵌套 + 9 条路由 + AnimatePresence
+│   ├── 📄 App.tsx                 # 根组件：三层 Provider 嵌套 + 12 条路由 + AnimatePresence
 │   ├── 📄 index.css               # 全局样式：@theme 声明 + 6 个关键帧 + glass/gradient 工具类
 │   │
-│   ├── 📁 pages/                  # ====== 9 个页面组件 
-│   │   ├── 📄 Home.tsx            # 🏠 首页：Hero/技能/作品/爱好/社媒/联系 六大板块
+│   ├── 📁 pages/                  # ====== 12 个页面组件 
+│   │   ├── 📄 Home.tsx            # 🏠 首页入口：双端响应式自适应。移动端渲染 Bento 导航与特色看板，桌面端重定向至个人主页
+│   │   ├── 📄 Profile.tsx         # 👤 个人主页：桌面端 IP 品牌展示区（Hero/技能表/作品集/3D爱好轮播/联系等六大板块）
 │   │   ├── 📄 Learning.tsx        # 📚 学习空间：知识库 + 技能树 + 文章编辑器 + AI 助手
 │   │   ├── 📄 Life.tsx            # 🌸 生活记录：7 个子标签页（朋友圈/旅拍/恋爱/相册/许愿/祝福/音乐/电影）
 │   │   ├── 📄 Work.tsx            # 💼 工作助手：百宝箱 + 电商运营 + 新媒体运营
-│   │   ├── 📄 Social.tsx          # 👤 个人中心：名片/留言墙/VIP/设置/资料编辑
-│   │   ├── 📄 AICharacter.tsx     # 🤖 AI 分身：3 步引导 + 3D 角色 + 语音交互
-│   │   ├── 📄 Assets.tsx          # 💰 数字资产：资产卡片网格展示
-│   │   ├── 📄 Community.tsx       # 🌐 社区广场：帖子动态流
-│   │   └── 📄 Laboratory.tsx      # 🧪 实验室：开发时间轴 + 路线图
+│   │   ├── 📄 Social.tsx          # 👤 个人中心：包含友情链接、留言墙、设置、个人名片与 Supabase 资料同步
+│   │   ├── 📄 AICharacter.tsx     # 🤖 AI 分身：3 步引导 + 3D 角色场景 + StepAudio 2.5 实时发音对话
+│   │   ├── 📄 Assets.tsx          # 💰 数字资产：多维资产网格看板与价值分析图表
+│   │   ├── 📄 Community.tsx       # 🌐 社区广场：动态帖子流与 AI 虚拟化身聊天
+│   │   ├── 📄 Laboratory.tsx      # 🧪 探索实验室：开发历程时间轴 + 未来计划 + StepAudio 语音能力验证沙盒
+│   │   ├── 📄 ResumeTemplates.tsx # 🎨 简历模板工坊：四大经典简历模板（简约/商务/创意/校园）一键挑选
+│   │   └── 📄 ResumeBuilder.tsx   # 📄 简历生成编辑器：A4单页排版 + 实时双向编辑 + AI(STAR法则)简历描述智能优化
 │   │
 │   ├── 📁 components/             # ===== 可复用组件库 
 │   │   ├── 📁 ai/                 # 🤖 AI 分身模块（13 个文件）
@@ -243,31 +246,42 @@ Opclaw/
 
 ## ⚡ 核心功能模块和工作流程
 
-### 🏠 模块一：个人主页（Home）
+### 🏠 模块一：个人主页 & 品牌展示（Home & Profile）
 
-> **入口路由：** `/` — 首页展示个人品牌形象
+> **入口路由：** `/` (双端入口分发) 与 `/profile` (独立品牌主页)
+
+**双端自适应展示架构：**
+
+* **移动端 (MobileHome)**：极简轻奢的 Bento 网格风格，顶部展示迎宾问候与日历，包含：
+  * **热点轮播横幅**：自动循环播放热门模块（AI分身、简历工坊、资产看板等）入口，带磨砂玻璃特效。
+  * **创意 Bento 卡片推荐**：包含“恋爱记录”、“百宝箱快捷书签”、“沉浸氛围音乐墙”、“城市漫游相册”等高保真微卡片。
+  * **网格快捷入口菜单**：提供 8 个功能子页面的快速平滑导航启动器。
+* **桌面端 (Profile)**：高保真个人 IP 品牌展示区，采用纵向全宽滚动与 Framer Motion 视差效果：
 
 **功能矩阵：**
 
-| 区块 | 组件 | 描述 |
-|---|---|---|
-| 🧑 Hero 区 | `HeroSection.tsx` | 个人头像 + 一句话简介 + 在线简历切换按钮 |
-| 🛠️ 技能展示 | `SkillsSection.tsx` | 多分类技能条形图进度条动画 |
-| 🗂️ 作品集 | `PortfolioSection.tsx` | 项目卡片网格 + 悬浮动效 |
-| ❤️ 兴趣爱好 | `HobbiesSection.tsx` | 3D 卡片轮播 + 互动动画 |
-| 🔗 自媒体矩阵 | `SocialMediaSection.tsx` | 各平台社交媒体链接集合 |
-| 📬 联系方式 | `ContactSection.tsx` | 邮件 + 社交媒体联系入口 |
-| 🎯 模块导航 | `ModulesSection.tsx` | 各功能模块快捷入口卡片 |
+| 区块          | 组件                       | 描述                                                                                  |
+| ------------- | -------------------------- | ------------------------------------------------------------------------------------- |
+| 🧑 Hero 区    | `HeroSection.tsx`        | 3D 悬浮视差大图 + 自我简介 + 实时主题与预览/编辑模式切换，支持撤销/重做与一键重置数据 |
+| 🛠️ 技能展示 | `SkillsSection.tsx`      | 技能树三维分类可视化，多维度的条形图与星级能力评估分布                                |
+| 🗂️ 作品集   | `PortfolioSection.tsx`   | 项目卡片网格展示，支持交互式卡片缩放及分类过滤动效                                    |
+| ❤️ 兴趣爱好 | `HobbiesSection.tsx`     | 精美 3D 卡片轮播，鼠标拖拽/自动旋转呈现多维生活兴趣                                   |
+| 🔗 自媒体矩阵 | `SocialMediaSection.tsx` | 各大自媒体平台账号（Bilibili、Github、Twitter等）卡片链接                             |
+| 📬 联系方式   | `ContactSection.tsx`     | 邮箱 + 社交网络直达通道 + 快捷在线留言反馈                                            |
+| 📱 NFC 配对   | `NfcConnectModule.tsx`   | Web NFC 硬件检测 + 3D 动画模拟，极速配对交换数字名片                                  |
 
-**可编辑模式：** 登录后所有板块支持 `EditableWrapper` 实时编辑（React Portal 模式避免 z-index 冲突），编辑结果持久化到 profile 数据。
+**可编辑模式：** 登录后所有板块支持 `EditableWrapper` 实时编辑（通过 React Portal 模式完美规避 z-index 冲突），支持对基本资料、技能星级、项目清单、兴趣好恶的增删改，并一键同步存储至 Supabase 后端。
 
 **工作流程：**
+
 ```
-页面加载 → ThemeContext 初始化 CSS 变量
-        → 渲染 Hero → Skills → Portfolio → Hobbies → SocialMedia → Contact
-        → 用户点击「查看简历」→ 切换为 OnlineResume 视图
-        → 用户点击主题按钮 → 弹出 ThemeSwitcher → setTheme() → 全局色调平滑过渡
-        → （登录后）悬浮板块 → 显示编辑按钮 → 点击编辑 → Portal 弹出编辑 UI
+页面加载 → 监测窗口宽度：
+         ├─ < 768px (移动端) → 渲染 MobileHome.tsx 极简 Bento 仪表盘
+         └─ ≥ 768px (桌面端) → 渲染 Profile.tsx 个人 IP 品牌主页
+                → 滚动监听触发 AnimatedSection 逐级淡入与滑动进入
+                → 用户点击「查看简历」→ 切换至 OnlineResume 简历预览视图
+                → 用户点击「分享」→ 唤起 DigitalCardModal 生成精美数字名片
+                → 点击「NFC互动」→ 启动 Web NFC 设备探测或精美 3D 握手配对模拟
 ```
 
 ---
@@ -278,17 +292,17 @@ Opclaw/
 
 **功能矩阵：**
 
-| 子模块 | 描述 |
-|---|---|
-| 📖 知识库 | 三列布局（分类导航 / 文章列表 / 文章详情），支持分类筛选 |
-| 🌲 技能树 | 可视化技能成长路径（层级展开 + 进度指示） |
-| ✏️ 文章编辑器 | 基于 Tiptap 的富文本编辑（图片插入 / 链接 / 占位符） |
-| 📥 文档导入 | 本地文件解析导入知识库 |
-| 🤖 AI 阅读助手 | 基于 RAG 引擎的文章智能问答浮窗 |
-| 💬 AI 聊天侧边栏 | 可拖拽分栏布局的 AI 对话面板 |
-| 📄 在线简历 | 结构化简历展示 + 编辑器 + 预览（支持打印/PDF 导出） |
+| 子模块           | 描述                                                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| 📖 知识库        | 三列布局（分类导航 / 文章列表 / 文章详情），支持分类搜索与 CRUD 管理                        |
+| 🌲 技能树        | 可视化技能成长路径（层级展开 + 进度指示）与 D3-like 原生 SVG 节点渲染                       |
+| ✏️ 文章编辑器  | 基于 Tiptap 的富文本编辑（支持加粗/斜体/标题/块引用/列表/代码块/图片/链接等，附带气泡菜单） |
+| 📥 文档导入      | 本地 Markdown / TXT 文档解析与自动提取摘要，一键导入个人知识库                              |
+| 🤖 AI 阅读助手   | 基于 RAG 引擎的文章智能问答浮窗，支持选区划词智能润色/翻译/续写                             |
+| 💬 AI 聊天侧边栏 | 可拖拽分栏布局的 AI 对话面板，支持与知识库的深度问答交互                                    |
 
 **RAG 引擎工作流程：**
+
 ```
 用户输入查询 → extractKeywords() 提取关键词（过滤停用词）
             → search() 遍历索引计算 TF-IDF 相似度
@@ -309,18 +323,19 @@ Opclaw/
 
 **7+ 子标签页：**
 
-| 标签 | 功能描述 | 关键特性 |
-|---|---|---|
-| 💬 **朋友圈** | 发布图文动态 | 点赞 / 评论 / @他人 / 图片上传 |
-| 🗺️ **旅拍相册** | 旅行足迹记录 | SVG 中国地图轨迹可视化 + 照片管理 |
-| 💕 **恋爱记录** | 恋爱纪念日 | 实时秒级倒计时 + 时间轴事件管理 |
-| 📸 **时光相册** | 时间轴相册 | 按日期排列的恋爱照片集 |
-| 🌟 **许愿清单** | 双人心愿 | 心愿列表 + 完成状态标记 |
-| 🎊 **祝福墙** | 好友祝福 | 留言墙 + 墙壁展示风格 |
-| 🎵 **音乐墙** | 音乐收藏 | 音乐卡片墙 + 播放控制 |
-| 🎬 **收藏电影** | 电影收藏 | 豆瓣风格电影卡片 |
+| 标签                   | 功能描述     | 关键特性                          |
+| ---------------------- | ------------ | --------------------------------- |
+| 💬**朋友圈**     | 发布图文动态 | 点赞 / 评论 / @他人 / 图片上传    |
+| 🗺️**旅拍相册** | 旅行足迹记录 | SVG 中国地图轨迹可视化 + 照片管理 |
+| 💕**恋爱记录**   | 恋爱纪念日   | 实时秒级倒计时 + 时间轴事件管理   |
+| 📸**时光相册**   | 时间轴相册   | 按日期排列的恋爱照片集            |
+| 🌟**许愿清单**   | 双人心愿     | 心愿列表 + 完成状态标记           |
+| 🎊**祝福墙**     | 好友祝福     | 留言墙 + 墙壁展示风格             |
+| 🎵**音乐墙**     | 音乐收藏     | 音乐卡片墙 + 播放控制             |
+| 🎬**收藏电影**   | 电影收藏     | 豆瓣风格电影卡片                  |
 
 **恋爱记录工作流程：**
+
 ```
 进入恋爱记录 → 实时倒计时（setInterval 每秒更新，显示 X天X时X分X秒）
             → 时间轴事件（左右交替 timeline 布局）
@@ -337,128 +352,122 @@ Opclaw/
 **3 个子模块：**
 
 #### 📌 百宝箱（TreasureBox）
+
 常用工具 / 网站 / 资源收藏管理，来源于 `EntertainmentModules.tsx` 共享组件
 
 #### 🛒 电商运营（EcommerceModule）
 
-| 子标签 | 功能 |
-|---|---|
-| 📊 概览 | 今日销售额 / 订单数 / 访客数 / 转化率 四大核心指标 |
-| 📦 商品管理 | 商品列表 + CRUD（新建/编辑/上下架/删除） |
-| 📋 订单管理 | 订单列表（已完成/待处理/已发货/已取消） |
-| 📈 经营分析 | ECharts 多维度图表（柱状/趋势/漏斗/类别分析） |
+| 子标签      | 功能                                               |
+| ----------- | -------------------------------------------------- |
+| 📊 概览     | 今日销售额 / 订单数 / 访客数 / 转化率 四大核心指标 |
+| 📦 商品管理 | 商品列表 + CRUD（新建/编辑/上下架/删除）           |
+| 📋 订单管理 | 订单列表（已完成/待处理/已发货/已取消）            |
+| 📈 经营分析 | ECharts 多维度图表（柱状/趋势/漏斗/类别分析）      |
 
 #### 📱 新媒体运营（NewMediaModule）
 
-| 子标签 | 功能 |
-|---|---|
-| 📂 内容库 | 内容管理（文章/视频/图片）+ 搜索/筛选 + CRUD |
+| 子标签      | 功能                                                          |
+| ----------- | ------------------------------------------------------------- |
+| 📂 内容库   | 内容管理（文章/视频/图片）+ 搜索/筛选 + CRUD                  |
 | 📅 发布管理 | 帖子列表（草稿/已发布/定时发布）+ 数据（阅读/点赞/评论/分享） |
-| 📊 数据分析 | 4 种图表切换（折线/柱状/饼图/雷达图）+ 平台统计 |
+| 📊 数据分析 | 4 种图表切换（折线/柱状/饼图/雷达图）+ 平台统计               |
 
 **平台支持：** 微信 💬 / 微博 🔴 / 小红书 📕 / 抖音 🎵，每个平台独立数据、独立筛选
 
 ---
 
-### 🤖 模块五：AI 数字分身（AICharacter）
+### 🎨 模块五：简历工坊（ResumeTemplates & ResumeBuilder）
 
-> **入口路由：** `/ai-character` — 个人 AI 数字分身创建
+> **入口路由：** `/resume-templates` (模板工坊) 与 `/resume-builder` (简历生成编辑器)
 
-**三步引导式创建流程：**
+**功能架构：**
+
+* **简历模板库 (ResumeTemplates)**：提供四大预设的经典专业设计模板，支持一键预览与选用：
+  * **极简雅致 (Minimal)**：干净利落的衬线字体排版，注重核心文字表达，适合高管/学术/通用岗位。
+  * **专业精英 (Business)**：沉稳大气的蓝灰双栏排版，重点突出项目与工作经历，适合金融/法务/运营。
+  * **极客先锋 (Creative)**：暗色霓虹渐变背景，突出个人主页链接与技术栈标签，适合独立开发者/设计师。
+  * **青春逐梦 (Campus)**：青绿活力配色的模块化单栏设计，强调社会实践与学术背景，适合应届生。
+* **生成编辑器 (ResumeBuilder)**：支持响应式三栏/双栏布局，集成高效简历生成引擎：
+  * **双向同步实时预览**：表单数据输入即时反映在 A4 单页简历画布上。
+  * **AI (STAR法则) 优化器**：内置 AI 简历助手，将项目经历按照 *情境(Situation) -> 任务(Task) -> 行动(Action) -> 成果(Result)* 进行自动化重构与词汇润色。
+  * **备份与导出**：支持完整的简历 JSON 数据备份导出与本地导入；利用 CSS 打印媒体查询（`@media print`）实现一键无损保存为 A4 格式 PDF；配合 `html2canvas` 导出高清图片。
+
+---
+
+---
+
+### 🤖 模块六：AI 数字人分身
+
+> **入口路由：** `/ai-character` (三步分身引导) 与 `/laboratory` (语音沙盒测试)
+
+Opclaw 深度集成了 **阶跃星辰 (StepFun)** 公司的 **StepAudio 2.5** 多模态语音大模型服务与 **DeepSeek-V4-Pro** 智能代理代理层，支持两种对话入口：
+
+#### 1. 引导式数字分身创建与实时 3D 渲染 (AICharacter)
+
+通过精美的三步流程，帮助用户克隆自身：
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Step 1: 🎙️ 声音克隆 (VoiceClone)                      │
-│  ├─ 录制音频样本 / 上传本地音频                           │
-│  ├─ 波形可视化 (VoiceWaveAnimation)                      │
-│  └─ 生成声音模型 → VoiceModel                           │
+│  ├─ 调用 Web MediaRecorder 录制 15秒语音样本并上传        │
+│  ├─ Canvas 绘制实时麦克风音频输入波形动画                  │
+│  └─ 生成个性化声音模型 → VoiceModel                       │
 ├─────────────────────────────────────────────────────────┤
 │  Step 2: 🖼️ 形象复刻 (AvatarClone)                      │
-│  ├─ 预设头像选择 / 自定义上传                             │
-│  ├─ 角色风格配置（Cartoon / Realistic）                   │
-│  ├─ 背景场景自定义 (BackgroundCustomizer)                │
-│  └─ 生成数字形象 → AvatarModel                          │
+│  ├─ ModelScope FLUX 异步画像克隆生成风格化形象卡片       │
+│  ├─ 自定义场景环境（支持背景磨砂玻璃、3D 渐变自定义）       │
+│  └─ 生成专属 3D 形象 → AvatarModel                      │
 ├─────────────────────────────────────────────────────────┤
-│  Step 3: 💬 AI 对话 (CharacterChat)                      │
-│  ├─ Three.js 3D 角色实时渲染 (Character3D)               │
-│  ├─ 多模态输入 (MultiModalInput: 文字/图片/语音)         │
-│  ├─ RAG 引擎处理用户消息 → 智能回复                      │
-│  ├─ 打字机效果输出 (StreamingText)                       │
-│  └─ 若已克隆声音 → Web Speech API 语音朗读回复           │
+│  Step 3: 💬 AI 对话与 3D 渲染互动 (CharacterChat)        │
+│  ├─ Three.js / R3F 渲染高保真 3D 头像模型，支持鼠标交互    │
+│  ├─ 实时打字机式流式消息流 (StreamingText)               │
+│  ├─ 支持基于本地音频振幅映射驱动 Live2D/3D 模型口型变化     │
+│  └─ 云端 TTS 情感语音流自然播报，支持 Web Speech 兜底     │
 └─────────────────────────────────────────────────────────┘
 ```
 
+#### 2. 阶跃星辰 StepAudio 语音实验室沙盒 (Laboratory)
+
+我们在探索实验室的“语音实验室”标签页中，提供了 StepAudio 的核心能力直连验证工具：
+
+* **📞 全双工实时通话 (WebSocket Realtime)**：基于 `wss` 连接，实现毫秒级超低延迟的“双向音频流传输”，支持服务端 VAD 智能断句检测，无需手动按键即可进行流畅的双向实时口头对话。
+* **💬 多模态语音对话 (Chat)**：使用 `stepaudio-2.5-chat` 模型，实现极速的流式文本-语音混合式问答。
+* **🔊 表现力语音合成 (TTS)**：直连 `stepaudio-2.5-tts` 合成接口，支持传入 instruction 语气指令（如“温柔、兴奋、悲伤”等）及括号细节（如 `[laughter]` 笑声），生成富有情感表达力的自然音频。
+* **🎤 流式语音转文字 (ASR)**：直连 `stepaudio-2.5-asr` 接口，支持分块流式音频上传及极速秒级识别。
+
 ---
 
-### 👤 模块六：个人中心（Social）
+### 👤 模块七：个人中心（Social）
 
 > **入口路由：** `/social` — 用户账户与社交管理
 
 **子模块矩阵：**
 
-| 子标签 | 功能描述 |
-|---|---|
-| 🔗 自媒体矩阵 | 友情链接管理（CRUD）+ 社交账号展示 |
-| 📝 留言墙 | 便利贴风格 + 三行自动滚动弹幕效果 |
-| 🧪 实验室 | 项目开发时间轴 + 未来计划路线图 |
+| 🧪 实验室 | 整合开发历程时间轴、未来开发计划路线图，以及 🎛️ StepAudio 2.5 语音能力沙盒验证器（支持全双工实时通话/ASR/TTS/Chat） |
 
 **特色功能：**
-- 🃏 **数字名片生成器** — 6 种主题模板，html2canvas 导出图片 + 微信分享
-- 👑 **VIP 会员入口** — UI 展示层
-- ✏️ **个人资料编辑** — 头像/背景/用户名/简介 实时同步 Supabase
-- 🔐 **登录/注册弹窗** — 未登录时自动弹出（100ms 延迟），支持游客一键登录
-- 🎨 **主题选择面板** — 桌面端完整 5 主题预览切换
+
+- 🃏 **数字名片与 Web NFC 互联** — 支持 6 种精美名片主题，html2canvas 高清像素导出与微信朋友圈分享；集成浏览器 Web NFC 硬件通信接口（带 3D 动画回退模拟），实现超级个体间的秒级接触式名片互换。
+- 👑 **VIP 会员中心** — 会员特权与卡片效果展示层
+- ✏️ **个人资料编辑** — 头像、背景图、昵称、个人简介及基础档案（电话/年龄/性别）实时与 Supabase PostgreSQL 保持多端同步。
+- 🔐 **智能身份认证** — 提供支持用户名/邮箱/密码注册登录的统一弹窗（AuthModal），支持游客临时账号“一键闪登”（Guest Auto-Registration & Login）。
+- 🎨 **全局主题控制台** — 提供桌面端悬浮面板与移动端选项页进行 5 大高颜值主题的一键热切换。
 
 ---
 
-### 🎨 模块七：主题系统（全局）
+### 🎨 模块八：主题系统（全局）
 
 5 套主题风格，通过 `ThemeContext` + CSS 变量实现零闪烁全局切换。
 
-| 主题 | 图标 | 描述 | 配色特点 | 字体 |
-|---|---|---|---|---|
-| **极简** (minimal) | ◐ | 清爽白色系 | 蓝色主色 + 简洁线条 | Inter |
-| **赛博** (cyber) | ◉ | 暗黑霓虹 | 青蓝 + 紫色 + 赛博朋克 | Inter + JetBrains Mono |
-| **艺术** (artistic) | ❋ | 暖橙艺术感 | 珊瑚粉 + 橙色 + 手工感 | Playfair Display |
-| **童趣** (cartoon) | ✿ | 明亮卡通系 | 粉色 + 明黄 + 圆润边角 | Nunito |
-| **复古** (retro) | ✤ | 暖棕复古感 | 深金 + 棕红 + 老式排版 | Merriweather |
+| 主题                      | 图标 | 描述       | 配色特点               | 字体                   |
+| ------------------------- | ---- | ---------- | ---------------------- | ---------------------- |
+| **极简** (minimal)  | ◐   | 清爽白色系 | 蓝色主色 + 简洁线条    | Inter                  |
+| **赛博** (cyber)    | ◉   | 暗黑霓虹   | 青蓝 + 紫色 + 赛博朋克 | Inter + JetBrains Mono |
+| **艺术** (artistic) | ❋   | 暖橙艺术感 | 珊瑚粉 + 橙色 + 手工感 | Playfair Display       |
+| **童趣** (cartoon)  | ✿   | 明亮卡通系 | 粉色 + 明黄 + 圆润边角 | Nunito                 |
+| **复古** (retro)    | ✤   | 暖棕复古感 | 深金 + 棕红 + 老式排版 | Merriweather           |
 
 **快捷操作：** `Shift + Q` 全局循环切换主题
-
----
-
-### 🔐 模块八：认证系统
-
-```
-用户访问 Social 页面
-    → AuthContext 初始化
-    ├─ 读取 LocalStorage 快照 → 乐观预渲染（避免登录闪烁）
-    ├─ supabase.auth.getUser() 验证令牌有效性
-    │   ├─ 已登录 → 拉取 profiles 表 → mapProfileToUser → setUser
-    │   └─ 未登录 → 100ms 后自动弹出 AuthModal
-    │
-    → 邮箱登录
-    ├─ emailRegex 判断 → 直接邮箱登录
-    │
-    → 用户名登录
-    ├─ RPC get_email_by_username 查询 → 获取邮箱 → signInWithPassword
-    │
-    → 游客一键登录
-    ├─ 自动生成临时 guest{randomId}@temp.local
-    ├─ signUp → 创建 profile → signIn → fetchAndSetProfile
-    │
-    → 用户注册
-    ├─ 检查用户名唯一性
-    ├─ signUp + profiles.upsert → 自动登录 → navigate('/social')
-    │
-    → 登出
-    └─ signOut → 清除 state + localStorage
-```
-
-**安全机制：**
-- Row Level Security (RLS)：用户只能读写自己的 profile
-- Token 自动刷新：`autoRefreshToken: true`
-- Session 持久化：`persistSession: true`
 
 ---
 
@@ -467,6 +476,7 @@ Opclaw/
 ### 🚀 本地开发
 
 **环境要求：**
+
 - Node.js ≥ 18
 - npm ≥ 9
 
@@ -566,23 +576,23 @@ npm run lint
 
 ### 🔐 认证接口（Supabase Auth）
 
-| 方法 | 接口 | 描述 | 参数 |
-|---|---|---|---|
-| POST | `supabase.auth.signInWithPassword()` | 邮箱+密码登录 | `{ email, password }` |
-| POST | `supabase.auth.signUp()` | 注册新用户 | `{ email, password, options: { data } }` |
-| POST | `supabase.auth.signOut()` | 退出登录 | — |
-| GET | `supabase.auth.getUser()` | 获取当前用户 | — |
-| SUB | `supabase.auth.onAuthStateChange()` | 监听认证状态 | callback |
+| 方法 | 接口                                   | 描述          | 参数                                       |
+| ---- | -------------------------------------- | ------------- | ------------------------------------------ |
+| POST | `supabase.auth.signInWithPassword()` | 邮箱+密码登录 | `{ email, password }`                    |
+| POST | `supabase.auth.signUp()`             | 注册新用户    | `{ email, password, options: { data } }` |
+| POST | `supabase.auth.signOut()`            | 退出登录      | —                                         |
+| GET  | `supabase.auth.getUser()`            | 获取当前用户  | —                                         |
+| SUB  | `supabase.auth.onAuthStateChange()`  | 监听认证状态  | callback                                   |
 
 ### 📊 数据库接口（Supabase PostgreSQL）
 
-| 操作 | 接口 | 描述 |
-|---|---|---|
+| 操作   | 接口                                                                       | 描述         |
+| ------ | -------------------------------------------------------------------------- | ------------ |
 | SELECT | `supabase.from('profiles').select('*').eq('user_id', uid).maybeSingle()` | 获取用户资料 |
-| INSERT | `supabase.from('profiles').insert({ ... })` | 创建用户资料 |
-| UPDATE | `supabase.from('profiles').update({ ... }).eq('user_id', uid)` | 更新用户资料 |
-| UPSERT | `supabase.from('profiles').upsert({ ... })` | 创建或更新 |
-| RPC | `supabase.rpc('get_email_by_username', { p_username })` | 用户名查邮箱 |
+| INSERT | `supabase.from('profiles').insert({ ... })`                              | 创建用户资料 |
+| UPDATE | `supabase.from('profiles').update({ ... }).eq('user_id', uid)`           | 更新用户资料 |
+| UPSERT | `supabase.from('profiles').upsert({ ... })`                              | 创建或更新   |
+| RPC    | `supabase.rpc('get_email_by_username', { p_username })`                  | 用户名查邮箱 |
 
 ### 📁 文件存储接口（Supabase Storage）
 
@@ -643,63 +653,4 @@ import { showToast } from '@/lib/toast'
 showToast('操作成功')
 ```
 
----
-
-## 💡 常见问题
-
-### ❓ Q1：启动后界面正常但登录报错？
-
-**A：** 检查 `.env` 文件中 Supabase 配置是否正确填写：
-
-```bash
-# 在浏览器控制台验证
-console.log(import.meta.env.VITE_SUPABASE_URL)
-# 应输出 "https://xxx.supabase.co"，不应为空字符串
-```
-
-如果 `.env` 未配置，项目会自动使用 Mock Client，此时认证功能不可用但页面不会崩溃。
-
----
-
-### ❓ Q2：如何添加新的学习文章？
-
-**A：** 进入 `/learning`（学习空间）页面：
-
-1. 点击 **「新建文章」** → 打开 Tiptap 富文本编辑器
-2. 填写标题、正文（支持图片/链接插入）、摘要、标签
-3. 点击保存 → 文章存入 `customArticles` 列表
-4. 或点击 **「导入文档」** → 选择本地文件批量导入
-
-### ❓ Q3：Supabase 数据库如何初始化？
-
-**A：** 
-
-1. 在 [supabase.com](https://supabase.com) 创建新项目
-2. 进入 SQL Editor
-3. 按顺序执行 `supabase/migrations/` 目录下的 6 个迁移文件
-4. 将项目 URL 和 Anon Key 填入 `.env` 文件
-5. 重启开发服务器
-
----
-
-## 📊 项目统计
-
-| 指标 | 数值 |
-|---|---|
-| 📄 页面数量 | 9 个独立路由页面 |
-| 🧩 组件数量 | 60+ 可复用组件 |
-| 📁 源码文件 | 80+ TypeScript/TSX 文件 |
-| 📦 直接依赖 | 25 个 npm 包 |
-| 🗄️ 数据迁移 | 7 个 SQL 迁移脚本 |
-| 🎨 主题数量 | 5 套完整主题方案 |
-| 🔑 CSS 变量 | 30+ 动态 CSS 自定义属性 |
-
----
-
 <div align="center">
-
-**一个人的数字宇宙，从这里开始！**
-
-Made with ❤️ by 晓叶
-
-</div>

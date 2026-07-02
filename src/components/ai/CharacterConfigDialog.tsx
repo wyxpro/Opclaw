@@ -27,10 +27,10 @@ export function CharacterConfigDialog({ isOpen, onClose, sessions = [] }: Charac
   const tabs = [
     { id: 'basic', name: '基础设置', icon: Sliders },
     { id: 'memory', name: 'Agent 记忆库', icon: Brain },
-    { id: 'skills', name: 'Skills 技能', icon: Zap },
     { id: 'asr', name: '语音识别 (ASR)', icon: Mic },
     { id: 'tts', name: '语音合成 (TTS)', icon: Volume2 },
     { id: 'agent', name: 'AI 智能体', icon: Bot },
+    { id: 'skills', name: 'Skills 技能', icon: Zap },
   ] as const
 
   return (

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <script src="/sentio/core/live2dcubismcore.min.js"></script>
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/vibe_images/logo.png" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
@@ -769,77 +769,103 @@
           transform: translateY(-8px);
         }
       }
+      .scrollbar-none::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-none {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
       @media (max-width: 768px) {
         .pricing-card {
-          margin: 0 auto;
+          margin: 0;
           min-width: 0;
+          background: transparent !important;
+          backdrop-filter: none !important;
+          box-shadow: none !important;
+          border: 1px solid rgba(139, 92, 246, 0.2) !important;
+          border-radius: 20px !important;
+        }
+        .pricing-card-featured {
+          border: 2px solid rgba(139, 92, 246, 0.5) !important;
+        }
+        .pricing-card-inner {
+          background: transparent !important;
+          border-radius: 20px !important;
+          box-shadow: none !important;
+        }
+        .pricing-card-inner::after,
+        .pricing-card-inner::before,
+        .pricing-card-inner > div {
+          background: transparent !important;
         }
         .pricing-card .p-6 {
-          padding: 0.75rem 0.5rem;
+          padding: 1.5rem;
         }
         .pricing-card .text-4xl {
-          font-size: 1.1rem;
+          font-size: 1.875rem;
         }
         .pricing-card .text-lg {
-          font-size: 0.6rem;
+          font-size: 1.125rem;
         }
         .pricing-card .text-xl {
-          font-size: 0.7rem;
+          font-size: 1.25rem;
         }
         .pricing-card .text-sm {
-          font-size: 0.55rem;
+          font-size: 0.875rem;
         }
         .pricing-card .text-xs {
-          font-size: 0.5rem;
+          font-size: 0.75rem;
         }
         .pricing-card .w-10 {
-          width: 1.25rem;
-          height: 1.25rem;
+          width: 2.5rem;
+          height: 2.5rem;
         }
         .pricing-card .w-10 svg {
-          width: 0.7rem;
-          height: 0.7rem;
+          width: 1.25rem;
+          height: 1.25rem;
         }
         .pricing-card ul.space-y-3 {
           display: flex;
           flex-direction: column;
-          gap: 0.1rem;
+          gap: 0.75rem;
         }
         .pricing-card .space-y-3 > li {
-          font-size: 0.6rem;
-          white-space: nowrap;
+          font-size: 0.875rem;
+          white-space: normal;
           margin: 0;
-          padding: 0.05rem 0;
-          line-height: 1.1;
+          padding: 0;
+          line-height: 1.5;
           min-height: auto;
         }
         .pricing-card .space-y-3 > li svg {
-          width: 0.65rem;
-          height: 0.65rem;
+          width: 1rem;
+          height: 1rem;
           flex-shrink: 0;
         }
         .pricing-card .space-y-3 > li span {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          white-space: normal;
+          overflow: visible;
+          text-overflow: clip;
         }
         .pricing-card button {
-          padding: 0.35rem;
-          font-size: 0.6rem;
+          padding: 0.75rem;
+          font-size: 0.875rem;
         }
         .pricing-card button svg {
-          width: 0.6rem;
-          height: 0.6rem;
+          width: 1rem;
+          height: 1rem;
         }
         .pricing-card .featured-badge {
-          padding: 0.1rem 0.3rem;
-          font-size: 0.45rem;
+          padding: 6px 16px;
+          font-size: 0.75rem;
         }
         .pricing-card .inline-flex {
-          gap: 0.2rem;
+          gap: 0.5rem;
         }
         .pricing-card .flex.items-baseline.gap-1 {
-          gap: 0.1rem;
+          gap: 0.25rem;
         }
       }
 
@@ -3035,9 +3061,9 @@
         </div>
 
         <!-- 付费计划卡片网格 -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-5">
+        <div class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-6 md:grid md:grid-cols-4 md:gap-6 lg:gap-5 scrollbar-none px-4 md:px-0">
           <!-- Free 免费版 -->
-          <div class="pricing-card group animate-on-scroll animate-stagger-1">
+          <div class="pricing-card group animate-on-scroll animate-stagger-1 w-[85vw] sm:w-[350px] md:w-auto shrink-0 md:shrink snap-center">
             <div class="pricing-card-inner h-full flex flex-col">
               <!-- 卡片头部 -->
               <div class="p-6 pb-4">
@@ -3120,7 +3146,7 @@
           </div>
 
           <!-- VIP 普通会员 -->
-          <div class="pricing-card group animate-on-scroll animate-stagger-2">
+          <div class="pricing-card group animate-on-scroll animate-stagger-2 w-[85vw] sm:w-[350px] md:w-auto shrink-0 md:shrink snap-center">
             <div class="pricing-card-inner h-full flex flex-col">
               <!-- 卡片头部 -->
               <div class="p-6 pb-4">
@@ -3204,7 +3230,7 @@
 
           <!-- SVIP 超级会员 - 推荐 -->
           <div
-            class="pricing-card pricing-card-featured group animate-on-scroll animate-stagger-3"
+            class="pricing-card pricing-card-featured group animate-on-scroll animate-stagger-3 w-[85vw] sm:w-[350px] md:w-auto shrink-0 md:shrink snap-center"
           >
             <!-- 推荐标签 -->
             <div class="featured-badge">
@@ -3305,7 +3331,7 @@
           </div>
 
           <!-- 永久会员 -->
-          <div class="pricing-card group animate-on-scroll animate-stagger-4">
+          <div class="pricing-card group animate-on-scroll animate-stagger-4 w-[85vw] sm:w-[350px] md:w-auto shrink-0 md:shrink snap-center">
             <div
               class="pricing-card-inner h-full flex flex-col relative overflow-hidden"
             >

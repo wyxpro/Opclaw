@@ -469,9 +469,14 @@ export default function Navbar() {
               key={item.path}
               to={item.path}
               end={item.path === '/'}
+              onTouchStart={() => {
+                if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                  navigator.vibrate(20);
+                }
+              }}
               onClick={(e) => {
                 if (typeof navigator !== 'undefined' && navigator.vibrate) {
-                  navigator.vibrate(15);
+                  navigator.vibrate(20);
                 }
                 if (item.path === '/social' && !isAuthenticated) {
                   e.preventDefault();

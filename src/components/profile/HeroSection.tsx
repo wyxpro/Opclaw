@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
-import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon, Share2, Upload, Eye, Edit3, Download, Undo2, Redo2, RotateCcw, ArrowLeft } from 'lucide-react'
+import { MapPin, Mail, Link as LinkIcon, Github, Twitter, Linkedin, FileText, Home as HomeIcon, Share2, Upload, Eye, Edit3, Download, Undo2, Redo2, RotateCcw, ArrowLeft, Sparkles } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../../hooks/useTheme'
 import type { PersonalProfile } from '../../types/profile'
@@ -456,6 +456,21 @@ export function HeroSection({ profile: rawProfile, showResume = false, onToggleR
             >
               <FileText size={16} />
               <span>简历</span>
+            </motion.button>
+
+            {/* 简历模板按钮 */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/resume-templates')}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all opacity-60 hover:opacity-80"
+              style={{
+                backgroundColor: 'transparent',
+                color: themeConfig.colors.text
+              }}
+            >
+              <Sparkles size={16} />
+              <span>模版</span>
             </motion.button>
           </div>
 
