@@ -30,6 +30,12 @@ export default defineConfig(({ mode }) => {
           target: 'https://mangdream.com',
           changeOrigin: true,
           secure: false,
+        },
+        '/api/stepfun': {
+          target: 'https://api.stepfun.com',
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api\/stepfun/, '')
         }
       }
     },

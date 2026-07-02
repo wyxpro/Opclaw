@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 import PageTransition from '../components/ui/PageTransition'
+import StepAudioLab from '../components/ai/StepAudioLab'
 
 // 历史实验记录数据 - Opclaw 项目开发历程
 const timelineData = [
@@ -304,7 +305,7 @@ function PlanCard({ plan, index }: { plan: typeof futurePlans[0]; index: number 
 export default function Laboratory() {
   const { themeConfig } = useTheme()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<'timeline' | 'plans'>('timeline')
+  const [activeTab, setActiveTab] = useState<'timeline' | 'plans' | 'audio'>('timeline')
 
   return (
     <PageTransition>
@@ -371,6 +372,18 @@ export default function Laboratory() {
                   <Rocket size={16} />
                   未来计划
                 </button>
+                <button
+                  onClick={() => setActiveTab('audio')}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
+                  style={{
+                    background: activeTab === 'audio' ? themeConfig.colors.surface : 'transparent',
+                    color: activeTab === 'audio' ? themeConfig.colors.primary : themeConfig.colors.textMuted,
+                    boxShadow: activeTab === 'audio' ? `0 2px 8px ${themeConfig.colors.primary}20` : 'none'
+                  }}
+                >
+                  <Wifi size={16} />
+                  语音模态 (Audio Lab)
+                </button>
               </div>
             </motion.div>
           </div>
@@ -395,7 +408,7 @@ export default function Laboratory() {
                     ))}
                   </div>
                 </motion.div>
-              ) : (
+              ) : activeTab === 'plans' ? (
                 <motion.div
                   key="plans"
                   initial={{ opacity: 0, y: 20 }}
@@ -409,6 +422,17 @@ export default function Laboratory() {
                       <PlanCard key={plan.id} plan={plan} index={index} />
                     ))}
                   </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="audio"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="py-6"
+                >
+                  <StepAudioLab />
                 </motion.div>
               )}
             </AnimatePresence>

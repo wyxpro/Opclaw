@@ -5,6 +5,10 @@
       "destination": "/api/proxy"
     },
     {
+      "source": "/api/stepfun/(.*)",
+      "destination": "https://api.stepfun.com/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
