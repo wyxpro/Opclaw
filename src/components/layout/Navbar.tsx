@@ -454,7 +454,7 @@ export default function Navbar() {
 
       {/* Mobile Bottom Tab Bar */}
       <nav 
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50"
+        className="md:hidden fixed bottom-0 left-0 right-0 mx-auto max-w-[480px] w-full z-50"
         style={{
           background: themeConfig.glassEffect.background,
           backdropFilter: themeConfig.glassEffect.backdropBlur,

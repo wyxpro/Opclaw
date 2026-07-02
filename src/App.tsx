@@ -33,10 +33,10 @@ function AppContent() {
   }, [location])
 
   return (
-    <div className="min-h-screen bg-bg text-text">
+    <div className="min-h-screen bg-bg text-text overflow-x-hidden">
       <StarCursor />
       <Navbar />
-      <main className="pt-0 md:pt-20 pb-20 md:pb-0">
+      <main className="pt-0 md:pt-20 pb-20 md:pb-0 mx-auto max-w-[480px] md:max-w-none w-full min-h-screen relative shadow-[0_0_50px_rgba(0,0,0,0.05)] md:shadow-none border-x border-border/10 md:border-none">
         <AnimatePresence mode="popLayout">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Home />} />
