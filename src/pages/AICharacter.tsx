@@ -525,6 +525,7 @@ export default function AICharacter() {
               onSendMessage={handleSendMessage}
               onEndCall={handleEndCall}
               onBackgroundChange={(newBg) => setBackground(newBg)}
+              isSpeaking={isSpeaking}
             />
           </div>
         )

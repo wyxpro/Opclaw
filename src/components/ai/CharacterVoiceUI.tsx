@@ -18,7 +18,7 @@ interface CharacterVoiceUIProps {
   style: CharacterStyle
   messages: Message[]
   isLoading: boolean
-  onSendMessage: (content: string) => void
+  onSendMessage: (content: string, attachments?: Message['attachments']) => void
   background?: string
   characterName?: string
   onStyleChange?: (style: CharacterStyle) => void
@@ -59,6 +59,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
   const [inputMode, setInputMode] = useState<'keyboard' | 'voice'>('keyboard')
   const [isPressing, setIsPressing] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [autoListenEnabled, setAutoListenEnabled] = useState(false)
 
   // 播放 UI 音效
   const playUISound = (type: 'start' | 'end' | 'toggle' | 'pop') => {
@@ -145,6 +146,13 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
     }
   }, [messages, isLoading])
 
+  // 退出组件时清理麦克风占用
+  useEffect(() => {
+    return () => {
+      sttService.stopRecording().catch(() => {})
+    }
+  }, [])
+
   const handleSendMessage = () => {
     if (userInput.trim()) {
       ttsService.stop()
@@ -153,10 +161,32 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
     }
   }
 
+  const startSilenceDetectionRecording = async () => {
+    try {
+      ttsService.stop()
+      setIsListening(true)
+      await sttService.startRecording(async () => {
+        setIsListening(false)
+        try {
+          const text = await sttService.stopRecording()
+          if (text.trim()) {
+            onSendMessage(text)
+          }
+        } catch (error) {
+          console.error('Transcription failed:', error)
+        }
+      })
+    } catch (error) {
+      console.error('Failed to start recording:', error)
+      setIsListening(false)
+    }
+  }
+
   const handleMicToggleInCall = async () => {
     playUISound('toggle')
     if (isListening) {
       setIsListening(false)
+      setAutoListenEnabled(false) // 手动暂停
       try {
         const text = await sttService.stopRecording()
         if (text.trim()) {
@@ -166,15 +196,20 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
         console.error('Transcription failed:', error)
       }
     } else {
-      try {
-        ttsService.stop()
-        await sttService.startRecording()
-        setIsListening(true)
-      } catch (error) {
-        console.error('Failed to start recording:', error)
-      }
+      setAutoListenEnabled(true)
+      await startSilenceDetectionRecording()
     }
   }
+
+  // 实时语音交流核心：在通话模式且开启了自动监听时，当数字人播放完声音并且没有在加载回复时，自动恢复录音
+  useEffect(() => {
+    if (chatMode === 'call' && autoListenEnabled && !isSpeaking && !isLoading && !isListening) {
+      const timer = setTimeout(() => {
+        startSilenceDetectionRecording()
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [isSpeaking, chatMode, isLoading, autoListenEnabled, isListening])
 
   const handlePressStart = async () => {
     try {
@@ -220,13 +255,18 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,.gltf,.glb,.obj,.fbx"
+        accept="image/*"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0]
-          if (file && onBackgroundChange) {
+          if (file) {
             const url = URL.createObjectURL(file)
-            onBackgroundChange(url)
+            onSendMessage('[图片]', [{
+              type: 'image',
+              url: url,
+              name: file.name
+            }])
+            e.target.value = ''
           }
         }}
       />
@@ -294,6 +334,21 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                             }}
                             className="w-0.5 rounded-full bg-cyan-400"
                           />
+                        ))}
+                      </div>
+                    )}
+                    {msg.attachments && msg.attachments.length > 0 && (
+                      <div className="mt-2 flex flex-col gap-2">
+                        {msg.attachments.map((attachment, i) => (
+                          attachment.type === 'image' && (
+                            <img 
+                              key={i} 
+                              src={attachment.url} 
+                              alt={attachment.name || 'image'} 
+                              className="max-w-[200px] max-h-[200px] rounded-lg object-cover cursor-pointer hover:opacity-90 transition-opacity border border-white/10"
+                              onClick={() => window.open(attachment.url, '_blank')}
+                            />
+                          )
                         ))}
                       </div>
                     )}
@@ -375,6 +430,7 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                     onClick={() => {
                       playUISound('start')
                       setChatMode('call')
+                      setAutoListenEnabled(true)
                     }}
                     className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-xl transition-all active:scale-90 hover:bg-emerald-600 border-2 border-emerald-400/20 shrink-0"
                   >
@@ -450,6 +506,11 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                   onClick={() => {
                     playUISound('end')
                     setChatMode('text')
+                    setAutoListenEnabled(false)
+                    if (isListening) {
+                      setIsListening(false)
+                      sttService.stopRecording().catch(console.error)
+                    }
                     if (onEndCall) onEndCall()
                   }}
                   className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.4)] border-2 border-white/20"
@@ -463,6 +524,11 @@ export const CharacterVoiceUI: React.FC<CharacterVoiceUIProps> = ({
                   onClick={() => {
                     playUISound('end')
                     setChatMode('text')
+                    setAutoListenEnabled(false)
+                    if (isListening) {
+                      setIsListening(false)
+                      sttService.stopRecording().catch(console.error)
+                    }
                   }}
                   className="flex flex-col items-center gap-4 cursor-pointer group"
                 >

@@ -18,12 +18,13 @@ interface CharacterChatProps {
   isLoading: boolean
   themeConfig: ThemeConfig
   customAvatar?: { type: 'image' | 'video' | 'custom', url: string, style?: string } | null
-  onSendMessage: (content: string) => void
+  onSendMessage: (content: string, attachments?: Message['attachments']) => void
   onEndCall: () => void
   onBackgroundChange?: (background: string) => void
+  isSpeaking?: boolean
 }
 
-export function CharacterChat({ style, messages, isLoading, themeConfig, customAvatar, onSendMessage, onEndCall, onBackgroundChange }: CharacterChatProps) {
+export function CharacterChat({ style, messages, isLoading, themeConfig, customAvatar, onSendMessage, onEndCall, onBackgroundChange, isSpeaking = false }: CharacterChatProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isListening, setIsListening] = useState(false)
   const [userInput, setUserInput] = useState('')
@@ -32,6 +33,7 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
   const [inputMode, setInputMode] = useState<'keyboard' | 'voice'>('keyboard')
   const [isPressing, setIsPressing] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [autoListenEnabled, setAutoListenEnabled] = useState(false)
 
   const emojis = [
     '😊', '😂', '😍', '🤔', '😎', '🙌', '🔥', '✨', '❤️', '👍', '🎉', '🌟', 
@@ -116,6 +118,13 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
     }
   }, [messages, isLoading])
 
+  // 退出组件时清理麦克风占用
+  useEffect(() => {
+    return () => {
+      sttService.stopRecording().catch(() => {})
+    }
+  }, [])
+
   const handleSendMessage = () => {
     if (userInput.trim()) {
       ttsService.stop()
@@ -131,11 +140,32 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
     }
   }
 
+  const startSilenceDetectionRecording = async () => {
+    try {
+      ttsService.stop()
+      setIsListening(true)
+      await sttService.startRecording(async () => {
+        setIsListening(false)
+        try {
+          const text = await sttService.stopRecording()
+          if (text.trim()) {
+            onSendMessage(text)
+          }
+        } catch (error) {
+          console.error('Transcription failed:', error)
+        }
+      })
+    } catch (error) {
+      console.error('Failed to start recording:', error)
+      setIsListening(false)
+    }
+  }
+
   const handleMicToggleInCall = async () => {
     playUISound('toggle')
     if (isListening) {
-
       setIsListening(false)
+      setAutoListenEnabled(false) // 手动暂停
       try {
         const text = await sttService.stopRecording()
         if (text.trim()) {
@@ -145,15 +175,20 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
         console.error('Transcription failed:', error)
       }
     } else {
-      try {
-        ttsService.stop()
-        await sttService.startRecording()
-        setIsListening(true)
-      } catch (error) {
-        console.error('Failed to start recording:', error)
-      }
+      setAutoListenEnabled(true)
+      await startSilenceDetectionRecording()
     }
   }
+
+  // 实时语音交流核心：在通话模式且开启了自动监听时，当数字人播放完声音并且没有在加载回复时，自动恢复录音
+  useEffect(() => {
+    if (chatMode === 'call' && autoListenEnabled && !isSpeaking && !isLoading && !isListening) {
+      const timer = setTimeout(() => {
+        startSilenceDetectionRecording()
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [isSpeaking, chatMode, isLoading, autoListenEnabled, isListening])
 
   const handlePressStart = async () => {
     try {
@@ -241,6 +276,21 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
                         ))}
                       </div>
                     )}
+                    {msg.attachments && msg.attachments.length > 0 && (
+                      <div className="mt-2 flex flex-col gap-2">
+                        {msg.attachments.map((attachment, i) => (
+                          attachment.type === 'image' && (
+                            <img 
+                              key={i} 
+                              src={attachment.url} 
+                              alt={attachment.name || 'image'} 
+                              className="max-w-[200px] max-h-[200px] rounded-lg object-cover cursor-pointer hover:opacity-90 transition-opacity border border-white/10"
+                              onClick={() => window.open(attachment.url, '_blank')}
+                            />
+                          )
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -288,13 +338,18 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*,.gltf,.glb,.obj,.fbx"
+                  accept="image/*"
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0]
-                    if (file && onBackgroundChange) {
+                    if (file) {
                       const url = URL.createObjectURL(file)
-                      onBackgroundChange(url)
+                      onSendMessage('[图片]', [{
+                        type: 'image',
+                        url: url,
+                        name: file.name
+                      }])
+                      e.target.value = ''
                     }
                   }}
                 />
@@ -334,6 +389,7 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
                   onClick={() => {
                     playUISound('start')
                     setChatMode('call')
+                    setAutoListenEnabled(true)
                   }}
                   className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-xl transition-all active:scale-90 hover:bg-emerald-600 border-2 border-emerald-400/20 shrink-0"
                 >
@@ -408,6 +464,11 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
                   onClick={() => {
                     playUISound('end')
                     setChatMode('text')
+                    setAutoListenEnabled(false)
+                    if (isListening) {
+                      setIsListening(false)
+                      sttService.stopRecording().catch(console.error)
+                    }
                     onEndCall()
                   }}
 
@@ -419,7 +480,14 @@ export function CharacterChat({ style, messages, isLoading, themeConfig, customA
 
               {/* 语音输入的波浪动态显示代替原来的返回按钮 */}
               <div 
-                onClick={() => setChatMode('text')}
+                onClick={() => {
+                  setChatMode('text')
+                  setAutoListenEnabled(false)
+                  if (isListening) {
+                    setIsListening(false)
+                    sttService.stopRecording().catch(console.error)
+                  }
+                }}
                 className="flex flex-col items-center gap-4 cursor-pointer group pb-4 pointer-events-auto"
               >
                 <VoiceWaveAnimation isListening={isListening} />
