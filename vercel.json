@@ -13,6 +13,10 @@
       "destination": "https://api-inference.modelscope.cn/$1"
     },
     {
+      "source": "/api/dxkp/(.*)",
+      "destination": "https://ai.dxkp.com/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

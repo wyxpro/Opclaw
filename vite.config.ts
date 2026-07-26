@@ -20,13 +20,26 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_SILICONFLOW_API_KEY': JSON.stringify(env.VITE_SILICONFLOW_API_KEY || ''),
       'import.meta.env.VITE_DEEPSEEK_PROXY_KEY': JSON.stringify(env.VITE_DEEPSEEK_PROXY_KEY || ''),
       'import.meta.env.VITE_DEEPSEEK_PROXY_URL': JSON.stringify(env.VITE_DEEPSEEK_PROXY_URL || ''),
-      'import.meta.env.VITE_MODEL_SCOPE_API_KEY': JSON.stringify(env.VITE_MODEL_SCOPE_API_KEY || ''),
+      'import.meta.env.VITE_DEEPSEEK_V4_FLASH_API_KEY': JSON.stringify(env.VITE_DEEPSEEK_V4_FLASH_API_KEY || ''),
+      'import.meta.env.VITE_DEEPSEEK_V4_FLASH_BASE_URL': JSON.stringify(env.VITE_DEEPSEEK_V4_FLASH_BASE_URL || ''),
       __SB_URL__: JSON.stringify(env.VITE_SUPABASE_URL || ''),
       __SB_ANON__: JSON.stringify(env.VITE_SUPABASE_ANON_KEY || ''),
     },
     server: {
       port: 5177,
       proxy: {
+        '/api/dxkp': {
+          target: 'https://ai.dxkp.com',
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api\/dxkp/, ''),
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq) => {
+              proxyReq.setHeader('Origin', 'https://ai.dxkp.com')
+              proxyReq.setHeader('Referer', 'https://ai.dxkp.com/')
+            })
+          }
+        },
         '/api/innoreation/v1/proxy': {
           target: 'https://mangdream.com',
           changeOrigin: true,

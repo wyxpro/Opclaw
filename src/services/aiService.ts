@@ -1,6 +1,7 @@
 import { getSupabaseClient } from '../lib/supabase'
 import { ragEngine } from '../lib/ragEngine'
 import { useSentioAgentStore } from '../lib/sentioStore'
+import { deepseekClient } from './deepseek/deepseekClient'
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
@@ -8,7 +9,7 @@ export interface ChatMessage {
 }
 
 /**
- * AI Service to handle RAG and Chat logic using deepseek-v4-pro
+ * AI Service to handle RAG and Chat logic using DeepSeek-V4-Flash
  */
 export const aiService = {
   /**
@@ -66,99 +67,71 @@ ${context}
   },
 
   /**
-   * Call the DeepSeek API (via Cloud Proxy) with Streaming
+   * Call DeepSeek-V4-Flash API with Streaming
    */
   async streamChat(messages: ChatMessage[], onChunk: (chunk: string) => void) {
     try {
       const agentStore = useSentioAgentStore.getState()
-      
-      let apiKey = import.meta.env.VITE_DEEPSEEK_PROXY_KEY
-      let proxyUrl = import.meta.env.VITE_DEEPSEEK_PROXY_URL || '/api/innoreation/v1/proxy'
-      let selectedModel = 'deepseek-v4-pro'
-      let isCustomAgent = false
-
       const customBaseUrl = agentStore.settings?.base_url
       const isUrlValid = typeof customBaseUrl === 'string' && (customBaseUrl.startsWith('http://') || customBaseUrl.startsWith('https://'))
 
       if (agentStore.settings?.api_key && isUrlValid) {
-        apiKey = agentStore.settings.api_key
-        proxyUrl = agentStore.settings.base_url
-        selectedModel = agentStore.settings.model || 'deepseek-chat'
-        isCustomAgent = true
-      } else {
-        selectedModel = (agentStore.enable && agentStore.engine !== 'default') 
-          ? agentStore.engine 
-          : 'deepseek-v4-pro'
-      }
+        const apiKey = agentStore.settings.api_key
+        const proxyUrl = agentStore.settings.base_url.endsWith('/chat/completions')
+          ? agentStore.settings.base_url
+          : agentStore.settings.base_url.replace(/\/$/, '') + '/chat/completions'
+        const selectedModel = agentStore.settings.model || 'deepseek-chat'
 
-      if (!apiKey && !isCustomAgent) {
-        await this.simulateStreaming('⚠️ 抱歉，我检测到 API Key 尚未配置。请在 .env 文件中设置 VITE_DEEPSEEK_PROXY_KEY 以开启真实的 AI 分身对话功能。', onChunk)
-        return
-      }
+        const response = await fetch(proxyUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: selectedModel,
+            messages,
+            stream: true,
+            temperature: 0.7,
+          }),
+        })
 
-      let requestUrl = proxyUrl
-      if (isCustomAgent) {
-        if (!requestUrl.endsWith('/chat/completions')) {
-          requestUrl = requestUrl.replace(/\/$/, '') + '/chat/completions'
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(`API Error: ${response.status} ${JSON.stringify(errorData)}`)
         }
-      } else {
-        requestUrl = `${proxyUrl}/chat/completions`
-      }
 
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      }
-      if (isCustomAgent) {
-        headers['Authorization'] = `Bearer ${apiKey}`
-      } else {
-        headers['X-Proxy-Key'] = apiKey
-      }
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+        if (!reader) throw new Error('No reader found')
 
-      const response = await fetch(requestUrl, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          model: selectedModel,
-          messages: messages,
-          stream: true,
-          temperature: 0.7,
-        }),
-      })
+        let buffer = ''
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(`API Error: ${response.status} ${JSON.stringify(errorData)}`)
-      }
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() || ''
 
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
+          for (const line of lines) {
+            const trimmed = line.trim()
+            if (!trimmed || trimmed === 'data: [DONE]') continue
 
-      if (!reader) throw new Error('No reader found')
-
-      let buffer = ''
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
-
-        for (const line of lines) {
-          const trimmed = line.trim()
-          if (!trimmed || trimmed === 'data: [DONE]') continue
-          
-          if (trimmed.startsWith('data: ')) {
-            try {
-              const jsonStr = trimmed.slice(6)
-              const data = JSON.parse(jsonStr)
-              const content = data.choices[0]?.delta?.content || ''
-              if (content) onChunk(content)
-            } catch (e) {
-              // Ignore parse errors for partial chunks
+            if (trimmed.startsWith('data: ')) {
+              try {
+                const jsonStr = trimmed.slice(6)
+                const data = JSON.parse(jsonStr)
+                const content = data.choices[0]?.delta?.content || ''
+                if (content) onChunk(content)
+              } catch (e) {
+                // Ignore parse errors
+              }
             }
           }
         }
+      } else {
+        await deepseekClient.streamChat(messages, onChunk)
       }
     } catch (error: any) {
       console.error('Chat Error:', error)
@@ -177,3 +150,4 @@ ${context}
     }
   }
 }
+
